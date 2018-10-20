@@ -11,7 +11,7 @@ def bron_kerbosch2(NEIGHBORS, clique, candidates, excluded, reporter):
             reporter.record(clique)
         return
 
-    pivot = pick_random(candidates) or pick_random(excluded)
+    pivot = pick_random(candidates or excluded)
     for v in list(candidates.difference(NEIGHBORS[pivot])):
         new_candidates = candidates.intersection(NEIGHBORS[v])
         new_excluded = excluded.intersection(NEIGHBORS[v])

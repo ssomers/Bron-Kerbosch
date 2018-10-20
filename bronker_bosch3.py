@@ -4,11 +4,28 @@ from bronker_bosch2 import bron_kerbosch2
 MIN_SIZE = 3
 
 
-def bron_kerbosch3(NEIGHBORS, clique, candidates, excluded, reporter):
-    '''Bron–Kerbosch algorithm with pivot and degeneracy ordering'''
+def bron_kerbosch4(NEIGHBORS, clique, candidates, excluded, reporter):
+    '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
+    recursing into bron_kerbosch2'''
     reporter.inc_count()
     if not candidates and not excluded:
         assert len(clique) == 0
+        return
+
+    for v in list(degeneracy_order(NEIGHBORS, candidates)):
+        new_candidates = candidates.intersection(NEIGHBORS[v])
+        new_excluded = excluded.intersection(NEIGHBORS[v])
+        bron_kerbosch2(NEIGHBORS, clique + [v], new_candidates, new_excluded,
+                       reporter)
+        candidates.remove(v)
+        excluded.add(v)
+
+
+def bron_kerbosch3(NEIGHBORS, clique, candidates, excluded, reporter):
+    '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
+    recursing into itself'''
+    reporter.inc_count()
+    if not candidates and not excluded:
         if len(clique) >= MIN_SIZE:
             reporter.record(clique)
         return
@@ -16,7 +33,7 @@ def bron_kerbosch3(NEIGHBORS, clique, candidates, excluded, reporter):
     for v in list(degeneracy_order(NEIGHBORS, candidates)):
         new_candidates = candidates.intersection(NEIGHBORS[v])
         new_excluded = excluded.intersection(NEIGHBORS[v])
-        bron_kerbosch2(NEIGHBORS, clique + [v], new_candidates, new_excluded,
+        bron_kerbosch3(NEIGHBORS, clique + [v], new_candidates, new_excluded,
                        reporter)
         candidates.remove(v)
         excluded.add(v)
