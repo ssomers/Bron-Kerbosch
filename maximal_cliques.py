@@ -2,14 +2,14 @@
 
 from bronker_bosch1 import bron_kerbosch1
 from bronker_bosch2 import bron_kerbosch2
-from bronker_bosch3 import bron_kerbosch4, bron_kerbosch3
+from bronker_bosch3 import bron_kerbosch3, bron_kerbosch4
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import Graph
 from reporter import Reporter
 import random
 import time
 
-funcs = [bron_kerbosch1, bron_kerbosch2, bron_kerbosch4, bron_kerbosch3]
+funcs = [bron_kerbosch1, bron_kerbosch2, bron_kerbosch3, bron_kerbosch4]
 
 
 def test_on_graph(graph: Graph):
@@ -28,30 +28,32 @@ def test_on_graph(graph: Graph):
         except RecursionError:
             result = f'recursed out (adjacency_list={graph.adjacency_list})'
         else:
-            seconds_spent = time.process_time() - begin
+            seconds = time.process_time() - begin
             current = sorted(sorted(clique) for clique in report.cliques)
             if first is None:
                 first = current
             if first == current:
-                result = f'OK, {seconds_spent:4.1f}s, {report.cnt} recursive calls'
+                result = f'OK, {seconds:4.1f}s, {report.cnt} recursive calls'
             else:
                 result = f'oops, {first} != {current}'
         print(f'## {func.__name__}@{graph.name}: {result}')
 
 
 def random_graph(order, size):
-    assert order > 1
     assert size < order * (order - 1) // 2
-    vertices = list(range(1, order + 1))
+    vertices = range(1, order + 1)
+    unsaturated_vertices = list(vertices)
     a = [None] + [[] for _ in range(order)]
-    s = 0
-    while s < size:
-        v, w = random.choices(vertices, k=2)
-        if v != w and w not in a[v]:
-            assert v not in a[w]
-            a[v] += [w]
-            a[w] += [v]
-            s += 1
+    for _ in range(size):
+        v = random.choice(unsaturated_vertices)
+        w = random.choice([w for w in vertices if w != v and w not in a[v]])
+        assert v not in a[w]
+        a[v] += [w]
+        a[w] += [v]
+        if len(a[v]) == order - 1:
+            unsaturated_vertices.remove(v)
+        if len(a[w]) == order - 1:
+            unsaturated_vertices.remove(w)
     return Graph(name=f'random_of_order_{order}_size_{size}', adjacency_list=a)
 
 
