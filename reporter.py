@@ -1,9 +1,20 @@
 # coding: utf-8
 
+from abc import abstractmethod, ABCMeta
 
-class Reporter(object):
-    def __init__(self, name):
-        self.name = name
+
+class Reporter(metaclass=ABCMeta):
+    @abstractmethod
+    def inc_count(self):
+        pass
+
+    @abstractmethod
+    def record(self, clique):
+        pass
+
+
+class SimpleReporter(Reporter):
+    def __init__(self):
         self.cnt = 0
         self.cliques = []
 
@@ -11,11 +22,5 @@ class Reporter(object):
         self.cnt += 1
 
     def record(self, clique):
-        self.cliques.append(clique)
-
-    def print_report(self):
-        print(self.name)
-        print(f'{self.cnt} recursive calls')
-        for i, clique in enumerate(self.cliques):
-            print(f'{i}: {clique}')
-        print
+        if len(clique) > 1:
+            self.cliques.append(clique)

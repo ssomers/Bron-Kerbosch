@@ -1,24 +1,27 @@
-class Graph(object):
-    def __init__(self, name, adjacency_list):
-        self.name = name
-        self.adjacency_list = adjacency_list
-        self.validate()
+from typing import List, Optional, Set
 
-    def validate(self):
-        assert self.adjacency_list[0] is None
-        for v, neighbours in enumerate(self.adjacency_list):
+
+class Graph(object):
+    def __init__(self, adjacencies: List[Set[int]],
+                 name: Optional[str] = None):
+        for v, adjacent_to_v in enumerate(adjacencies):
             if v == 0:
-                assert neighbours is None  # start from index 1
-                continue
-            for n in neighbours:
-                assert n != v
-                assert v in self.adjacency_list[
-                    n], f'{v} not in neighbours of {n}'
+                assert adjacent_to_v is None, "start at index 1"
+            else:
+                for w in adjacent_to_v:
+                    assert w != v
+                    assert v in adjacencies[w], (
+                        f'{w} is adjacent to {v} but not vice versa')
+        self.adjacencies = adjacencies
+        self.name = name
 
     @property
     def order(self):
-        return len(self.adjacency_list) - 1
+        return len(self.adjacencies) - 1
 
     @property
     def nodes(self):
-        return range(1, len(self.adjacency_list))
+        return range(1, len(self.adjacencies))
+
+    def connected_nodes(self):
+        return {n for n in self.nodes if self.adjacencies[n]}
