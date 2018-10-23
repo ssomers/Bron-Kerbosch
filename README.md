@@ -1,38 +1,22 @@
 ## What is this?
 
-Performance comparison of three Bron–Kerbosch algorithm implementations that find all maximal cliques in a graph. 
+Performance comparison of three Bron–Kerbosch algorithm implementations that find all maximal cliques in a graph.
+Compared to the original, converted from python 2 to python 3.7, (hopefully) clarified, extended with big random graphs, and a few unit tests.
+
 
 ## Implementations
 
 * **Ver1:** naive Bron–Kerbosch algorithm
 * **Ver2:** Ver1 with pivot
 * **Ver3:** Ver2 with degeneracy ordering
+* **Ver4:** Ver2 slightly optimized
+* **Ver6:** Ver3 recursing
 
 ## Run
 
-    python maximal_cliques.py
+    python -O test_maximal_cliques.py
 
-## Result
 
-Stdout result for the sample data
-
-    ## Naive Bron–Kerbosch algorithm
-    26 recursive calls
-    0: [1, 2, 3, 4]
-    1: [2, 3, 5]
-    2: [5, 6, 7]
-
-    ## Bron–Kerbosch algorithm with pivot
-    14 recursive calls
-    0: [1, 2, 3, 4]
-    1: [5, 2, 3]
-    2: [5, 6, 7]
-
-    ## Bron–Kerbosch algorithm with pivot and degeneracy ordering
-    19 recursive calls
-    0: [6, 5, 7]
-    1: [5, 2, 3]
-    2: [1, 2, 3, 4]
 
 ## Time Comlexity
 
