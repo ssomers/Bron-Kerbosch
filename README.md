@@ -17,6 +17,11 @@ Compared to the original, converted from python 2 to python 3.7, (hopefully) cla
     python -O test_maximal_cliques.py
 
 
+## Test
+- Manually:
+    pytest
+- On AppVeyor: [![AppVeyor Build Status](https://ci.appveyor.com/project/status/github/ssomers/bron-kerbosch?svg=true&branch=master)](https://ci.appveyor.com/project/ssomers/bron-kerbosch)
+
 
 ## Time Comlexity
 
