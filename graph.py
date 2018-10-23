@@ -1,27 +1,25 @@
 from typing import List, Optional, Set
 
 
-class Graph(object):
+class UndirectedGraph(object):
     def __init__(self, adjacencies: List[Set[int]],
                  name: Optional[str] = None):
         for v, adjacent_to_v in enumerate(adjacencies):
-            if v == 0:
-                assert adjacent_to_v is None, "start at index 1"
-            else:
-                for w in adjacent_to_v:
-                    assert w != v
-                    assert v in adjacencies[w], (
-                        f'{w} is adjacent to {v} but not vice versa')
+            for w in adjacent_to_v:
+                assert v != w
+                assert v in adjacencies[w], (
+                    f'{w} is adjacent to {v} but not vice versa')
         self.adjacencies = adjacencies
         self.name = name
 
     @property
-    def order(self):
-        return len(self.adjacencies) - 1
+    def order(self) -> int:
+        return len(self.adjacencies)
 
-    @property
-    def nodes(self):
-        return range(1, len(self.adjacencies))
+    def size(self) -> int:
+        total = sum(len(a) for a in self.adjacencies)
+        assert total % 2 == 0
+        return total // 2
 
-    def connected_nodes(self):
-        return {n for n in self.nodes if self.adjacencies[n]}
+    def connected_nodes(self) -> Set[int]:
+        return {n for n in range(self.order) if self.adjacencies[n]}

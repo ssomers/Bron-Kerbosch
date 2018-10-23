@@ -4,10 +4,12 @@ from bronker_bosch1 import bron_kerbosch1
 from bronker_bosch2 import bron_kerbosch2, bron_kerbosch4
 from bronker_bosch3 import bron_kerbosch3, bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
-from graph import Graph
+from graph import UndirectedGraph as Graph
 from reporter import SimpleReporter
 import random
+import sys
 import time
+from typing import List, Set
 
 funcs = {
     bron_kerbosch1: 100,
@@ -18,9 +20,10 @@ funcs = {
 }
 
 
-def bron_kerbosch(graph: Graph):
+def bron_kerbosch(graph: Graph) -> List[List[int]]:
     first = None
     for func, repeat in funcs.items():
+        assert repeat > 0
         begin = time.process_time()
         result = None
         for _ in range(repeat):
@@ -45,22 +48,24 @@ def bron_kerbosch(graph: Graph):
                 result = f'{seconds:7.3f}s, {reporter.cnt} recursive calls'
         if result:
             print(f'{func.__name__}@{graph.name}: {result}')
+    if first is None:
+        raise ValueError
     return first
 
 
-def random_graph(order, size):
+def random_graph(order: int, size: int) -> Graph:
     assert size < order * (order - 1) // 2
     begin = time.process_time()
     name = f'random_of_order_{order}_size_{size}'
-    vertices = range(1, order + 1)
+    vertices = range(order)
     unsaturated_vertices = list(vertices)
-    adjacency_sets = [None] + [set() for _ in range(order)]
-    adjacency_complements = [None] + [None for _ in range(order)]
+    adjacency_sets: List[Set[int]] = [set() for _ in range(order)]
+    adjacency_complements: List[Set[int]] = [set()] * order
     for _ in range(size):
         v = random.choice(unsaturated_vertices)
         assert len(adjacency_sets[v]) < order - 1
         if adjacency_complements[v]:
-            w = random.choice(adjacency_complements[v])
+            w = random.sample(adjacency_complements[v], 1)[0]
         else:
             w = v
             while w == v or w in adjacency_sets[v]:
@@ -68,55 +73,50 @@ def random_graph(order, size):
         assert v != w
         assert w not in adjacency_sets[v]
         assert v not in adjacency_sets[w]
-        adjacency_sets[v].add(w)
-        adjacency_sets[w].add(v)
-        if adjacency_complements[v]:
-            adjacency_complements[v].remove(w)
-        if adjacency_complements[w]:
-            adjacency_complements[w].remove(v)
-        for x in (v, w):
-            if len(adjacency_sets[x]) == order - 1:
+        for x, y in [(v, w), (w, v)]:
+            adjacency_sets[x].add(y)
+            neighbours = len(adjacency_sets[x])
+            if neighbours == order - 1:
                 unsaturated_vertices.remove(x)
-            elif len(adjacency_sets[x]) == order // 2:
-                assert adjacency_complements[x] is None
-                other_vertices = list(unsaturated_vertices)
-                other_vertices.remove(x)
-                for y in adjacency_sets[x]:
-                    other_vertices.remove(y)
-                adjacency_complements[x] = other_vertices
+            elif neighbours == order // 2:
+                # start using adjacency complement
+                assert not adjacency_complements[x]
+                adjacency_complements[x] = (
+                    set(unsaturated_vertices) - {x} - adjacency_sets[x])
+            elif neighbours > order // 2:
+                adjacency_complements[x].remove(y)
     seconds = time.process_time() - begin
     print(f'spent {seconds:.2f}s generating {name}')
     g = Graph(name=name, adjacencies=adjacency_sets)
     assert g.order == order
+    assert g.size() == size
     return g
 
 
-if __name__ == '__main__':
-    size_by_order = {
-        10: [20],
-        100: [200],
-        1000: [2000],
-        10000: [5000, 10000, 15000, 20000],
-    }
-    for order, sizes in size_by_order.items():
-        for size in sizes:
-            bron_kerbosch(random_graph(order=order, size=size))
+def test_order_0():
+    assert bron_kerbosch(Graph(adjacencies=[])) == []
 
 
-def test_empty():
-    assert bron_kerbosch(Graph(adjacencies=[None])) == []
+def test_order_1():
+    assert bron_kerbosch(Graph(adjacencies=[set()])) == []
 
 
-def test_one():
-    assert bron_kerbosch(Graph(adjacencies=[None, []])) == []
+def test_order_2_isolated():
+    assert bron_kerbosch(Graph(adjacencies=[set(), set()])) == []
 
 
-def test_two_isolated():
-    assert bron_kerbosch(Graph(adjacencies=[None, [], []])) == []
+def test_order_2_connected():
+    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}])) == [[0, 1]]
 
 
-def test_two_connected():
-    assert bron_kerbosch(Graph(adjacencies=[None, [2], [1]])) == [[1, 2]]
+def test_order_3_size_1():
+    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, set()])) == [[0, 1]]
+    assert bron_kerbosch(Graph(adjacencies=[set(), {2}, {1}])) == [[1, 2]]
+
+
+def test_order_3_size_2():
+    assert bron_kerbosch(Graph(adjacencies=[{1}, {0, 2}, {1}])) == [[0, 1],
+                                                                    [1, 2]]
 
 
 def test_sample():
@@ -125,3 +125,27 @@ def test_sample():
         [2, 3, 5],
         [5, 6, 7],
     ]
+
+
+def test_random_graph():
+    random_graph(order=2, size=0)
+    random_graph(order=3, size=0)
+    random_graph(order=3, size=1)
+    random_graph(order=3, size=2)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        size_by_order = {
+            int(sys.argv[1]): [int(size) for size in sys.argv[2:]]
+        }
+    else:
+        size_by_order = {
+            10: [20],
+            100: [200],
+            1000: [2000],
+            10000: [5000, 10000, 15000, 20000],
+        }
+    for order, sizes in size_by_order.items():
+        for size in sizes:
+            bron_kerbosch(random_graph(order=order, size=size))

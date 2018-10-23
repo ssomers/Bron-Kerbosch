@@ -1,5 +1,5 @@
 image: ubuntu
 stack: python 3.7
-build: false
-install: pip install pytest
-test_script: pytest .
+install: pip install mypy pytest
+build_script: mypy --cache-dir=/dev/null .
+test_script: pytest -p no:cacheprovider .
