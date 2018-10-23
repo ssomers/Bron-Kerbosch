@@ -1,3 +1,4 @@
 image: ubuntu
 stack: python 3.7
+build: false
 test_script: pytest .
