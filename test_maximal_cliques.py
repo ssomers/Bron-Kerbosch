@@ -11,22 +11,42 @@ import sys
 import time
 from typing import List, Set
 
-funcs = {
-    bron_kerbosch1: 100,
-    bron_kerbosch2: 100,
-    bron_kerbosch4: 100,
-    bron_kerbosch3: 1,
-    bron_kerbosch6: 1,
-}
+funcs = [
+    bron_kerbosch1,
+    bron_kerbosch2,
+    bron_kerbosch4,
+    bron_kerbosch3,
+    bron_kerbosch6,
+]
 
 
 def bron_kerbosch(graph: Graph) -> List[List[int]]:
+    assert not graph.name
     first = None
-    for func, repeat in funcs.items():
-        assert repeat > 0
+    for func in funcs:
+        reporter = SimpleReporter()
+        func(
+            NEIGHBORS=graph.adjacencies,
+            clique=[],
+            candidates=graph.connected_nodes(),
+            excluded=set(),
+            reporter=reporter)
+        current = sorted(sorted(clique) for clique in reporter.cliques)
+        if first is None:
+            first = current
+        elif first != current:
+            raise ValueError(f'oops, {first} != {current}')
+    return first
+
+
+def bron_kerbosch_manual(graph: Graph):
+    repeats = 7
+    assert graph.name
+    first = None
+    for func in funcs:
         begin = time.process_time()
         result = None
-        for _ in range(repeat):
+        for _ in range(repeats):
             reporter = SimpleReporter()
             try:
                 func(
@@ -36,21 +56,19 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
                     excluded=set(),
                     reporter=reporter)
             except RecursionError:
-                result = f'recursed out (adjacencies={graph.adjacencies})'
+                result = 'recursed out'
         if result is None:
-            seconds = (time.process_time() - begin) / repeat
+            seconds = (time.process_time() - begin) / repeats
             current = sorted(sorted(clique) for clique in reporter.cliques)
             if first is None:
                 first = current
-            if first != current:
+            elif first != current:
                 result = f'oops, {first} != {current}'
-            elif graph.name:
-                result = f'{seconds:7.3f}s, {reporter.cnt} recursive calls'
-        if result:
-            print(f'{func.__name__}@{graph.name}: {result}')
+            if result is None:
+                result = f'{seconds:5.2f}s, {reporter.cnt} recursive calls'
+        print(f'{func.__name__}@{graph.name}: {result}')
     if first is None:
         raise ValueError
-    return first
 
 
 def random_graph(order: int, size: int) -> Graph:
@@ -86,7 +104,10 @@ def random_graph(order: int, size: int) -> Graph:
             elif neighbours > order // 2:
                 adjacency_complements[x].remove(y)
     seconds = time.process_time() - begin
-    print(f'spent {seconds:.2f}s generating {name}')
+    contents = ''
+    if order < 10:
+        contents = ' ' + repr(adjacency_sets)
+    print(f'spent {seconds:.2f}s generating {name}{contents}')
     g = Graph(name=name, adjacencies=adjacency_sets)
     assert g.order == order
     assert g.size() == size
@@ -98,11 +119,11 @@ def test_order_0():
 
 
 def test_order_1():
-    assert bron_kerbosch(Graph(adjacencies=[set()])) == []
+    assert bron_kerbosch(Graph(adjacencies=[[]])) == []
 
 
 def test_order_2_isolated():
-    assert bron_kerbosch(Graph(adjacencies=[set(), set()])) == []
+    assert bron_kerbosch(Graph(adjacencies=[[], []])) == []
 
 
 def test_order_2_connected():
@@ -110,13 +131,39 @@ def test_order_2_connected():
 
 
 def test_order_3_size_1():
-    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, set()])) == [[0, 1]]
-    assert bron_kerbosch(Graph(adjacencies=[set(), {2}, {1}])) == [[1, 2]]
+    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, []])) == [[0, 1]]
+    assert bron_kerbosch(Graph(adjacencies=[[], {2}, {1}])) == [[1, 2]]
 
 
 def test_order_3_size_2():
     assert bron_kerbosch(Graph(adjacencies=[{1}, {0, 2}, {1}])) == [[0, 1],
                                                                     [1, 2]]
+
+
+def test_order_4_size_2_isolated():
+    assert bron_kerbosch(Graph(adjacencies=[{1, 2}, {0}, {0}, []])) == [[0, 1],
+                                                                        [0, 2]]
+
+
+def test_order_4_size_2_connected():
+    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, {3}, {2}])) == [[0, 1],
+                                                                      [2, 3]]
+
+
+def test_order_4_size_4_p():
+    assert bron_kerbosch(
+        Graph(adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}])) == [[0, 1],
+                                                                 [1, 2, 3]]
+
+
+def test_order_4_size_4_square():
+    assert bron_kerbosch(
+        Graph(adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}])) == [
+            [0, 1],
+            [0, 3],
+            [1, 2],
+            [2, 3],
+        ]
 
 
 def test_sample():
@@ -132,9 +179,16 @@ def test_random_graph():
     random_graph(order=3, size=0)
     random_graph(order=3, size=1)
     random_graph(order=3, size=2)
+    random_graph(order=4, size=0)
+    random_graph(order=4, size=1)
+    random_graph(order=4, size=2)
+    random_graph(order=4, size=3)
+    random_graph(order=4, size=4)
+    random_graph(order=4, size=5)
 
 
 if __name__ == '__main__':
+    random.seed(19680516)
     if len(sys.argv) > 1:
         size_by_order = {
             int(sys.argv[1]): [int(size) for size in sys.argv[2:]]
@@ -148,4 +202,4 @@ if __name__ == '__main__':
         }
     for order, sizes in size_by_order.items():
         for size in sizes:
-            bron_kerbosch(random_graph(order=order, size=size))
+            bron_kerbosch_manual(random_graph(order=order, size=size))

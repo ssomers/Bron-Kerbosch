@@ -38,9 +38,11 @@ def bron_kerbosch4(NEIGHBORS, clique, candidates, excluded, reporter):
     assert NEIGHBORS[pivot]
     for v in candidates.difference(NEIGHBORS[pivot]):
         assert NEIGHBORS[v]
-        new_candidates = candidates.intersection(NEIGHBORS[v])
-        new_excluded = excluded.intersection(NEIGHBORS[v])
-        bron_kerbosch4(NEIGHBORS, clique + [v], new_candidates, new_excluded,
-                       reporter)
         candidates.remove(v)
+        bron_kerbosch4(
+            NEIGHBORS=NEIGHBORS,
+            clique=clique + [v],
+            candidates=candidates.intersection(NEIGHBORS[v]),
+            excluded=excluded.intersection(NEIGHBORS[v]),
+            reporter=reporter)
         excluded.add(v)
