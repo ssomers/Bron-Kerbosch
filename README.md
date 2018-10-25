@@ -12,7 +12,7 @@ Compared to the original, converted from python 2 to python 3.7, (hopefully) cla
 * **Ver2:** Ver1 with pivot
 * **Ver3:** Ver2 with degeneracy ordering
 * **Ver4:** Ver2 slightly optimized
-* **Ver6:** Ver3 recursing
+* **Ver6:** Ver3 recursing and more optimized
 
 ## Run
 
