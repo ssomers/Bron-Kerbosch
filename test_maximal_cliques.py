@@ -36,6 +36,7 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
             first = current
         elif first != current:
             raise ValueError(f'oops, {first} != {current}')
+    assert first is not None
     return first
 
 
