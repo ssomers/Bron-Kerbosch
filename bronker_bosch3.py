@@ -1,13 +1,16 @@
 # coding: utf-8
 
 from bronker_bosch2 import bron_kerbosch2
+from graph import UndirectedGraph
 from reporter import Reporter
 from dataclasses import dataclass, field
 import queue
-from typing import List, Set
+from typing import Any, List, Set
 
 
-def bron_kerbosch3(NEIGHBORS, clique, candidates, excluded, reporter):
+def bron_kerbosch3(graph: UndirectedGraph, clique: List[int],
+                   candidates: Set[int], excluded: Set[int],
+                   reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
     recursing into bron_kerbosch2'''
     reporter.inc_count()
@@ -15,31 +18,34 @@ def bron_kerbosch3(NEIGHBORS, clique, candidates, excluded, reporter):
         assert len(clique) == 0
         return
 
-    for v in list(degeneracy_order(NEIGHBORS, candidates)):
-        assert NEIGHBORS[v]
-        new_candidates = candidates.intersection(NEIGHBORS[v])
-        new_excluded = excluded.intersection(NEIGHBORS[v])
-        bron_kerbosch2(NEIGHBORS, clique + [v], new_candidates, new_excluded,
-                       reporter)
+    for v in list(degeneracy_order(graph=graph, nodes=candidates)):
+        assert graph.adjacencies[v]
+        bron_kerbosch2(
+            graph=graph,
+            clique=clique + [v],
+            candidates=candidates.intersection(graph.adjacencies[v]),
+            excluded=excluded.intersection(graph.adjacencies[v]),
+            reporter=reporter)
         candidates.remove(v)
         excluded.add(v)
 
 
-def degeneracy_order(NEIGHBORS, nodes):
+def degeneracy_order(graph: UndirectedGraph, nodes: Set[int]):
     # FIXME: can improve it to linear time
-    deg = {node: len(NEIGHBORS[node]) for node in nodes}
+    deg = {node: graph.degree(node) for node in nodes}
 
     while deg:
         i = min(deg, key=deg.get)
         yield i
         del deg[i]
-        for v in NEIGHBORS[i]:
+        for v in graph.adjacencies[i]:
             if v in deg:
                 deg[v] -= 1
 
 
-def bron_kerbosch6(NEIGHBORS, clique: List[int], candidates: Set[int],
-                   excluded: Set[int], reporter: Reporter):
+def bron_kerbosch6(graph: UndirectedGraph, clique: List[int],
+                   candidates: Set[int], excluded: Set[int],
+                   reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
     recursing into itself'''
     reporter.inc_count()
@@ -47,30 +53,31 @@ def bron_kerbosch6(NEIGHBORS, clique: List[int], candidates: Set[int],
         reporter.record(clique)
         return
 
-    for v in degeneracy_order_newer(NEIGHBORS, candidates):
-        assert NEIGHBORS[v]
+    for v in degeneracy_order_newer(graph=graph, candidates=candidates):
+        neighbours = graph.adjacencies[v]
+        assert neighbours
         candidates.remove(v)
         bron_kerbosch6(
-            NEIGHBORS=NEIGHBORS,
+            graph=graph,
             clique=clique + [v],
-            candidates=candidates.intersection(NEIGHBORS[v]),
-            excluded=excluded.intersection(NEIGHBORS[v]),
+            candidates=candidates.intersection(neighbours),
+            excluded=excluded.intersection(neighbours),
             reporter=reporter)
         excluded.add(v)
 
 
-def degeneracy_order_array(NEIGHBORS, candidates):
-    order = len(NEIGHBORS)
+def degeneracy_order_array(graph: UndirectedGraph, candidates):
+    order = graph.order
     infinite = order * 2  # still >= order after decrementing in each iteration
     degree_per_node = [infinite] * order
     for node in candidates:
-        degree_per_node[node] = len(NEIGHBORS[node])
+        degree_per_node[node] = graph.degree(node)
 
     for _ in range(len(candidates)):
         i = min(zip(degree_per_node, range(order)))[1]
         yield i
         degree_per_node[i] = infinite
-        for v in NEIGHBORS[i]:
+        for v in graph.adjacencies[i]:
             degree_per_node[v] -= 1
 
 
@@ -80,11 +87,11 @@ class PrioritizedItem:
     node: int = field(compare=False)
 
 
-def degeneracy_order_queue(NEIGHBORS, nodes):
-    degree_by_node = {node: len(NEIGHBORS[node]) for node in nodes}
-    q = queue.PriorityQueue()
-    for node in nodes:
-        q.put(PrioritizedItem(priority=len(NEIGHBORS[node]), node=node))
+def degeneracy_order_queue(graph: UndirectedGraph, candidates: Set[int]):
+    degree_by_node = {c: graph.degree(c) for c in candidates}
+    q: Any = queue.PriorityQueue()
+    for c in candidates:
+        q.put(PrioritizedItem(priority=graph.degree(c), node=c))
 
     while not q.empty():
         i = q.get().node
@@ -94,7 +101,7 @@ def degeneracy_order_queue(NEIGHBORS, nodes):
             pass  # was moved to lower degree
         else:
             yield i
-            for v in NEIGHBORS[i]:
+            for v in graph.adjacencies[i]:
                 p = degree_by_node.get(v)
                 if p is not None:
                     degree_by_node[v] = p - 1
@@ -128,12 +135,13 @@ def pick_with_lowest_degree_newer(degree_per_node, nodes_per_degree, infinite):
         d += 1
 
 
-def degeneracy_order_new(NEIGHBORS, candidates):
+def degeneracy_order_new(graph: UndirectedGraph, candidates: Set[int]):
     if not candidates:
         return
-    degree_by_node = {c: len(NEIGHBORS[c]) for c in candidates}
+    degree_by_node = {c: graph.degree(c) for c in candidates}
     max_degree = max(degree_by_node.values())
-    nodes_per_degree = [[] for degree in range(max_degree + 1)]
+    nodes_per_degree: List[List[int]] = [[]
+                                         for degree in range(max_degree + 1)]
     for c, degree in degree_by_node.items():
         assert degree > 0  # FYI, isolated nodes were excluded up front
         nodes_per_degree[degree].append(c)
@@ -142,7 +150,7 @@ def degeneracy_order_new(NEIGHBORS, candidates):
         i = pick_with_lowest_degree(degree_by_node, nodes_per_degree)
         yield i
         del degree_by_node[i]
-        for v in NEIGHBORS[i]:
+        for v in graph.adjacencies[i]:
             d = degree_by_node.get(v)
             if d is not None:
                 degree_by_node[v] = d - 1
@@ -150,22 +158,23 @@ def degeneracy_order_new(NEIGHBORS, candidates):
                 nodes_per_degree[d - 1].append(v)
 
 
-def degeneracy_order_newer(NEIGHBORS, candidates):
+def degeneracy_order_newer(graph: UndirectedGraph, candidates: Set[int]):
     if not candidates:
         return
-    order = len(NEIGHBORS)
+    order = graph.order
     infinite = order * 2  # still >= order after decrementing in each iteration
     # degree_by_node = {node: len(NEIGHBORS[node]) for node in candidates}
     degree_per_node = [infinite] * order
     max_degree = 0
     for node in candidates:
-        degree = len(NEIGHBORS[node])
+        degree = graph.degree(node)
         assert degree > 0  # FYI, isolated nodes were excluded up front
         max_degree = max(degree, max_degree)
         degree_per_node[node] = degree
-    nodes_per_degree = [[] for degree in range(max_degree + 1)]
+    nodes_per_degree: List[List[int]] = [[]
+                                         for degree in range(max_degree + 1)]
     for node in candidates:
-        degree = len(NEIGHBORS[node])
+        degree = graph.degree(node)
         nodes_per_degree[degree].append(node)
 
     for _ in range(len(candidates)):
@@ -175,7 +184,7 @@ def degeneracy_order_newer(NEIGHBORS, candidates):
             infinite=infinite)
         degree_per_node[i] = infinite
         yield i
-        for v in NEIGHBORS[i]:
+        for v in graph.adjacencies[i]:
             d = degree_per_node[v]
             if d != infinite:
                 degree_per_node[v] = d - 1

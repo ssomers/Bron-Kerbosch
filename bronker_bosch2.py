@@ -1,7 +1,13 @@
 # coding: utf-8
 
+from graph import UndirectedGraph
+from reporter import Reporter
+from typing import List, Set
 
-def bron_kerbosch2(NEIGHBORS, clique, candidates, excluded, reporter):
+
+def bron_kerbosch2(graph: UndirectedGraph, clique: List[int],
+                   candidates: Set[int], excluded: Set[int],
+                   reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot'''
     reporter.inc_count()
     if not candidates and not excluded:
@@ -9,13 +15,15 @@ def bron_kerbosch2(NEIGHBORS, clique, candidates, excluded, reporter):
         return
 
     pivot = pick_random(candidates or excluded)
-    assert NEIGHBORS[pivot]
-    for v in list(candidates.difference(NEIGHBORS[pivot])):
-        assert NEIGHBORS[v]
-        new_candidates = candidates.intersection(NEIGHBORS[v])
-        new_excluded = excluded.intersection(NEIGHBORS[v])
-        bron_kerbosch2(NEIGHBORS, clique + [v], new_candidates, new_excluded,
-                       reporter)
+    assert graph.adjacencies[pivot]
+    for v in list(candidates.difference(graph.adjacencies[pivot])):
+        assert graph.adjacencies[v]
+        bron_kerbosch2(
+            graph=graph,
+            clique=clique + [v],
+            candidates=candidates.intersection(graph.adjacencies[v]),
+            excluded=excluded.intersection(graph.adjacencies[v]),
+            reporter=reporter)
         candidates.remove(v)
         excluded.add(v)
 
@@ -27,7 +35,9 @@ def pick_random(s):
     return elem
 
 
-def bron_kerbosch4(NEIGHBORS, clique, candidates, excluded, reporter):
+def bron_kerbosch4(graph: UndirectedGraph, clique: List[int],
+                   candidates: Set[int], excluded: Set[int],
+                   reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot, slightly optimized'''
     reporter.inc_count()
     if not candidates and not excluded:
@@ -35,14 +45,15 @@ def bron_kerbosch4(NEIGHBORS, clique, candidates, excluded, reporter):
         return
 
     pivot = next(iter(candidates or excluded))
-    assert NEIGHBORS[pivot]
-    for v in candidates.difference(NEIGHBORS[pivot]):
-        assert NEIGHBORS[v]
+    assert graph.adjacencies[pivot]
+    for v in candidates - graph.adjacencies[pivot]:
+        neighbours = graph.adjacencies[v]
+        assert neighbours
         candidates.remove(v)
         bron_kerbosch4(
-            NEIGHBORS=NEIGHBORS,
+            graph=graph,
             clique=clique + [v],
-            candidates=candidates.intersection(NEIGHBORS[v]),
-            excluded=excluded.intersection(NEIGHBORS[v]),
+            candidates=candidates.intersection(neighbours),
+            excluded=excluded.intersection(neighbours),
             reporter=reporter)
         excluded.add(v)

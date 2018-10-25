@@ -26,7 +26,7 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
     for func in funcs:
         reporter = SimpleReporter()
         func(
-            NEIGHBORS=graph.adjacencies,
+            graph=graph,
             clique=[],
             candidates=graph.connected_nodes(),
             excluded=set(),
@@ -51,7 +51,7 @@ def bron_kerbosch_manual(graph: Graph):
             reporter = SimpleReporter()
             try:
                 func(
-                    NEIGHBORS=graph.adjacencies,
+                    graph=graph,
                     clique=[],
                     candidates=graph.connected_nodes(),
                     excluded=set(),

@@ -21,5 +21,8 @@ class UndirectedGraph(object):
         assert total % 2 == 0
         return total // 2
 
+    def degree(self, node):
+        return len(self.adjacencies[node])
+
     def connected_nodes(self) -> Set[int]:
-        return {n for n in range(self.order) if self.adjacencies[n]}
+        return {node for node in range(self.order) if self.adjacencies[node]}
