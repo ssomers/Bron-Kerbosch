@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from bronker_bosch1 import bron_kerbosch1
-from bronker_bosch2 import bron_kerbosch2, bron_kerbosch4
+from bronker_bosch2 import bron_kerbosch2, bron_kerbosch4, bron_kerbosch5
 from bronker_bosch3 import bron_kerbosch3, bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
@@ -14,9 +14,10 @@ from typing import List, Set
 funcs = [
     bron_kerbosch1,
     bron_kerbosch2,
+    bron_kerbosch5,
     bron_kerbosch4,
-    bron_kerbosch3,
     bron_kerbosch6,
+    bron_kerbosch3,
 ]
 
 

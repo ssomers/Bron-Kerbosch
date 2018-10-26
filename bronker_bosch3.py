@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from bronker_bosch2 import bron_kerbosch2
+from bronker_bosch2 import bron_kerbosch2, bron_kerbosch4
 from graph import UndirectedGraph
 from reporter import Reporter
 from dataclasses import dataclass, field
@@ -11,8 +11,7 @@ from typing import Any, List, Set
 def bron_kerbosch3(graph: UndirectedGraph, clique: List[int],
                    candidates: Set[int], excluded: Set[int],
                    reporter: Reporter):
-    '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
-    recursing into bron_kerbosch2'''
+    '''Bron-Kerbosch algorithm with pivot and degeneracy ordering'''
     reporter.inc_count()
     if not candidates and not excluded:
         assert len(clique) == 0
@@ -47,7 +46,7 @@ def bron_kerbosch6(graph: UndirectedGraph, clique: List[int],
                    candidates: Set[int], excluded: Set[int],
                    reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
-    recursing into itself'''
+    optimized'''
     reporter.inc_count()
     if not candidates and not excluded:
         reporter.record(clique)
@@ -57,7 +56,7 @@ def bron_kerbosch6(graph: UndirectedGraph, clique: List[int],
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
-        bron_kerbosch6(
+        bron_kerbosch4(
             graph=graph,
             clique=clique + [v],
             candidates=candidates.intersection(neighbours),
