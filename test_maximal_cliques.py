@@ -6,6 +6,7 @@ from bronker_bosch3 import bron_kerbosch3, bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from reporter import SimpleReporter
+import argparse
 import random
 import sys
 import time
@@ -14,15 +15,14 @@ from typing import List, Set
 funcs = [
     bron_kerbosch1,
     bron_kerbosch2,
-    bron_kerbosch5,
-    bron_kerbosch4,
-    bron_kerbosch6,
     bron_kerbosch3,
+    bron_kerbosch4,
+    bron_kerbosch5,
+    bron_kerbosch6,
 ]
 
 
 def bron_kerbosch(graph: Graph) -> List[List[int]]:
-    assert not graph.name
     first = None
     for func in funcs:
         reporter = SimpleReporter()
@@ -43,7 +43,6 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
 
 def bron_kerbosch_manual(graph: Graph):
     repeats = 7
-    assert graph.name
     first = None
     for func in funcs:
         begin = time.process_time()
@@ -68,13 +67,16 @@ def bron_kerbosch_manual(graph: Graph):
                 result = f'oops, {first} != {current}'
             if result is None:
                 result = f'{seconds:5.2f}s, {reporter.cnt} recursive calls'
-        print(f'{func.__name__}@{graph.name}: {result}')
+        print(f'{func.__name__}: {result}')
     if first is None:
         raise ValueError
 
 
 def random_graph(order: int, size: int) -> Graph:
-    assert size < order * (order - 1) // 2
+    fully_meshed_size = order * (order - 1) // 2
+    if size > fully_meshed_size:
+        raise ValueError(
+            f"{order} nodes accommodate at most {fully_meshed_size} edges")
     begin = time.process_time()
     name = f'random_of_order_{order}_size_{size}'
     vertices = range(order)
@@ -106,13 +108,13 @@ def random_graph(order: int, size: int) -> Graph:
             elif neighbours > order // 2:
                 adjacency_complements[x].remove(y)
     seconds = time.process_time() - begin
+    g = Graph(adjacencies=adjacency_sets)
+    assert g.order == order
+    assert g.size() == size
     contents = ''
     if order < 10:
         contents = ' ' + repr(adjacency_sets)
-    print(f'spent {seconds:.2f}s generating {name}{contents}')
-    g = Graph(name=name, adjacencies=adjacency_sets)
-    assert g.order == order
-    assert g.size() == size
+    print(f'{name}: (spent {seconds:.2f}s generating{contents})')
     return g
 
 
@@ -142,6 +144,11 @@ def test_order_3_size_2():
                                                                     [1, 2]]
 
 
+def test_order_3_size_3():
+    assert bron_kerbosch(
+        Graph(adjacencies=[{1, 2}, {0, 2}, {0, 1}])) == [[0, 1, 2]]
+
+
 def test_order_4_size_2_isolated():
     assert bron_kerbosch(Graph(adjacencies=[{1, 2}, {0}, {0}, []])) == [[0, 1],
                                                                         [0, 2]]
@@ -168,6 +175,14 @@ def test_order_4_size_4_square():
         ]
 
 
+def test_order_4_size_4_square_diagonal():
+    assert bron_kerbosch(
+        Graph(adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}])) == [
+            [0, 1, 2],
+            [0, 2, 3],
+        ]
+
+
 def test_sample():
     assert bron_kerbosch(Graph(adjacencies=SAMPLE_ADJACENCY_LIST)) == [
         [1, 2, 3, 4],
@@ -177,6 +192,7 @@ def test_sample():
 
 
 def test_random_graph():
+    random.seed(19680516)
     random_graph(order=2, size=0)
     random_graph(order=3, size=0)
     random_graph(order=3, size=1)
@@ -190,17 +206,26 @@ def test_random_graph():
 
 
 if __name__ == '__main__':
-    random.seed(19680516)
-    if len(sys.argv) > 1:
-        size_by_order = {
-            int(sys.argv[1]): [int(size) for size in sys.argv[2:]]
-        }
+    parser = argparse.ArgumentParser(
+        description="test Bron-Kerbosch implementations " +
+        "on some random graphs of specified or default dimensions")
+    parser.add_argument('--seed', nargs=1)
+    parser.add_argument('order', nargs='?')
+    parser.add_argument('size', nargs='*')
+    args = parser.parse_args(sys.argv[1:])
+    if args.seed:
+        args.seed = int(args.seed[0])
+    else:
+        args.seed = random.randrange(1 << 32)
+    print(f"random seed {args.seed}")
+    random.seed(args.seed)
+    if args.order is not None and args.size is not None:
+        size_by_order = {int(args.order): [int(size) for size in args.size]}
     else:
         size_by_order = {
-            10: [20],
-            100: [200],
-            1000: [2000],
-            10000: [5000, 10000, 15000, 20000],
+            26: [220, 240, 260, 280, 300],  # max 325
+            82: [1800, 2000, 2200],  # max 3321
+            10000: [10000, 20000, 30000, 40000, 50000, 60000],
         }
     for order, sizes in size_by_order.items():
         for size in sizes:

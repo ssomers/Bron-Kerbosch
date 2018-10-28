@@ -1,16 +1,14 @@
-from typing import List, Optional, Set
+from typing import List, Set
 
 
 class UndirectedGraph(object):
-    def __init__(self, adjacencies: List[Set[int]],
-                 name: Optional[str] = None):
+    def __init__(self, adjacencies: List[Set[int]]):
         for v, adjacent_to_v in enumerate(adjacencies):
             for w in adjacent_to_v:
                 assert v != w
                 assert v in adjacencies[w], (
                     f'{w} is adjacent to {v} but not vice versa')
         self.adjacencies = adjacencies
-        self.name = name
 
     @property
     def order(self) -> int:
