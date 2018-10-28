@@ -10,10 +10,10 @@ Compared to the original, converted from python 2 to python 3.7, (hopefully) cla
 
 * **Ver1:** naive Bron–Kerbosch algorithm
 * **Ver2:** Ver1 with pivot
-* **Ver3:** Ver2 with degeneracy ordering, picking pivots arbitrarily
+* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot at random (IK\_RP)
 * **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
-* **Ver6:** Ver3 recursing and more optimized
+* **Ver6:** Ver3 more optimized (with result, but still worse than Ver1)
 
 ## Run
 
