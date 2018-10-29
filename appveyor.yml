@@ -1,5 +1,5 @@
 image: ubuntu
 stack: python 3.7
 install: pip install mypy pytest
-build_script: mypy --cache-dir=/dev/null .
+build_script: mypy --cache-dir=/dev/null --ignore-missing-import .
 test_script: pytest -p no:cacheprovider .
