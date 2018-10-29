@@ -14,10 +14,10 @@ Compared to the original forked from, the code is:
 
 * **Ver1:** naive Bron-Kerbosch algorithm
 * **Ver2:** Ver1 with pivot
-* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily
+* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily, and clearly marked as needing a performance fix
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
 * **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
-* **Ver6:** Ver3 more optimized (with result)
+* **Ver6:** Ver3 more optimized (with result, but not enough to beat Ver5)
 
 ## Run
 
@@ -29,10 +29,10 @@ Compared to the original forked from, the code is:
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
 * Dense random graphs of order 50: Ver1 sucks
-<div><a href="https://plot.ly/~stein.somers/64/?share_key=ddjMPag8Q6y561Ozvjm7cR" target="_blank" title="Bron-Kerbosch on order 50" style="display: block"><img src="https://plot.ly/~stein.somers/64.png?share_key=ddjMPag8Q6y561Ozvjm7cR" alt="Bron-Kerbosch on order 50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a><script data-plotly="stein.somers:64" sharekey-plotly="ddjMPag8Q6y561Ozvjm7cR" src="https://plot.ly/embed.js" async></script></div>
+<div><a href="https://plot.ly/~stein.somers/64/?share_key=ddjMPag8Q6y561Ozvjm7cR" target="_blank" title="Bron-Kerbosch on order 50" style="display: block"><img src="https://plot.ly/~stein.somers/64.png?share_key=ddjMPag8Q6y561Ozvjm7cR" alt="Bron-Kerbosch on order 50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
-* Spare random graphs of order 10k:
-<div><a href="https://plot.ly/~stein.somers/66/?share_key=AncArWLi5zvOcwr7e3laTj" target="_blank" title="Bron-Kerbosch on order 10k" style="display: block"><img src="https://plot.ly/~stein.somers/66.png?share_key=AncArWLi5zvOcwr7e3laTj" alt="Bron-Kerbosch on order 10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a><script data-plotly="stein.somers:66" sharekey-plotly="AncArWLi5zvOcwr7e3laTj" src="https://plot.ly/embed.js" async></script></div>
+* Sparse random graphs of order 5k: Ver3 indeed needed straightening out
+<div><a href="https://plot.ly/~stein.somers/66/?share_key=AncArWLi5zvOcwr7e3laTj" target="_blank" title="Bron-Kerbosch on order 10k" style="display: block"><img src="https://plot.ly/~stein.somers/66.png?share_key=AncArWLi5zvOcwr7e3laTj" alt="Bron-Kerbosch on order 10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
 
 ## Test
