@@ -28,10 +28,10 @@ Compared to the original forked from, the code is:
 
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
-* Dense random graphs of order 50: Ver1 sucks
+* Dense random graphs of order 50: Ver1 indeed can't cope.
 <div><a href="https://plot.ly/~stein.somers/64/?share_key=ddjMPag8Q6y561Ozvjm7cR" target="_blank" title="Bron-Kerbosch on order 50" style="display: block"><img src="https://plot.ly/~stein.somers/64.png?share_key=ddjMPag8Q6y561Ozvjm7cR" alt="Bron-Kerbosch on order 50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
-* Sparse random graphs of order 5k: Ver3 indeed needed straightening out
+* Sparse random graphs of order 10k: Ver3 indeed needed straightening out, and Ver5 wins.
 <div><a href="https://plot.ly/~stein.somers/66/?share_key=AncArWLi5zvOcwr7e3laTj" target="_blank" title="Bron-Kerbosch on order 10k" style="display: block"><img src="https://plot.ly/~stein.somers/66.png?share_key=AncArWLi5zvOcwr7e3laTj" alt="Bron-Kerbosch on order 10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
 
