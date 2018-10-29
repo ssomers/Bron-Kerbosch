@@ -14,10 +14,10 @@ Compared to the original forked from, the code is:
 
 * **Ver1:** naive Bron-Kerbosch algorithm
 * **Ver2:** Ver1 with pivot
-* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily
+* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily, and clearly marked as needing a performance fix
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
 * **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
-* **Ver6:** Ver3 more optimized (with result)
+* **Ver6:** Ver3 more optimized (with result, but not enough to beat Ver5)
 
 ## Run
 
@@ -26,36 +26,13 @@ Compared to the original forked from, the code is:
 
 ## Results
 
-Seconds spent on a particular machine, in particular random graphs generated with --seed 1423439066 (but results seem consistent), averaged over 7 runs:
+Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
-* random graphs of order 26 (full mesh size 325):
-<table>
-<tr><th>size</th><th>Ver1</th><th>Ver2</th><th>Ver3</th><th>Ver4</th><th>Ver5</th><th>Ver6</th>
-<tr><th>220</th><td>0.01</td><td>0.00</td><td>0.00</td><td>0.01</td><td>0.00</td><td>0.00</td></tr>
-<tr><th>240</th><td>0.05</td><td>0.00</td><td>0.00</td><td>0.01</td><td>0.00</td><td>0.00</td></tr>
-<tr><th>260</th><td>0.06</td><td>0.01</td><td>0.00</td><td>0.02</td><td>0.00</td><td>0.00</td></tr>
-<tr><th>280</th><td>0.39</td><td>0.01</td><td>0.00</td><td>0.02</td><td>0.00</td><td>0.00</td></tr>
-<tr><th>300</th><td>3.37</td><td>0.01</td><td>0.00</td><td>0.01</td><td>0.00</td><td>0.00</td></tr>
-</table>
+* Dense random graphs of order 50: Ver1 sucks
+<div><a href="https://plot.ly/~stein.somers/64/?share_key=ddjMPag8Q6y561Ozvjm7cR" target="_blank" title="Bron-Kerbosch on order 50" style="display: block"><img src="https://plot.ly/~stein.somers/64.png?share_key=ddjMPag8Q6y561Ozvjm7cR" alt="Bron-Kerbosch on order 50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
-* random graphs of order 82 (full mesh size 3321):
-<table>
-<tr><th>size</th><th>Ver1</th><th>Ver2</th><th>Ver3</th><th>Ver4</th><th>Ver5</th><th>Ver6</th>
-<tr><th>1800</th><td>0.41</td><td>0.28</td><td>0.22</td><td>0.62</td><td>0.15</td><td>0.16</td></tr>
-<tr><th>2000</th><td>1.38</td><td>0.67</td><td>0.60</td><td>1.60</td><td>0.32</td><td>0.35</td></tr>
-<tr><th>2200</th><td>8.96</td><td>2.42</td><td>1.96</td><td>4.90</td><td>0.81</td><td>0.84</td></tr>
-</table>
-
-* random graphs of order 10k:
-<table>
-<tr><th>size</th><th>Ver1</th><th>Ver2</th><th>Ver3</th><th>Ver4</th><th>Ver5</th><th>Ver6</th>
-<tr><th>10k</th><td>0.05</td><td>0.07</td><td>3.77</td><td>0.15</td><td>0.08</td><td>0.11</td></tr>
-<tr><th>20k</th><td>0.09</td><td>0.11</td><td>4.87</td><td>0.20</td><td>0.15</td><td>0.18</td></tr>
-<tr><th>30k</th><td>0.13</td><td>0.16</td><td>5.11</td><td>0.25</td><td>0.21</td><td>0.24</td></tr>
-<tr><th>40k</th><td>0.17</td><td>0.21</td><td>5.15</td><td>0.30</td><td>0.26</td><td>0.31</td></tr>
-<tr><th>50k</th><td>0.21</td><td>0.25</td><td>5.22</td><td>0.35</td><td>0.33</td><td>0.38</td></tr>
-<tr><th>60k</th><td>0.26</td><td>0.30</td><td>5.26</td><td>0.41</td><td>0.40</td><td>0.46</td></tr>
-</table>
+* Sparse random graphs of order 5k: Ver3 indeed needed straightening out
+<div><a href="https://plot.ly/~stein.somers/66/?share_key=AncArWLi5zvOcwr7e3laTj" target="_blank" title="Bron-Kerbosch on order 10k" style="display: block"><img src="https://plot.ly/~stein.somers/66.png?share_key=AncArWLi5zvOcwr7e3laTj" alt="Bron-Kerbosch on order 10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
 
 ## Test
