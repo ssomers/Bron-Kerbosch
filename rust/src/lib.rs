@@ -11,7 +11,13 @@ use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
-pub fn bron_kerbosch1(
+pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
+    let mut candidates = graph.connected_nodes().clone();
+    let mut excluded = HashSet::<Vertex>::new();
+    bron_kerbosch1(&graph, vec![], &mut candidates, &mut excluded, reporter);
+}
+
+fn bron_kerbosch1(
     graph: &UndirectedGraph,
     clique: Clique,
     candidates: &mut HashSet<Vertex>,

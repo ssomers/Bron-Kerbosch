@@ -1,5 +1,15 @@
 image: ubuntu
 stack: python 3.7
-install: pip install mypy pytest
-build_script: mypy --cache-dir=/dev/null --ignore-missing-import python3
-test_script: pytest -p no:cacheprovider python3
+install: 
+  - pip install mypy pytest
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %TARGET%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
+  - if defined MSYS2 set PATH=C:\msys64\mingw%BITS%\bin;%PATH%
+  - rustc -V
+  - cargo -V
+build_script:
+  - mypy --cache-dir=/dev/null --ignore-missing-import python3
+test_script:
+  - pytest -p no:cacheprovider python3
+  - cd rust && cargo test
