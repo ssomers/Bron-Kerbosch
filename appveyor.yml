@@ -3,8 +3,7 @@ environment:
   RUSTUP_USE_REQWEST: 1
   CARGO_HTTP_CHECK_REVOKE: false
   matrix:
-    - target: x86_64-pc-windows-msvc
-      python: "C:\\Python36-x64"
+    - python: "C:\\Python37-x64"
 install: 
   - python -V
   - pip install mypy pytest
