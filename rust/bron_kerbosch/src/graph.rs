@@ -32,7 +32,6 @@ impl UndirectedGraph {
     }
 
     pub fn size(&self) -> i32 {
-        //total = sum(len(a) for a in self.adjacencies)
         let total: i32 = self.adjacencies.iter().map(|a| a.len() as i32).sum();
         assert!(total % 2 == 0);
         total / 2
@@ -46,7 +45,6 @@ impl UndirectedGraph {
     }
 
     pub fn connected_nodes(&self) -> HashSet<Vertex> {
-        // {node for node in range(self.order) if self.adjacencies[node]}
         (0..self.order() as Vertex)
             .filter(|v| self.degree(*v) > 0)
             .collect()
