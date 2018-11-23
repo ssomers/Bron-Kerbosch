@@ -13,7 +13,7 @@ use std::collections::HashSet;
 pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let mut candidates = graph.connected_nodes().clone();
     let mut excluded = HashSet::<Vertex>::new();
-    bron_kerbosch1::run(&graph, vec![], &mut candidates, &mut excluded, reporter);
+    bron_kerbosch1::explore(&graph, vec![], &mut candidates, &mut excluded, reporter);
 }
 
 #[cfg(test)]
@@ -26,7 +26,6 @@ mod tests {
     use random_graph::*;
     use reporter::{Clique, SimpleReporter};
     use std::collections::BTreeSet;
-    use std::collections::HashSet;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
         let adjacencies = adjacencies
@@ -37,15 +36,7 @@ mod tests {
         // for func in funcs:
         if true {
             let mut reporter = SimpleReporter::new();
-            let mut candidates = graph.connected_nodes().clone();
-            let mut excluded = HashSet::<Vertex>::new();
-            bron_kerbosch1::run(
-                &graph,
-                vec![],
-                &mut candidates,
-                &mut excluded,
-                &mut reporter,
-            );
+            bron_kerbosch(&graph, &mut reporter);
             let current: BTreeSet<BTreeSet<Vertex>> = reporter
                 .cliques
                 .into_iter()

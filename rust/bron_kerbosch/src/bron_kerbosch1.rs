@@ -6,7 +6,7 @@ use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
-pub fn run(
+pub fn explore(
     graph: &UndirectedGraph,
     clique: Clique,
     candidates: &mut HashSet<Vertex>,
@@ -29,7 +29,7 @@ pub fn run(
             candidates.intersection(&neighbours).cloned().collect();
         let mut nearby_excluded: HashSet<Vertex> =
             excluded.intersection(&neighbours).cloned().collect();
-        run(
+        explore(
             graph,
             extended_clique,
             &mut nearby_candidates,
