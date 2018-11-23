@@ -11,7 +11,7 @@ use reporter::Reporter;
 use std::collections::HashSet;
 
 pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let mut candidates = graph.connected_nodes().clone();
+    let mut candidates = graph.connected_nodes();
     let mut excluded = HashSet::<Vertex>::new();
     bron_kerbosch1::explore(&graph, vec![], &mut candidates, &mut excluded, reporter);
 }
@@ -20,8 +20,8 @@ pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
 mod tests {
     extern crate rand_chacha;
 
-    use self::rand_chacha::ChaChaRng;
     use super::*;
+    use self::rand_chacha::ChaChaRng;
     use rand::SeedableRng;
     use random_graph::*;
     use reporter::{Clique, SimpleReporter};
