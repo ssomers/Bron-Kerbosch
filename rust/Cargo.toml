@@ -1,8 +1,10 @@
 [package]
-name = "bron_kerbosch"
+name = "test_bron_kerbosch"
 version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
+[workspace]
+
 [dependencies]
 rand = "0.6.0"
-rand_chacha = "0.1.0"
+bron_kerbosch = { path = "bron_kerbosch" }

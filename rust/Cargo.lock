@@ -125,6 +125,14 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "test_bron_kerbosch"
+version = "0.1.0"
+dependencies = [
+ "bron_kerbosch 0.1.0",
+ "rand 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "winapi"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

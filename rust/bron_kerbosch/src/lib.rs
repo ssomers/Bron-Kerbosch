@@ -1,5 +1,4 @@
 extern crate rand;
-extern crate rand_chacha;
 
 mod graph;
 pub mod random_graph;
@@ -53,9 +52,11 @@ fn bron_kerbosch1(
 
 #[cfg(test)]
 mod tests {
+    extern crate rand_chacha;
+
+    use self::rand_chacha::ChaChaRng;
     use super::*;
     use rand::SeedableRng;
-    use rand_chacha::ChaChaRng;
     use random_graph::*;
     use reporter::SimpleReporter;
     use std::collections::BTreeSet;
