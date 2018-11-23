@@ -1,8 +1,11 @@
 # coding: utf-8
 
 from bronker_bosch1 import bron_kerbosch1
-from bronker_bosch2 import bron_kerbosch2, bron_kerbosch4, bron_kerbosch5
-from bronker_bosch3 import bron_kerbosch3, bron_kerbosch6
+from bronker_bosch2 import bron_kerbosch2
+from bronker_bosch3 import bron_kerbosch3
+from bronker_bosch4 import bron_kerbosch4
+from bronker_bosch5 import bron_kerbosch5
+from bronker_bosch6 import bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
@@ -194,7 +197,8 @@ if __name__ == '__main__':
     else:
         assert False, "Run with -O for meaningful measurements"
         sizes_by_order = {
-            50: list(range(750, 1000, 10)),  # max 1225
+            50:
+            list(range(750, 1000, 10)),  # max 1225
             10_000:
             list(range(1_000, 10_000, 1_000)) + list(
                 range(10_000, 100_000, 10_000)),
