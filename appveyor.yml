@@ -9,7 +9,7 @@ environment:
   matrix:
     - python: "C:\\Python37-x64"
 install: 
-  - PATH C:\\Python35-x64;%PATH%
+  - PATH C:\\Python37-x64;C:\\Python37-x64\Scripts;%PATH%
   - python -V
   - python -m pip install --upgrade pip
   - pip install mypy pytest
