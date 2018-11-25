@@ -1,27 +1,46 @@
 extern crate rand;
 
 mod bron_kerbosch1;
+mod bron_kerbosch2;
 mod graph;
 pub mod random_graph;
 pub mod reporter;
 
 use graph::UndirectedGraph;
 use graph::Vertex;
+use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
 pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let mut candidates = graph.connected_nodes();
-    let mut excluded = HashSet::<Vertex>::new();
-    bron_kerbosch1::explore(&graph, vec![], &mut candidates, &mut excluded, reporter);
+    let performers: Vec<&BronKerboschEngine> = vec![
+        &bron_kerbosch1::ThisEngine {},
+        &bron_kerbosch2::ThisEngine {},
+    ];
+    for p in performers {
+        let mut candidates = graph.connected_nodes();
+        let mut excluded = HashSet::<Vertex>::new();
+        p.explore(&graph, vec![], &mut candidates, &mut excluded, reporter);
+    }
+}
+
+pub trait BronKerboschEngine {
+    fn explore(
+        &self,
+        graph: &UndirectedGraph,
+        clique: Clique,
+        candidates: &mut HashSet<Vertex>,
+        excluded: &mut HashSet<Vertex>,
+        reporter: &mut Reporter,
+    );
 }
 
 #[cfg(test)]
 mod tests {
     extern crate rand_chacha;
 
-    use super::*;
     use self::rand_chacha::ChaChaRng;
+    use super::*;
     use rand::SeedableRng;
     use random_graph::*;
     use reporter::{Clique, SimpleReporter};
@@ -33,7 +52,6 @@ mod tests {
             .map(|neighbours| neighbours.into_iter().cloned().collect())
             .collect();
         let graph = UndirectedGraph::new(adjacencies);
-        // for func in funcs:
         if true {
             let mut reporter = SimpleReporter::new();
             bron_kerbosch(&graph, &mut reporter);
