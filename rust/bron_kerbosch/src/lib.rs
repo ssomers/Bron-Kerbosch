@@ -4,13 +4,17 @@ mod bron_kerbosch1;
 mod bron_kerbosch2;
 mod graph;
 pub mod random_graph;
-pub mod reporter;
+mod reporter;
 
 use graph::UndirectedGraph;
 use graph::Vertex;
 use reporter::Clique;
-use reporter::Reporter;
+use reporter::{Reporter, SimpleReporter};
+use std::collections::BTreeSet;
 use std::collections::HashSet;
+
+type OrderedClique = BTreeSet<Vertex>;
+type OrderedCliques = BTreeSet<OrderedClique>;
 
 static FUNCS: &'static [fn(
     graph: &UndirectedGraph,
@@ -20,12 +24,34 @@ static FUNCS: &'static [fn(
     reporter: &mut Reporter,
 )] = &[bron_kerbosch1::explore, bron_kerbosch2::explore];
 
-pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
+fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
+    cliques
+        .into_iter()
+        .map(|clique| clique.into_iter().collect())
+        .collect()
+}
+
+pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
+    let mut first: Option<OrderedCliques> = None;
     for func in FUNCS {
-        let mut candidates = graph.connected_nodes();
-        let mut excluded = HashSet::<Vertex>::new();
-        func(&graph, vec![], &mut candidates, &mut excluded, reporter);
+        let mut candidates: HashSet<Vertex> = graph.connected_nodes();
+        let mut excluded: HashSet<Vertex> = HashSet::new();
+        let mut reporter = SimpleReporter::new();
+        func(
+            &graph,
+            vec![],
+            &mut candidates,
+            &mut excluded,
+            &mut reporter,
+        );
+        let current = order_cliques(reporter.cliques);
+        if first.is_none() {
+            first = Some(current);
+        } else {
+            assert_eq!(current, *first.as_ref().unwrap());
+        }
     }
+    first.unwrap()
 }
 
 #[cfg(test)]
@@ -36,8 +62,7 @@ mod tests {
     use super::*;
     use rand::SeedableRng;
     use random_graph::*;
-    use reporter::{Clique, SimpleReporter};
-    use std::collections::BTreeSet;
+    use reporter::Clique;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
         let adjacencies = adjacencies
@@ -45,20 +70,8 @@ mod tests {
             .map(|neighbours| neighbours.into_iter().cloned().collect())
             .collect();
         let graph = UndirectedGraph::new(adjacencies);
-        if true {
-            let mut reporter = SimpleReporter::new();
-            bron_kerbosch(&graph, &mut reporter);
-            let current: BTreeSet<BTreeSet<Vertex>> = reporter
-                .cliques
-                .into_iter()
-                .map(|clique| clique.into_iter().collect())
-                .collect();
-            let expected: BTreeSet<BTreeSet<Vertex>> = expected_cliques
-                .into_iter()
-                .map(|clique| clique.into_iter().collect())
-                .collect();
-            assert_eq!(current, expected);
-        }
+        let current = bron_kerbosch(&graph);
+        assert_eq!(current, order_cliques(expected_cliques));
     }
 
     #[test]
