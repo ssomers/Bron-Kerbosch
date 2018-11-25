@@ -12,27 +12,20 @@ use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
+static FUNCS: &'static [fn(
+    graph: &UndirectedGraph,
+    clique: Clique,
+    candidates: &mut HashSet<Vertex>,
+    excluded: &mut HashSet<Vertex>,
+    reporter: &mut Reporter,
+)] = &[bron_kerbosch1::explore, bron_kerbosch2::explore];
+
 pub fn bron_kerbosch(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let performers: Vec<&BronKerboschEngine> = vec![
-        &bron_kerbosch1::ThisEngine {},
-        &bron_kerbosch2::ThisEngine {},
-    ];
-    for p in performers {
+    for func in FUNCS {
         let mut candidates = graph.connected_nodes();
         let mut excluded = HashSet::<Vertex>::new();
-        p.explore(&graph, vec![], &mut candidates, &mut excluded, reporter);
+        func(&graph, vec![], &mut candidates, &mut excluded, reporter);
     }
-}
-
-pub trait BronKerboschEngine {
-    fn explore(
-        &self,
-        graph: &UndirectedGraph,
-        clique: Clique,
-        candidates: &mut HashSet<Vertex>,
-        excluded: &mut HashSet<Vertex>,
-        reporter: &mut Reporter,
-    );
 }
 
 #[cfg(test)]
