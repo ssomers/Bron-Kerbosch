@@ -24,15 +24,13 @@ pub fn explore(
         candidates.remove(&v);
         let neighbours = graph.adjacencies(v);
         assert!(!neighbours.is_empty());
-        let mut extended_clique = clique.clone();
-        extended_clique.push(v);
         let mut nearby_candidates: HashSet<Vertex> =
             candidates.intersection(&neighbours).cloned().collect();
         let mut nearby_excluded: HashSet<Vertex> =
             excluded.intersection(&neighbours).cloned().collect();
         explore(
             graph,
-            extended_clique,
+            [clique.as_slice(), &[v]].concat(),
             &mut nearby_candidates,
             &mut nearby_excluded,
             reporter,
