@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from bronker_bosch2 import bron_kerbosch2
+from bron_kerbosch2 import bron_kerbosch2
 from graph import UndirectedGraph
 from reporter import Reporter
 from typing import List, Set

@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from bronker_bosch1 import bron_kerbosch1
-from bronker_bosch2 import bron_kerbosch2
-from bronker_bosch3 import bron_kerbosch3
-from bronker_bosch4 import bron_kerbosch4
-from bronker_bosch5 import bron_kerbosch5
-from bronker_bosch6 import bron_kerbosch6
+from bron_kerbosch1 import bron_kerbosch1
+from bron_kerbosch2 import bron_kerbosch2
+from bron_kerbosch3 import bron_kerbosch3
+from bron_kerbosch4 import bron_kerbosch4
+from bron_kerbosch5 import bron_kerbosch5
+from bron_kerbosch6 import bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
