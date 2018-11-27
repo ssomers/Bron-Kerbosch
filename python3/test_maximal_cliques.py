@@ -10,6 +10,7 @@ from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
 from reporter import SimpleReporter
+from publish import publish
 import argparse
 import random
 import sys
@@ -210,32 +211,10 @@ if __name__ == '__main__':
             g = random_graph(order=order, size=size)
             times_per_size.append(bron_kerbosch_timed(g))
 
-        try:
-            from plotly import graph_objs, plotly
-        except ImportError as e:
-            print(f"{e}, not plotting until you pip install plotly")
-        else:
-            traces = [
-                graph_objs.Scatter(
-                    x=sizes,
-                    y=[times_per_size[s][f] for s in range(len(sizes))],
-                    mode='lines+markers',
-                    name=f"Ver{f+1}") for f in range(len(funcs))
-            ]
-            layout = {
-                'title': ("Implementations of Bron-Kerbosch on " +
-                          f"random graphs order (#nodes) {order}"),
-                'xaxis': {
-                    'title': "Size (#edges)"
-                },
-                'yaxis': {
-                    'title': "Seconds spent"
-                },
-            }
-            plotly.plot(
-                figure_or_data={
-                    'data': traces,
-                    'layout': layout,
-                },
-                filename=f'Bron-Kerbosch_order_{order}')
+        publish(
+            language="python3",
+            num_funcs=len(funcs),
+            order=order,
+            sizes=sizes,
+            times_per_size=times_per_size)
     print(f"random seed was {seed}")

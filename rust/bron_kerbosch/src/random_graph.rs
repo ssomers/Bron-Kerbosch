@@ -5,10 +5,10 @@ use graph::{new_adjacencies, UndirectedGraph, Vertex};
 use std::collections::HashSet;
 
 pub enum Order {
-    Of(i32),
+    Of(u32),
 }
 pub enum Size {
-    Of(i32),
+    Of(u32),
 }
 
 pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
@@ -45,7 +45,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
         assert!(!adjacency_sets[w as usize].contains(&v));
         for (x, y) in vec![(v, w), (w, v)] {
             adjacency_sets[x as usize].insert(y);
-            let neighbours = adjacency_sets[x as usize].len() as i32;
+            let neighbours = adjacency_sets[x as usize].len() as u32;
             if neighbours == order - 1 {
                 let index = unsaturated_vertices.iter().position(|v| *v == x).unwrap();
                 unsaturated_vertices.remove(index);

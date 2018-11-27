@@ -23,7 +23,7 @@ pub fn explore(
         let v = candidates.iter().next().unwrap().clone();
         candidates.remove(&v);
         let neighbours = graph.adjacencies(v);
-        assert!(!neighbours.is_empty());
+        debug_assert!(!neighbours.is_empty());
         let mut nearby_candidates: HashSet<Vertex> =
             candidates.intersection(&neighbours).cloned().collect();
         let mut nearby_excluded: HashSet<Vertex> =

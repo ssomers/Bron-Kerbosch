@@ -6,5 +6,7 @@ authors = ["Stein Somers <git@steinsomers.be>"]
 [workspace]
 
 [dependencies]
-rand = "0.6.0"
 bron_kerbosch = { path = "bron_kerbosch" }
+rand = "0.6.0"
+rand_chacha = "0.1.0"
+structopt = "0.2"

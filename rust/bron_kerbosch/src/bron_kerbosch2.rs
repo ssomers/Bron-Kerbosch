@@ -14,8 +14,8 @@ pub fn explore(
     excluded: &mut HashSet<Vertex>,
     reporter: &mut Reporter,
 ) {
-    assert!(candidates.iter().all(|v| graph.degree(*v) > 0));
-    assert!(excluded.iter().all(|v| graph.degree(*v) > 0));
+    debug_assert!(candidates.iter().all(|v| graph.degree(*v) > 0));
+    debug_assert!(excluded.iter().all(|v| graph.degree(*v) > 0));
     reporter.inc_count();
     if candidates.is_empty() && excluded.is_empty() {
         reporter.record(&clique);
@@ -27,14 +27,14 @@ pub fn explore(
     } else {
         &excluded
     });
-    assert!(graph.degree(pivot) > 0);
+    debug_assert!(graph.degree(pivot) > 0);
     let far_candidates: HashSet<Vertex> = candidates
         .difference(graph.adjacencies(pivot))
         .cloned()
         .collect();
     for v in far_candidates {
         let neighbours = graph.adjacencies(v);
-        assert!(!neighbours.is_empty());
+        debug_assert!(!neighbours.is_empty());
         let mut nearby_candidates: HashSet<Vertex> =
             candidates.intersection(&neighbours).cloned().collect();
         let mut nearby_excluded: HashSet<Vertex> =

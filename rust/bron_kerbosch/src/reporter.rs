@@ -7,7 +7,7 @@ pub trait Reporter {
 }
 
 pub struct SimpleReporter {
-    pub cnt: i32,
+    pub cnt: u32,
     pub cliques: Vec<Clique>,
 }
 

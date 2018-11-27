@@ -8,10 +8,13 @@ mod reporter;
 
 use graph::UndirectedGraph;
 use graph::Vertex;
+use rand::Rng;
+use random_graph::{new_undirected, Order, Size};
 use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 use std::collections::HashSet;
+use std::time::{Duration, SystemTime};
 
 type OrderedClique = BTreeSet<Vertex>;
 type OrderedCliques = BTreeSet<OrderedClique>;
@@ -54,6 +57,71 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
     first.unwrap()
 }
 
+pub fn random_graph(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
+    let Order::Of(order) = order;
+    let Size::Of(size) = size;
+    let sys_time = SystemTime::now();
+    let graph = new_undirected(rng, Order::Of(order), Size::Of(size));
+    let seconds = to_seconds(sys_time.elapsed().unwrap());
+    println!(
+        "random of order {}, size {}: (generating took {:.2}s)",
+        order, size, seconds
+    );
+    graph
+}
+
+type Seconds = f32;
+pub fn to_seconds(duration: Duration) -> Seconds {
+    duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
+}
+
+pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> Vec<Seconds> {
+    const REPEATS: u32 = 10;
+    let mut times: Vec<Seconds> = Vec::new();
+    let mut first: Option<OrderedCliques> = None;
+    for func_index in 0..FUNCS.len() {
+        let func = FUNCS[func_index];
+        let sys_time = SystemTime::now();
+        let mut diagnostic: Option<String> = None;
+        let mut reporter = SimpleReporter::new();
+        for _ in 0..REPEATS {
+            let mut candidates: HashSet<Vertex> = graph.connected_nodes();
+            let mut excluded: HashSet<Vertex> = HashSet::new();
+            reporter = SimpleReporter::new();
+            func(
+                &graph,
+                vec![],
+                &mut candidates,
+                &mut excluded,
+                &mut reporter,
+            );
+            let current = order_cliques(reporter.cliques);
+            match first.clone() {
+                None => {
+                    first = Some(current);
+                }
+                Some(first_result) => if first_result != current {
+                    diagnostic = Some(format!("oops, {:?} != {:?}", first_result, current));
+                },
+            }
+        }
+
+        let mut seconds: Seconds = -99.0;
+        if diagnostic.is_none() {
+            diagnostic = Some(match sys_time.elapsed() {
+                Err(err) => format!("Could not get time: {}", err),
+                Ok(duration) => {
+                    seconds = to_seconds(duration) / REPEATS as Seconds;
+                    format!("{:5.2}s, {} recursive calls", seconds, reporter.cnt)
+                }
+            });
+        }
+        println!("bron_kerbosch{}: {}", func_index + 1, diagnostic.unwrap());
+        times.push(seconds);
+    }
+    times
+}
+
 #[cfg(test)]
 mod tests {
     extern crate rand_chacha;
@@ -61,7 +129,6 @@ mod tests {
     use self::rand_chacha::ChaChaRng;
     use super::*;
     use rand::SeedableRng;
-    use random_graph::*;
     use reporter::Clique;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
