@@ -12,7 +12,7 @@ def publish(language: str, num_funcs: int, order: int, sizes: List[int],
         w = csv.writer(csvfile)
         w.writerow(["Size"] + [f"Ver{i+1}" for i in range(num_funcs)])
         for i, size in enumerate(sizes):
-            w.writerow([size] + times_per_size[i])
+            w.writerow([str(size)] + [str(t) for t in times_per_size[i]])
     publish_csv(language=language, order=order)
 
 

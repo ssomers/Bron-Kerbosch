@@ -181,6 +181,20 @@ def test_random_graph():
     random_graph(order=4, size=5)
 
 
+def bk(order: int, sizes):
+    times_per_size = []
+    for size in sizes:
+        random.seed(seed)
+        g = random_graph(order=order, size=size)
+        times_per_size.append(bron_kerbosch_timed(g))
+    publish(
+        language="python3",
+        num_funcs=len(funcs),
+        order=order,
+        sizes=sizes,
+        times_per_size=times_per_size)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="test Bron-Kerbosch implementations " +
@@ -192,29 +206,13 @@ if __name__ == '__main__':
     if args.seed:
         seed = int(args.seed[0])
     else:
-        seed = random.randrange(1 << 32)
+        seed = 19680516
     if args.order is not None and args.size is not None:
-        sizes_by_order = {int(args.order): [int(size) for size in args.size]}
+        bk(order=int(args.order), sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        sizes_by_order = {
-            50:
-            list(range(750, 1000, 10)),  # max 1225
-            10_000:
-            list(range(1_000, 10_000, 1_000)) + list(
-                range(10_000, 100_000, 10_000)),
-        }
-    for order, sizes in sizes_by_order.items():
-        times_per_size = []
-        for size in sizes:
-            random.seed(seed)
-            g = random_graph(order=order, size=size)
-            times_per_size.append(bron_kerbosch_timed(g))
-
-        publish(
-            language="python3",
-            num_funcs=len(funcs),
-            order=order,
-            sizes=sizes,
-            times_per_size=times_per_size)
+        bk(order=50, sizes=range(750, 1_000, 10))  # max 1225
+        bk(order=10_000,
+           sizes=list(range(1_000, 10_000, 1_000)) + list(
+               range(10_000, 100_000, 10_000)))
     print(f"random seed was {seed}")
