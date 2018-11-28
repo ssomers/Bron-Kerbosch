@@ -1,9 +1,37 @@
+import csv
+import os
 import sys
 from typing import List
 
 
 def publish(language: str, num_funcs: int, order: int, sizes: List[int],
             times_per_size: List[List[float]]):
+    filename = f"bron_kerbosch_{language}_order_{order}"
+    path = os.path.join(os.pardir, filename + ".csv")
+    with open(path, 'w', newline='') as csvfile:
+        w = csv.writer(csvfile)
+        w.writerow(["Size"] + [f"Ver{i+1}" for i in range(num_funcs)])
+        for i, size in enumerate(sizes):
+            w.writerow([size] + times_per_size[i])
+    publish_csv(language=language, order=order)
+
+
+def publish_csv(language: str, order: int):
+    filename = f"bron_kerbosch_{language}_order_{order}"
+    path = os.path.join(os.pardir, filename + ".csv")
+    with open(path, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        row = next(reader)
+        assert row[0] == "Size"
+        num_funcs = len(row) - 1
+        sizes = []
+        times_per_size = []
+        for row in reader:
+            assert len(row) == 1 + num_funcs
+            size = int(row[0])
+            sizes.append(size)
+            times_per_size.append([float(cell) for cell in row[1:]])
+
     try:
         from plotly import graph_objs, plotly
     except ImportError as e:
@@ -17,8 +45,8 @@ def publish(language: str, num_funcs: int, order: int, sizes: List[int],
                 name=f"Ver{f+1}") for f in range(num_funcs)
         ]
         layout = {
-            'title': ("{language} implementations of Bron-Kerbosch on " +
-                      f"random graphs order (#nodes) {order}"),
+            'title': (f"{language} implementations of Bron-Kerbosch on " +
+                      f"random graphs order {order}"),
             'xaxis': {
                 'title': "Size (#edges)"
             },
@@ -31,27 +59,8 @@ def publish(language: str, num_funcs: int, order: int, sizes: List[int],
                 'data': traces,
                 'layout': layout,
             },
-            filename=f'Bron-Kerbosch_order_{order}')
+            filename=filename)
 
 
 if __name__ == '__main__':
-    a = 1
-    language = sys.argv[a]
-    a += 1
-    num_funcs = int(sys.argv[a])
-    a += 1
-    order = int(sys.argv[a])
-    a += 1
-    num_sizes = int(sys.argv[a])
-    a += 1
-    sizes = [int(sys.argv[a + i]) for i in range(num_sizes)]
-    a += num_sizes
-    times_per_size = [[
-        float(sys.argv[a + j * num_funcs + i]) for i in range(num_funcs)
-    ] for j in range(num_sizes)]
-    publish(
-        language=language,
-        num_funcs=num_funcs,
-        order=order,
-        sizes=sizes,
-        times_per_size=times_per_size)
+    publish_csv(language=sys.argv[1], order=int(sys.argv[2]))

@@ -8,6 +8,7 @@ Compared to the original forked from, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
+* being mirrored in Rust 
 
 
 ## Implementations
@@ -21,23 +22,25 @@ Compared to the original forked from, the code is:
 
 ## Run
 
-    python -O test_maximal_cliques.py
+    cd python3 && python -O python3/test_maximal_cliques.py
+    cd rust && cargo run --release
 
 
 ## Results
 
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
-* Dense random graphs of order 50: Ver1 indeed can't cope.
-<div><a href="https://plot.ly/~stein.somers/64/?share_key=ddjMPag8Q6y561Ozvjm7cR" target="_blank" title="Bron-Kerbosch on order 50" style="display: block"><img src="https://plot.ly/~stein.somers/64.png?share_key=ddjMPag8Q6y561Ozvjm7cR" alt="Bron-Kerbosch on order 50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+* Dense random graphs of order 50, python3: Ver1 indeed can't cope.
+<div><a href="https://plot.ly/~stein.somers/80/?share_key=zYhMcPgBgf2rc9QKziOahb" target="_blank" title="bron_kerbosch_python3_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/80.png?share_key=zYhMcPgBgf2rc9QKziOahb" alt="bron_kerbosch_python3_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a><script data-plotly="stein.somers:80" sharekey-plotly="zYhMcPgBgf2rc9QKziOahb" src="https://plot.ly/embed.js" async></script></div>
 
-* Sparse random graphs of order 10k: Ver3 indeed needed straightening out, and Ver5 wins.
-<div><a href="https://plot.ly/~stein.somers/66/?share_key=AncArWLi5zvOcwr7e3laTj" target="_blank" title="Bron-Kerbosch on order 10k" style="display: block"><img src="https://plot.ly/~stein.somers/66.png?share_key=AncArWLi5zvOcwr7e3laTj" alt="Bron-Kerbosch on order 10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+* Sparse random graphs of order 10k, python3: Ver3 indeed needed straightening out, and Ver5 wins.
+<div><a href="https://plot.ly/~stein.somers/82/?share_key=SfJukTitlybNAe6R5LkHp2" target="_blank" title="bron_kerbosch_python3_order_10000" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/82.png?share_key=SfJukTitlybNAe6R5LkHp2" alt="bron_kerbosch_python3_order_10000" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a><script data-plotly="stein.somers:82" sharekey-plotly="SfJukTitlybNAe6R5LkHp2" src="https://plot.ly/embed.js" async></script></div>
 
 
 ## Test
     
-    pytest
+    cd python3 && pytest
+    cd rust && cargo test --all
 
 
 ## Time Comlexity
