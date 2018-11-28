@@ -31,10 +31,10 @@ Compared to the original forked from, the code is:
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
 * Dense random graphs of order 50: Ver1 indeed can't cope.
-<div><a href="https://plot.ly/~stein.somers/80/?share_key=zYhMcPgBgf2rc9QKziOahb" target="_blank" title="bron_kerbosch_python3_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/80.png?share_key=zYhMcPgBgf2rc9QKziOahb" alt="bron_kerbosch_python3_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+<div><a href="https://plot.ly/~stein.somers/92/?share_key=LVkjsBy9TuBqQLN3COmN9A" target="_blank" title="bron_kerbosch_python3_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/92.png?share_key=LVkjsBy9TuBqQLN3COmN9A" alt="bron_kerbosch_python3_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
-* Sparse random graphs of order 10k: Ver3 indeed needed straightening out, and Ver5 wins.
-<div><a href="https://plot.ly/~stein.somers/82/?share_key=SfJukTitlybNAe6R5LkHp2" target="_blank" title="bron_kerbosch_python3_order_10000" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/82.png?share_key=SfJukTitlybNAe6R5LkHp2" alt="bron_kerbosch_python3_order_10000" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+* Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
+<div><a href="https://plot.ly/~stein.somers/96/?share_key=mZXAydzZ3IY2ZRu77f0Tho" target="_blank" title="bron_kerbosch_rust_order_10000" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/96.png?share_key=mZXAydzZ3IY2ZRu77f0Tho" alt="bron_kerbosch_rust_order_10000" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
 
 ## Test
