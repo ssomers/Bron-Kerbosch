@@ -2,6 +2,7 @@ extern crate rand;
 
 mod bron_kerbosch1;
 mod bron_kerbosch2;
+mod bron_kerbosch3;
 mod graph;
 pub mod random_graph;
 mod reporter;
@@ -19,13 +20,18 @@ use std::time::{Duration, SystemTime};
 type OrderedClique = BTreeSet<Vertex>;
 type OrderedCliques = BTreeSet<OrderedClique>;
 
+pub const NUM_FUNCS: usize = 3;
 static FUNCS: &'static [fn(
     graph: &UndirectedGraph,
     clique: Clique,
-    candidates: &mut HashSet<Vertex>,
-    excluded: &mut HashSet<Vertex>,
+    candidates: HashSet<Vertex>,
+    excluded: HashSet<Vertex>,
     reporter: &mut Reporter,
-)] = &[bron_kerbosch1::explore, bron_kerbosch2::explore];
+); NUM_FUNCS] = &[
+    bron_kerbosch1::explore,
+    bron_kerbosch2::explore,
+    bron_kerbosch3::explore,
+];
 
 fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
     cliques
@@ -40,13 +46,7 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
         let mut candidates: HashSet<Vertex> = graph.connected_nodes();
         let mut excluded: HashSet<Vertex> = HashSet::new();
         let mut reporter = SimpleReporter::new();
-        func(
-            &graph,
-            vec![],
-            &mut candidates,
-            &mut excluded,
-            &mut reporter,
-        );
+        func(&graph, vec![], candidates, excluded, &mut reporter);
         let current = order_cliques(reporter.cliques);
         if first.is_none() {
             first = Some(current);
@@ -75,9 +75,9 @@ pub fn to_seconds(duration: Duration) -> Seconds {
     duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
 }
 
-pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> Vec<Seconds> {
+pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> [Seconds; NUM_FUNCS] {
     const REPEATS: u32 = 10;
-    let mut times: Vec<Seconds> = Vec::new();
+    let mut times = [-99.0; NUM_FUNCS];
     let mut first: Option<OrderedCliques> = None;
     for func_index in 0..FUNCS.len() {
         let func = FUNCS[func_index];
@@ -88,13 +88,7 @@ pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> Vec<Seconds> {
             let mut candidates: HashSet<Vertex> = graph.connected_nodes();
             let mut excluded: HashSet<Vertex> = HashSet::new();
             reporter = SimpleReporter::new();
-            func(
-                &graph,
-                vec![],
-                &mut candidates,
-                &mut excluded,
-                &mut reporter,
-            );
+            func(&graph, vec![], candidates, excluded, &mut reporter);
             let current = order_cliques(reporter.cliques);
             match first.clone() {
                 None => {
@@ -106,18 +100,19 @@ pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> Vec<Seconds> {
             }
         }
 
-        let mut seconds: Seconds = -99.0;
         if diagnostic.is_none() {
             diagnostic = Some(match sys_time.elapsed() {
                 Err(err) => format!("Could not get time: {}", err),
                 Ok(duration) => {
-                    seconds = to_seconds(duration) / REPEATS as Seconds;
-                    format!("{:5.2}s, {} recursive calls", seconds, reporter.cnt)
+                    times[func_index] = to_seconds(duration) / REPEATS as Seconds;
+                    format!(
+                        "{:5.2}s, {} recursive calls",
+                        times[func_index], reporter.cnt
+                    )
                 }
             });
         }
         println!("bron_kerbosch{}: {}", func_index + 1, diagnostic.unwrap());
-        times.push(seconds);
     }
     times
 }

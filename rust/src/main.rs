@@ -5,7 +5,7 @@ extern crate rand_chacha;
 extern crate structopt;
 
 use bron_kerbosch::random_graph::{Order, Size};
-use bron_kerbosch::{bron_kerbosch_timed, random_graph};
+use bron_kerbosch::{bron_kerbosch_timed, random_graph, NUM_FUNCS};
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::fs::File;
@@ -27,7 +27,6 @@ where
     I: Iterator<Item = u32>,
 {
     const LANGUAGE: &str = "rust";
-    const NUM_FUNCS: u32 = 2;
     {
         let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, order);
         let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));

@@ -10,8 +10,8 @@ use std::collections::HashSet;
 pub fn explore(
     graph: &UndirectedGraph,
     clique: Clique,
-    candidates: &mut HashSet<Vertex>,
-    excluded: &mut HashSet<Vertex>,
+    mut candidates: HashSet<Vertex>,
+    mut excluded: HashSet<Vertex>,
     reporter: &mut Reporter,
 ) {
     reporter.inc_count();
@@ -24,15 +24,15 @@ pub fn explore(
         candidates.remove(&v);
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
-        let mut nearby_candidates: HashSet<Vertex> =
+        let neighbouring_candidates: HashSet<Vertex> =
             candidates.intersection(&neighbours).cloned().collect();
-        let mut nearby_excluded: HashSet<Vertex> =
+        let neighbouring_excluded: HashSet<Vertex> =
             excluded.intersection(&neighbours).cloned().collect();
         explore(
             graph,
             [clique.as_slice(), &[v]].concat(),
-            &mut nearby_candidates,
-            &mut nearby_excluded,
+            neighbouring_candidates,
+            neighbouring_excluded,
             reporter,
         );
         excluded.insert(v);
