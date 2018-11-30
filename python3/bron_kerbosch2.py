@@ -18,7 +18,6 @@ def bron_kerbosch2(graph: UndirectedGraph, clique: List[int],
         return
 
     pivot = pick_arbitrary(candidates or excluded)
-    assert graph.adjacencies[pivot]
     for v in list(candidates.difference(graph.adjacencies[pivot])):
         assert graph.adjacencies[v]
         bron_kerbosch2(

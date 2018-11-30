@@ -1,6 +1,7 @@
-//! Bron-Kerbosch algorithm with pivot
+//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot randomly (IK_RP)
 extern crate rand;
 
+use self::rand::seq::IteratorRandom;
 use graph::UndirectedGraph;
 use graph::Vertex;
 use reporter::Clique;
@@ -22,22 +23,25 @@ pub fn explore(
         return;
     }
 
-    let pivot = pick_arbitrary(if !candidates.is_empty() {
+    let pivot = pick_random(if !candidates.is_empty() {
         &candidates
     } else {
         &excluded
     });
-    let far_candidates: HashSet<Vertex> = candidates
+    let far_candidates: Vec<Vertex> = candidates
         .difference(graph.adjacencies(pivot))
         .cloned()
         .collect();
+    excluded.reserve(far_candidates.len());
     for v in far_candidates {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
+        candidates.remove(&v);
         let neighbouring_candidates: HashSet<Vertex> =
             neighbours.intersection(&candidates).cloned().collect();
         let neighbouring_excluded: HashSet<Vertex> =
             neighbours.intersection(&excluded).cloned().collect();
+        excluded.insert(v);
         explore(
             graph,
             [clique.as_slice(), &[v]].concat(),
@@ -45,11 +49,10 @@ pub fn explore(
             neighbouring_excluded,
             reporter,
         );
-        candidates.remove(&v);
-        excluded.insert(v);
     }
 }
 
-fn pick_arbitrary(s: &HashSet<Vertex>) -> Vertex {
-    s.iter().next().unwrap().clone()
+fn pick_random(s: &HashSet<Vertex>) -> Vertex {
+    let mut rng = rand::thread_rng();
+    s.iter().choose(&mut rng).unwrap().clone()
 }

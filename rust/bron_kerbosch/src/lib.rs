@@ -3,6 +3,9 @@ extern crate rand;
 mod bron_kerbosch1;
 mod bron_kerbosch2;
 mod bron_kerbosch3;
+mod bron_kerbosch4;
+mod bron_kerbosch5;
+mod bron_kerbosch6;
 mod graph;
 pub mod random_graph;
 mod reporter;
@@ -20,7 +23,7 @@ use std::time::{Duration, SystemTime};
 type OrderedClique = BTreeSet<Vertex>;
 type OrderedCliques = BTreeSet<OrderedClique>;
 
-pub const NUM_FUNCS: usize = 3;
+pub const NUM_FUNCS: usize = 6;
 static FUNCS: &'static [fn(
     graph: &UndirectedGraph,
     clique: Clique,
@@ -31,6 +34,9 @@ static FUNCS: &'static [fn(
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
     bron_kerbosch3::explore,
+    bron_kerbosch4::explore,
+    bron_kerbosch5::explore,
+    bron_kerbosch6::explore,
 ];
 
 fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
@@ -112,7 +118,7 @@ pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> [Seconds; NUM_FUNCS] {
                 }
             });
         }
-        println!("bron_kerbosch{}: {}", func_index + 1, diagnostic.unwrap());
+        println!("Ver{}: {}", func_index + 1, diagnostic.unwrap());
     }
     times
 }

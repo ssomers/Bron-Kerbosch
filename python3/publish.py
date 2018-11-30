@@ -4,20 +4,20 @@ import sys
 from typing import List
 
 
-def publish(language: str, num_funcs: int, order: int, sizes: List[int],
+def publish(language: str, orderstr: str, num_funcs: int, sizes: List[int],
             times_per_size: List[List[float]]):
-    filename = f"bron_kerbosch_{language}_order_{order}"
+    filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
         w = csv.writer(csvfile)
         w.writerow(["Size"] + [f"Ver{i+1}" for i in range(num_funcs)])
         for i, size in enumerate(sizes):
             w.writerow([str(size)] + [str(t) for t in times_per_size[i]])
-    publish_csv(language=language, order=order)
+    publish_csv(language=language, orderstr=orderstr)
 
 
-def publish_csv(language: str, order: int):
-    filename = f"bron_kerbosch_{language}_order_{order}"
+def publish_csv(language: str, orderstr: str):
+    filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile)
@@ -46,7 +46,7 @@ def publish_csv(language: str, order: int):
         ]
         layout = {
             'title': (f"{language} implementations of Bron-Kerbosch on " +
-                      f"random graphs order {order}"),
+                      f"random graphs order {orderstr}"),
             'xaxis': {
                 'title': "Size (#edges)"
             },
@@ -63,4 +63,4 @@ def publish_csv(language: str, order: int):
 
 
 if __name__ == '__main__':
-    publish_csv(language=sys.argv[1], order=int(sys.argv[2]))
+    publish_csv(language=sys.argv[1], orderstr=sys.argv[2])

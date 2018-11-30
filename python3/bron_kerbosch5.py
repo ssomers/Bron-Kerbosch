@@ -39,8 +39,6 @@ def pick_best(graph: UndirectedGraph, candidates: Set[int],
     max_degree = -1
     best = None
     for node in itertools.chain(candidates, excluded):
-        # degree = graph.degree(node)
-        # assert degree > 0
         degree = len(graph.adjacencies[node] & candidates)
         if max_degree < degree:
             max_degree = degree

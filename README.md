@@ -32,9 +32,12 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 * Dense random graphs of order 50: Ver1 indeed can't cope.
 <div><a href="https://plot.ly/~stein.somers/92/?share_key=LVkjsBy9TuBqQLN3COmN9A" target="_blank" title="bron_kerbosch_python3_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/92.png?share_key=LVkjsBy9TuBqQLN3COmN9A" alt="bron_kerbosch_python3_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+<div><a href="https://plot.ly/~stein.somers/94/?share_key=W9mdBlLlOMJDjj6u1UY9yv" target="_blank" title="bron_kerbosch_rust_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/94.png?share_key=W9mdBlLlOMJDjj6u1UY9yv" alt="bron_kerbosch_rust_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
-<div><a href="https://plot.ly/~stein.somers/90/?share_key=7aiEzI4yLkgpImpYASnE9c" target="_blank" title="bron_kerbosch_python3_order_10000" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/90.png?share_key=7aiEzI4yLkgpImpYASnE9c" alt="bron_kerbosch_python3_order_10000" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+<div><a href="https://plot.ly/~stein.somers/104/?share_key=Me9i7jrXx4fYmWvPWe0oYc" target="_blank" title="bron_kerbosch_python3_order_10k" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/104.png?share_key=Me9i7jrXx4fYmWvPWe0oYc" alt="bron_kerbosch_python3_order_10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
+<div><a href="https://plot.ly/~stein.somers/100/?share_key=i72XBo5uIEvrUe9j7HfL5r" target="_blank" title="bron_kerbosch_rust_order_10k" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/100.png?share_key=i72XBo5uIEvrUe9j7HfL5r" alt="bron_kerbosch_rust_order_10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
 
 ## Test

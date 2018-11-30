@@ -73,8 +73,6 @@ def pick_with_lowest_degree(degree_per_node, nodes_per_degree, infinite):
 
 
 def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[int]):
-    if not candidates:
-        return
     order = graph.order
     infinite = order * 2  # still >= order after decrementing in each iteration
     degree_per_node = [infinite] * order

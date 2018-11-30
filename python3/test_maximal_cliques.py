@@ -50,7 +50,7 @@ def bron_kerbosch_timed(graph: Graph):
     repeats = 10
     first = None
     times = []
-    for func in funcs:
+    for func_index, func in enumerate(funcs):
         begin = time.process_time()
         seconds = None
         diagnostic = None
@@ -77,7 +77,7 @@ def bron_kerbosch_timed(graph: Graph):
             diagnostic = f'{seconds:5.2f}s, {reporter.cnt} recursive calls'
         else:
             seconds = None
-        print(f'{func.__name__}: {diagnostic}')
+        print(f'Ver{func_index+1}: {diagnostic}')
         times.append(seconds)
     return times
 
@@ -181,7 +181,11 @@ def test_random_graph():
     random_graph(order=4, size=5)
 
 
-def bk(order: int, sizes):
+def bk(orderstr: str, sizes):
+    if orderstr.endswith('k'):
+        order = int(orderstr[:-1]) * 1000
+    else:
+        order = int(orderstr)
     times_per_size = []
     for size in sizes:
         random.seed(seed)
@@ -189,8 +193,8 @@ def bk(order: int, sizes):
         times_per_size.append(bron_kerbosch_timed(g))
     publish(
         language="python3",
+        orderstr=orderstr,
         num_funcs=len(funcs),
-        order=order,
         sizes=sizes,
         times_per_size=times_per_size)
 
@@ -208,11 +212,11 @@ if __name__ == '__main__':
     else:
         seed = 19680516
     if args.order is not None and args.size is not None:
-        bk(order=int(args.order), sizes=[int(size) for size in args.size])
+        bk(orderstr=args.order, sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(order=50, sizes=range(750, 1_000, 10))  # max 1225
-        bk(order=10_000,
+        bk(orderstr="50", sizes=range(750, 1_000, 10))  # max 1225
+        bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
                range(10_000, 100_000, 10_000)))
     print(f"random seed was {seed}")

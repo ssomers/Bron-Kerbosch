@@ -1,5 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot
-extern crate rand;
+//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot smartly (IK_GPX)
 
 use graph::UndirectedGraph;
 use graph::Vertex;
@@ -22,22 +21,21 @@ pub fn explore(
         return;
     }
 
-    let pivot = pick_arbitrary(if !candidates.is_empty() {
-        &candidates
-    } else {
-        &excluded
-    });
-    let far_candidates: HashSet<Vertex> = candidates
+    let pivot = pick_best(graph, &candidates, &excluded);
+    let far_candidates: Vec<Vertex> = candidates
         .difference(graph.adjacencies(pivot))
         .cloned()
         .collect();
+    excluded.reserve(far_candidates.len());
     for v in far_candidates {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
+        candidates.remove(&v);
         let neighbouring_candidates: HashSet<Vertex> =
             neighbours.intersection(&candidates).cloned().collect();
         let neighbouring_excluded: HashSet<Vertex> =
             neighbours.intersection(&excluded).cloned().collect();
+        excluded.insert(v);
         explore(
             graph,
             [clique.as_slice(), &[v]].concat(),
@@ -45,11 +43,19 @@ pub fn explore(
             neighbouring_excluded,
             reporter,
         );
-        candidates.remove(&v);
-        excluded.insert(v);
     }
 }
 
-fn pick_arbitrary(s: &HashSet<Vertex>) -> Vertex {
-    s.iter().next().unwrap().clone()
+fn pick_best(
+    graph: &UndirectedGraph,
+    candidates: &HashSet<Vertex>,
+    excluded: &HashSet<Vertex>,
+) -> Vertex {
+    assert!(!(candidates.is_empty() && excluded.is_empty()));
+    candidates
+        .iter()
+        .chain(excluded)
+        .max_by_key(|v| graph.adjacencies(**v).intersection(&candidates).count())
+        .unwrap()
+        .clone()
 }
