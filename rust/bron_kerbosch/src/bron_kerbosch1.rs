@@ -25,9 +25,9 @@ pub fn explore(
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates: HashSet<Vertex> =
-            candidates.intersection(&neighbours).cloned().collect();
+            neighbours.intersection(&candidates).cloned().collect();
         let neighbouring_excluded: HashSet<Vertex> =
-            excluded.intersection(&neighbours).cloned().collect();
+            neighbours.intersection(&excluded).cloned().collect();
         explore(
             graph,
             [clique.as_slice(), &[v]].concat(),
