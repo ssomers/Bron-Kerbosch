@@ -4,25 +4,13 @@ extern crate rand;
 use super::bron_kerbosch5;
 use graph::UndirectedGraph;
 use graph::Vertex;
-use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
-pub fn explore(
-    graph: &UndirectedGraph,
-    clique: Clique,
-    mut candidates: HashSet<Vertex>,
-    mut excluded: HashSet<Vertex>,
-    reporter: &mut Reporter,
-) {
-    debug_assert!(candidates.iter().all(|v| graph.degree(*v) > 0));
-    debug_assert!(excluded.iter().all(|v| graph.degree(*v) > 0));
+pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     reporter.inc_count();
-    if candidates.is_empty() && excluded.is_empty() {
-        assert!(clique.is_empty());
-        return;
-    }
-
+    let mut candidates: HashSet<Vertex> = graph.connected_nodes();
+    let mut excluded: HashSet<Vertex> = HashSet::new();
     let ordered = degeneracy_order_smart(graph, &candidates);
     for v in ordered {
         let neighbours = graph.adjacencies(v);
@@ -33,12 +21,12 @@ pub fn explore(
         let neighbouring_excluded: HashSet<Vertex> =
             neighbours.intersection(&excluded).cloned().collect();
         excluded.insert(v);
-        bron_kerbosch5::explore(
+        bron_kerbosch5::visit(
             graph,
-            [clique.as_slice(), &[v]].concat(),
+            reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            reporter,
+            vec![v],
         );
     }
 }

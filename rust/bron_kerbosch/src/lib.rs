@@ -17,20 +17,13 @@ use random_graph::{new_undirected, Order, Size};
 use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
 use std::collections::BTreeSet;
-use std::collections::HashSet;
 use std::time::{Duration, SystemTime};
 
 type OrderedClique = BTreeSet<Vertex>;
 type OrderedCliques = BTreeSet<OrderedClique>;
 
 pub const NUM_FUNCS: usize = 6;
-static FUNCS: &'static [fn(
-    graph: &UndirectedGraph,
-    clique: Clique,
-    candidates: HashSet<Vertex>,
-    excluded: HashSet<Vertex>,
-    reporter: &mut Reporter,
-); NUM_FUNCS] = &[
+static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
     bron_kerbosch3::explore,
@@ -49,10 +42,8 @@ fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
 pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
     let mut first: Option<OrderedCliques> = None;
     for func in FUNCS {
-        let mut candidates: HashSet<Vertex> = graph.connected_nodes();
-        let mut excluded: HashSet<Vertex> = HashSet::new();
         let mut reporter = SimpleReporter::new();
-        func(&graph, vec![], candidates, excluded, &mut reporter);
+        func(&graph, &mut reporter);
         let current = order_cliques(reporter.cliques);
         if first.is_none() {
             first = Some(current);
@@ -91,10 +82,8 @@ pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> [Seconds; NUM_FUNCS] {
         let mut diagnostic: Option<String> = None;
         let mut reporter = SimpleReporter::new();
         for _ in 0..REPEATS {
-            let mut candidates: HashSet<Vertex> = graph.connected_nodes();
-            let mut excluded: HashSet<Vertex> = HashSet::new();
             reporter = SimpleReporter::new();
-            func(&graph, vec![], candidates, excluded, &mut reporter);
+            func(&graph, &mut reporter);
             let current = order_cliques(reporter.cliques);
             match first.clone() {
                 None => {

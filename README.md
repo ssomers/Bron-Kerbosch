@@ -15,15 +15,15 @@ Compared to the original forked from, the code is:
 ## Implementations
 
 * **Ver1:** naive Bron-Kerbosch algorithm
-* **Ver2:** Ver1 with pivot
-* **Ver3:** Ver2 with degeneracy ordering, picking pivot arbitrarily, and clearly marked as needing a performance fix
+* **Ver2:** Ver1 with pivot, picking pivot arbitrarily
+* **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
 * **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
 * **Ver6:** Ver3 more optimized (with result, but not enough to beat Ver5)
 
 ## Run
 
-    cd python3 && python -O python3/test_maximal_cliques.py
+    cd python3 && python -O test_maximal_cliques.py
     cd rust && cargo run --release
 
 

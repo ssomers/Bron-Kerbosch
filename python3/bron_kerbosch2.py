@@ -5,10 +5,18 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def bron_kerbosch2(graph: UndirectedGraph, clique: List[int],
-                   candidates: Set[int], excluded: Set[int],
-                   reporter: Reporter):
+def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot'''
+    visit(
+        graph=graph,
+        reporter=reporter,
+        candidates=graph.connected_nodes(),
+        excluded=set(),
+        clique=[])
+
+
+def visit(graph: UndirectedGraph, reporter: Reporter,
+          candidates: Set[int], excluded: Set[int], clique: List[int]):
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
 
@@ -20,12 +28,12 @@ def bron_kerbosch2(graph: UndirectedGraph, clique: List[int],
     pivot = pick_arbitrary(candidates or excluded)
     for v in list(candidates.difference(graph.adjacencies[pivot])):
         assert graph.adjacencies[v]
-        bron_kerbosch2(
+        visit(
             graph=graph,
-            clique=clique + [v],
+            reporter=reporter,
             candidates=candidates.intersection(graph.adjacencies[v]),
             excluded=excluded.intersection(graph.adjacencies[v]),
-            reporter=reporter)
+            clique=clique + [v])
         candidates.remove(v)
         excluded.add(v)
 

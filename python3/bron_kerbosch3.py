@@ -1,28 +1,24 @@
 # coding: utf-8
 
-from bron_kerbosch2 import bron_kerbosch2
+import bron_kerbosch2
 from graph import UndirectedGraph
 from reporter import Reporter
-from typing import List, Set
+from typing import Set
 
 
-def bron_kerbosch3(graph: UndirectedGraph, clique: List[int],
-                   candidates: Set[int], excluded: Set[int],
-                   reporter: Reporter):
+def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering'''
     reporter.inc_count()
-    if not candidates and not excluded:
-        assert len(clique) == 0
-        return
-
+    candidates = graph.connected_nodes()
+    excluded: Set[int] = set()
     for v in list(degeneracy_order(graph=graph, nodes=candidates)):
         assert graph.adjacencies[v]
-        bron_kerbosch2(
+        bron_kerbosch2.visit(
             graph=graph,
-            clique=clique + [v],
+            reporter=reporter,
             candidates=candidates.intersection(graph.adjacencies[v]),
             excluded=excluded.intersection(graph.adjacencies[v]),
-            reporter=reporter)
+            clique=[v])
         candidates.remove(v)
         excluded.add(v)
 

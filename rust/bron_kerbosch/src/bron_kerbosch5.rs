@@ -6,12 +6,19 @@ use reporter::Clique;
 use reporter::Reporter;
 use std::collections::HashSet;
 
-pub fn explore(
+pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+    let candidates: HashSet<Vertex> = graph.connected_nodes();
+    let excluded: HashSet<Vertex> = HashSet::new();
+    let clique = vec![];
+    visit(graph, reporter, candidates, excluded, clique);
+}
+
+pub fn visit(
     graph: &UndirectedGraph,
-    clique: Clique,
+    reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
-    reporter: &mut Reporter,
+    clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|v| graph.degree(*v) > 0));
     debug_assert!(excluded.iter().all(|v| graph.degree(*v) > 0));
@@ -36,12 +43,12 @@ pub fn explore(
         let neighbouring_excluded: HashSet<Vertex> =
             neighbours.intersection(&excluded).cloned().collect();
         excluded.insert(v);
-        explore(
+        visit(
             graph,
-            [clique.as_slice(), &[v]].concat(),
+            reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            reporter,
+            [clique.as_slice(), &[v]].concat(),
         );
     }
 }

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from bron_kerbosch5 import bron_kerbosch5
+import bron_kerbosch5
 from graph import UndirectedGraph
 from reporter import Reporter
 from dataclasses import dataclass, field
@@ -8,26 +8,22 @@ import queue
 from typing import Any, List, Set
 
 
-def bron_kerbosch6(graph: UndirectedGraph, clique: List[int],
-                   candidates: Set[int], excluded: Set[int],
-                   reporter: Reporter):
+def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
     optimized'''
     reporter.inc_count()
-    if not candidates and not excluded:
-        reporter.record(clique)
-        return
-
+    candidates = graph.connected_nodes()
+    excluded: Set[int] = set()
     for v in degeneracy_order_smart(graph=graph, candidates=candidates):
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
-        bron_kerbosch5(
+        bron_kerbosch5.visit(
             graph=graph,
-            clique=clique + [v],
+            reporter=reporter,
             candidates=candidates.intersection(neighbours),
             excluded=excluded.intersection(neighbours),
-            reporter=reporter)
+            clique=[v])
         excluded.add(v)
 
 

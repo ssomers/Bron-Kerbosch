@@ -1,11 +1,11 @@
 # coding: utf-8
 
-from bron_kerbosch1 import bron_kerbosch1
-from bron_kerbosch2 import bron_kerbosch2
-from bron_kerbosch3 import bron_kerbosch3
-from bron_kerbosch4 import bron_kerbosch4
-from bron_kerbosch5 import bron_kerbosch5
-from bron_kerbosch6 import bron_kerbosch6
+import bron_kerbosch1
+import bron_kerbosch2
+import bron_kerbosch3
+import bron_kerbosch4
+import bron_kerbosch5
+import bron_kerbosch6
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
@@ -18,12 +18,12 @@ import time
 from typing import List
 
 funcs = [
-    bron_kerbosch1,
-    bron_kerbosch2,
-    bron_kerbosch3,
-    bron_kerbosch4,
-    bron_kerbosch5,
-    bron_kerbosch6,
+    bron_kerbosch1.explore,
+    bron_kerbosch2.explore,
+    bron_kerbosch3.explore,
+    bron_kerbosch4.explore,
+    bron_kerbosch5.explore,
+    bron_kerbosch6.explore,
 ]
 
 
@@ -31,12 +31,7 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
     first = None
     for func in funcs:
         reporter = SimpleReporter()
-        func(
-            graph=graph,
-            clique=[],
-            candidates=graph.connected_nodes(),
-            excluded=set(),
-            reporter=reporter)
+        func(graph=graph, reporter=reporter)
         current = sorted(sorted(clique) for clique in reporter.cliques)
         if first is None:
             first = current
@@ -57,12 +52,7 @@ def bron_kerbosch_timed(graph: Graph):
         for _ in range(repeats):
             reporter = SimpleReporter()
             try:
-                func(
-                    graph=graph,
-                    clique=[],
-                    candidates=graph.connected_nodes(),
-                    excluded=set(),
-                    reporter=reporter)
+                func(graph=graph, reporter=reporter)
             except RecursionError:
                 diagnostic = 'recursed out'
                 break

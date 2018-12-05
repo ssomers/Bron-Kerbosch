@@ -5,10 +5,18 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def bron_kerbosch1(graph: UndirectedGraph, clique: List[int],
-                   candidates: Set[int], excluded: Set[int],
-                   reporter: Reporter):
+def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Naive Bron-Kerbosch algorithm'''
+    visit(
+        graph=graph,
+        reporter=reporter,
+        candidates=graph.connected_nodes(),
+        excluded=set(),
+        clique=[])
+
+
+def visit(graph: UndirectedGraph, reporter: Reporter,
+          candidates: Set[int], excluded: Set[int], clique: List[int]):
     reporter.inc_count()
     if not candidates and not excluded:
         reporter.record(clique)
@@ -17,10 +25,10 @@ def bron_kerbosch1(graph: UndirectedGraph, clique: List[int],
         v = candidates.pop()
         neighbours = graph.adjacencies[v]
         assert neighbours
-        bron_kerbosch1(
+        visit(
             graph=graph,
-            clique=clique + [v],
+            reporter=reporter,
             candidates=candidates.intersection(neighbours),
             excluded=excluded.intersection(neighbours),
-            reporter=reporter)
+            clique=clique + [v])
         excluded.add(v)
