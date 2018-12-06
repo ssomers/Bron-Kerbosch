@@ -32,15 +32,15 @@ Compared to the original forked from, the code is:
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
 
 * Dense random graphs of order 50: Ver1 indeed can't cope.
-<div><a href="https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn" target="_blank" title="bron_kerbosch_python3_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn" alt="bron_kerbosch_python3_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
-<div><a href="https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk" target="_blank" title="bron_kerbosch_rust_order_50" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk" alt="bron_kerbosch_rust_order_50" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
+![Python3 graph](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn)[open](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
+![Rust graph](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)[open](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
 
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
-<div><a href="https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad" target="_blank" title="bron_kerbosch_python3_order_10k" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad" alt="bron_kerbosch_python3_order_10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
-<div><a href="https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj" target="_blank" title="bron_kerbosch_rust_order_10k" style="display: block; text-align: center;"><img src="https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj" alt="bron_kerbosch_rust_order_10k" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plot.ly/404.png';" /></a></div>
 
+![Python3 graph](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad)[open](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
+![Rust graph](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)[open](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
 
 ## Test
