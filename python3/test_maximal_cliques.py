@@ -47,16 +47,15 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
     times = [SampleStatistics() for _ in range(len(FUNCS))]
     for _ in range(samples):
         for func_index, func in enumerate(FUNCS):
-            begin = time.process_time()
-            seconds = None
             diagnostic = None
             reporter = SimpleReporter()
+            begin = time.process_time()
             try:
                 func(graph=graph, reporter=reporter)
             except RecursionError:
                 diagnostic = 'recursed out'
                 break
-            seconds = (time.process_time() - begin) / samples
+            seconds = time.process_time() - begin
             if diagnostic is None:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
