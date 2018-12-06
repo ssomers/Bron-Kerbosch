@@ -1,0 +1,7 @@
+[package]
+name = "stats"
+version = "0.1.0"
+authors = ["Stein Somers <git@steinsomers.be>"]
+
+[dependencies]
+num-traits = "0"

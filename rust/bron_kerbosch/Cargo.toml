@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
 [dependencies]
+stats = { path = "../stats" }
 rand = "0.6.0"
 
 [dev-dependencies]

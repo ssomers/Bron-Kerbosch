@@ -1,4 +1,5 @@
 extern crate rand;
+extern crate stats;
 
 mod bron_kerbosch1;
 mod bron_kerbosch2;
@@ -16,6 +17,7 @@ use rand::Rng;
 use random_graph::{new_undirected, Order, Size};
 use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
+use stats::SampleStatistics;
 use std::collections::BTreeSet;
 use std::time::{Duration, SystemTime};
 
@@ -72,18 +74,26 @@ pub fn to_seconds(duration: Duration) -> Seconds {
     duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
 }
 
-pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> [Seconds; NUM_FUNCS] {
-    const REPEATS: u32 = 10;
-    let mut times = [-99.0; NUM_FUNCS];
+pub fn bron_kerbosch_timed(
+    graph: &UndirectedGraph,
+    samples: u32,
+) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
+    let mut times = [SampleStatistics::new(); NUM_FUNCS];
     let mut first: Option<OrderedCliques> = None;
-    for func_index in 0..FUNCS.len() {
-        let func = FUNCS[func_index];
-        let sys_time = SystemTime::now();
-        let mut diagnostic: Option<String> = None;
-        let mut reporter = SimpleReporter::new();
-        for _ in 0..REPEATS {
-            reporter = SimpleReporter::new();
+    for _ in 0..samples {
+        for func_index in 0..FUNCS.len() {
+            let func = FUNCS[func_index];
+            let sys_time = SystemTime::now();
+            let mut reporter = SimpleReporter::new();
             func(&graph, &mut reporter);
+            let mut diagnostic: Option<String> = None;
+            let secs: Seconds = match sys_time.elapsed() {
+                Ok(duration) => to_seconds(duration),
+                Err(err) => {
+                    diagnostic = Some(format!("Could not get time: {}", err));
+                    -99.9
+                }
+            };
             let current = order_cliques(reporter.cliques);
             match first.clone() {
                 None => {
@@ -93,21 +103,13 @@ pub fn bron_kerbosch_timed(graph: &UndirectedGraph) -> [Seconds; NUM_FUNCS] {
                     diagnostic = Some(format!("oops, {:?} != {:?}", first_result, current));
                 },
             }
-        }
 
-        if diagnostic.is_none() {
-            diagnostic = Some(match sys_time.elapsed() {
-                Err(err) => format!("Could not get time: {}", err),
-                Ok(duration) => {
-                    times[func_index] = to_seconds(duration) / REPEATS as Seconds;
-                    format!(
-                        "{:5.2}s, {} recursive calls",
-                        times[func_index], reporter.cnt
-                    )
-                }
-            });
+            if let Some(d) = diagnostic {
+                println!("Ver{}: {}", func_index + 1, d);
+            } else {
+                times[func_index].put(secs).unwrap();
+            }
         }
-        println!("Ver{}: {}", func_index + 1, diagnostic.unwrap());
     }
     times
 }

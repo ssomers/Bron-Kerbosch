@@ -10,6 +10,7 @@ from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
 from reporter import SimpleReporter
+from stats import SampleStatistics
 from publish import publish
 import argparse
 import random
@@ -17,7 +18,7 @@ import sys
 import time
 from typing import List
 
-funcs = [
+FUNCS = [
     bron_kerbosch1.explore,
     bron_kerbosch2.explore,
     bron_kerbosch3.explore,
@@ -29,7 +30,7 @@ funcs = [
 
 def bron_kerbosch(graph: Graph) -> List[List[int]]:
     first = None
-    for func in funcs:
+    for func in FUNCS:
         reporter = SimpleReporter()
         func(graph=graph, reporter=reporter)
         current = sorted(sorted(clique) for clique in reporter.cliques)
@@ -41,34 +42,31 @@ def bron_kerbosch(graph: Graph) -> List[List[int]]:
     return first
 
 
-def bron_kerbosch_timed(graph: Graph):
-    repeats = 10
+def bron_kerbosch_timed(graph: Graph, samples: int):
     first = None
-    times = []
-    for func_index, func in enumerate(funcs):
-        begin = time.process_time()
-        seconds = None
-        diagnostic = None
-        for _ in range(repeats):
+    times = [SampleStatistics() for _ in range(len(FUNCS))]
+    for _ in range(samples):
+        for func_index, func in enumerate(FUNCS):
+            begin = time.process_time()
+            seconds = None
+            diagnostic = None
             reporter = SimpleReporter()
             try:
                 func(graph=graph, reporter=reporter)
             except RecursionError:
                 diagnostic = 'recursed out'
                 break
-        seconds = (time.process_time() - begin) / repeats
-        if diagnostic is None:
-            current = sorted(sorted(clique) for clique in reporter.cliques)
-            if first is None:
-                first = current
-            elif first != current:
-                diagnostic = f'oops, {first} != {current}'
-        if diagnostic is None:
-            diagnostic = f'{seconds:5.2f}s, {reporter.cnt} recursive calls'
-        else:
-            seconds = None
-        print(f'Ver{func_index+1}: {diagnostic}')
-        times.append(seconds)
+            seconds = (time.process_time() - begin) / samples
+            if diagnostic is None:
+                current = sorted(sorted(clique) for clique in reporter.cliques)
+                if first is None:
+                    first = current
+                elif first != current:
+                    diagnostic = f'oops, {first} != {current}'
+            if diagnostic is None:
+                times[func_index].put(seconds)
+            else:
+                print(f'Ver{func_index+1}: {diagnostic}')
     return times
 
 
@@ -80,7 +78,7 @@ def random_graph(order: int, size: int) -> Graph:
     if order < 10:
         print(f'{name}: {g.adjacencies}')
     else:
-        print(f'{name}: (generating took {seconds:.2f}s)')
+        print(f'{name} (generating took {seconds:.2f}s)')
     return g
 
 
@@ -176,17 +174,17 @@ def bk(orderstr: str, sizes):
         order = int(orderstr[:-1]) * 1000
     else:
         order = int(orderstr)
-    times_per_size = []
+    stats_per_size = []
     for size in sizes:
         random.seed(seed)
         g = random_graph(order=order, size=size)
-        times_per_size.append(bron_kerbosch_timed(g))
+        stats_per_size.append(bron_kerbosch_timed(g, samples=10))
     publish(
         language="python3",
         orderstr=orderstr,
-        num_funcs=len(funcs),
+        num_funcs=len(FUNCS),
         sizes=sizes,
-        times_per_size=times_per_size)
+        stats_per_size=stats_per_size)
 
 
 if __name__ == '__main__':
@@ -205,7 +203,8 @@ if __name__ == '__main__':
         bk(orderstr=args.order, sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="50", sizes=range(750, 1_000, 10))  # max 1225
+        bk(orderstr="50", sizes=range(600, 901, 10))  # max 1225
+        time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
                range(10_000, 100_000, 10_000)))
