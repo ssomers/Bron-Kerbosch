@@ -46,9 +46,8 @@ fn visit(
 }
 
 fn remove_arbitrary(s: &mut HashSet<Vertex>) -> Option<Vertex> {
-    let r = s.iter().next().cloned();
-    if let Some(v) = r {
+    s.iter().next().cloned().map(|v| {
         s.remove(&v);
-    }
-    r
+        v
+    })
 }

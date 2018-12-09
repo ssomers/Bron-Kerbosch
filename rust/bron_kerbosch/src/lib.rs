@@ -208,10 +208,18 @@ mod tests {
     }
 
     #[test]
-    fn bk_order_4_size_4_square_diagonal() {
+    fn bk_order_4_size_5() {
         bk(
             vec![vec![1, 2, 3], vec![0, 2], vec![0, 1, 3], vec![0, 2]],
             vec![vec![0, 1, 2], vec![0, 2, 3]],
+        );
+    }
+
+    #[test]
+    fn bk_order_4_size_6() {
+        bk(
+            vec![vec![1, 2, 3], vec![0, 2, 3], vec![0, 1, 3], vec![0, 1, 2]],
+            vec![vec![0, 1, 2, 3]],
         );
     }
 

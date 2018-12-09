@@ -138,11 +138,18 @@ def test_order_4_size_4_square():
         ]
 
 
-def test_order_4_size_4_square_diagonal():
+def test_order_4_size_5():
     assert bron_kerbosch(
         Graph(adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}])) == [
             [0, 1, 2],
             [0, 2, 3],
+        ]
+
+
+def test_order_4_size_6():
+    assert bron_kerbosch(
+        Graph(adjacencies=[{1, 2, 3}, {0, 2, 3}, {0, 1, 3}, {0, 1, 2}])) == [
+            [0, 1, 2, 3],
         ]
 
 
