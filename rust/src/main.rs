@@ -113,7 +113,7 @@ fn main() -> Result<(), std::io::Error> {
             .chain((10_000..100_000).step_by(10_000));
         bk("50", sizes_50)?;
         thread::sleep(Duration::from_secs(10));
-        //bk("10k", sizes_10k)?;
+        bk("10k", sizes_10k)?;
     }
     Ok(())
 }
