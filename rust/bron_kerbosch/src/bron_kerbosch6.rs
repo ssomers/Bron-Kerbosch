@@ -40,7 +40,7 @@ fn pick_with_lowest_degree(
         degree_per_node
             .iter()
             .enumerate()
-            .all(|(v, d)| *d == infinite || nodes_per_degree[*d as usize].contains(&(v as u32)))
+            .all(|(v, &d)| d == infinite || nodes_per_degree[d as usize].contains(&(v as u32)))
     );
     for d in 0..nodes_per_degree.len() {
         while let Some(v) = nodes_per_degree[d].pop() {
@@ -58,18 +58,18 @@ fn degeneracy_order_smart(graph: &UndirectedGraph, candidates: &HashSet<Vertex>)
     let infinite: u32 = order * 2; // still >= order after decrementing in each iteration
     let mut degree_per_node: Vec<u32> = vec![infinite; order as usize];
     let mut max_degree: u32 = 0;
-    for node in candidates {
-        let degree = graph.degree(*node);
+    for &node in candidates {
+        let degree = graph.degree(node);
         assert!(degree > 0); // FYI, isolated nodes were excluded up front
         if max_degree < degree {
             max_degree = degree;
         }
-        degree_per_node[*node as usize] = degree;
+        degree_per_node[node as usize] = degree;
     }
     let mut nodes_per_degree: Vec<Vec<u32>> = vec![vec![]; (max_degree + 1) as usize];
-    for node in candidates {
-        let degree = graph.degree(*node);
-        nodes_per_degree[degree as usize].push(*node);
+    for &node in candidates {
+        let degree = graph.degree(node);
+        nodes_per_degree[degree as usize].push(node);
     }
 
     let mut ordered: Vec<Vertex> = Vec::with_capacity(candidates.len());
@@ -77,12 +77,12 @@ fn degeneracy_order_smart(graph: &UndirectedGraph, candidates: &HashSet<Vertex>)
         let i = pick_with_lowest_degree(&degree_per_node, &mut nodes_per_degree, infinite);
         degree_per_node[i as usize] = infinite;
         ordered.push(i);
-        for v in graph.adjacencies(i) {
-            let d = degree_per_node[*v as usize];
+        for &v in graph.adjacencies(i) {
+            let d = degree_per_node[v as usize];
             if d != infinite {
-                degree_per_node[*v as usize] = d - 1;
+                degree_per_node[v as usize] = d - 1;
                 // move to lower degree, but no need to remove the original one
-                nodes_per_degree[(d - 1) as usize].push(*v)
+                nodes_per_degree[(d - 1) as usize].push(v)
             }
         }
     }

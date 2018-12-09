@@ -16,10 +16,10 @@ impl UndirectedGraph {
     pub fn assert_adjacencies(adjacencies: &Adjacencies) -> bool {
         for (i, adjacent_to_v) in adjacencies.iter().enumerate() {
             let v = i as Vertex;
-            for w in adjacent_to_v {
-                debug_assert_ne!(&v, w);
+            for &w in adjacent_to_v {
+                debug_assert_ne!(v, w);
                 debug_assert!(
-                    adjacencies[*w as usize].contains(&v),
+                    adjacencies[w as usize].contains(&v),
                     format!("{} is adjacent to {} but not vice versa", w, v)
                 );
             }
@@ -50,7 +50,7 @@ impl UndirectedGraph {
 
     pub fn connected_nodes(&self) -> HashSet<Vertex> {
         (0..self.order() as Vertex)
-            .filter(|v| self.degree(*v) > 0)
+            .filter(|&v| self.degree(v) > 0)
             .collect()
     }
 }

@@ -47,7 +47,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
             adjacency_sets[x as usize].insert(y);
             let neighbours = adjacency_sets[x as usize].len() as u32;
             if neighbours == order - 1 {
-                let index = unsaturated_vertices.iter().position(|v| *v == x).unwrap();
+                let index = unsaturated_vertices.iter().position(|&v| v == x).unwrap();
                 unsaturated_vertices.remove(index);
             } else if neighbours == order / 2 {
                 // start using adjacency complement

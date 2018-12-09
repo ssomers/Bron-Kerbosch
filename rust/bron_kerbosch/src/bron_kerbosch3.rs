@@ -34,11 +34,11 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 
 fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Vertex> {
     // FIXME: can improve it to linear time
-    let mut degrees: HashMap<Vertex, u32> = nodes.iter().map(|v| (*v, graph.degree(*v))).collect();
+    let mut degrees: HashMap<Vertex, u32> = nodes.iter().map(|&v| (v, graph.degree(v))).collect();
     let mut ordered: Vec<Vertex> = Vec::with_capacity(nodes.len());
 
     while !degrees.is_empty() {
-        let i = *degrees.iter().min_by_key(|(_v, d)| *d).unwrap().0;
+        let i = *degrees.iter().min_by_key(|(&_v, &d)| d).unwrap().0;
         ordered.push(i);
         degrees.remove(&i);
         for v in graph.adjacencies(i) {

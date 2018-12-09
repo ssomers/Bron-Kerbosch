@@ -9,9 +9,7 @@ use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates: HashSet<Vertex> = graph.connected_nodes();
-    let excluded: HashSet<Vertex> = HashSet::new();
-    let clique = vec![];
-    visit(graph, reporter, candidates, excluded, clique);
+    visit(graph, reporter, candidates, HashSet::new(), Clique::new());
 }
 
 pub fn visit(
@@ -21,8 +19,8 @@ pub fn visit(
     mut excluded: HashSet<Vertex>,
     clique: Clique,
 ) {
-    debug_assert!(candidates.iter().all(|v| graph.degree(*v) > 0));
-    debug_assert!(excluded.iter().all(|v| graph.degree(*v) > 0));
+    debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
+    debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
     reporter.inc_count();
     if candidates.is_empty() && excluded.is_empty() {
         reporter.record(&clique);
