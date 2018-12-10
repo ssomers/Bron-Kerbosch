@@ -7,6 +7,7 @@ mod bron_kerbosch3;
 mod bron_kerbosch4;
 mod bron_kerbosch5;
 mod bron_kerbosch6;
+mod bron_kerbosch7;
 mod graph;
 pub mod random_graph;
 mod reporter;
@@ -24,7 +25,7 @@ use std::time::{Duration, SystemTime};
 type OrderedClique = BTreeSet<Vertex>;
 type OrderedCliques = BTreeSet<OrderedClique>;
 
-pub const NUM_FUNCS: usize = 6;
+pub const NUM_FUNCS: usize = 7;
 static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
@@ -32,6 +33,7 @@ static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NU
     bron_kerbosch4::explore,
     bron_kerbosch5::explore,
     bron_kerbosch6::explore,
+    bron_kerbosch7::explore,
 ];
 
 fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {

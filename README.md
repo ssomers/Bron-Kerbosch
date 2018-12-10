@@ -18,8 +18,9 @@ Compared to the original forked from, the code is:
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
 * **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
-* **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
-* **Ver6:** Ver3 more optimized (with result, but not enough to beat Ver5)
+* **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GP)
+* **Ver6:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
+* **Ver7:** Ver3 more optimized (with result, but not enough to beat those without degeneracy ordering)
 
 ## Run
 
@@ -49,9 +50,11 @@ Average seconds spent on a particular machine, in particular random graphs (but 
     cd rust && cargo test --all
 
 
-## Time Comlexity
+## Context
 
-Worst-case time-complexity analysis is [here](http://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm#Worst-case_analysis).
+More information on [on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorith).
+
+Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, [“A note on the problem of reporting maximal cliques”](ftp://ftp-sop.inria.fr/geometrica/fcazals/papers/ncliques.pdf) (PDF), Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 
