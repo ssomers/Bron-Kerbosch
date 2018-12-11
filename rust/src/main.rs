@@ -1,17 +1,24 @@
 extern crate bron_kerbosch;
+extern crate random_graph;
+extern crate stats;
+
 extern crate csv;
 extern crate rand;
 extern crate rand_chacha;
 extern crate structopt;
 
-use bron_kerbosch::random_graph::{Order, Size};
-use bron_kerbosch::{bron_kerbosch_timed, random_graph, NUM_FUNCS};
-use rand::SeedableRng;
+use bron_kerbosch::graph::UndirectedGraph;
+use bron_kerbosch::reporter::SimpleReporter;
+use bron_kerbosch::{order_cliques, OrderedCliques, FUNCS, NUM_FUNCS};
+use random_graph::{new_undirected, Order, Size};
+use stats::SampleStatistics;
+
+use rand::{Rng, SeedableRng};
 use rand_chacha::ChaChaRng;
 use std::fs::File;
 use std::path::Path;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -40,6 +47,64 @@ fn parse_positive_int(value: &str) -> u32 {
     num * factor
 }
 
+type Seconds = f32;
+pub fn to_seconds(duration: Duration) -> Seconds {
+    duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
+}
+
+pub fn generate_random_graph(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
+    let Order::Of(order) = order;
+    let Size::Of(size) = size;
+    let sys_time = SystemTime::now();
+    let graph = new_undirected(rng, Order::Of(order), Size::Of(size));
+    let seconds = to_seconds(sys_time.elapsed().unwrap());
+    println!(
+        "random of order {}, size {}: (generating took {:.2}s)",
+        order, size, seconds
+    );
+    graph
+}
+
+pub fn bron_kerbosch_timed(
+    graph: &UndirectedGraph,
+    samples: u32,
+) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
+    let mut times = [SampleStatistics::new(); NUM_FUNCS];
+    let mut first: Option<OrderedCliques> = None;
+    for _ in 0..samples {
+        for func_index in 0..NUM_FUNCS {
+            let func = FUNCS[func_index];
+            let sys_time = SystemTime::now();
+            let mut reporter = SimpleReporter::new();
+            func(&graph, &mut reporter);
+            let mut diagnostic: Option<String> = None;
+            let secs: Seconds = match sys_time.elapsed() {
+                Ok(duration) => to_seconds(duration),
+                Err(err) => {
+                    diagnostic = Some(format!("Could not get time: {}", err));
+                    -99.9
+                }
+            };
+            let current = order_cliques(reporter.cliques);
+            match first.clone() {
+                None => {
+                    first = Some(current);
+                }
+                Some(first_result) => if first_result != current {
+                    diagnostic = Some(format!("oops, {:?} != {:?}", first_result, current));
+                },
+            }
+
+            if let Some(d) = diagnostic {
+                println!("Ver{}: {}", func_index + 1, d);
+            } else {
+                times[func_index].put(secs).unwrap();
+            }
+        }
+    }
+    times
+}
+
 fn bk<I>(orderstr: &str, sizes: I) -> Result<(), std::io::Error>
 where
     I: Iterator<Item = u32>,
@@ -63,7 +128,7 @@ where
         )?;
         for size in sizes {
             let mut rng = ChaChaRng::from_seed(SEED);
-            let graph = random_graph(&mut rng, Order::Of(order), Size::Of(size));
+            let graph = generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
             let stats = bron_kerbosch_timed(&graph, SAMPLES);
             assert_eq!(stats.len(), NUM_FUNCS as usize);
             for func_index in 0..NUM_FUNCS {

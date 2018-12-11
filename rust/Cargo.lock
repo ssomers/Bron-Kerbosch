@@ -26,8 +26,6 @@ name = "bron_kerbosch"
 version = "0.1.0"
 dependencies = [
  "rand 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand_chacha 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "stats 0.1.0",
 ]
 
 [[package]]
@@ -198,6 +196,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "random_graph"
+version = "0.1.0"
+dependencies = [
+ "bron_kerbosch 0.1.0",
+ "rand 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand_chacha 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.1.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -296,6 +303,8 @@ dependencies = [
  "csv 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_chacha 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "random_graph 0.1.0",
+ "stats 0.1.0",
  "structopt 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

@@ -1,7 +1,9 @@
+extern crate bron_kerbosch;
+use bron_kerbosch::graph::{new_adjacencies, UndirectedGraph, Vertex};
+
 extern crate rand;
 use self::rand::seq::{IteratorRandom, SliceRandom};
 use self::rand::Rng;
-use graph::{new_adjacencies, UndirectedGraph, Vertex};
 use std::collections::HashSet;
 
 pub enum Order {
@@ -28,7 +30,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
         let mut v: Vertex;
         let mut w: Vertex;
         v = *unsaturated_vertices.choose(rng).unwrap();
-        assert!(adjacency_sets[v as usize].len() < (order - 1) as usize);
+        debug_assert!(adjacency_sets[v as usize].len() < (order - 1) as usize);
         if !adjacency_complements[v as usize].is_empty() {
             w = *adjacency_complements[v as usize]
                 .iter()
@@ -40,9 +42,9 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
                 w = *unsaturated_vertices.choose(rng).unwrap();
             }
         }
-        assert_ne!(v, w);
-        assert!(!adjacency_sets[v as usize].contains(&w));
-        assert!(!adjacency_sets[w as usize].contains(&v));
+        debug_assert_ne!(v, w);
+        debug_assert!(!adjacency_sets[v as usize].contains(&w));
+        debug_assert!(!adjacency_sets[w as usize].contains(&v));
         for (x, y) in vec![(v, w), (w, v)] {
             adjacency_sets[x as usize].insert(y);
             let neighbours = adjacency_sets[x as usize].len() as u32;
@@ -51,7 +53,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
                 unsaturated_vertices.remove(index);
             } else if neighbours == order / 2 {
                 // start using adjacency complement
-                assert!(adjacency_complements[x as usize].is_empty());
+                debug_assert!(adjacency_complements[x as usize].is_empty());
                 let mut s: HashSet<Vertex> = unsaturated_vertices.iter().cloned().collect();
                 s.remove(&x);
                 adjacency_complements[x as usize] =
@@ -65,4 +67,28 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
     assert_eq!(g.order(), order);
     assert_eq!(g.size(), size);
     g
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    extern crate rand_chacha;
+    use self::rand_chacha::ChaChaRng;
+    use rand::SeedableRng;
+
+    #[test]
+    fn random_graph() {
+        let mut rng = ChaChaRng::from_seed([68u8; 32]);
+        new_undirected(&mut rng, Order::Of(2), Size::Of(0));
+        new_undirected(&mut rng, Order::Of(3), Size::Of(0));
+        new_undirected(&mut rng, Order::Of(3), Size::Of(1));
+        new_undirected(&mut rng, Order::Of(3), Size::Of(2));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(0));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(1));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(2));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(3));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(4));
+        new_undirected(&mut rng, Order::Of(4), Size::Of(5));
+    }
 }

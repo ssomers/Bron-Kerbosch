@@ -1,6 +1,3 @@
-extern crate rand;
-extern crate stats;
-
 mod bron_kerbosch1;
 mod bron_kerbosch2;
 mod bron_kerbosch3;
@@ -8,25 +5,17 @@ mod bron_kerbosch4;
 mod bron_kerbosch5;
 mod bron_kerbosch6;
 mod bron_kerbosch7;
-mod graph;
-pub mod random_graph;
-mod reporter;
+pub mod graph;
+pub mod reporter;
 
 use graph::UndirectedGraph;
 use graph::Vertex;
-use rand::Rng;
-use random_graph::{new_undirected, Order, Size};
 use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
-use stats::SampleStatistics;
 use std::collections::BTreeSet;
-use std::time::{Duration, SystemTime};
-
-type OrderedClique = BTreeSet<Vertex>;
-type OrderedCliques = BTreeSet<OrderedClique>;
 
 pub const NUM_FUNCS: usize = 7;
-static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
+pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); 7] = &[
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
     bron_kerbosch3::explore,
@@ -36,7 +25,9 @@ static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NU
     bron_kerbosch7::explore,
 ];
 
-fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
+pub type OrderedClique = BTreeSet<Vertex>;
+pub type OrderedCliques = BTreeSet<OrderedClique>;
+pub fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
     cliques
         .into_iter()
         .map(|clique| clique.into_iter().collect())
@@ -58,71 +49,9 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
     first.unwrap()
 }
 
-pub fn random_graph(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
-    let Order::Of(order) = order;
-    let Size::Of(size) = size;
-    let sys_time = SystemTime::now();
-    let graph = new_undirected(rng, Order::Of(order), Size::Of(size));
-    let seconds = to_seconds(sys_time.elapsed().unwrap());
-    println!(
-        "random of order {}, size {}: (generating took {:.2}s)",
-        order, size, seconds
-    );
-    graph
-}
-
-type Seconds = f32;
-pub fn to_seconds(duration: Duration) -> Seconds {
-    duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
-}
-
-pub fn bron_kerbosch_timed(
-    graph: &UndirectedGraph,
-    samples: u32,
-) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
-    let mut times = [SampleStatistics::new(); NUM_FUNCS];
-    let mut first: Option<OrderedCliques> = None;
-    for _ in 0..samples {
-        for func_index in 0..FUNCS.len() {
-            let func = FUNCS[func_index];
-            let sys_time = SystemTime::now();
-            let mut reporter = SimpleReporter::new();
-            func(&graph, &mut reporter);
-            let mut diagnostic: Option<String> = None;
-            let secs: Seconds = match sys_time.elapsed() {
-                Ok(duration) => to_seconds(duration),
-                Err(err) => {
-                    diagnostic = Some(format!("Could not get time: {}", err));
-                    -99.9
-                }
-            };
-            let current = order_cliques(reporter.cliques);
-            match first.clone() {
-                None => {
-                    first = Some(current);
-                }
-                Some(first_result) => if first_result != current {
-                    diagnostic = Some(format!("oops, {:?} != {:?}", first_result, current));
-                },
-            }
-
-            if let Some(d) = diagnostic {
-                println!("Ver{}: {}", func_index + 1, d);
-            } else {
-                times[func_index].put(secs).unwrap();
-            }
-        }
-    }
-    times
-}
-
 #[cfg(test)]
 mod tests {
-    extern crate rand_chacha;
-
-    use self::rand_chacha::ChaChaRng;
     use super::*;
-    use rand::SeedableRng;
     use reporter::Clique;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
@@ -240,20 +169,5 @@ mod tests {
             ],
             vec![vec![1, 2, 3, 4], vec![2, 3, 5], vec![5, 6, 7]],
         );
-    }
-
-    #[test]
-    fn random_graph() {
-        let mut rng = ChaChaRng::from_seed([68u8; 32]);
-        new_undirected(&mut rng, Order::Of(2), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(1));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(2));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(1));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(2));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(3));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(4));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(5));
     }
 }
