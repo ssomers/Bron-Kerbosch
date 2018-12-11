@@ -27,8 +27,7 @@ impl Reporter for SimpleReporter {
     }
 
     fn record(&mut self, clique: Clique) {
-        if clique.len() > 1 {
-            self.cliques.push(clique);
-        }
+        debug_assert!(clique.len() > 1);
+        self.cliques.push(clique);
     }
 }

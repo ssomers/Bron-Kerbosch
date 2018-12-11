@@ -22,5 +22,5 @@ class SimpleReporter(Reporter):
         self.cnt += 1
 
     def record(self, clique):
-        if len(clique) > 1:
-            self.cliques.append(clique)
+        assert len(clique) > 1
+        self.cliques.append(clique)

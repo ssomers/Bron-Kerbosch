@@ -7,16 +7,18 @@ from typing import List, Set
 
 def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot'''
-    visit(
-        graph=graph,
-        reporter=reporter,
-        candidates=graph.connected_nodes(),
-        excluded=set(),
-        clique=[])
+    candidates = graph.connected_nodes()
+    if candidates:
+        visit(
+            graph=graph,
+            reporter=reporter,
+            candidates=candidates,
+            excluded=set(),
+            clique=[])
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter,
-          candidates: Set[int], excluded: Set[int], clique: List[int]):
+def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
+          excluded: Set[int], clique: List[int]):
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
 

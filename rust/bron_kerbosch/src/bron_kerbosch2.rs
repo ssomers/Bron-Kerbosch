@@ -7,7 +7,9 @@ use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates: HashSet<Vertex> = graph.connected_nodes();
-    visit(graph, reporter, candidates, HashSet::new(), Clique::new());
+    if !candidates.is_empty() {
+        visit(graph, reporter, candidates, HashSet::new(), Clique::new());
+    }
 }
 
 pub fn visit(

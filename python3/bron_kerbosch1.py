@@ -7,16 +7,18 @@ from typing import List, Set
 
 def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Naive Bron-Kerbosch algorithm'''
-    visit(
-        graph=graph,
-        reporter=reporter,
-        candidates=graph.connected_nodes(),
-        excluded=set(),
-        clique=[])
+    candidates = graph.connected_nodes()
+    if candidates:
+        visit(
+            graph=graph,
+            reporter=reporter,
+            candidates=candidates,
+            excluded=set(),
+            clique=[])
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter,
-          candidates: Set[int], excluded: Set[int], clique: List[int]):
+def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
+          excluded: Set[int], clique: List[int]):
     reporter.inc_count()
     if not candidates and not excluded:
         reporter.record(clique)
