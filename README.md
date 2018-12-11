@@ -37,6 +37,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 [open Python3 order 50 chart interactively](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
 ![Python3 order 50 chart](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn)
+
 [open Rust order 50 chart interactively](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
 ![Rust order 50 chart](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
 
@@ -45,6 +46,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 [open Python3 order 10k chart interactively](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 ![Python3 order 10k chart](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad)
+
 [open Rust order 10k chart interactively](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 ![Rust order 10k chart](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
