@@ -8,17 +8,15 @@ use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     reporter.inc_count();
-    let mut candidates: HashSet<Vertex> = graph.connected_nodes();
-    let mut excluded: HashSet<Vertex> = HashSet::new();
+    let mut candidates = graph.connected_nodes();
+    let mut excluded = HashSet::new();
     let ordered = degeneracy_order_smart(graph, &candidates);
     for v in ordered {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates: HashSet<Vertex> =
-            neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded: HashSet<Vertex> =
-            neighbours.intersection(&excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
+        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
         excluded.insert(v);
         bron_kerbosch5::visit(
             graph,

@@ -8,7 +8,7 @@ use self::rand::seq::IteratorRandom;
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let candidates: HashSet<Vertex> = graph.connected_nodes();
+    let candidates = graph.connected_nodes();
     if !candidates.is_empty() {
         visit(graph, reporter, candidates, HashSet::new(), Clique::new());
     }
@@ -43,10 +43,8 @@ fn visit(
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates: HashSet<Vertex> =
-            neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded: HashSet<Vertex> =
-            neighbours.intersection(&excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
+        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
         excluded.insert(v);
         visit(
             graph,
