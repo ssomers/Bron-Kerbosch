@@ -18,9 +18,10 @@ Compared to the original forked from, the code is:
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
 * **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
-* **Ver5:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GP)
-* **Ver6:** Ver2 slightly optimized (in vain) and picking pivot smartly (IK\_GPX)
+* **Ver5:** Ver2 slightly optimized (in vain) and picking pivot with highest degree (IK\_GP)
+* **Ver6:** Ver2 slightly optimized (in vain) and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
 * **Ver7:** Ver3 more optimized (with result, but not enough to beat those without degeneracy ordering)
+* **Ver8:** Ver1 optimized (in Rust only)
 
 ## Run
 
@@ -30,18 +31,22 @@ Compared to the original forked from, the code is:
 
 ## Results
 
-Average seconds spent on a particular machine, in particular random graphs (but results seem consistent):
+Average seconds spent on a particular machine, in particular random graphs (but results seem consistent accross the random seed):
 
 * Dense random graphs of order 50: Ver1 indeed can't cope.
 
-![Python3 graph](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn)[open](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
-![Rust graph](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)[open](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
+[open Python3 order 50 chart interactively](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
+![Python3 order 50 chart](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn)
+[open Rust order 50 chart interactively](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
+![Rust order 50 chart](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
 
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
 
-![Python3 graph](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad)[open](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
-![Rust graph](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)[open](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
+[open Python3 order 10k chart interactively](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
+![Python3 order 10k chart](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad)
+[open Rust order 10k chart interactively](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
+![Rust order 10k chart](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
 
 ## Test
@@ -52,9 +57,9 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 ## Context
 
-More information on [on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorith).
+[More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorith).
 
-Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, [“A note on the problem of reporting maximal cliques”](ftp://ftp-sop.inria.fr/geometrica/fcazals/papers/ncliques.pdf) (PDF), Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 
