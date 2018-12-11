@@ -6,6 +6,7 @@ pub trait Reporter {
     fn record(&mut self, clique: &Clique);
 }
 
+#[derive(Debug)]
 pub struct SimpleReporter {
     pub cnt: u32,
     pub cliques: Vec<Clique>,

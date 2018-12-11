@@ -54,6 +54,12 @@ where
         self.samples > 1
     }
 
+    pub fn max(&self) -> T {
+        self.max.clone()
+    }
+    pub fn min(&self) -> T {
+        self.min.clone()
+    }
     pub fn mean(&self) -> f64 {
         if self.is_populated() {
             self.sum / self.samples as f64

@@ -215,5 +215,5 @@ if __name__ == '__main__':
         time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
-               range(10_000, 100_000, 10_000)))
+               range(10_000, 200_001, 10_000)))
     print(f"random seed was {seed}")

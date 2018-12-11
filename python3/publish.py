@@ -12,35 +12,45 @@ def publish(language: str, orderstr: str, num_funcs: int, sizes: List[int],
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
         w = csv.writer(csvfile)
-        w.writerow(["Size"] + [f"Ver{i+1} seconds" for i in range(num_funcs)] +
-                   [f"Ver{i+1} error" for i in range(num_funcs)])
+        w.writerow(["Size"] + [f"Ver{i+1} min" for i in range(num_funcs)] +
+                   [f"Ver{i+1} max" for i in range(num_funcs)] +
+                   [f"Ver{i+1} mean" for i in range(num_funcs)])
         for i, size in enumerate(sizes):
             stats = stats_per_size[i]
-            w.writerow([size] + [s.mean() for s in stats] +
-                       [s.deviation() for s in stats])
+            w.writerow([size] + [s.min for s in stats] +
+                       [s.max for s in stats] + [s.mean() for s in stats])
     publish_csv(language=language, orderstr=orderstr)
 
 
 def publish_csv(language: str, orderstr: str):
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
+    sizes = []
+    min_per_size = []
+    max_per_size = []
+    mean_per_size = []
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         head = next(reader)
         assert head[0] == "Size"
-        num_funcs = (len(head) - 1) // 2
-        assert len(head) == 1 + num_funcs * 2
-        sizes = []
-        times_per_size = []
-        error_per_size = []
+        num_funcs = (len(head) - 1) // 3
+        assert len(head) == 1 + num_funcs * 3
         for row in reader:
-            assert len(row) == 1 + num_funcs * 2
+            assert len(row) == 1 + num_funcs * 3
             size = int(row[0])
             sizes.append(size)
-            times_per_size.append(
-                [float(cell) for cell in row[1:1 + num_funcs]])
-            error_per_size.append(
-                [float(cell) for cell in row[1 + num_funcs:]])
+            min_per_size.append([
+                float(cell)
+                for cell in row[1 + num_funcs * 0:1 + num_funcs * 1]
+            ])
+            max_per_size.append([
+                float(cell)
+                for cell in row[1 + num_funcs * 1:1 + num_funcs * 2]
+            ])
+            mean_per_size.append([
+                float(cell)
+                for cell in row[1 + num_funcs * 2:1 + num_funcs * 3]
+            ])
 
     try:
         from plotly import graph_objs, plotly
@@ -50,11 +60,20 @@ def publish_csv(language: str, orderstr: str):
         traces = [
             graph_objs.Scatter(
                 x=sizes,
-                y=[times_per_size[s][f] for s in range(len(sizes))],
+                y=[mean_per_size[s][f] for s in range(len(sizes))],
                 error_y={
-                    'type': 'data',
-                    'array': [error_per_size[s][f] for s in range(len(sizes))],
-                    'visible': True
+                    'type':
+                    'data',
+                    'array': [
+                        max_per_size[s][f] - mean_per_size[s][f]
+                        for s in range(len(sizes))
+                    ],
+                    'arrayminus': [
+                        mean_per_size[s][f] - min_per_size[s][f]
+                        for s in range(len(sizes))
+                    ],
+                    'visible':
+                    True
                 },
                 mode='lines+markers',
                 name=f"Ver{f+1}") for f in range(num_funcs)

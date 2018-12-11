@@ -57,8 +57,9 @@ where
             ["Size"]
                 .iter()
                 .map(|&s| String::from(s))
-                .chain((0..NUM_FUNCS).map(|i| format!("Ver{} seconds", i + 1)))
-                .chain((0..NUM_FUNCS).map(|i| format!("Ver{} error", i + 1))),
+                .chain((0..NUM_FUNCS).map(|i| format!("Ver{} min", i + 1)))
+                .chain((0..NUM_FUNCS).map(|i| format!("Ver{} max", i + 1)))
+                .chain((0..NUM_FUNCS).map(|i| format!("Ver{} mean", i + 1))),
         )?;
         for size in sizes {
             let mut rng = ChaChaRng::from_seed(SEED);
@@ -77,14 +78,13 @@ where
                     pct
                 );
             }
-            let times = stats.iter().map(|s| s.mean().to_string());
-            let errors = stats.iter().map(|s| s.deviation().to_string());
             wtr.write_record(
                 [size]
                     .iter()
                     .map(|&i| i.to_string())
-                    .chain(times)
-                    .chain(errors),
+                    .chain(stats.iter().map(|s| s.min().to_string()))
+                    .chain(stats.iter().map(|s| s.max().to_string()))
+                    .chain(stats.iter().map(|s| s.mean().to_string())),
             )?;
         }
     }
@@ -110,7 +110,7 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_50 = (600..=900).step_by(10); // max 1225
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
-            .chain((10_000..100_000).step_by(10_000));
+            .chain((10_000..=200_000).step_by(10_000));
         bk("50", sizes_50)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", sizes_10k)?;

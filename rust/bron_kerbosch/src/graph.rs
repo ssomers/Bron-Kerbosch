@@ -8,6 +8,7 @@ pub fn new_adjacencies(order: u32) -> Adjacencies {
     std::vec::from_elem(HashSet::new(), order as usize)
 }
 
+#[derive(Debug)]
 pub struct UndirectedGraph {
     adjacencies: Adjacencies,
 }
@@ -20,7 +21,9 @@ impl UndirectedGraph {
                 debug_assert_ne!(v, w);
                 debug_assert!(
                     adjacencies[w as usize].contains(&v),
-                    format!("{} is adjacent to {} but not vice versa", w, v)
+                    "{} is adjacent to {} but not vice versa",
+                    w,
+                    v
                 );
             }
         }

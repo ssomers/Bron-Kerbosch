@@ -16,10 +16,10 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
     let Size::Of(size) = size;
     let fully_meshed_size = order * (order - 1) / 2;
     if size > fully_meshed_size {
-        panic!(format!(
+        panic!(
             "{} nodes accommodate at most {} edges",
             order, fully_meshed_size
-        ));
+        );
     }
     let mut unsaturated_vertices: Vec<Vertex> = (0..order as Vertex).into_iter().collect();
     let mut adjacency_sets = new_adjacencies(order);
