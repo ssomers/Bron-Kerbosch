@@ -3,7 +3,7 @@ pub type Clique = Vec<Vertex>;
 
 pub trait Reporter {
     fn inc_count(&mut self);
-    fn record(&mut self, clique: &Clique);
+    fn record(&mut self, clique: Clique);
 }
 
 #[derive(Debug)]
@@ -26,9 +26,9 @@ impl Reporter for SimpleReporter {
         self.cnt += 1
     }
 
-    fn record(&mut self, clique: &Clique) {
+    fn record(&mut self, clique: Clique) {
         if clique.len() > 1 {
-            self.cliques.push(clique.clone());
+            self.cliques.push(clique);
         }
     }
 }

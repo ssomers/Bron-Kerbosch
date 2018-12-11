@@ -1,12 +1,10 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering
-extern crate rand;
 
 use super::bron_kerbosch2;
-use graph::UndirectedGraph;
-use graph::Vertex;
+use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
-use std::collections::HashMap;
-use std::collections::HashSet;
+
+use std::collections::{HashMap, HashSet};
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     reporter.inc_count();

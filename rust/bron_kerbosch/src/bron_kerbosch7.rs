@@ -1,10 +1,9 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
-extern crate rand;
 
 use super::bron_kerbosch5;
-use graph::UndirectedGraph;
-use graph::Vertex;
+use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {

@@ -1,9 +1,8 @@
 //! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot smartly (IK_GPX)
 
-use graph::UndirectedGraph;
-use graph::Vertex;
-use reporter::Clique;
-use reporter::Reporter;
+use graph::{UndirectedGraph, Vertex};
+use reporter::{Clique, Reporter};
+
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
@@ -22,7 +21,7 @@ pub fn visit(
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
     reporter.inc_count();
     if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(&clique);
+        reporter.record(clique);
         return;
     }
 

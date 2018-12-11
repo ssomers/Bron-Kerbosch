@@ -15,7 +15,7 @@ use reporter::{Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
 pub const NUM_FUNCS: usize = 7;
-pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); 7] = &[
+pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
     bron_kerbosch3::explore,
