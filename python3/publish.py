@@ -79,8 +79,11 @@ def publish_csv(language: str, orderstr: str):
                 name=f"Ver{f+1}") for f in range(num_funcs)
         ]
         layout = {
-            'title': (f"{language.capitalize()} implementations" +
-                      f" of Bron-Kerbosch on random graphs order {orderstr}"),
+            'title': (f"{language.capitalize()} implementations of " +
+                      '<a href="https://github.com/ssomers/Bron-Kerbosch">' +
+                      "Bron-Kerbosch on random graphs" +
+                      "</a>" +
+                      f" order {orderstr}"),
             'xaxis': {
                 'title': "Size (#edges)"
             },
