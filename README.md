@@ -35,20 +35,14 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 * Dense random graphs of order 50: Ver1 indeed can't cope.
 
-[open Python3 order 50 chart interactively](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
-![Python3 order 50 chart](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn)
-
-[open Rust order 50 chart interactively](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
-![Rust order 50 chart](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
+[![Time spent in Python3 on order 50 graphs](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn "View interactively")](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
+[![Time spent in Rust on order 50 graphs](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk "View interactively")](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
 
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
 
-[open Python3 order 10k chart interactively](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
-![Python3 order 10k chart](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad)
-
-[open Rust order 10k chart interactively](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
-![Rust order 10k chart](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
+[![Time spent in Python3 on order 10k graphs](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
+[![Time spent in Rust on order 10k graphs](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
 
 ## Test
