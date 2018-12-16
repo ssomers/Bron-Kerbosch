@@ -20,8 +20,9 @@ Compared to the original forked from, the code is:
 * **Ver4:** Ver2 slightly optimized (in vain) and picking pivot randomly (IK\_RP)
 * **Ver5:** Ver2 slightly optimized (in vain) and picking pivot with highest degree (IK\_GP)
 * **Ver6:** Ver2 slightly optimized (in vain) and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
-* **Ver7:** Ver3 more optimized (with result, but not enough to beat those without degeneracy ordering)
-* **Ver8:** Ver1 optimized (in Rust only)
+* **Ver7:** Ver6 more optimized
+* **Ver8:** Ver3 more optimized (with result, but not enough to beat those without degeneracy ordering)
+* **Ver9:** Ver1 optimized (in Rust only)
 
 ## Run
 

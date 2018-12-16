@@ -7,6 +7,7 @@ import bron_kerbosch4
 import bron_kerbosch5
 import bron_kerbosch6
 import bron_kerbosch7
+import bron_kerbosch8
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph
 from graph import random_undirected_graph
@@ -27,6 +28,7 @@ FUNCS = [
     bron_kerbosch5.explore,
     bron_kerbosch6.explore,
     bron_kerbosch7.explore,
+    bron_kerbosch8.explore,
 ]
 
 

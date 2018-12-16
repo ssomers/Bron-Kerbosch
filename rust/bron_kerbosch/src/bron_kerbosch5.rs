@@ -1,4 +1,5 @@
-//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot smartly (IK_GPX)
+//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot
+//! with highest degree (IK_GP)
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
@@ -27,7 +28,7 @@ pub fn visit(
         return;
     }
 
-    let pivot = pick_best(graph, &candidates, &excluded);
+    let pivot = pick_max_degree(graph, candidates.iter().chain(&excluded).cloned());
     let far_candidates: Vec<Vertex> = candidates
         .difference(graph.adjacencies(pivot))
         .cloned()
@@ -50,15 +51,6 @@ pub fn visit(
     }
 }
 
-fn pick_best(
-    graph: &UndirectedGraph,
-    candidates: &HashSet<Vertex>,
-    excluded: &HashSet<Vertex>,
-) -> Vertex {
-    debug_assert!(!(candidates.is_empty() && excluded.is_empty()));
-    *candidates
-        .iter()
-        .chain(excluded)
-        .max_by_key(|&&v| graph.degree(v))
-        .unwrap()
+fn pick_max_degree(graph: &UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
+    vertices.max_by_key(|&v| graph.degree(v)).unwrap()
 }

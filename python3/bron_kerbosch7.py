@@ -10,12 +10,20 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot, slightly optimized'''
     candidates = graph.connected_nodes()
     if candidates:
-        visit(
-            graph=graph,
-            reporter=reporter,
-            candidates=candidates,
-            excluded=set(),
-            clique=[])
+        reporter.inc_count()
+        pivot = pick_max_degree(graph=graph, candidates=candidates)
+        excluded: Set[int] = set()
+        for v in list(candidates.difference(graph.adjacencies[pivot])):
+            neighbours = graph.adjacencies[v]
+            assert neighbours
+            candidates.remove(v)
+            visit(
+                graph=graph,
+                reporter=reporter,
+                candidates=candidates.intersection(neighbours),
+                excluded=excluded.intersection(neighbours),
+                clique=[v])
+            excluded.add(v)
 
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
@@ -28,8 +36,7 @@ def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
         reporter.record(clique)
         return
 
-    pivot = pick_max_degree(
-        graph=graph, candidates=candidates, excluded=excluded)
+    pivot = pick_best(graph=graph, candidates=candidates, excluded=excluded)
     for v in list(candidates.difference(graph.adjacencies[pivot])):
         neighbours = graph.adjacencies[v]
         assert neighbours
@@ -43,14 +50,28 @@ def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
         excluded.add(v)
 
 
-def pick_max_degree(graph: UndirectedGraph, candidates: Set[int],
-                    excluded: Set[int]) -> int:
+def pick_max_degree(graph: UndirectedGraph, candidates: Set[int]) -> int:
+    assert candidates
+
+    max_degree = -1
+    best = None
+    for node in candidates:
+        degree = graph.degree(node)
+        if max_degree < degree:
+            max_degree = degree
+            best = node
+    assert best is not None
+    return best
+
+
+def pick_best(graph: UndirectedGraph, candidates: Set[int],
+              excluded: Set[int]) -> int:
     assert candidates or excluded
 
     max_degree = -1
     best = None
     for node in itertools.chain(candidates, excluded):
-        degree = graph.degree(node)
+        degree = len(graph.adjacencies[node] & candidates)
         if max_degree < degree:
             max_degree = degree
             best = node

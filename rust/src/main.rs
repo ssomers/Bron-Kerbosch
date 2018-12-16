@@ -28,7 +28,7 @@ struct Opt {
     order: String,
 
     #[structopt(name = "sizes")]
-    sizes: Vec<u32>,
+    sizes: Vec<String>,
 }
 
 fn parse_positive_int(value: &str) -> u32 {
@@ -168,9 +168,7 @@ where
 
 fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
-    if !opt.order.is_empty() {
-        bk(&opt.order, opt.sizes.iter().cloned())?;
-    } else {
+    if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         let sizes_50 = (600..=900).step_by(10); // max 1225
         let sizes_10k = (1_000..10_000)
@@ -179,6 +177,13 @@ fn main() -> Result<(), std::io::Error> {
         bk("50", sizes_50)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", sizes_10k)?;
+    } else if !opt.sizes.is_empty() {
+        bk(
+            &opt.order,
+            opt.sizes.iter().map(|ref s| parse_positive_int(&s)),
+        )?;
+    } else {
+        println!("Specify size(s) too")
     }
     Ok(())
 }

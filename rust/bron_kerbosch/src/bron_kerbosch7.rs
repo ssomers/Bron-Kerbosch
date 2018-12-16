@@ -7,9 +7,31 @@ use reporter::{Clique, Reporter};
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let candidates = graph.connected_nodes();
+    let mut candidates = graph.connected_nodes();
     if !candidates.is_empty() {
-        visit(graph, reporter, candidates, HashSet::new(), Clique::new());
+        reporter.inc_count();
+        let pivot = pick_max_degree(graph, candidates.iter().cloned());
+        let far_candidates: Vec<Vertex> = candidates
+            .difference(graph.adjacencies(pivot))
+            .cloned()
+            .collect();
+        let mut excluded: HashSet<Vertex> = HashSet::new();
+        excluded.reserve(far_candidates.len());
+        for v in far_candidates {
+            let neighbours = graph.adjacencies(v);
+            debug_assert!(!neighbours.is_empty());
+            candidates.remove(&v);
+            let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
+            let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
+            excluded.insert(v);
+            visit(
+                graph,
+                reporter,
+                neighbouring_candidates,
+                neighbouring_excluded,
+                vec![v],
+            );
+        }
     }
 }
 
@@ -49,6 +71,10 @@ pub fn visit(
             [clique.as_slice(), &[v]].concat(),
         );
     }
+}
+
+fn pick_max_degree(graph: &UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
+    vertices.max_by_key(|&v| graph.degree(v)).unwrap()
 }
 
 fn pick_best(
