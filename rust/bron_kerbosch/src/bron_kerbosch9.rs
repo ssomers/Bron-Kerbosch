@@ -1,4 +1,4 @@
-//! Naive Bron-Kerbosch algorithm
+//! Naive Bron-Kerbosch algorithm, optimized
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
