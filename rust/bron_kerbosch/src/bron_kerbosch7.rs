@@ -2,7 +2,8 @@
 //! with highest degree towards the remaining candidates (IK_GPX)
 
 use graph::{UndirectedGraph, Vertex};
-use reporter::{Clique, Reporter};
+use reporter::Reporter;
+use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
 
@@ -15,8 +16,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             .difference(graph.adjacencies(pivot))
             .cloned()
             .collect();
-        let mut excluded: HashSet<Vertex> = HashSet::new();
-        excluded.reserve(far_candidates.len());
+        let mut excluded: HashSet<Vertex> = HashSet::with_capacity(far_candidates.len());
         for v in far_candidates {
             let neighbours = graph.adjacencies(v);
             debug_assert!(!neighbours.is_empty());
@@ -29,7 +29,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
                 reporter,
                 neighbouring_candidates,
                 neighbouring_excluded,
-                vec![v],
+                VertexStack::Cons(&VertexStack::Empty, v),
             );
         }
     }
@@ -40,13 +40,13 @@ pub fn visit(
     reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
-    clique: Clique,
+    clique: VertexStack,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
     reporter.inc_count();
     if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(clique);
+        reporter.record(clique.collect());
         return;
     }
 
@@ -68,7 +68,7 @@ pub fn visit(
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            [clique.as_slice(), &[v]].concat(),
+            VertexStack::Cons(&clique, v),
         );
     }
 }

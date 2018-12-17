@@ -2,41 +2,20 @@
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates = graph.connected_nodes();
     if !candidates.is_empty() {
-        visit(graph, reporter, candidates, HashSet::new(), Clique::Empty);
-    }
-}
-
-enum Clique<'a> {
-    Empty,
-    Cons(&'a Clique<'a>, Vertex),
-}
-
-impl<'a> Clique<'a> {
-    fn collect(&self) -> Vec<Vertex> {
-        let mut clique: Vec<Vertex> = Vec::with_capacity(self.len());
-        self.append_to(&mut clique);
-        clique
-    }
-    fn len(&self) -> usize {
-        match self {
-            Clique::Empty => 0,
-            Clique::Cons(c, _v) => c.len() + 1,
-        }
-    }
-    fn append_to(&self, clique: &mut Vec<Vertex>) {
-        match self {
-            Clique::Empty => {}
-            Clique::Cons(c, v) => {
-                c.append_to(clique);
-                clique.push(*v);
-            }
-        }
+        visit(
+            graph,
+            reporter,
+            candidates,
+            HashSet::new(),
+            VertexStack::Empty,
+        );
     }
 }
 
@@ -45,7 +24,7 @@ fn visit(
     reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
-    clique: Clique,
+    clique: VertexStack,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
@@ -65,7 +44,7 @@ fn visit(
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            Clique::Cons(&clique, v),
+            VertexStack::Cons(&clique, v),
         );
         excluded.insert(v);
     }

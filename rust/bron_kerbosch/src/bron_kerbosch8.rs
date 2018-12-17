@@ -3,6 +3,7 @@
 use super::bron_kerbosch5;
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
 
@@ -23,7 +24,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            vec![v],
+            VertexStack::Cons(&VertexStack::Empty, v),
         );
     }
 }
@@ -33,12 +34,10 @@ fn pick_with_lowest_degree(
     nodes_per_degree: &mut Vec<Vec<u32>>,
     infinite: u32,
 ) -> Vertex {
-    debug_assert!(
-        degree_per_node
-            .iter()
-            .enumerate()
-            .all(|(v, &d)| d == infinite || nodes_per_degree[d as usize].contains(&(v as u32)))
-    );
+    debug_assert!(degree_per_node
+        .iter()
+        .enumerate()
+        .all(|(v, &d)| d == infinite || nodes_per_degree[d as usize].contains(&(v as u32))));
     for d in 0..nodes_per_degree.len() {
         while let Some(v) = nodes_per_degree[d].pop() {
             if degree_per_node[v as usize] != infinite {

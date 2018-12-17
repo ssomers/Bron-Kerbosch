@@ -9,6 +9,7 @@ mod bron_kerbosch8;
 mod bron_kerbosch9;
 pub mod graph;
 pub mod reporter;
+mod vertex_stack;
 
 use graph::UndirectedGraph;
 use graph::Vertex;
