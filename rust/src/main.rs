@@ -123,7 +123,7 @@ fn bk(
     focus_on_func: Option<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
-    const SAMPLES: u32 = 10;
+    const SAMPLES: u32 = 5;
     const SEED: [u8; 32] = [68u8; 32];
 
     let order = parse_positive_int(orderstr);
@@ -191,7 +191,7 @@ fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
     if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");
-        let sizes_50 = (600..=900).step_by(10); // max 1225
+        let sizes_50 = (600..=900).step_by(5); // max 1225
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000));

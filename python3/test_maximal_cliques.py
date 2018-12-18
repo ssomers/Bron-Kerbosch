@@ -188,7 +188,7 @@ def bk(orderstr: str, sizes):
     for size in sizes:
         random.seed(seed)
         g = random_graph(order=order, size=size)
-        stats_per_size.append(bron_kerbosch_timed(g, samples=10))
+        stats_per_size.append(bron_kerbosch_timed(g, samples=5))
     publish(
         language="python3",
         orderstr=orderstr,
@@ -213,7 +213,7 @@ if __name__ == '__main__':
         bk(orderstr=args.order, sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="50", sizes=range(600, 901, 10))  # max 1225
+        bk(orderstr="50", sizes=range(600, 901, 5))  # max 1225
         time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
