@@ -3,6 +3,10 @@ name = "test_bron_kerbosch"
 version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
+[profile.dev]
+debug-assertions = false
+overflow-checks = false
+
 [workspace]
 
 [dependencies]
