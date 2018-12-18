@@ -9,11 +9,11 @@ import bron_kerbosch6
 import bron_kerbosch7
 import bron_kerbosch8
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
-from graph import UndirectedGraph as Graph
-from graph import random_undirected_graph
+from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
 from stats import SampleStatistics
 from publish import publish
+
 import argparse
 import random
 import sys
@@ -32,7 +32,7 @@ FUNCS = [
 ]
 
 
-def bron_kerbosch(graph: Graph) -> List[List[int]]:
+def bron_kerbosch(graph: Graph) -> List[List[Vertex]]:
     first = None
     for func in FUNCS:
         reporter = SimpleReporter()

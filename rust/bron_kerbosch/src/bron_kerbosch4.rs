@@ -1,11 +1,10 @@
 //! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot randomly (IK_RP)
 
-use graph::{UndirectedGraph, Vertex};
+use bron_kerbosch_pivot::{visit, PivotChoice};
+use graph::UndirectedGraph;
 use reporter::Reporter;
 use vertex_stack::VertexStack;
 
-extern crate rand;
-use self::rand::seq::IteratorRandom;
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
@@ -14,56 +13,11 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
         visit(
             graph,
             reporter,
+            PivotChoice::Random,
+            PivotChoice::Random,
             candidates,
             HashSet::new(),
             VertexStack::Empty,
         );
     }
-}
-
-fn visit(
-    graph: &UndirectedGraph,
-    reporter: &mut Reporter,
-    mut candidates: HashSet<Vertex>,
-    mut excluded: HashSet<Vertex>,
-    clique: VertexStack,
-) {
-    debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
-    reporter.inc_count();
-    if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(clique.collect());
-        return;
-    }
-
-    let pivot = pick_random(if !candidates.is_empty() {
-        &candidates
-    } else {
-        &excluded
-    });
-    let far_candidates: Vec<Vertex> = candidates
-        .difference(graph.adjacencies(pivot))
-        .cloned()
-        .collect();
-    excluded.reserve(far_candidates.len());
-    for v in far_candidates {
-        let neighbours = graph.adjacencies(v);
-        debug_assert!(!neighbours.is_empty());
-        candidates.remove(&v);
-        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
-        excluded.insert(v);
-        visit(
-            graph,
-            reporter,
-            neighbouring_candidates,
-            neighbouring_excluded,
-            VertexStack::Cons(&clique, v),
-        );
-    }
-}
-
-fn pick_random(s: &HashSet<Vertex>) -> Vertex {
-    let mut rng = rand::thread_rng();
-    *s.iter().choose(&mut rng).unwrap()
 }

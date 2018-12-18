@@ -1,3 +1,4 @@
+mod bron_kerbosch_pivot;
 mod bron_kerbosch1;
 mod bron_kerbosch2;
 mod bron_kerbosch3;

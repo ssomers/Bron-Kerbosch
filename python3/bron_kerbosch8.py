@@ -1,7 +1,7 @@
 # coding: utf-8
 
-import bron_kerbosch5
-from graph import UndirectedGraph
+from bron_kerbosch_pivot import pick_max_degree, visit
+from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 from dataclasses import dataclass, field
 import queue
@@ -13,14 +13,16 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     optimized'''
     reporter.inc_count()
     candidates = graph.connected_nodes()
-    excluded: Set[int] = set()
+    excluded: Set[Vertex] = set()
     for v in degeneracy_order_smart(graph=graph, candidates=candidates):
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
-        bron_kerbosch5.visit(
+        visit(
             graph=graph,
             reporter=reporter,
+            initial_pivot_choice=pick_max_degree,
+            further_pivot_choice=pick_max_degree,
             candidates=candidates.intersection(neighbours),
             excluded=excluded.intersection(neighbours),
             clique=[v])
@@ -30,11 +32,11 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
 @dataclass(order=True)
 class PrioritizedItem:
     priority: int
-    node: int = field(compare=False)
+    node: Vertex = field(compare=False)
 
 
 # poorly performing alternative to degeneracy_order_smart
-def degeneracy_order_queue(graph: UndirectedGraph, candidates: Set[int]):
+def degeneracy_order_queue(graph: UndirectedGraph, candidates: Set[Vertex]):
     degree_by_node = {c: graph.degree(c) for c in candidates}
     q: Any = queue.PriorityQueue()
     for c in candidates:
@@ -68,7 +70,7 @@ def pick_with_lowest_degree(degree_per_node, nodes_per_degree, infinite):
                 continue  # was moved to lower degree
 
 
-def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[int]):
+def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
     order = graph.order
     infinite = order * 2  # still >= order after decrementing in each iteration
     degree_per_node = [infinite] * order
@@ -78,8 +80,9 @@ def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[int]):
         assert degree > 0  # FYI, isolated nodes were excluded up front
         max_degree = max(degree, max_degree)
         degree_per_node[node] = degree
-    nodes_per_degree: List[List[int]] = [[]
-                                         for degree in range(max_degree + 1)]
+    nodes_per_degree: List[List[Vertex]] = [
+        [] for degree in range(max_degree + 1)
+    ]
     for node in candidates:
         degree = graph.degree(node)
         nodes_per_degree[degree].append(node)

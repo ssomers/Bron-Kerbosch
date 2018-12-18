@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import bron_kerbosch2
-from graph import UndirectedGraph
+from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 from typing import Set
 
@@ -10,7 +10,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering'''
     reporter.inc_count()
     candidates = graph.connected_nodes()
-    excluded: Set[int] = set()
+    excluded: Set[Vertex] = set()
     for v in list(degeneracy_order(graph=graph, nodes=candidates)):
         assert graph.adjacencies[v]
         bron_kerbosch2.visit(
@@ -23,7 +23,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
         excluded.add(v)
 
 
-def degeneracy_order(graph: UndirectedGraph, nodes: Set[int]):
+def degeneracy_order(graph: UndirectedGraph, nodes: Set[Vertex]):
     # FIXME: can improve it to linear time
     deg = {node: graph.degree(node) for node in nodes}
 

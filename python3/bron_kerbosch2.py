@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from graph import UndirectedGraph
+from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 from typing import List, Set
 
 
 def explore(graph: UndirectedGraph, reporter: Reporter):
-    '''Bron-Kerbosch algorithm with pivot'''
+    '''Bron-Kerbosch algorithm with arbitrarily chosen pivot'''
     candidates = graph.connected_nodes()
     if candidates:
         visit(
@@ -17,8 +17,8 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
             clique=[])
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
-          excluded: Set[int], clique: List[int]):
+def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
+          excluded: Set[Vertex], clique: List[Vertex]):
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
 

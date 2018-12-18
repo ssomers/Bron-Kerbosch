@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from graph import UndirectedGraph
+from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 from typing import List, Set
 
@@ -17,8 +17,8 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
             clique=[])
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[int],
-          excluded: Set[int], clique: List[int]):
+def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
+          excluded: Set[Vertex], clique: List[Vertex]):
     reporter.inc_count()
     if not candidates and not excluded:
         reporter.record(clique)

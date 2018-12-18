@@ -1,9 +1,10 @@
 from typing import List, Set
 import random
 
+Vertex = int
 
 class UndirectedGraph(object):
-    def __init__(self, adjacencies: List[Set[int]]):
+    def __init__(self, adjacencies: List[Set[Vertex]]):
         for v, adjacent_to_v in enumerate(adjacencies):
             for w in adjacent_to_v:
                 assert v != w
@@ -23,7 +24,7 @@ class UndirectedGraph(object):
     def degree(self, node):
         return len(self.adjacencies[node])
 
-    def connected_nodes(self) -> Set[int]:
+    def connected_nodes(self) -> Set[Vertex]:
         return {node for node in range(self.order) if self.adjacencies[node]}
 
 
@@ -34,8 +35,8 @@ def random_undirected_graph(order: int, size: int) -> UndirectedGraph:
             f"{order} nodes accommodate at most {fully_meshed_size} edges")
     vertices = range(order)
     unsaturated_vertices = list(vertices)
-    adjacency_sets: List[Set[int]] = [set() for _ in range(order)]
-    adjacency_complements: List[Set[int]] = [set()] * order
+    adjacency_sets: List[Set[Vertex]] = [set() for _ in range(order)]
+    adjacency_complements: List[Set[Vertex]] = [set()] * order
     for _ in range(size):
         v = random.choice(unsaturated_vertices)
         assert len(adjacency_sets[v]) < order - 1

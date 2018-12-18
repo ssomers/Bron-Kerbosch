@@ -1,6 +1,6 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
 
-use super::bron_kerbosch5;
+use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
 use vertex_stack::VertexStack;
@@ -19,9 +19,11 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
         let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
         let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
         excluded.insert(v);
-        bron_kerbosch5::visit(
+        visit(
             graph,
             reporter,
+            PivotChoice::MaxDegree,
+            PivotChoice::MaxDegree,
             neighbouring_candidates,
             neighbouring_excluded,
             VertexStack::Cons(&VertexStack::Empty, v),
