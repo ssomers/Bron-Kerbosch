@@ -1,4 +1,3 @@
-mod bron_kerbosch_pivot;
 mod bron_kerbosch1;
 mod bron_kerbosch2;
 mod bron_kerbosch3;
@@ -7,7 +6,7 @@ mod bron_kerbosch5;
 mod bron_kerbosch6;
 mod bron_kerbosch7;
 mod bron_kerbosch8;
-mod bron_kerbosch9;
+mod bron_kerbosch_pivot;
 pub mod graph;
 pub mod reporter;
 mod vertex_stack;
@@ -18,7 +17,7 @@ use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
-pub const NUM_FUNCS: usize = 9;
+pub const NUM_FUNCS: usize = 8;
 pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch2::explore,
@@ -28,7 +27,6 @@ pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter)
     bron_kerbosch6::explore,
     bron_kerbosch7::explore,
     bron_kerbosch8::explore,
-    bron_kerbosch9::explore,
 ];
 
 pub type OrderedClique = BTreeSet<Vertex>;
