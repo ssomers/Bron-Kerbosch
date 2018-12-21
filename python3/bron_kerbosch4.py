@@ -20,17 +20,17 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
 VertexStack = Optional[Tuple[Any, Vertex]]
 
 
-def append_to(l: List[Vertex], clique: VertexStack):
+def append_to(lst: List[Vertex], clique: VertexStack):
     if clique is not None:
-        append_to(l, clique[0])
-        l.append(clique[1])
+        append_to(lst, clique[0])
+        lst.append(clique[1])
 
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
           excluded: Set[Vertex], clique: VertexStack):
     reporter.inc_count()
     if not candidates and not excluded:
-        lst = []
+        lst: List[Vertex] = []
         append_to(lst, clique)
         reporter.record(lst)
 
