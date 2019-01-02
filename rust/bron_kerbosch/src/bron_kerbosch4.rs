@@ -2,7 +2,7 @@
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
-use util::intersect;
+use util::{intersect, pop_arbitrary};
 use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
@@ -35,7 +35,7 @@ fn visit(
         return;
     }
 
-    while let Some(v) = remove_arbitrary(&mut candidates) {
+    while let Some(v) = pop_arbitrary(&mut candidates) {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
@@ -49,11 +49,4 @@ fn visit(
         );
         excluded.insert(v);
     }
-}
-
-fn remove_arbitrary(s: &mut HashSet<Vertex>) -> Option<Vertex> {
-    s.iter().next().cloned().map(|v| {
-        s.remove(&v);
-        v
-    })
 }
