@@ -2,6 +2,7 @@
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use util::intersect;
 use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
@@ -37,8 +38,8 @@ fn visit(
     while let Some(v) = remove_arbitrary(&mut candidates) {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
+        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
+        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
         visit(
             graph,
             reporter,

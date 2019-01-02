@@ -2,6 +2,7 @@
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use util::intersect;
 use vertex_stack::VertexStack;
 
 extern crate rand;
@@ -61,21 +62,6 @@ pub fn visit(
     }
 }
 
-fn smart_intersect<'a, T, S>(
-    s1: &'a HashSet<T, S>,
-    s2: &'a HashSet<T, S>,
-) -> std::collections::hash_set::Intersection<'a, T, S>
-where
-    T: Eq + std::hash::Hash,
-    S: std::hash::BuildHasher,
-{
-    if s1.len() < s2.len() {
-        s1.intersection(s2)
-    } else {
-        s2.intersection(s1)
-    }
-}
-
 fn pick_random(candidates: &HashSet<Vertex>, excluded: &HashSet<Vertex>) -> Vertex {
     let mut rng = rand::thread_rng();
     let s = if !candidates.is_empty() {
@@ -109,6 +95,6 @@ fn pick_max_degree_local(
         .iter()
         .chain(excluded)
         .cloned()
-        .max_by_key(|&v| smart_intersect(graph.adjacencies(v), &candidates).count())
+        .max_by_key(|&v| intersect(graph.adjacencies(v), &candidates).count())
         .unwrap()
 }

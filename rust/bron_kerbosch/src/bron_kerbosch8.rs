@@ -3,6 +3,7 @@
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use util::intersect;
 use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
@@ -16,8 +17,8 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
+        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
+        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
         excluded.insert(v);
         visit(
             graph,

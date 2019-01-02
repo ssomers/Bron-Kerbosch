@@ -3,6 +3,7 @@
 use super::bron_kerbosch2;
 use graph::{UndirectedGraph, Vertex};
 use reporter::Reporter;
+use util::intersect;
 
 use std::collections::{HashMap, HashSet};
 
@@ -14,8 +15,8 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     for v in ordered {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = neighbours.intersection(&candidates).cloned().collect();
-        let neighbouring_excluded = neighbours.intersection(&excluded).cloned().collect();
+        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
+        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
         bron_kerbosch2::visit(
             graph,
             reporter,
