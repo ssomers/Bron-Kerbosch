@@ -57,44 +57,45 @@ def publish_csv(language: str, orderstr: str):
     except ImportError as e:
         print(f"{e}, not plotting until you pip install plotly")
     else:
+        colors = [
+            "rgb(0,0,153)", "rgb(204,102,0)", "rgb(0,153,0)", "rgb(0,0,255)",
+            "rgb(255,153,0)", "rgb(255,0,153)", "rgb(255,51,51)",
+            "rgb(51,204,51)"
+        ]
         traces = [
             graph_objs.Scatter(
                 x=sizes,
                 y=[mean_per_size[s][f] for s in range(len(sizes))],
-                error_y={
-                    'type':
-                    'data',
-                    'array': [
+                error_y=dict(
+                    type="data",
+                    array=[
                         max_per_size[s][f] - mean_per_size[s][f]
                         for s in range(len(sizes))
                     ],
-                    'arrayminus': [
+                    arrayminus=[
                         mean_per_size[s][f] - min_per_size[s][f]
                         for s in range(len(sizes))
                     ],
-                    'visible':
-                    True
-                },
-                mode='lines+markers',
-                name=f"Ver{f+1}") for f in range(num_funcs)
+                    color=colors[f],
+                ),
+                line=dict(color=colors[f]),
+                marker=dict(color=colors[f]),
+                mode="lines+markers",
+                name=f"Ver{f+1}",
+            ) for f in range(num_funcs)
         ]
-        layout = {
-            'title':
-            ('<a href="https://github.com/ssomers/Bron-Kerbosch">' +
-             f"{language.capitalize()} implementations of Bron-Kerbosch" +
-             "</a>" + f" on random graphs of order {orderstr}"),
-            'xaxis': {
-                'title': "Size (#edges)"
-            },
-            'yaxis': {
-                'title': "Seconds spent"
-            },
-        }
+        layout = dict(
+            title=('<a href="https://github.com/ssomers/Bron-Kerbosch">' +
+                   f"{language.capitalize()} implementations of Bron-Kerbosch"
+                   + "</a>" + f" on random graphs of order {orderstr}"),
+            xaxis=dict(title="Size (#edges)"),
+            yaxis=dict(title="Seconds spent"),
+        )
         plotly.plot(
-            figure_or_data={
-                'data': traces,
-                'layout': layout,
-            },
+            figure_or_data=dict(
+                data=traces,
+                layout=layout,
+            ),
             filename=filename)
 
 
