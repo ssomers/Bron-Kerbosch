@@ -8,8 +8,15 @@ use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates = graph.connected_nodes();
-    if !candidates.is_empty() {
-        visit(graph, reporter, candidates, HashSet::new(), Clique::new());
+    let num_candidates = candidates.len();
+    if num_candidates > 0 {
+        visit(
+            graph,
+            reporter,
+            candidates,
+            HashSet::with_capacity(num_candidates),
+            Clique::new(),
+        );
     }
 }
 
@@ -32,7 +39,7 @@ fn visit(
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
+        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
         visit(
             graph,
             reporter,

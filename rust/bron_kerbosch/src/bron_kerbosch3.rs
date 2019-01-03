@@ -10,13 +10,13 @@ use std::collections::{HashMap, HashSet};
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     reporter.inc_count();
     let mut candidates = graph.connected_nodes();
-    let mut excluded = HashSet::new();
+    let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
+        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
         bron_kerbosch2::visit(
             graph,
             reporter,

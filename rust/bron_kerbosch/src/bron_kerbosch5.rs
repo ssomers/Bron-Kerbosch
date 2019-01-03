@@ -9,14 +9,15 @@ use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates = graph.connected_nodes();
-    if !candidates.is_empty() {
+    let num_candidates = candidates.len();
+    if num_candidates > 0 {
         visit(
             graph,
             reporter,
             PivotChoice::Random,
             PivotChoice::Random,
             candidates,
-            HashSet::new(),
+            HashSet::with_capacity(num_candidates),
             Pile::Empty,
         );
     }

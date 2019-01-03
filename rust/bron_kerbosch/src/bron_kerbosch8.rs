@@ -11,17 +11,17 @@ use std::collections::HashSet;
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     reporter.inc_count();
     let mut candidates = graph.connected_nodes();
-    let mut excluded = HashSet::new();
     debug_assert_eq!(
         degeneracy_order_smart(graph, &candidates).collect::<HashSet<Vertex>>(),
         candidates
     );
+    let mut excluded = HashSet::with_capacity(candidates.len());
     for v in degeneracy_order_smart(graph, &candidates) {
         let neighbours = graph.adjacencies(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(neighbours, &excluded).cloned().collect();
+        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
         excluded.insert(v);
         visit(
             graph,
