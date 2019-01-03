@@ -8,9 +8,9 @@ mod bron_kerbosch7;
 mod bron_kerbosch8;
 mod bron_kerbosch_pivot;
 pub mod graph;
+mod pile;
 pub mod reporter;
 pub mod util;
-mod vertex_stack;
 
 use graph::UndirectedGraph;
 use graph::Vertex;

@@ -1,22 +1,18 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
 use graph::{UndirectedGraph, Vertex};
+use pile::Pile;
 use reporter::Reporter;
 use util::{intersect, pop_arbitrary};
-use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
+
+type Clique<'a> = Pile<'a, Vertex>;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates = graph.connected_nodes();
     if !candidates.is_empty() {
-        visit(
-            graph,
-            reporter,
-            candidates,
-            HashSet::new(),
-            VertexStack::Empty,
-        );
+        visit(graph, reporter, candidates, HashSet::new(), Pile::Empty);
     }
 }
 
@@ -25,7 +21,7 @@ fn visit(
     reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
-    clique: VertexStack,
+    clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
@@ -45,7 +41,7 @@ fn visit(
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            VertexStack::Cons(&clique, v),
+            Pile::Cons(&clique, v),
         );
         excluded.insert(v);
     }

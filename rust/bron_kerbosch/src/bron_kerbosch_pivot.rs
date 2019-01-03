@@ -1,9 +1,9 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
 use graph::{UndirectedGraph, Vertex};
+use pile::Pile;
 use reporter::Reporter;
 use util::intersect;
-use vertex_stack::VertexStack;
 
 extern crate rand;
 use self::rand::seq::IteratorRandom;
@@ -16,6 +16,8 @@ pub enum PivotChoice {
     MaxDegreeLocal,
 }
 
+type Clique<'a> = Pile<'a, Vertex>;
+
 pub fn visit(
     graph: &UndirectedGraph,
     reporter: &mut Reporter,
@@ -23,7 +25,7 @@ pub fn visit(
     further_pivot_selection: PivotChoice,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
-    clique: VertexStack,
+    clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
@@ -57,7 +59,7 @@ pub fn visit(
             further_pivot_selection.clone(),
             neighbouring_candidates,
             neighbouring_excluded,
-            VertexStack::Cons(&clique, v),
+            Pile::Cons(&clique, v),
         );
     }
 }

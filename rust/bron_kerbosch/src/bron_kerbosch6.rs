@@ -3,8 +3,8 @@
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::UndirectedGraph;
+use pile::Pile;
 use reporter::Reporter;
-use vertex_stack::VertexStack;
 
 use std::collections::HashSet;
 
@@ -18,7 +18,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             PivotChoice::MaxDegree,
             candidates,
             HashSet::new(),
-            VertexStack::Empty,
+            Pile::Empty,
         );
     }
 }
