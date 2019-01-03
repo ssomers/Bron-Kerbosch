@@ -50,10 +50,6 @@ where
         }
     }
 
-    pub fn is_populated(&self) -> bool {
-        self.samples > 1
-    }
-
     pub fn max(&self) -> T {
         self.max.clone()
     }
@@ -61,14 +57,14 @@ where
         self.min.clone()
     }
     pub fn mean(&self) -> f64 {
-        if self.is_populated() {
+        if self.samples > 0 {
             self.sum / self.samples as f64
         } else {
             std::f64::NAN
         }
     }
     pub fn variance(&self) -> f64 {
-        if self.is_populated() {
+        if self.samples > 1 {
             let n = self.samples as f64;
             let m = self.sum / n;
             (self.sum_of_squares - 2.0 * m * self.sum + m.powi(2) * n) / (n - 1.0)
@@ -88,7 +84,6 @@ mod tests {
     #[test]
     fn stats_0_i32() {
         let s: SampleStatistics<i32> = SampleStatistics::new();
-        assert!(!s.is_populated());
         assert!(s.mean().is_nan());
         assert!(s.variance().is_nan());
         assert!(s.deviation().is_nan());
@@ -98,8 +93,7 @@ mod tests {
     fn stats_1_i32() {
         let mut s: SampleStatistics<i32> = SampleStatistics::new();
         s.put(-1).unwrap();
-        assert!(!s.is_populated());
-        assert!(s.mean().is_nan());
+        assert_eq!(s.mean(), -1.0);
         assert!(s.variance().is_nan());
         assert!(s.deviation().is_nan());
     }
@@ -109,7 +103,6 @@ mod tests {
         let mut s: SampleStatistics<i32> = SampleStatistics::new();
         s.put(-1).unwrap();
         s.put(1).unwrap();
-        assert!(s.is_populated());
         assert_eq!(s.mean(), 0.0);
         assert_eq!(s.variance(), 2.0);
         assert_eq!(s.deviation(), 2.0_f64.sqrt());
@@ -121,7 +114,6 @@ mod tests {
         s.put(89).unwrap();
         s.put(90).unwrap();
         s.put(91).unwrap();
-        assert!(s.is_populated());
         assert_eq!(s.mean(), 90.0);
         assert_eq!(s.variance(), 1.0);
         assert_eq!(s.deviation(), 1.0);
@@ -139,7 +131,6 @@ mod tests {
         s.put(5).unwrap();
         s.put(7).unwrap();
         s.put(9).unwrap();
-        assert!(s.is_populated());
         assert_eq!(s.mean(), 5.0);
         assert_eq!(s.variance(), 4.0);
         assert_eq!(s.deviation(), 2.0);
@@ -150,7 +141,6 @@ mod tests {
         let mut s: SampleStatistics<f32> = SampleStatistics::new();
         s.put(1.0).unwrap();
         s.put(2.0).unwrap();
-        assert!(s.is_populated());
         assert_eq!(s.mean(), 1.5);
         assert_eq!(s.variance(), 0.5);
         assert_eq!(s.deviation(), 0.5_f64.sqrt());
@@ -161,7 +151,6 @@ mod tests {
         let mut s: SampleStatistics<f64> = SampleStatistics::new();
         s.put(1.0).unwrap();
         s.put(2.0).unwrap();
-        assert!(s.is_populated());
         assert_eq!(s.mean(), 1.5);
         assert_eq!(s.variance(), 0.5);
         assert_eq!(s.deviation(), 0.5_f64.sqrt());
