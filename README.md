@@ -9,7 +9,7 @@ Compared to the original forked from, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* mirrored in Rust 
+* all that mirrored in Rust 
 
 
 ## Implementations
@@ -33,10 +33,10 @@ Compared to the original forked from, the code is:
 
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent accross the random seed):
 
-* Dense random graphs of order 50: Ver1 indeed can't cope.
+* Dense random graphs of order 100: Ver1 indeed can't cope.
 
-[![Time spent in Python3 on order 50 graphs](https://plot.ly/~stein.somers/126.png?share_key=vE16oDR7OE8KIE909Znmcn "View interactively")](https://plot.ly/~stein.somers/126/?share_key=vE16oDR7OE8KIE909Znmcn)
-[![Time spent in Rust on order 50 graphs](https://plot.ly/~stein.somers/122.png?share_key=PwkWG3NLfn7Vg3N6JQi9Pk "View interactively")](https://plot.ly/~stein.somers/122/?share_key=PwkWG3NLfn7Vg3N6JQi9Pk)
+[![Time spent in Python3 on order 100 graphs](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
+[![Time spent in Rust on order 100 graphs](https://plot.ly/~stein.somers/153.png?share_key=AvQmqLCv53BIi1Hj30a8Dd "View interactively")](https://plot.ly/~stein.somers/153/?share_key=AvQmqLCv53BIi1Hj30a8Dd)
 
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
@@ -44,6 +44,8 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Python3 on order 10k graphs](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 [![Time spent in Rust on order 10k graphs](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
+* Sparse random graphs of order 1M: who's best?
+[![Time spent in Rust on order 1M graphs](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
 
 ## Test
     

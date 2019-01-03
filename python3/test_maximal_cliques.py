@@ -213,7 +213,7 @@ if __name__ == '__main__':
         bk(orderstr=args.order, sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="50", sizes=range(750, 1001, 5))  # max 1225
+        bk(orderstr="100", sizes=range(2_000, 3_001, 25))  # max 4_950
         time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(

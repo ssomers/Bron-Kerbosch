@@ -37,9 +37,12 @@ struct Opt {
 fn parse_positive_int(value: &str) -> u32 {
     let numstr: &str;
     let factor: u32;
-    if value.ends_with("k") {
+    if value.ends_with("M") {
         numstr = &value[0..value.len() - 1];
-        factor = 1000;
+        factor = 1_000_000;
+    } else if value.ends_with("k") {
+        numstr = &value[0..value.len() - 1];
+        factor = 1_000;
     } else {
         numstr = value;
         factor = 1;
@@ -71,29 +74,27 @@ pub fn generate_random_graph(rng: &mut impl Rng, order: Order, size: Size) -> Un
 pub fn bron_kerbosch_timed(
     graph: &UndirectedGraph,
     samples: u32,
-    focus_on_func: Option<usize>,
+    func_indices: &Vec<usize>,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let mut times = [SampleStatistics::new(); NUM_FUNCS];
-    let func_range = match focus_on_func {
-        None => 0..NUM_FUNCS,
-        Some(f) => (f - 1)..f,
-    };
     let mut first: Option<OrderedCliques> = None;
-    for _ in 0..samples {
-        for func_index in func_range.clone() {
+    for sample in 0..samples {
+        for &func_index in func_indices {
             let func = FUNCS[func_index];
             let sys_time = SystemTime::now();
             let mut reporter = SimpleReporter::new();
             func(&graph, &mut reporter);
-            let mut diagnostic: Option<String> = None;
             let secs: Seconds = match sys_time.elapsed() {
                 Ok(duration) => to_seconds(duration),
                 Err(err) => {
-                    diagnostic = Some(format!("Could not get time: {}", err));
+                    println!("Ver{}: Could not get time ({})", func_index + 1, err);
                     -99.9
                 }
             };
-            if focus_on_func.is_none() {
+            if secs >= 1.0 {
+                println!("Ver{}: {:5.2}s", func_index + 1, secs);
+            }
+            if func_indices.len() > 1 && sample == 0 {
                 let current = order_cliques(reporter.cliques);
                 match first.clone() {
                     None => {
@@ -101,17 +102,18 @@ pub fn bron_kerbosch_timed(
                     }
                     Some(first_result) => {
                         if first_result != current {
-                            diagnostic = Some(format!("oops, {:?} != {:?}", first_result, current));
+                            println!(
+                                "Ver{}: expected {} cliques, obtained {} different cliques",
+                                func_index + 1,
+                                first_result.len(),
+                                current.len()
+                            );
                         }
                     }
                 }
             }
 
-            if let Some(d) = diagnostic {
-                println!("Ver{}: {}", func_index + 1, d);
-            } else {
-                times[func_index].put(secs).unwrap();
-            }
+            times[func_index].put(secs).unwrap();
         }
     }
     times
@@ -120,15 +122,16 @@ pub fn bron_kerbosch_timed(
 fn bk(
     orderstr: &str,
     sizes: impl Iterator<Item = u32>,
-    focus_on_func: Option<usize>,
+    samples: u32,
+    func_indices: &Vec<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
-    const SAMPLES: u32 = 5;
     const SEED: [u8; 32] = [68u8; 32];
 
     let order = parse_positive_int(orderstr);
+    let published = func_indices.len() > 1;
     {
-        let mut writer: Option<csv::Writer<File>> = if focus_on_func.is_none() {
+        let mut writer: Option<csv::Writer<File>> = if published {
             let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
             let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
             let file = File::create(path)?;
@@ -148,16 +151,16 @@ fn bk(
         for size in sizes {
             let mut rng = ChaChaRng::from_seed(SEED);
             let graph = generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
-            let stats = bron_kerbosch_timed(&graph, SAMPLES, focus_on_func);
+            let stats = bron_kerbosch_timed(&graph, samples, &func_indices);
             for func_index in 0..NUM_FUNCS {
                 let mean = stats[func_index].mean();
-                let pct = stats[func_index].deviation() / mean * 100.0;
+                let dev = stats[func_index].deviation();
                 println!(
-                    "Ver{}: {:5.2}s {}{:.0}%",
+                    "Ver{}: {:5.2}s {}{:5.2}",
                     func_index + 1,
                     mean,
                     177 as char,
-                    pct
+                    dev
                 );
             }
             if let Some(mut wtr) = writer.as_mut() {
@@ -173,7 +176,7 @@ fn bk(
         }
     }
 
-    if focus_on_func.is_none() {
+    if published {
         let publish = Path::new("..")
             .join(Path::new("python3"))
             .join(Path::new("publish.py"));
@@ -188,21 +191,31 @@ fn bk(
 }
 
 fn main() -> Result<(), std::io::Error> {
+    let all_func_indices: Vec<usize> = (0..NUM_FUNCS).collect();
+    let fast_func_indices: Vec<usize> = vec![1, 4, 5, 6, 7];
     let opt = Opt::from_args();
     if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");
-        let sizes_50 = (750..=1000).step_by(5); // max 1225
+        let sizes_100 = (2_000..=3_000).step_by(25); // max 4_950
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
-            .chain((10_000..=200_000).step_by(10_000));
-        bk("50", sizes_50, None)?;
+            .chain((10_000..=200_000).step_by(10_000)); // max 499_500
+        let sizes_1m = (1_000_000..=10_000_000).step_by(1_000_000);
+        bk("100", sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
-        bk("10k", sizes_10k, None)?;
+        bk("10k", sizes_10k, 5, &all_func_indices)?;
+        thread::sleep(Duration::from_secs(10));
+        bk("1M", sizes_1m, 3, &fast_func_indices)?;
     } else if !opt.sizes.is_empty() {
+        let func_indices = match opt.focus {
+            None => all_func_indices,
+            Some(f) => vec![f],
+        };
         bk(
             &opt.order,
             opt.sizes.iter().map(|s| parse_positive_int(&s)),
-            opt.focus,
+            1,
+            &func_indices,
         )?;
     } else {
         println!("Specify size(s) too")
