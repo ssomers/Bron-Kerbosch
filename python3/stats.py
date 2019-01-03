@@ -21,17 +21,13 @@ class SampleStatistics(object):
         self.sum += v
         self.sum_of_squares += v * v
 
-    def is_populated(self) -> bool:
-        return self.samples > 1
-
     def mean(self):
         return self.sum / self.samples
 
     def variance(self):
         n = self.samples
         m = self.sum / n
-        return (self.sum_of_squares - 2.0 * m * self.sum + m * m * n) / (
-            n - 1.0)
+        return (self.sum_of_squares - 2.0 * m * self.sum + m * m * n) / (n - 1)
 
     def deviation(self):
         return sqrt(self.variance())

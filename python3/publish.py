@@ -7,7 +7,6 @@ from typing import List
 
 def publish(language: str, orderstr: str, num_funcs: int, sizes: List[int],
             stats_per_size: List[List[SampleStatistics]]):
-    assert all([s.is_populated() for stats in stats_per_size for s in stats])
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
@@ -58,7 +57,7 @@ def publish_csv(language: str, orderstr: str):
         print(f"{e}, not plotting until you pip install plotly")
     else:
         colors = [
-            "rgb(0,0,153)", "rgb(204,102,0)", "rgb(0,153,0)", "rgb(0,0,255)",
+            "rgb(0,0,153)", "rgb(204,102,0)", "rgb(0,102,0)", "rgb(0,0,255)",
             "rgb(255,153,0)", "rgb(255,0,153)", "rgb(255,51,51)",
             "rgb(51,204,51)"
         ]
