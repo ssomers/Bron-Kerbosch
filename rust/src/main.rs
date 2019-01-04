@@ -81,20 +81,20 @@ pub fn bron_kerbosch_timed(
     for sample in 0..samples {
         for &func_index in func_indices {
             let func = FUNCS[func_index];
-            let sys_time = SystemTime::now();
             let mut reporter = SimpleReporter::new();
+            let sys_time = SystemTime::now();
             func(&graph, &mut reporter);
             let secs: Seconds = match sys_time.elapsed() {
                 Ok(duration) => to_seconds(duration),
                 Err(err) => {
-                    println!("Ver{}: Could not get time ({})", func_index + 1, err);
+                    println!("  Ver{}: Could not get time ({})", func_index + 1, err);
                     -99.9
                 }
             };
             if secs >= 1.0 {
-                println!("Ver{}: {:5.2}s", func_index + 1, secs);
+                println!("  Ver{}: {:5.2}s", func_index + 1, secs);
             }
-            if func_indices.len() > 1 && sample == 0 {
+            if sample < 2 {
                 let current = order_cliques(reporter.cliques);
                 match first.clone() {
                     None => {
@@ -103,7 +103,7 @@ pub fn bron_kerbosch_timed(
                     Some(first_result) => {
                         if first_result != current {
                             println!(
-                                "Ver{}: expected {} cliques, obtained {} different cliques",
+                                "  Ver{}: expected {} cliques, obtained {} different cliques",
                                 func_index + 1,
                                 first_result.len(),
                                 current.len()
@@ -196,11 +196,13 @@ fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
     if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");
-        let sizes_100 = (2_000..=3_000).step_by(25); // max 4_950
+        let sizes_100 = (2_000..=3_000).step_by(50); // max 4_950
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (1_000_000..=10_000_000).step_by(1_000_000);
+        let sizes_1m = (100_000..1_000_000)
+            .step_by(100_000)
+            .chain((1_000_000..=10_000_000).step_by(1_000_000));
         bk("100", sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", sizes_10k, 5, &all_func_indices)?;

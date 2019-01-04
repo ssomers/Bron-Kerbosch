@@ -22,6 +22,7 @@ Compared to the original forked from, the code is:
 * **Ver6:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
 * **Ver7:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
 * **Ver8:** Ver3 optimized (with result, but not enough to beat those without degeneracy ordering)
+* **Ver9:** Ver3 optimized differently (with result, but not enough to beat those without degeneracy ordering)
 
 ## Run
 
@@ -44,7 +45,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Python3 on order 10k graphs](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 [![Time spent in Rust on order 10k graphs](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 
-* Sparse random graphs of order 1M: who's best?
+* Sparse random graphs of order 1M: who scales best?
 [![Time spent in Rust on order 1M graphs](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
 
 ## Test

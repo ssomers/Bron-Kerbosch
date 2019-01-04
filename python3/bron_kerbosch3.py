@@ -12,12 +12,13 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     candidates = graph.connected_nodes()
     excluded: Set[Vertex] = set()
     for v in list(degeneracy_order(graph=graph, nodes=candidates)):
-        assert graph.adjacencies[v]
+        neighbours = graph.adjacencies[v]
+        assert neighbours
         bron_kerbosch2.visit(
             graph=graph,
             reporter=reporter,
-            candidates=candidates.intersection(graph.adjacencies[v]),
-            excluded=excluded.intersection(graph.adjacencies[v]),
+            candidates=candidates.intersection(neighbours),
+            excluded=excluded.intersection(neighbours),
             clique=[v])
         candidates.remove(v)
         excluded.add(v)

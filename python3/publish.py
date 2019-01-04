@@ -1,8 +1,21 @@
 from stats import SampleStatistics
 import csv
+import math
 import os
 import sys
 from typing import List
+
+colors = [
+    "#000099",
+    "#CC6600",
+    "#006600",
+    "#0000FF",
+    "#FF9900",
+    "#FF0099",
+    "#FF3333",
+    "#00CC00",
+    "#66FF66",
+]
 
 
 def publish(language: str, orderstr: str, num_funcs: int, sizes: List[int],
@@ -34,6 +47,7 @@ def publish_csv(language: str, orderstr: str):
         assert head[0] == "Size"
         num_funcs = (len(head) - 1) // 3
         assert len(head) == 1 + num_funcs * 3
+        assert num_funcs <= len(colors)
         for row in reader:
             assert len(row) == 1 + num_funcs * 3
             size = int(row[0])
@@ -56,11 +70,6 @@ def publish_csv(language: str, orderstr: str):
     except ImportError as e:
         print(f"{e}, not plotting until you pip install plotly")
     else:
-        colors = [
-            "rgb(0,0,153)", "rgb(204,102,0)", "rgb(0,102,0)", "rgb(0,0,255)",
-            "rgb(255,153,0)", "rgb(255,0,153)", "rgb(255,51,51)",
-            "rgb(51,204,51)"
-        ]
         traces = [
             graph_objs.Scatter(
                 x=sizes,
@@ -81,7 +90,8 @@ def publish_csv(language: str, orderstr: str):
                 marker=dict(color=colors[f]),
                 mode="lines+markers",
                 name=f"Ver{f+1}",
-            ) for f in range(num_funcs)
+            ) for f in range(num_funcs) if any(
+                not math.isnan(mean_per_size[s][f]) for s in range(len(sizes)))
         ]
         layout = dict(
             title=('<a href="https://github.com/ssomers/Bron-Kerbosch">' +

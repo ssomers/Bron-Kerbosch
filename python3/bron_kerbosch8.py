@@ -3,9 +3,7 @@
 from bron_kerbosch_pivot import pick_max_degree, visit
 from graph import UndirectedGraph, Vertex
 from reporter import Reporter
-from dataclasses import dataclass, field
-import queue
-from typing import Any, List, Set
+from typing import List, Set
 
 
 def explore(graph: UndirectedGraph, reporter: Reporter):
@@ -28,33 +26,6 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
             clique=[v])
         excluded.add(v)
 
-
-@dataclass(order=True)
-class PrioritizedItem:
-    priority: int
-    node: Vertex = field(compare=False)
-
-
-# poorly performing alternative to degeneracy_order_smart
-def degeneracy_order_queue(graph: UndirectedGraph, candidates: Set[Vertex]):
-    degree_by_node = {c: graph.degree(c) for c in candidates}
-    q: Any = queue.PriorityQueue()
-    for c in candidates:
-        q.put(PrioritizedItem(priority=graph.degree(c), node=c))
-
-    while not q.empty():
-        i = q.get().node
-        try:
-            del degree_by_node[i]
-        except KeyError:
-            pass  # was moved to lower degree
-        else:
-            yield i
-            for v in graph.adjacencies[i]:
-                p = degree_by_node.get(v)
-                if p is not None:
-                    degree_by_node[v] = p - 1
-                    q.put(PrioritizedItem(priority=p - 1, node=v))
 
 
 def pick_with_lowest_degree(degree_per_node, nodes_per_degree, infinite):

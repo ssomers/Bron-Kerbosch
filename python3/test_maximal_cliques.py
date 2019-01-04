@@ -8,6 +8,7 @@ import bron_kerbosch5
 import bron_kerbosch6
 import bron_kerbosch7
 import bron_kerbosch8
+import bron_kerbosch9
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
@@ -29,6 +30,7 @@ FUNCS = [
     bron_kerbosch6.explore,
     bron_kerbosch7.explore,
     bron_kerbosch8.explore,
+    bron_kerbosch9.explore,
 ]
 
 
@@ -49,7 +51,7 @@ def bron_kerbosch(graph: Graph) -> List[List[Vertex]]:
 def bron_kerbosch_timed(graph: Graph, samples: int):
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
-    for _ in range(samples):
+    for sample in range(samples):
         for func_index, func in enumerate(FUNCS):
             diagnostic = None
             reporter = SimpleReporter()
@@ -57,31 +59,31 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
             try:
                 func(graph=graph, reporter=reporter)
             except RecursionError:
-                diagnostic = 'recursed out'
-                break
-            seconds = time.process_time() - begin
-            if diagnostic is None:
+                print(f"  Ver{func_index+1}: recursed out")
+            secs = time.process_time() - begin
+            if secs >= 1.0:
+                print(f"  Ver{func_index+1}: {secs:5.2}s")
+            if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
                     first = current
                 elif first != current:
-                    diagnostic = f'oops, {first} != {current}'
-            if diagnostic is None:
-                times[func_index].put(seconds)
-            else:
-                print(f'Ver{func_index+1}: {diagnostic}')
+                    print(f"  Ver{func_index+1}: " +
+                          "expected {len(first)} cliques, " +
+                          "obtained {len(current)} different cliques")
+            times[func_index].put(secs)
     return times
 
 
 def random_graph(order: int, size: int) -> Graph:
     begin = time.process_time()
     g = random_undirected_graph(order=order, size=size)
-    seconds = time.process_time() - begin
-    name = f'random of order {order}, size {size}'
+    secs = time.process_time() - begin
+    name = f"random of order {order}, size {size}"
     if order < 10:
-        print(f'{name}: {g.adjacencies}')
+        print(f"{name}: {g.adjacencies}")
     else:
-        print(f'{name} (generating took {seconds:.2f}s)')
+        print(f"{name} (generating took {secs:.2f}s)")
     return g
 
 
@@ -180,8 +182,10 @@ def test_random_graph():
 
 
 def bk(orderstr: str, sizes):
-    if orderstr.endswith('k'):
-        order = int(orderstr[:-1]) * 1000
+    if orderstr.endswith('M'):
+        order = int(orderstr[:-1]) * 1_000_000
+    elif orderstr.endswith('k'):
+        order = int(orderstr[:-1]) * 1_000
     else:
         order = int(orderstr)
     stats_per_size = []
@@ -213,7 +217,7 @@ if __name__ == '__main__':
         bk(orderstr=args.order, sizes=[int(size) for size in args.size])
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="100", sizes=range(2_000, 3_001, 25))  # max 4_950
+        bk(orderstr="100", sizes=range(2_000, 3_001, 50))  # max 4_950
         time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
