@@ -69,8 +69,8 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
                     first = current
                 elif first != current:
                     print(f"  Ver{func_index+1}: " +
-                          "expected {len(first)} cliques, " +
-                          "obtained {len(current)} different cliques")
+                          f"expected {len(first)} cliques, " +
+                          f"obtained {len(current)} different cliques")
             times[func_index].put(secs)
     return times
 
