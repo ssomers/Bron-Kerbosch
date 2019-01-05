@@ -12,6 +12,8 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     reporter.inc_count()
     candidates = graph.connected_nodes()
     excluded: Set[Vertex] = set()
+    assert candidates == set(
+        degeneracy_order_smart(graph=graph, candidates=candidates))
     for v in degeneracy_order_smart(graph=graph, candidates=candidates):
         neighbours = graph.adjacencies[v]
         assert neighbours
@@ -27,47 +29,50 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
         excluded.add(v)
 
 
+class PriorityQueue:
+    def __init__(self, max_priority):
+        self.stack_per_priority = [[] for _ in range(max_priority + 1)]
 
-def pick_with_lowest_degree(degree_per_node, nodes_per_degree, infinite):
-    assert all(node in nodes_per_degree[degree]
-               for node, degree in enumerate(degree_per_node)
-               if degree != infinite)
-    for d in range(len(nodes_per_degree)):
-        while nodes_per_degree[d]:
-            v = nodes_per_degree[d].pop()
-            if degree_per_node[v] != infinite:
-                return v
-            else:
-                continue  # was moved to lower degree
+    def put(self, priority, element):
+        assert priority >= 0
+        self.stack_per_priority[priority].append(element)
+
+    def pop(self):
+        for stack in self.stack_per_priority:
+            try:
+                return stack.pop()
+            except IndexError:
+                pass
 
 
 def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
-    order = graph.order
-    infinite = order * 2  # still >= order after decrementing in each iteration
-    degree_per_node = [infinite] * order
+    priority_per_node = [-2] * graph.order
     max_degree = 0
-    for node in candidates:
-        degree = graph.degree(node)
-        assert degree > 0  # FYI, isolated nodes were excluded up front
-        max_degree = max(degree, max_degree)
-        degree_per_node[node] = degree
-    nodes_per_degree: List[List[Vertex]] = [
-        [] for degree in range(max_degree + 1)
-    ]
-    for node in candidates:
-        degree = graph.degree(node)
-        nodes_per_degree[degree].append(node)
+    for c in candidates:
+        degree = graph.degree(c)
+        assert degree > 0  # only connected nodes are candidates
+        priority_per_node[c] = degree
+        max_degree = max(max_degree, degree)
+    # Possible values of priority_per_node:
+    #   -2: if unconnected (should never come up)
+    #   -1: when yielded
+    #   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
+    q = PriorityQueue(max_priority=max_degree)
+    for c, p in enumerate(priority_per_node):
+        if p > 0:
+            q.put(priority=p, element=c)
 
     for _ in range(len(candidates)):
-        i = pick_with_lowest_degree(
-            degree_per_node=degree_per_node,
-            nodes_per_degree=nodes_per_degree,
-            infinite=infinite)
-        degree_per_node[i] = infinite
+        i = q.pop()
+        while priority_per_node[i] == -1:
+            i = q.pop()
+        assert priority_per_node[i] >= 0
+        priority_per_node[i] = -1
         yield i
         for v in graph.adjacencies[i]:
-            d = degree_per_node[v]
-            if d != infinite:
-                degree_per_node[v] = d - 1
-                # move to lower degree, but no need to remove the original one
-                nodes_per_degree[d - 1].append(v)
+            p = priority_per_node[v]
+            if p != -1:
+                assert p > 0
+                # Queue with a higher priority, but no need to remove the original one
+                priority_per_node[v] = p - 1
+                q.put(priority=p - 1, element=v)
