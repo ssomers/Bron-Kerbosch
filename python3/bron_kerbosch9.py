@@ -5,7 +5,7 @@ from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 from dataclasses import dataclass, field
 import queue
-from typing import Any, List, Set
+from typing import List, Set
 
 
 def explore(graph: UndirectedGraph, reporter: Reporter):
@@ -14,6 +14,8 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
     reporter.inc_count()
     candidates = graph.connected_nodes()
     excluded: Set[Vertex] = set()
+    assert candidates == set(
+        degeneracy_order_smart(graph=graph, candidates=candidates))
     for v in degeneracy_order_smart(graph=graph, candidates=candidates):
         neighbours = graph.adjacencies[v]
         assert neighbours
@@ -36,21 +38,23 @@ class PrioritizedItem:
 
 
 def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
-    degree_by_node = {c: graph.degree(c) for c in candidates}
-    q: Any = queue.PriorityQueue()
+    priority_per_node = [-2] * graph.order
+    q: queue.PriorityQueue = queue.PriorityQueue()
     for c in candidates:
-        q.put(PrioritizedItem(priority=graph.degree(c), node=c))
+        p = graph.degree(c)
+        priority_per_node[c] = p
+        q.put(PrioritizedItem(priority=p, node=c))
 
-    while not q.empty():
-        i = q.get().node
-        try:
-            del degree_by_node[i]
-        except KeyError:
-            pass  # was moved to lower degree
-        else:
-            yield i
-            for v in graph.adjacencies[i]:
-                p = degree_by_node.get(v)
-                if p is not None:
-                    degree_by_node[v] = p - 1
-                    q.put(PrioritizedItem(priority=p - 1, node=v))
+    for _ in range(len(candidates)):
+        i = q.get(block=False).node
+        while priority_per_node[i] == -1:
+            i = q.get(block=False).node
+        assert priority_per_node[i] >= 0
+        priority_per_node[i] = -1
+        yield i
+        for v in graph.adjacencies[i]:
+            p = priority_per_node[v]
+            if p != -1:
+                assert p > 0
+                priority_per_node[v] = p - 1
+                q.put(PrioritizedItem(priority=p - 1, node=v), block=False)
