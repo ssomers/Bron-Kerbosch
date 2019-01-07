@@ -8,7 +8,6 @@ use util::intersect;
 use std::collections::{HashMap, HashSet};
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    reporter.inc_count();
     let mut candidates = graph.connected_nodes();
     let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);

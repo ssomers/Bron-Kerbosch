@@ -29,7 +29,6 @@ fn visit(
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
-    reporter.inc_count();
     if candidates.is_empty() && excluded.is_empty() {
         reporter.record(clique);
         return;

@@ -121,6 +121,7 @@ pub fn bron_kerbosch_timed(
 
 fn bk(
     orderstr: &str,
+    order: u32,
     sizes: impl Iterator<Item = u32>,
     samples: u32,
     func_indices: &Vec<usize>,
@@ -128,7 +129,6 @@ fn bk(
     const LANGUAGE: &str = "rust";
     const SEED: [u8; 32] = [68u8; 32];
 
-    let order = parse_positive_int(orderstr);
     let published = func_indices.len() > 1;
     {
         let mut writer: Option<csv::Writer<File>> = if published {
@@ -203,22 +203,19 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_1m = (100_000..1_000_000)
             .step_by(100_000)
             .chain((1_000_000..=10_000_000).step_by(1_000_000));
-        bk("100", sizes_100, 5, &all_func_indices)?;
+        bk("100+", 100, sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
-        bk("10k", sizes_10k, 5, &all_func_indices)?;
+        bk("10k+", 10_000, sizes_10k, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
-        bk("1M", sizes_1m, 3, &fast_func_indices)?;
+        bk("1M+", 1_000_000, sizes_1m, 3, &fast_func_indices)?;
     } else if !opt.sizes.is_empty() {
+        let order = parse_positive_int(&opt.order);
+        let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
         let func_indices = match opt.focus {
             None => all_func_indices,
             Some(f) => vec![f],
         };
-        bk(
-            &opt.order,
-            opt.sizes.iter().map(|s| parse_positive_int(&s)),
-            1,
-            &func_indices,
-        )?;
+        bk(&opt.order, order, sizes, 1, &func_indices)?;
     } else {
         println!("Specify size(s) too")
     }

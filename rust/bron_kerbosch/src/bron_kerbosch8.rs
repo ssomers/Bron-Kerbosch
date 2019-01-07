@@ -10,7 +10,6 @@ use std::cmp::max;
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    reporter.inc_count();
     let mut candidates = graph.connected_nodes();
     debug_assert_eq!(
         degeneracy_order_smart(graph, &candidates).collect::<HashSet<Vertex>>(),
