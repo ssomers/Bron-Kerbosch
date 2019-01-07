@@ -54,7 +54,7 @@ def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
         priority_per_node[c] = degree
         max_degree = max(max_degree, degree)
     # Possible values of priority_per_node:
-    #   -2: if unconnected (should never come up)
+    #   -2: if unconnected (should never come up again)
     #   -1: when yielded
     #   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
     q = PriorityQueue(max_priority=max_degree)
@@ -65,6 +65,7 @@ def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
     for _ in range(len(candidates)):
         i = q.pop()
         while priority_per_node[i] == -1:
+            # was requeued with a more urgent priority and therefore already picked
             i = q.pop()
         assert priority_per_node[i] >= 0
         priority_per_node[i] = -1
@@ -73,6 +74,7 @@ def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
             p = priority_per_node[v]
             if p != -1:
                 assert p > 0
-                # Queue with a higher priority, but no need to remove the original one
+                # Requeue with a more urgent priority, but don't bother to remove
+                # the original entry - it will be skipped if it's reached at all.
                 priority_per_node[v] = p - 1
                 q.put(priority=p - 1, element=v)

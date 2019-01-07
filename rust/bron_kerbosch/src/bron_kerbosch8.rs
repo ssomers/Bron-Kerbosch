@@ -6,6 +6,7 @@ use pile::Pile;
 use reporter::Reporter;
 use util::intersect;
 
+use std::cmp::max;
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
@@ -36,48 +37,88 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 }
 
 #[derive(Debug)]
+struct PriorityQueue<T> {
+    stack_per_priority: Vec<Vec<T>>,
+}
+
+impl<T> PriorityQueue<T>
+where
+    T: Copy + Eq,
+{
+    fn new(max_priority: usize) -> Self {
+        PriorityQueue {
+            stack_per_priority: vec![vec![]; max_priority + 1],
+        }
+    }
+
+    fn put(&mut self, priority: usize, element: T) {
+        self.stack_per_priority[priority].push(element);
+    }
+
+    fn pop(&mut self) -> Option<T> {
+        for stack in &mut self.stack_per_priority {
+            match stack.pop() {
+                Some(element) => return Some(element),
+                None => continue,
+            }
+        }
+        None
+    }
+
+    fn contains(&self, priority: usize, element: T) -> bool {
+        self.stack_per_priority[priority].contains(&element)
+    }
+}
+
+type Priority = u32;
+
+#[derive(Debug)]
 struct DegeneracyOrderIter<'a> {
     graph: &'a UndirectedGraph,
-    infinite: u32,
-    degree_per_node: Vec<u32>,
-    nodes_per_degree: Vec<Vec<u32>>,
-    num_left: usize,
+    no_priority: Priority, // some number distinct from any degree or decrement thereof
+    priority_per_node: Vec<Priority>,
+    // If priority is no_priority, node was already picked or was always irrelevant (unconnected);
+    // otherwise, node is still queued and priority = degree - number of picked neighbours.
+    queue: PriorityQueue<Vertex>,
+    num_left_to_pick: usize,
 }
+
 impl<'a> DegeneracyOrderIter<'a> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
         debug_assert!(self
-            .degree_per_node
+            .priority_per_node
             .iter()
             .enumerate()
-            .all(|(v, &d)| d == self.infinite
-                || self.nodes_per_degree[d as usize].contains(&(v as u32))));
-        for d in 0..self.nodes_per_degree.len() {
-            while let Some(v) = self.nodes_per_degree[d].pop() {
-                if self.degree_per_node[v as usize] != self.infinite {
-                    self.degree_per_node[v as usize] = self.infinite;
-                    return v;
-                }
-                // else was moved to lower degree
+            .all(|(v, &d)| d == self.no_priority || self.queue.contains(d as usize, v as Vertex)));
+        loop {
+            let v = self.queue.pop().expect("Cannot pop more than has been put");
+            if self.priority_per_node[v as usize] != self.no_priority {
+                self.priority_per_node[v as usize] = self.no_priority;
+                break v;
             }
+            // else v was requeued with a more urgent priority and therefore already picked
         }
-        panic!("Should have returned");
     }
 }
 
 impl<'a> Iterator for DegeneracyOrderIter<'a> {
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
-        if self.num_left == 0 {
+        if self.num_left_to_pick == 0 {
             None
         } else {
-            self.num_left -= 1;
+            self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
             for &v in self.graph.adjacencies(i) {
-                let d = self.degree_per_node[v as usize];
-                if d != self.infinite {
-                    self.degree_per_node[v as usize] = d - 1;
-                    // move to lower degree, but no need to remove the original one
-                    self.nodes_per_degree[(d - 1) as usize].push(v)
+                let old_priority = self.priority_per_node[v as usize];
+                if old_priority != self.no_priority {
+                    debug_assert!(old_priority > 0);
+                    let new_priority = old_priority - 1;
+                    debug_assert_ne!(new_priority, self.no_priority);
+                    // Requeue with a more urgent priority, but don't bother to remove
+                    // the original entry - it will be skipped if it's reached at all.
+                    self.priority_per_node[v as usize] = new_priority;
+                    self.queue.put(new_priority as usize, v);
                 }
             }
             Some(i)
@@ -90,27 +131,24 @@ fn degeneracy_order_smart<'a>(
     candidates: &HashSet<Vertex>,
 ) -> DegeneracyOrderIter<'a> {
     let order = graph.order();
-    let infinite: u32 = order * 2; // still >= order after decrementing in each iteration
-    let mut degree_per_node: Vec<u32> = vec![infinite; order as usize];
-    let mut max_degree: u32 = 0;
-    for &node in candidates {
-        let degree = graph.degree(node);
-        assert!(degree > 0); // FYI, isolated nodes were excluded up front
-        if max_degree < degree {
-            max_degree = degree;
-        }
-        degree_per_node[node as usize] = degree;
+    let no_priority = order;
+    let mut max_priority: Priority = 0;
+    let mut priority_per_node: Vec<Priority> = vec![no_priority; order as usize];
+    for &c in candidates {
+        let priority = graph.degree(c);
+        debug_assert_ne!(priority, no_priority);
+        max_priority = max(max_priority, priority);
+        priority_per_node[c as usize] = priority;
     }
-    let mut nodes_per_degree: Vec<Vec<u32>> = vec![vec![]; (max_degree + 1) as usize];
-    for &node in candidates {
-        let degree = graph.degree(node);
-        nodes_per_degree[degree as usize].push(node);
+    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority as usize);
+    for &c in candidates {
+        queue.put(priority_per_node[c as usize] as usize, c);
     }
     DegeneracyOrderIter {
         graph,
-        infinite,
-        degree_per_node,
-        nodes_per_degree,
-        num_left: candidates.len(),
+        no_priority,
+        priority_per_node,
+        queue,
+        num_left_to_pick: candidates.len(),
     }
 }
