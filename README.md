@@ -22,7 +22,7 @@ Compared to the original forked from, the code is:
 * **Ver6:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
 * **Ver7:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
 * **Ver8:** Ver3 optimized (with result, but not enough to beat those without degeneracy ordering)
-* **Ver9:** Ver8 alternative: in Python, order determined by degree only; in Rust, naive, unscalable multithreading
+* **Ver9:** Ver8 alternative: in Rust, multithreading; in Python, order determined by degree only
 
 ## Run
 
