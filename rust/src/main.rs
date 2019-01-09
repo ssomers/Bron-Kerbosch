@@ -203,11 +203,11 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_1m = (100_000..1_000_000)
             .step_by(100_000)
             .chain((1_000_000..=5_000_000).step_by(1_000_000));
-        bk("100+", 100, sizes_100, 5, &all_func_indices)?;
+        bk("100", 100, sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
-        bk("10k+", 10_000, sizes_10k, 5, &all_func_indices)?;
+        bk("10k", 10_000, sizes_10k, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
-        bk("1M+", 1_000_000, sizes_1m, 3, &fast_func_indices)?;
+        bk("1M", 1_000_000, sizes_1m, 3, &fast_func_indices)?;
     } else if !opt.sizes.is_empty() {
         let order = parse_positive_int(&opt.order);
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
