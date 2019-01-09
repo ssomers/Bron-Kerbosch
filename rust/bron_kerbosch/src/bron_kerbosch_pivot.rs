@@ -29,8 +29,11 @@ pub fn visit(
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
-    if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(clique.collect());
+
+    if candidates.is_empty() {
+        if excluded.is_empty() {
+            reporter.record(clique.collect());
+        }
         return;
     }
 
@@ -63,14 +66,10 @@ pub fn visit(
     }
 }
 
-fn pick_random(candidates: &HashSet<Vertex>, excluded: &HashSet<Vertex>) -> Vertex {
+fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Vertex {
+    debug_assert!(!candidates.is_empty());
     let mut rng = rand::thread_rng();
-    let s = if !candidates.is_empty() {
-        &candidates
-    } else {
-        &excluded
-    };
-    *s.iter().choose(&mut rng).unwrap()
+    *candidates.iter().choose(&mut rng).unwrap()
 }
 
 fn max_degree(graph: &UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
@@ -82,7 +81,7 @@ fn pick_max_degree(
     candidates: &HashSet<Vertex>,
     excluded: &HashSet<Vertex>,
 ) -> Vertex {
-    debug_assert!(!(candidates.is_empty() && excluded.is_empty()));
+    debug_assert!(!candidates.is_empty());
     max_degree(graph, candidates.iter().chain(excluded).cloned())
 }
 
@@ -91,7 +90,7 @@ fn pick_max_degree_local(
     candidates: &HashSet<Vertex>,
     excluded: &HashSet<Vertex>,
 ) -> Vertex {
-    debug_assert!(!(candidates.is_empty() && excluded.is_empty()));
+    debug_assert!(!candidates.is_empty());
     candidates
         .iter()
         .chain(excluded)

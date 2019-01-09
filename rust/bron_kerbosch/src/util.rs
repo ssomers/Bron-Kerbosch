@@ -1,5 +1,17 @@
 use std::collections::HashSet;
 
+pub fn is_disjoint<'a, T, S>(s1: &'a HashSet<T, S>, s2: &'a HashSet<T, S>) -> bool
+where
+    T: Eq + std::hash::Hash,
+    S: std::hash::BuildHasher,
+{
+    if s1.len() <= s2.len() {
+        s1.is_disjoint(s2)
+    } else {
+        s2.is_disjoint(s1)
+    }
+}
+
 pub fn intersect<'a, T, S>(
     s1: &'a HashSet<T, S>,
     s2: &'a HashSet<T, S>,
