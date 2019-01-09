@@ -4,4 +4,5 @@ version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
 [dependencies]
-rand = "0.6.0"
+crossbeam = "0.6"
+rand = "0.6"
