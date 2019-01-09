@@ -192,7 +192,7 @@ fn bk(
 
 fn main() -> Result<(), std::io::Error> {
     let all_func_indices: Vec<usize> = (0..NUM_FUNCS).collect();
-    let fast_func_indices: Vec<usize> = vec![1, 4, 5, 6, 7];
+    let fast_func_indices: Vec<usize> = vec![1, 4, 5, 6, 7, 8];
     let opt = Opt::from_args();
     if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");
@@ -202,7 +202,7 @@ fn main() -> Result<(), std::io::Error> {
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
         let sizes_1m = (100_000..1_000_000)
             .step_by(100_000)
-            .chain((1_000_000..=10_000_000).step_by(1_000_000));
+            .chain((1_000_000..=5_000_000).step_by(1_000_000));
         bk("100+", 100, sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k+", 10_000, sizes_10k, 5, &all_func_indices)?;
