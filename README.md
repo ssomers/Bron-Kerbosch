@@ -17,12 +17,13 @@ Compared to the original forked from, the code is:
 * **Ver1:** Naive Bron-Kerbosch algorithm
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
 * **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
-* **Ver4:** Ver1 very slightly optimized
-* **Ver5:** Ver2 slightly optimized and picking pivot randomly (IK\_RP)
-* **Ver6:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
-* **Ver7:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
-* **Ver8:** Ver3 optimized (with result, but not enough to beat those without degeneracy ordering)
-* **Ver9:** Ver8 alternative: in Rust, multithreading; in Python, order determined by degree only
+* **Ver1+:** Ver1 slightly optimized with language-specific tweaks
+* **Ver2_RP:** Ver2 slightly optimized and picking pivot randomly (IK\_RP)
+* **Ver2_GP:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
+* **Ver2_GPX:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
+* **Ver3+:** Ver3 optimized with scalability and language-specific tweaks (with result, but not enough to beat those without degeneracy ordering, for these graphs)
+* **Ver3+MT:** (Rust only) Ver3+ with multi-threading (4 threads, measured on a CPU with 2 cores and hyperthreading)
+* **Ver3-:** (Python only) Ver3 with simplified order, determined by degree only
 
 ## Run
 

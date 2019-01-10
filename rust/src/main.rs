@@ -9,7 +9,7 @@ extern crate structopt;
 
 use bron_kerbosch::graph::UndirectedGraph;
 use bron_kerbosch::reporter::SimpleReporter;
-use bron_kerbosch::{order_cliques, OrderedCliques, FUNCS, NUM_FUNCS};
+use bron_kerbosch::{order_cliques, OrderedCliques, FUNCS, FUNC_NAMES, NUM_FUNCS};
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
@@ -87,12 +87,15 @@ pub fn bron_kerbosch_timed(
             let secs: Seconds = match sys_time.elapsed() {
                 Ok(duration) => to_seconds(duration),
                 Err(err) => {
-                    println!("  Ver{}: Could not get time ({})", func_index + 1, err);
+                    println!(
+                        "  {:8}: Could not get time ({})",
+                        FUNC_NAMES[func_index], err
+                    );
                     -99.9
                 }
             };
             if secs >= 1.0 {
-                println!("  Ver{}: {:5.2}s", func_index + 1, secs);
+                println!("  {:8}: {:5.2}s", FUNC_NAMES[func_index], secs);
             }
             if sample < 2 {
                 let current = order_cliques(reporter.cliques);
@@ -103,8 +106,8 @@ pub fn bron_kerbosch_timed(
                     Some(first_result) => {
                         if first_result != current {
                             println!(
-                                "  Ver{}: expected {} cliques, obtained {} different cliques",
-                                func_index + 1,
+                                "  {:8}: expected {} cliques, obtained {} different cliques",
+                                FUNC_NAMES[func_index],
                                 first_result.len(),
                                 current.len()
                             );
@@ -140,9 +143,9 @@ fn bk(
                 ["Size"]
                     .iter()
                     .map(|&s| String::from(s))
-                    .chain((0..NUM_FUNCS).map(|i| format!("Ver{} min", i + 1)))
-                    .chain((0..NUM_FUNCS).map(|i| format!("Ver{} max", i + 1)))
-                    .chain((0..NUM_FUNCS).map(|i| format!("Ver{} mean", i + 1))),
+                    .chain((0..NUM_FUNCS).map(|i| format!("{} min", FUNC_NAMES[i])))
+                    .chain((0..NUM_FUNCS).map(|i| format!("{} max", FUNC_NAMES[i])))
+                    .chain((0..NUM_FUNCS).map(|i| format!("{} mean", FUNC_NAMES[i]))),
             )?;
             Some(wtr)
         } else {
@@ -156,11 +159,8 @@ fn bk(
                 let mean = stats[func_index].mean();
                 let dev = stats[func_index].deviation();
                 println!(
-                    "Ver{}: {:5.2}s {}{:5.2}",
-                    func_index + 1,
-                    mean,
-                    177 as char,
-                    dev
+                    "{:8}: {:5.2}s {}{:5.2}",
+                    FUNC_NAMES[func_index], mean, 177 as char, dev
                 );
             }
             if let Some(mut wtr) = writer.as_mut() {
@@ -200,8 +200,8 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (100_000..1_000_000)
-            .step_by(100_000)
+        let sizes_1m = (0..1_000_000)
+            .step_by(250_000)
             .chain((1_000_000..=5_000_000).step_by(1_000_000));
         bk("100", 100, sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));

@@ -18,15 +18,17 @@ colors = [
 ]
 
 
-def publish(language: str, orderstr: str, num_funcs: int, sizes: List[int],
-            stats_per_size: List[List[SampleStatistics]]):
+def publish(language: str, orderstr: str, func_names: List[str],
+            sizes: List[int], stats_per_size: List[List[SampleStatistics]]):
+    num_funcs = len(func_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
         w = csv.writer(csvfile)
-        w.writerow(["Size"] + [f"Ver{i+1} min" for i in range(num_funcs)] +
-                   [f"Ver{i+1} max" for i in range(num_funcs)] +
-                   [f"Ver{i+1} mean" for i in range(num_funcs)])
+        w.writerow(["Size"] +
+                   [f"{func_names[i]} min" for i in range(num_funcs)] +
+                   [f"{func_names[i]} max" for i in range(num_funcs)] +
+                   [f"{func_names[i]} mean" for i in range(num_funcs)])
         for i, size in enumerate(sizes):
             stats = stats_per_size[i]
             w.writerow([size] + [s.min for s in stats] +
@@ -44,9 +46,17 @@ def publish_csv(language: str, orderstr: str):
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         head = next(reader)
-        assert head[0] == "Size"
         num_funcs = (len(head) - 1) // 3
         assert len(head) == 1 + num_funcs * 3
+        assert head[0] == "Size"
+        for f in range(num_funcs):
+            assert head[1 + num_funcs * 0 + f].endswith(" min")
+            assert head[1 + num_funcs * 1 + f].endswith(" max")
+            assert head[1 + num_funcs * 2 + f].endswith(" mean")
+        func_names = [
+            head[1 + num_funcs * 2 + f][:-5] for f in range(num_funcs)
+        ]
+
         assert num_funcs <= len(colors)
         for row in reader:
             assert len(row) == 1 + num_funcs * 3
@@ -89,7 +99,7 @@ def publish_csv(language: str, orderstr: str):
                 line=dict(color=colors[f]),
                 marker=dict(color=colors[f]),
                 mode="lines+markers",
-                name=f"Ver{f+1}",
+                name=func_names[f],
             ) for f in range(num_funcs) if any(
                 not math.isnan(mean_per_size[s][f]) for s in range(len(sizes)))
         ]

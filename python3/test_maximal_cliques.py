@@ -3,12 +3,12 @@
 import bron_kerbosch1
 import bron_kerbosch2
 import bron_kerbosch3
-import bron_kerbosch4
-import bron_kerbosch5
-import bron_kerbosch6
-import bron_kerbosch7
-import bron_kerbosch8
-import bron_kerbosch9
+import bron_kerbosch1o
+import bron_kerbosch2_rp
+import bron_kerbosch2_gp
+import bron_kerbosch2_gpx
+import bron_kerbosch3o
+import bron_kerbosch3n
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
@@ -25,12 +25,24 @@ FUNCS = [
     bron_kerbosch1.explore,
     bron_kerbosch2.explore,
     bron_kerbosch3.explore,
-    bron_kerbosch4.explore,
-    bron_kerbosch5.explore,
-    bron_kerbosch6.explore,
-    bron_kerbosch7.explore,
-    bron_kerbosch8.explore,
-    bron_kerbosch9.explore,
+    bron_kerbosch1o.explore,
+    bron_kerbosch2_rp.explore,
+    bron_kerbosch2_gp.explore,
+    bron_kerbosch2_gpx.explore,
+    bron_kerbosch3o.explore,
+    bron_kerbosch3n.explore,
+]
+
+FUNC_NAMES = [
+    "Ver1",
+    "Ver2",
+    "Ver3",
+    "Ver1+",
+    "Ver2_RP",
+    "Ver2_GP",
+    "Ver2_GPX",
+    "Ver3+",
+    "Ver3-",
 ]
 
 
@@ -59,16 +71,16 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
             try:
                 func(graph=graph, reporter=reporter)
             except RecursionError:
-                print(f"  Ver{func_index+1}: recursed out")
+                print(f"  {FUNC_NAMES[func_index]} recursed out")
             secs = time.process_time() - begin
             if secs >= 1.0:
-                print(f"  Ver{func_index+1}: {secs:5.2}s")
+                print(f"  {FUNC_NAMES[func_index]:8}: {secs:5.2}s")
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
                     first = current
                 elif first != current:
-                    print(f"  Ver{func_index+1}: " +
+                    print(f"  {FUNC_NAMES[func_index]}: " +
                           f"expected {len(first)} cliques, " +
                           f"obtained {len(current)} different cliques")
             times[func_index].put(secs)
@@ -196,7 +208,7 @@ def bk(orderstr: str, sizes):
     publish(
         language="python3",
         orderstr=orderstr,
-        num_funcs=len(FUNCS),
+        func_names=FUNC_NAMES,
         sizes=sizes,
         stats_per_size=stats_per_size)
 
