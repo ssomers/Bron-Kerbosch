@@ -30,7 +30,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             PivotChoice::MaxDegree,
             neighbouring_candidates,
             neighbouring_excluded,
-            Pile::Cons(&Pile::Empty, v),
+            Pile::new().cons(v),
         );
     }
 }

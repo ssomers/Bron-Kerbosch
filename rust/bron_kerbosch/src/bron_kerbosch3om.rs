@@ -72,7 +72,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
                 .send(VisitJob {
                     candidates: neighbouring_candidates,
                     excluded: neighbouring_excluded,
-                    clique: Pile::Cons(&Pile::Empty, v),
+                    clique: Pile::from(v),
                 })
                 .unwrap();
         }

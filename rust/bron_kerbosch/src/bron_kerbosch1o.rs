@@ -18,7 +18,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             reporter,
             candidates,
             HashSet::with_capacity(num_candidates),
-            Pile::Empty,
+            Pile::new(),
         );
     }
 }
@@ -47,7 +47,7 @@ fn visit(
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            Pile::Cons(&clique, v),
+            clique.cons(v),
         );
         excluded.insert(v);
     }

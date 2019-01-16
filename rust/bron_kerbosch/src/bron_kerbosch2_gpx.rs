@@ -19,7 +19,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             PivotChoice::MaxDegreeLocal,
             candidates,
             HashSet::with_capacity(num_candidates),
-            Pile::Empty,
+            Pile::new(),
         );
     }
 }

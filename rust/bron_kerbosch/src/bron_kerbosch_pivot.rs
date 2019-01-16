@@ -61,7 +61,7 @@ pub fn visit(
             further_pivot_selection.clone(),
             neighbouring_candidates,
             neighbouring_excluded,
-            Pile::Cons(&clique, v),
+            clique.cons(v),
         );
     }
 }
