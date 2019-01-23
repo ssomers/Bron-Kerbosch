@@ -7,8 +7,9 @@ extern crate rand;
 extern crate rand_chacha;
 extern crate structopt;
 
-use bron_kerbosch::graph::UndirectedGraph;
+use bron_kerbosch::graph::{NewableUndirectedGraph, UndirectedGraph};
 use bron_kerbosch::reporter::SimpleReporter;
+use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{order_cliques, OrderedCliques, FUNCS, FUNC_NAMES, NUM_FUNCS};
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
@@ -58,11 +59,15 @@ pub fn to_seconds(duration: Duration) -> Seconds {
     duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
 }
 
-pub fn generate_random_graph(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
+pub fn generate_random_graph<G: NewableUndirectedGraph>(
+    rng: &mut impl Rng,
+    order: Order,
+    size: Size,
+) -> G {
     let Order::Of(order) = order;
     let Size::Of(size) = size;
     let sys_time = SystemTime::now();
-    let graph = new_undirected(rng, Order::Of(order), Size::Of(size));
+    let graph: G = new_undirected(rng, Order::Of(order), Size::Of(size));
     let seconds = to_seconds(sys_time.elapsed().unwrap());
     println!(
         "random of order {}, size {}: (generating took {:.2}s)",
@@ -83,7 +88,7 @@ pub fn bron_kerbosch_timed(
             let func = FUNCS[func_index];
             let mut reporter = SimpleReporter::new();
             let sys_time = SystemTime::now();
-            func(&graph, &mut reporter);
+            func(graph, &mut reporter);
             let secs: Seconds = match sys_time.elapsed() {
                 Ok(duration) => to_seconds(duration),
                 Err(err) => {
@@ -129,7 +134,7 @@ fn bk(
     samples: u32,
     func_indices: &Vec<usize>,
 ) -> Result<(), std::io::Error> {
-    const LANGUAGE: &str = "rust";
+    const LANGUAGE: &str = "rust_fat";
     const SEED: [u8; 32] = [68u8; 32];
 
     let published = func_indices.len() > 1;
@@ -153,7 +158,8 @@ fn bk(
         };
         for size in sizes {
             let mut rng = ChaChaRng::from_seed(SEED);
-            let graph = generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
+            let graph: SlimUndirectedGraph =
+                generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
             let stats = bron_kerbosch_timed(&graph, samples, &func_indices);
             for func_index in 0..NUM_FUNCS {
                 let mean = stats[func_index].mean();
@@ -200,9 +206,7 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (0..1_000_000)
-            .step_by(250_000)
-            .chain((1_000_000..=5_000_000).step_by(1_000_000));
+        let sizes_1m = (0..2_000_000).step_by(250_000);
         bk("100", 100, sizes_100, 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", 10_000, sizes_10k, 5, &all_func_indices)?;

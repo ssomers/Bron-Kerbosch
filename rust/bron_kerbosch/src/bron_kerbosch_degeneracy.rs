@@ -41,7 +41,6 @@ where
 
 type Priority = u32;
 
-#[derive(Debug)]
 pub struct DegeneracyOrderIter<'a> {
     graph: &'a UndirectedGraph,
     no_priority: Priority, // some number distinct from any degree or decrement thereof

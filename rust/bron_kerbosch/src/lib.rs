@@ -10,15 +10,15 @@ mod bron_kerbosch3o;
 mod bron_kerbosch3om;
 mod bron_kerbosch_degeneracy;
 mod bron_kerbosch_pivot;
+pub mod fatgraph;
 pub mod graph;
 mod pile;
 pub mod reporter;
+pub mod slimgraph;
 pub mod util;
 
-use graph::UndirectedGraph;
-use graph::Vertex;
-use reporter::Clique;
-use reporter::{Reporter, SimpleReporter};
+use graph::{UndirectedGraph, Vertex};
+use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
 pub const NUM_FUNCS: usize = 10;
@@ -51,7 +51,7 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
     let mut first: Option<OrderedCliques> = None;
     for func in FUNCS {
         let mut reporter = SimpleReporter::new();
-        func(&graph, &mut reporter);
+        func(graph, &mut reporter);
         let current = order_cliques(reporter.cliques);
         if first.is_none() {
             first = Some(current);
@@ -65,14 +65,16 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use graph::NewableUndirectedGraph;
     use reporter::Clique;
+    use slimgraph::SlimUndirectedGraph;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
         let adjacencies = adjacencies
             .iter()
             .map(|neighbours| neighbours.into_iter().cloned().collect())
             .collect();
-        let graph = UndirectedGraph::new(adjacencies);
+        let graph = SlimUndirectedGraph::new(adjacencies);
         let current = bron_kerbosch(&graph);
         assert_eq!(current, order_cliques(expected_cliques));
     }

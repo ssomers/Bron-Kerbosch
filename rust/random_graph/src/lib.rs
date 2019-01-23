@@ -1,5 +1,5 @@
 extern crate bron_kerbosch;
-use bron_kerbosch::graph::{new_adjacencies, UndirectedGraph, Vertex};
+use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex};
 
 extern crate rand;
 use self::rand::seq::{IteratorRandom, SliceRandom};
@@ -13,7 +13,11 @@ pub enum Size {
     Of(u32),
 }
 
-pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> UndirectedGraph {
+pub fn new_undirected<G: NewableUndirectedGraph>(
+    rng: &mut impl Rng,
+    order: Order,
+    size: Size,
+) -> G {
     let Order::Of(order) = order;
     let Size::Of(size) = size;
     let fully_meshed_size = order * (order - 1) / 2;
@@ -63,7 +67,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
             }
         }
     }
-    let g = UndirectedGraph::new(adjacency_sets);
+    let g = G::new(adjacency_sets);
     assert_eq!(g.order(), order);
     assert_eq!(g.size(), size);
     g
@@ -72,6 +76,7 @@ pub fn new_undirected(rng: &mut impl Rng, order: Order, size: Size) -> Undirecte
 #[cfg(test)]
 mod tests {
     use super::*;
+    use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 
     extern crate rand_chacha;
     use self::rand_chacha::ChaChaRng;
@@ -80,15 +85,15 @@ mod tests {
     #[test]
     fn random_graph() {
         let mut rng = ChaChaRng::from_seed([68u8; 32]);
-        new_undirected(&mut rng, Order::Of(2), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(1));
-        new_undirected(&mut rng, Order::Of(3), Size::Of(2));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(0));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(1));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(2));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(3));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(4));
-        new_undirected(&mut rng, Order::Of(4), Size::Of(5));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(2), Size::Of(0));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(0));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(1));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(2));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(0));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(1));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(2));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(3));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(4));
+        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(5));
     }
 }
