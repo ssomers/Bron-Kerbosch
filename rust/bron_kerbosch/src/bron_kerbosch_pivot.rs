@@ -11,6 +11,7 @@ use std::collections::HashSet;
 
 #[derive(Clone, Debug)]
 pub enum PivotChoice {
+    Arbitrary,
     Random,
     MaxDegree,
     MaxDegreeLocal,
@@ -38,6 +39,7 @@ pub fn visit(
     }
 
     let pivot = match initial_pivot_selection {
+        PivotChoice::Arbitrary => pick_arbitrary(&candidates, &excluded),
         PivotChoice::Random => pick_random(&candidates, &excluded),
         PivotChoice::MaxDegree => pick_max_degree(graph, &candidates, &excluded),
         PivotChoice::MaxDegreeLocal => pick_max_degree_local(graph, &candidates, &excluded),
@@ -64,6 +66,11 @@ pub fn visit(
             clique.cons(v),
         );
     }
+}
+
+fn pick_arbitrary(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Vertex {
+    debug_assert!(!candidates.is_empty());
+    *candidates.iter().next().unwrap()
 }
 
 fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Vertex {

@@ -192,7 +192,7 @@ fn bk(
 
 fn main() -> Result<(), std::io::Error> {
     let all_func_indices: Vec<usize> = (0..NUM_FUNCS).collect();
-    let fast_func_indices: Vec<usize> = vec![1, 4, 5, 6, 7, 8];
+    let fast_func_indices: Vec<usize> = vec![2, 3, 4, 5, 6, 8, 9];
     let opt = Opt::from_args();
     if opt.order.is_empty() {
         debug_assert!(false, "Run with --release for meaningful measurements");

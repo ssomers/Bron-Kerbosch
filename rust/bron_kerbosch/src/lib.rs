@@ -4,6 +4,7 @@ mod bron_kerbosch2;
 mod bron_kerbosch2_gp;
 mod bron_kerbosch2_gpx;
 mod bron_kerbosch2_rp;
+mod bron_kerbosch2o;
 mod bron_kerbosch3;
 mod bron_kerbosch3o;
 mod bron_kerbosch3om;
@@ -20,20 +21,21 @@ use reporter::Clique;
 use reporter::{Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
-pub const NUM_FUNCS: usize = 9;
+pub const NUM_FUNCS: usize = 10;
+pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
+    "Ver1", "Ver1+", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+", "Ver3+MT",
+];
 pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
-    bron_kerbosch2::explore,
-    bron_kerbosch3::explore,
     bron_kerbosch1o::explore,
+    bron_kerbosch2::explore,
+    bron_kerbosch2o::explore,
     bron_kerbosch2_rp::explore,
     bron_kerbosch2_gp::explore,
     bron_kerbosch2_gpx::explore,
+    bron_kerbosch3::explore,
     bron_kerbosch3o::explore,
     bron_kerbosch3om::explore,
-];
-pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
-    "Ver1", "Ver2", "Ver3", "Ver1+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3+", "Ver3+MT",
 ];
 
 pub type OrderedClique = BTreeSet<Vertex>;

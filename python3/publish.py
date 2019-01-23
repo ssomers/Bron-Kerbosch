@@ -5,17 +5,18 @@ import os
 import sys
 from typing import List
 
-colors = [
-    "#000099",
-    "#CC6600",
-    "#006600",
-    "#0000FF",
-    "#FF9900",
-    "#FF0099",
-    "#FF3333",
-    "#00CC00",
-    "#66FF66",
-]
+COLORS = {
+    "Ver1": "#000099",
+    "Ver1+": "#0000FF",
+    "Ver2": "#CC6600",
+    "Ver2+": "#FF6600",
+    "Ver2_RP": "#FF9900",
+    "Ver2_GP": "#FF0099",
+    "Ver2_GPX": "#FF3333",
+    "Ver3": "#006600",
+    "Ver3+": "#00CC00",
+    "Ver3+MT": "#66FF66",
+}
 
 
 def publish(language: str, orderstr: str, func_names: List[str],
@@ -57,7 +58,8 @@ def publish_csv(language: str, orderstr: str):
             head[1 + num_funcs * 2 + f][:-5] for f in range(num_funcs)
         ]
 
-        assert num_funcs <= len(colors)
+        assert all(func_names[f] in COLORS
+                   for f in range(num_funcs)), f"Unknown in {func_names}"
         for row in reader:
             assert len(row) == 1 + num_funcs * 3
             size = int(row[0])
@@ -94,10 +96,10 @@ def publish_csv(language: str, orderstr: str):
                         mean_per_size[s][f] - min_per_size[s][f]
                         for s in range(len(sizes))
                     ],
-                    color=colors[f],
+                    color=COLORS[func_names[f]],
                 ),
-                line=dict(color=colors[f]),
-                marker=dict(color=colors[f]),
+                line=dict(color=COLORS[func_names[f]]),
+                marker=dict(color=COLORS[func_names[f]]),
                 mode="lines+markers",
                 name=func_names[f],
             ) for f in range(num_funcs) if any(

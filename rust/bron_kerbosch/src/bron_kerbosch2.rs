@@ -1,4 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot
+//! Bron-Kerbosch algorithm with pivot picked arbitrarily
 
 use graph::{UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
