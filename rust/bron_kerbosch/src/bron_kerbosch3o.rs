@@ -2,7 +2,7 @@
 
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::UndirectedGraph;
+use graph::{connected_nodes, UndirectedGraph};
 use pile::Pile;
 use reporter::Reporter;
 use util::intersect;
@@ -10,7 +10,7 @@ use util::intersect;
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let mut candidates = graph.connected_nodes();
+    let mut candidates = connected_nodes(graph);
     debug_assert_eq!(
         degeneracy_order_smart(graph, &candidates).collect::<HashSet<_>>(),
         candidates

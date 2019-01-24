@@ -25,12 +25,6 @@ impl UndirectedGraph for SlimUndirectedGraph {
     fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex> {
         &self.adjacencies[node as usize]
     }
-
-    fn connected_nodes(&self) -> HashSet<Vertex> {
-        (0..self.order() as Vertex)
-            .filter(|&v| self.degree(v) > 0)
-            .collect()
-    }
 }
 
 impl NewableUndirectedGraph for SlimUndirectedGraph {

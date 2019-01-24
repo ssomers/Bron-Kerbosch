@@ -1,14 +1,14 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering
 
 use super::bron_kerbosch2;
-use graph::{UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex};
 use reporter::Reporter;
 use util::intersect;
 
 use std::collections::{HashMap, HashSet};
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let mut candidates = graph.connected_nodes();
+    let mut candidates = connected_nodes(graph);
     let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {

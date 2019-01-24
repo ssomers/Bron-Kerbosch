@@ -7,7 +7,10 @@ pub trait UndirectedGraph: Sync {
     fn size(&self) -> u32;
     fn degree(&self, node: Vertex) -> u32;
     fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex>;
-    fn connected_nodes(&self) -> HashSet<Vertex>;
+}
+
+pub fn connected_nodes(g: &UndirectedGraph) -> HashSet<Vertex> {
+    (0..g.order()).filter(|&v| g.degree(v) > 0).collect()
 }
 
 pub type Adjacencies = Vec<HashSet<Vertex>>;

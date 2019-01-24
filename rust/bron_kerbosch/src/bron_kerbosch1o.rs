@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use graph::{UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex};
 use pile::Pile;
 use reporter::Reporter;
 use util::{intersect, pop_arbitrary};
@@ -10,7 +10,7 @@ use std::collections::HashSet;
 type Clique<'a> = Pile<'a, Vertex>;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let candidates = graph.connected_nodes();
+    let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
         visit(

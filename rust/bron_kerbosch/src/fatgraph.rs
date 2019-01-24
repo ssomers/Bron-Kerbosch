@@ -6,7 +6,7 @@ use std::collections::HashSet;
 pub struct VertexRec {
     neighbours: HashSet<Vertex>,
     /*
-    firstArcOut: &Arc,
+    first_arc_out: &Arc,
     index: usize,
     degree: u32,
     */
@@ -16,16 +16,16 @@ pub struct VertexRec {
 #[derive(Debug)]
 pub struct Edge {
     index: usize,
-    vtxA: &VertexRec,
-    vtxB: &VertexRec,
-    fwdArc: Arc,
-    revArc: Arc,
+    vtx_a: &VertexRec,
+    vtx_b: &VertexRec,
+    fwd_arc: ArcRec,
+    rev_arc: ArcRec,
 }
 
 #[derive(Debug)]
 pub struct Arc {
     edge: &Edge,
-    nextArcOut: &Arc,
+    next_arc_out: &Arc,
 }
 */
 
@@ -55,12 +55,6 @@ impl UndirectedGraph for FatUndirectedGraph {
 
     fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex> {
         &self.vertices[node as usize].neighbours
-    }
-
-    fn connected_nodes(&self) -> HashSet<Vertex> {
-        (0..self.order() as Vertex)
-            .filter(|&v| self.degree(v) > 0)
-            .collect()
     }
 }
 

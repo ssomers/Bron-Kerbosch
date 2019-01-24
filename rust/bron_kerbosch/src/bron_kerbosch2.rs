@@ -1,13 +1,13 @@
 //! Bron-Kerbosch algorithm with pivot picked arbitrarily
 
-use graph::{UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
 use util::intersect;
 
 use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
-    let candidates = graph.connected_nodes();
+    let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
         visit(
