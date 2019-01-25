@@ -206,7 +206,7 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (0..2_000_000).step_by(250_000);
+        let sizes_1m = (0..=2_500_000).step_by(250_000);
         bk("100", 100, sizes_100.collect(), 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", 10_000, sizes_10k.collect(), 5, &all_func_indices)?;
