@@ -134,7 +134,7 @@ fn bk(
     samples: u32,
     func_indices: &Vec<usize>,
 ) -> Result<(), std::io::Error> {
-    const LANGUAGE: &str = "rust_fat";
+    const LANGUAGE: &str = "rust";
     const SEED: [u8; 32] = [68u8; 32];
 
     let published = func_indices.len() > 1 && sizes.len() > 1;

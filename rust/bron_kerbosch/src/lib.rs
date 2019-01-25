@@ -10,7 +10,6 @@ mod bron_kerbosch3o;
 mod bron_kerbosch3om;
 mod bron_kerbosch_degeneracy;
 mod bron_kerbosch_pivot;
-pub mod fatgraph;
 pub mod graph;
 mod pile;
 pub mod reporter;
