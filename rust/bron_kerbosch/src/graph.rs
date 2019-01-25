@@ -6,6 +6,7 @@ pub trait UndirectedGraph: Sync {
     fn order(&self) -> u32;
     fn size(&self) -> u32;
     fn degree(&self, node: Vertex) -> u32;
+    fn neighbour_difference(&self, candidates: &HashSet<Vertex>, node: Vertex) -> Vec<Vertex>;
     fn neighbour_intersection<'a>(
         &'a self,
         node: Vertex,

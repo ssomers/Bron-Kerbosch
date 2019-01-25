@@ -23,6 +23,13 @@ impl UndirectedGraph for SlimUndirectedGraph {
         self.adjacencies[node as usize].len() as u32
     }
 
+    fn neighbour_difference(&self, candidates: &HashSet<Vertex>, node: Vertex) -> Vec<Vertex> {
+        candidates
+            .difference(&self.adjacencies[node as usize])
+            .cloned()
+            .collect()
+    }
+
     fn neighbour_intersection<'a>(
         &'a self,
         node: Vertex,

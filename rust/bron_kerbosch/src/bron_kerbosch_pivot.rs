@@ -43,12 +43,7 @@ pub fn visit(
         PivotChoice::MaxDegree => pick_max_degree(graph, &candidates, &excluded),
         PivotChoice::MaxDegreeLocal => pick_max_degree_local(graph, &candidates, &excluded),
     };
-    let mut pivot_neighbours: HashSet<Vertex> =
-        HashSet::with_capacity(graph.degree(pivot) as usize);
-    graph.visit_neighbours(pivot, |v| {
-        pivot_neighbours.insert(v);
-    });
-    let far_candidates: Vec<Vertex> = candidates.difference(&pivot_neighbours).cloned().collect();
+    let far_candidates = graph.neighbour_difference(&candidates, pivot);
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
         candidates.remove(&v);

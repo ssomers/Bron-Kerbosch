@@ -54,6 +54,13 @@ impl UndirectedGraph for FatUndirectedGraph {
         self.vertices[node as usize].neighbours.len() as u32
     }
 
+    fn neighbour_difference(&self, candidates: &HashSet<Vertex>, node: Vertex) -> Vec<Vertex> {
+        candidates
+            .difference(&self.vertices[node as usize].neighbours)
+            .cloned()
+            .collect()
+    }
+
     fn neighbour_intersection<'a>(
         &'a self,
         node: Vertex,

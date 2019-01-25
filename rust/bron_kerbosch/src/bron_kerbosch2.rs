@@ -38,13 +38,7 @@ pub fn visit(
     } else {
         &excluded
     });
-    let mut pivot_neighbours: HashSet<Vertex> =
-        HashSet::with_capacity(graph.degree(pivot) as usize);
-    graph.visit_neighbours(pivot, |v| {
-        pivot_neighbours.insert(v);
-    });
-    let far_candidates: HashSet<Vertex> =
-        candidates.difference(&pivot_neighbours).cloned().collect();
+    let far_candidates = graph.neighbour_difference(&candidates, pivot);
     for v in far_candidates {
         let neighbouring_candidates = graph
             .neighbour_intersection(v, &candidates)
