@@ -21,7 +21,9 @@ use graph::Vertex;
 use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
+//pub static LANGUAGE: &str = "rust";
 //pub type ActualGraph = slimgraph::SlimUndirectedGraph;
+pub static LANGUAGE: &str = "rust_fat";
 pub type ActualGraph = fatgraph::FatUndirectedGraph;
 
 pub const NUM_FUNCS: usize = 10;

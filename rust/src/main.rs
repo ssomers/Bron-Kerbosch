@@ -9,7 +9,9 @@ extern crate structopt;
 
 use bron_kerbosch::graph::NewableUndirectedGraph;
 use bron_kerbosch::reporter::SimpleReporter;
-use bron_kerbosch::{order_cliques, ActualGraph, OrderedCliques, FUNCS, FUNC_NAMES, NUM_FUNCS};
+use bron_kerbosch::{
+    order_cliques, ActualGraph, OrderedCliques, FUNCS, FUNC_NAMES, LANGUAGE, NUM_FUNCS,
+};
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
@@ -133,7 +135,6 @@ fn bk(
     samples: u32,
     func_indices: &Vec<usize>,
 ) -> Result<(), std::io::Error> {
-    const LANGUAGE: &str = "rust_fat";
     const SEED: [u8; 32] = [68u8; 32];
 
     let published = func_indices.len() > 1 && sizes.len() > 1;
