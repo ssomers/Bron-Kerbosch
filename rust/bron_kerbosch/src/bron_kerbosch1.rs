@@ -35,14 +35,8 @@ fn visit(
     }
 
     while let Some(v) = pop_arbitrary(&mut candidates) {
-        let neighbouring_candidates: HashSet<Vertex> = graph
-            .neighbour_intersection(v, &candidates)
-            .cloned()
-            .collect();
-        let neighbouring_excluded = graph
-            .neighbour_intersection(v, &excluded)
-            .cloned()
-            .collect();
+        let neighbouring_candidates = graph.neighbour_intersection(&candidates, v);
+        let neighbouring_excluded = graph.neighbour_intersection(&excluded, v);
         visit(
             graph,
             reporter,

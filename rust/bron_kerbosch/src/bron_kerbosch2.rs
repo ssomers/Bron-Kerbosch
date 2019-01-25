@@ -40,14 +40,8 @@ pub fn visit(
     });
     let far_candidates = graph.neighbour_difference(&candidates, pivot);
     for v in far_candidates {
-        let neighbouring_candidates = graph
-            .neighbour_intersection(v, &candidates)
-            .cloned()
-            .collect();
-        let neighbouring_excluded = graph
-            .neighbour_intersection(v, &excluded)
-            .cloned()
-            .collect();
+        let neighbouring_candidates = graph.neighbour_intersection(&candidates, v);
+        let neighbouring_excluded = graph.neighbour_intersection(&excluded, v);
         visit(
             graph,
             reporter,

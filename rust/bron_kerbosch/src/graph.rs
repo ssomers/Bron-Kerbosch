@@ -7,11 +7,8 @@ pub trait UndirectedGraph: Sync {
     fn size(&self) -> u32;
     fn degree(&self, node: Vertex) -> u32;
     fn neighbour_difference(&self, candidates: &HashSet<Vertex>, node: Vertex) -> Vec<Vertex>;
-    fn neighbour_intersection<'a>(
-        &'a self,
-        node: Vertex,
-        other: &'a HashSet<Vertex>,
-    ) -> std::collections::hash_set::Intersection<'a, Vertex, std::collections::hash_map::RandomState>;
+    fn neighbour_intersection(&self, set: &HashSet<Vertex>, node: Vertex) -> HashSet<Vertex>;
+    fn neighbour_intersection_count(&self, set: &HashSet<Vertex>, node: Vertex) -> usize;
     fn visit_neighbours<F>(&self, node: Vertex, f: F)
     where
         F: FnMut(Vertex);

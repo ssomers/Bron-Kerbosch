@@ -47,14 +47,8 @@ pub fn visit(
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
         candidates.remove(&v);
-        let neighbouring_candidates = graph
-            .neighbour_intersection(v, &candidates)
-            .cloned()
-            .collect();
-        let neighbouring_excluded = graph
-            .neighbour_intersection(v, &excluded)
-            .cloned()
-            .collect();
+        let neighbouring_candidates = graph.neighbour_intersection(&candidates, v);
+        let neighbouring_excluded = graph.neighbour_intersection(&excluded, v);
         excluded.insert(v);
         visit(
             graph,
@@ -102,6 +96,6 @@ fn pick_max_degree_local(
         .iter()
         .chain(excluded)
         .cloned()
-        .max_by_key(|&v| graph.neighbour_intersection(v, &candidates).count())
+        .max_by_key(|&v| graph.neighbour_intersection_count(&candidates, v))
         .unwrap()
 }

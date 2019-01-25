@@ -11,14 +11,8 @@ pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
-        let neighbouring_candidates = graph
-            .neighbour_intersection(v, &candidates)
-            .cloned()
-            .collect();
-        let neighbouring_excluded = graph
-            .neighbour_intersection(v, &excluded)
-            .cloned()
-            .collect();
+        let neighbouring_candidates = graph.neighbour_intersection(&candidates, v);
+        let neighbouring_excluded = graph.neighbour_intersection(&excluded, v);
         bron_kerbosch2::visit(
             graph,
             reporter,

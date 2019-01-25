@@ -30,13 +30,14 @@ impl UndirectedGraph for SlimUndirectedGraph {
             .collect()
     }
 
-    fn neighbour_intersection<'a>(
-        &'a self,
-        node: Vertex,
-        other: &'a HashSet<Vertex>,
-    ) -> std::collections::hash_set::Intersection<'a, Vertex, std::collections::hash_map::RandomState>
-    {
-        intersect(&self.adjacencies[node as usize], other)
+    fn neighbour_intersection(&self, set: &HashSet<Vertex>, node: Vertex) -> HashSet<Vertex> {
+        intersect(set, &self.adjacencies[node as usize])
+            .cloned()
+            .collect()
+    }
+
+    fn neighbour_intersection_count(&self, set: &HashSet<Vertex>, node: Vertex) -> usize {
+        intersect(set, &self.adjacencies[node as usize]).count()
     }
 
     fn visit_neighbours<F>(&self, node: Vertex, mut f: F)
