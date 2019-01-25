@@ -6,7 +6,7 @@ pub trait UndirectedGraph: Sync {
     fn order(&self) -> u32;
     fn size(&self) -> u32;
     fn degree(&self, node: Vertex) -> u32;
-    fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex>;
+    fn neighbours(&self, node: Vertex) -> &HashSet<Vertex>;
 }
 
 pub fn connected_nodes(g: &UndirectedGraph) -> HashSet<Vertex> {

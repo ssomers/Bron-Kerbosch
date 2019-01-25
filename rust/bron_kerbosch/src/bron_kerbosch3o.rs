@@ -17,7 +17,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     );
     let mut excluded = HashSet::with_capacity(candidates.len());
     for v in degeneracy_order_smart(graph, &candidates) {
-        let neighbours = graph.adjacencies(v);
+        let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();

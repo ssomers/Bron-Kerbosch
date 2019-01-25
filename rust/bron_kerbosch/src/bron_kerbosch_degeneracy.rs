@@ -77,7 +77,7 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
         } else {
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
-            for &v in self.graph.adjacencies(i) {
+            for &v in self.graph.neighbours(i) {
                 let old_priority = self.priority_per_node[v as usize];
                 if old_priority != self.no_priority {
                     debug_assert!(old_priority > 0);

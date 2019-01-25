@@ -19,10 +19,10 @@ impl UndirectedGraph for SlimUndirectedGraph {
     }
 
     fn degree(&self, node: Vertex) -> u32 {
-        self.adjacencies(node).len() as u32
+        self.neighbours(node).len() as u32
     }
 
-    fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex> {
+    fn neighbours(&self, node: Vertex) -> &HashSet<Vertex> {
         &self.adjacencies[node as usize]
     }
 }

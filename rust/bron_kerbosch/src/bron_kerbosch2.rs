@@ -40,11 +40,11 @@ pub fn visit(
         &excluded
     });
     let far_candidates: HashSet<Vertex> = candidates
-        .difference(graph.adjacencies(pivot))
+        .difference(graph.neighbours(pivot))
         .cloned()
         .collect();
     for v in far_candidates {
-        let neighbours = graph.adjacencies(v);
+        let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
         let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();

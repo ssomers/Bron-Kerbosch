@@ -12,7 +12,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
-        let neighbours = graph.adjacencies(v);
+        let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
         let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
@@ -37,7 +37,7 @@ fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Ver
         let i = *degrees.iter().min_by_key(|(&_v, &d)| d).unwrap().0;
         ordered.push(i);
         degrees.remove(&i);
-        for v in graph.adjacencies(i) {
+        for v in graph.neighbours(i) {
             if let Some(d) = degrees.get_mut(v) {
                 *d -= 1;
             }

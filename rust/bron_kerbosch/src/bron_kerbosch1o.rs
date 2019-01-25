@@ -38,7 +38,7 @@ fn visit(
     }
 
     while let Some(v) = pop_arbitrary(&mut candidates) {
-        let neighbours = graph.adjacencies(v);
+        let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
         let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();

@@ -45,12 +45,12 @@ pub fn visit(
         PivotChoice::MaxDegreeLocal => pick_max_degree_local(graph, &candidates, &excluded),
     };
     let far_candidates: Vec<Vertex> = candidates
-        .difference(graph.adjacencies(pivot))
+        .difference(graph.neighbours(pivot))
         .cloned()
         .collect();
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
-        let neighbours = graph.adjacencies(v);
+        let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
@@ -102,6 +102,6 @@ fn pick_max_degree_local(
         .iter()
         .chain(excluded)
         .cloned()
-        .max_by_key(|&v| intersect(&graph.adjacencies(v), &candidates).count())
+        .max_by_key(|&v| intersect(&graph.neighbours(v), &candidates).count())
         .unwrap()
 }
