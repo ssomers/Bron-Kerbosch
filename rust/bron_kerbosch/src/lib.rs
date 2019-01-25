@@ -17,15 +17,18 @@ pub mod reporter;
 pub mod slimgraph;
 pub mod util;
 
-use graph::{UndirectedGraph, Vertex};
+use graph::Vertex;
 use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
+
+//pub type ActualGraph = slimgraph::SlimUndirectedGraph;
+pub type ActualGraph = fatgraph::FatUndirectedGraph;
 
 pub const NUM_FUNCS: usize = 10;
 pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
     "Ver1", "Ver1+", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+", "Ver3+MT",
 ];
-pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
+pub static FUNCS: &'static [fn(graph: &ActualGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch1o::explore,
     bron_kerbosch2::explore,
@@ -47,7 +50,7 @@ pub fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
         .collect()
 }
 
-pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
+pub fn bron_kerbosch(graph: &ActualGraph) -> OrderedCliques {
     let mut first: Option<OrderedCliques> = None;
     for func in FUNCS {
         let mut reporter = SimpleReporter::new();
@@ -67,14 +70,13 @@ mod tests {
     use super::*;
     use graph::NewableUndirectedGraph;
     use reporter::Clique;
-    use slimgraph::SlimUndirectedGraph;
 
     fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
         let adjacencies = adjacencies
             .iter()
             .map(|neighbours| neighbours.into_iter().cloned().collect())
             .collect();
-        let graph = SlimUndirectedGraph::new(adjacencies);
+        let graph = ActualGraph::new(adjacencies);
         let current = bron_kerbosch(&graph);
         assert_eq!(current, order_cliques(expected_cliques));
     }

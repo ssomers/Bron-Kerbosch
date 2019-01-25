@@ -1,6 +1,7 @@
-use std::collections::HashSet;
-
 use graph::{assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex};
+use util::intersect;
+
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct SlimUndirectedGraph {
@@ -19,11 +20,25 @@ impl UndirectedGraph for SlimUndirectedGraph {
     }
 
     fn degree(&self, node: Vertex) -> u32 {
-        self.adjacencies(node).len() as u32
+        self.adjacencies[node as usize].len() as u32
     }
 
-    fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex> {
-        &self.adjacencies[node as usize]
+    fn neighbour_intersection<'a>(
+        &'a self,
+        node: Vertex,
+        other: &'a HashSet<Vertex>,
+    ) -> std::collections::hash_set::Intersection<'a, Vertex, std::collections::hash_map::RandomState>
+    {
+        intersect(&self.adjacencies[node as usize], other)
+    }
+
+    fn visit_neighbours<F>(&self, node: Vertex, mut f: F)
+    where
+        F: FnMut(Vertex),
+    {
+        for &v in self.adjacencies[node as usize].iter() {
+            f(v);
+        }
     }
 }
 

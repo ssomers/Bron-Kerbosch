@@ -8,7 +8,7 @@ use reporter::Reporter;
 
 use std::collections::HashSet;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {

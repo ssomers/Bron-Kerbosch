@@ -3,7 +3,6 @@
 use graph::{UndirectedGraph, Vertex};
 use pile::Pile;
 use reporter::Reporter;
-use util::intersect;
 
 extern crate rand;
 use self::rand::seq::IteratorRandom;
@@ -20,7 +19,7 @@ pub enum PivotChoice {
 type Clique<'a> = Pile<'a, Vertex>;
 
 pub fn visit(
-    graph: &UndirectedGraph,
+    graph: &impl UndirectedGraph,
     reporter: &mut Reporter,
     initial_pivot_selection: PivotChoice,
     further_pivot_selection: PivotChoice,
@@ -44,17 +43,23 @@ pub fn visit(
         PivotChoice::MaxDegree => pick_max_degree(graph, &candidates, &excluded),
         PivotChoice::MaxDegreeLocal => pick_max_degree_local(graph, &candidates, &excluded),
     };
-    let far_candidates: Vec<Vertex> = candidates
-        .difference(graph.adjacencies(pivot))
-        .cloned()
-        .collect();
+    let mut pivot_neighbours: HashSet<Vertex> =
+        HashSet::with_capacity(graph.degree(pivot) as usize);
+    graph.visit_neighbours(pivot, |v| {
+        pivot_neighbours.insert(v);
+    });
+    let far_candidates: Vec<Vertex> = candidates.difference(&pivot_neighbours).cloned().collect();
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
-        let neighbours = graph.adjacencies(v);
-        debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = graph
+            .neighbour_intersection(v, &candidates)
+            .cloned()
+            .collect();
+        let neighbouring_excluded = graph
+            .neighbour_intersection(v, &excluded)
+            .cloned()
+            .collect();
         excluded.insert(v);
         visit(
             graph,
@@ -79,12 +84,12 @@ fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Ver
     *candidates.iter().choose(&mut rng).unwrap()
 }
 
-fn max_degree(graph: &UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
+fn max_degree(graph: &impl UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
     vertices.max_by_key(|&v| graph.degree(v)).unwrap()
 }
 
 fn pick_max_degree(
-    graph: &UndirectedGraph,
+    graph: &impl UndirectedGraph,
     candidates: &HashSet<Vertex>,
     excluded: &HashSet<Vertex>,
 ) -> Vertex {
@@ -93,7 +98,7 @@ fn pick_max_degree(
 }
 
 fn pick_max_degree_local(
-    graph: &UndirectedGraph,
+    graph: &impl UndirectedGraph,
     candidates: &HashSet<Vertex>,
     excluded: &HashSet<Vertex>,
 ) -> Vertex {
@@ -102,6 +107,6 @@ fn pick_max_degree_local(
         .iter()
         .chain(excluded)
         .cloned()
-        .max_by_key(|&v| intersect(&graph.adjacencies(v), &candidates).count())
+        .max_by_key(|&v| graph.neighbour_intersection(v, &candidates).count())
         .unwrap()
 }

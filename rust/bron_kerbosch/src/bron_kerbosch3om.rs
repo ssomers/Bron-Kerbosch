@@ -5,7 +5,6 @@ use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, Vertex};
 use pile::Pile;
 use reporter::{Clique, Reporter};
-use util::intersect;
 
 extern crate crossbeam;
 use std::collections::HashSet;
@@ -27,7 +26,7 @@ struct VisitJob<'a> {
     clique: Pile<'a, Vertex>,
 }
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     const NUM_THREADS: usize = 3;
     crossbeam::thread::scope(|scope| {
         let (reporter_tx, reporter_rx) = mpsc::channel();
@@ -62,11 +61,15 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
         );
         let mut excluded = HashSet::with_capacity(candidates.len());
         for (i, v) in degeneracy_order_smart(graph, &candidates).enumerate() {
-            let neighbours = graph.adjacencies(v);
-            debug_assert!(!neighbours.is_empty());
             candidates.remove(&v);
-            let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-            let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+            let neighbouring_candidates = graph
+                .neighbour_intersection(v, &candidates)
+                .cloned()
+                .collect();
+            let neighbouring_excluded = graph
+                .neighbour_intersection(v, &excluded)
+                .cloned()
+                .collect();
             excluded.insert(v);
             job_txs[i % NUM_THREADS]
                 .send(VisitJob {

@@ -2,11 +2,11 @@
 
 use graph::{connected_nodes, UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
-use util::{intersect, pop_arbitrary};
+use util::pop_arbitrary;
 
 use std::collections::HashSet;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
@@ -21,7 +21,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 }
 
 fn visit(
-    graph: &UndirectedGraph,
+    graph: &impl UndirectedGraph,
     reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
@@ -35,10 +35,14 @@ fn visit(
     }
 
     while let Some(v) = pop_arbitrary(&mut candidates) {
-        let neighbours = graph.adjacencies(v);
-        debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates: HashSet<Vertex> = graph
+            .neighbour_intersection(v, &candidates)
+            .cloned()
+            .collect();
+        let neighbouring_excluded = graph
+            .neighbour_intersection(v, &excluded)
+            .cloned()
+            .collect();
         visit(
             graph,
             reporter,

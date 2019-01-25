@@ -3,19 +3,22 @@
 use super::bron_kerbosch2;
 use graph::{connected_nodes, UndirectedGraph, Vertex};
 use reporter::Reporter;
-use util::intersect;
 
 use std::collections::{HashMap, HashSet};
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     let mut candidates = connected_nodes(graph);
     let mut excluded = HashSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
-        let neighbours = graph.adjacencies(v);
-        debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = graph
+            .neighbour_intersection(v, &candidates)
+            .cloned()
+            .collect();
+        let neighbouring_excluded = graph
+            .neighbour_intersection(v, &excluded)
+            .cloned()
+            .collect();
         bron_kerbosch2::visit(
             graph,
             reporter,
@@ -28,7 +31,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     }
 }
 
-fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Vertex> {
+fn degeneracy_order(graph: &impl UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Vertex> {
     // FIXME: can improve it to linear time
     let mut degrees: HashMap<Vertex, u32> = nodes.iter().map(|&v| (v, graph.degree(v))).collect();
     let mut ordered: Vec<Vertex> = Vec::with_capacity(nodes.len());
@@ -37,11 +40,11 @@ fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Ver
         let i = *degrees.iter().min_by_key(|(&_v, &d)| d).unwrap().0;
         ordered.push(i);
         degrees.remove(&i);
-        for v in graph.adjacencies(i) {
-            if let Some(d) = degrees.get_mut(v) {
+        graph.visit_neighbours(i, |v| {
+            if let Some(d) = degrees.get_mut(&v) {
                 *d -= 1;
             }
-        }
+        });
     }
     debug_assert_eq!(ordered.iter().cloned().collect::<HashSet<Vertex>>(), *nodes);
     ordered

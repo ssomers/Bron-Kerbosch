@@ -41,8 +41,8 @@ where
 
 type Priority = u32;
 
-pub struct DegeneracyOrderIter<'a> {
-    graph: &'a UndirectedGraph,
+pub struct DegeneracyOrderIter<'a, G> {
+    graph: &'a G,
     no_priority: Priority, // some number distinct from any degree or decrement thereof
     priority_per_node: Vec<Priority>,
     // If priority is no_priority, node was already picked or was always irrelevant (unconnected);
@@ -51,7 +51,7 @@ pub struct DegeneracyOrderIter<'a> {
     num_left_to_pick: usize,
 }
 
-impl<'a> DegeneracyOrderIter<'a> {
+impl<'a, G> DegeneracyOrderIter<'a, G> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
         debug_assert!(self
             .priority_per_node
@@ -69,7 +69,10 @@ impl<'a> DegeneracyOrderIter<'a> {
     }
 }
 
-impl<'a> Iterator for DegeneracyOrderIter<'a> {
+impl<'a, G> Iterator for DegeneracyOrderIter<'a, G>
+where
+    G: UndirectedGraph,
+{
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
         if self.num_left_to_pick == 0 {
@@ -77,7 +80,7 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
         } else {
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
-            for &v in self.graph.adjacencies(i) {
+            self.graph.visit_neighbours(i, |v| {
                 let old_priority = self.priority_per_node[v as usize];
                 if old_priority != self.no_priority {
                     debug_assert!(old_priority > 0);
@@ -88,16 +91,19 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
                     self.priority_per_node[v as usize] = new_priority;
                     self.queue.put(new_priority as usize, v);
                 }
-            }
+            });
             Some(i)
         }
     }
 }
 
-pub fn degeneracy_order_smart<'a>(
-    graph: &'a UndirectedGraph,
+pub fn degeneracy_order_smart<'a, G>(
+    graph: &'a G,
     candidates: &HashSet<Vertex>,
-) -> DegeneracyOrderIter<'a> {
+) -> DegeneracyOrderIter<'a, G>
+where
+    G: UndirectedGraph,
+{
     let order = graph.order();
     let no_priority = order;
     let mut max_priority: Priority = 0;

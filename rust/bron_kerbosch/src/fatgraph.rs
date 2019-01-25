@@ -1,4 +1,5 @@
 use graph::{assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex};
+use util::intersect;
 
 use std::collections::HashSet;
 
@@ -50,11 +51,25 @@ impl UndirectedGraph for FatUndirectedGraph {
     }
 
     fn degree(&self, node: Vertex) -> u32 {
-        self.adjacencies(node).len() as u32
+        self.vertices[node as usize].neighbours.len() as u32
     }
 
-    fn adjacencies(&self, node: Vertex) -> &HashSet<Vertex> {
-        &self.vertices[node as usize].neighbours
+    fn neighbour_intersection<'a>(
+        &'a self,
+        node: Vertex,
+        other: &'a HashSet<Vertex>,
+    ) -> std::collections::hash_set::Intersection<'a, Vertex, std::collections::hash_map::RandomState>
+    {
+        intersect(&self.vertices[node as usize].neighbours, other)
+    }
+
+    fn visit_neighbours<F>(&self, node: Vertex, mut f: F)
+    where
+        F: FnMut(Vertex),
+    {
+        for &v in self.vertices[node as usize].neighbours.iter() {
+            f(v);
+        }
     }
 }
 

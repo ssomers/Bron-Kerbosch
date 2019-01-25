@@ -2,11 +2,10 @@
 
 use graph::{connected_nodes, UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
-use util::intersect;
 
 use std::collections::HashSet;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore(graph: &impl UndirectedGraph, reporter: &mut Reporter) {
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
@@ -21,7 +20,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 }
 
 pub fn visit(
-    graph: &UndirectedGraph,
+    graph: &impl UndirectedGraph,
     reporter: &mut Reporter,
     mut candidates: HashSet<Vertex>,
     mut excluded: HashSet<Vertex>,
@@ -39,15 +38,22 @@ pub fn visit(
     } else {
         &excluded
     });
-    let far_candidates: HashSet<Vertex> = candidates
-        .difference(graph.adjacencies(pivot))
-        .cloned()
-        .collect();
+    let mut pivot_neighbours: HashSet<Vertex> =
+        HashSet::with_capacity(graph.degree(pivot) as usize);
+    graph.visit_neighbours(pivot, |v| {
+        pivot_neighbours.insert(v);
+    });
+    let far_candidates: HashSet<Vertex> =
+        candidates.difference(&pivot_neighbours).cloned().collect();
     for v in far_candidates {
-        let neighbours = graph.adjacencies(v);
-        debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = graph
+            .neighbour_intersection(v, &candidates)
+            .cloned()
+            .collect();
+        let neighbouring_excluded = graph
+            .neighbour_intersection(v, &excluded)
+            .cloned()
+            .collect();
         visit(
             graph,
             reporter,

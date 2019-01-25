@@ -7,10 +7,9 @@ extern crate rand;
 extern crate rand_chacha;
 extern crate structopt;
 
-use bron_kerbosch::graph::{NewableUndirectedGraph, UndirectedGraph};
+use bron_kerbosch::graph::NewableUndirectedGraph;
 use bron_kerbosch::reporter::SimpleReporter;
-use bron_kerbosch::slimgraph::SlimUndirectedGraph;
-use bron_kerbosch::{order_cliques, OrderedCliques, FUNCS, FUNC_NAMES, NUM_FUNCS};
+use bron_kerbosch::{order_cliques, ActualGraph, OrderedCliques, FUNCS, FUNC_NAMES, NUM_FUNCS};
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
@@ -77,7 +76,7 @@ pub fn generate_random_graph<G: NewableUndirectedGraph>(
 }
 
 pub fn bron_kerbosch_timed(
-    graph: &UndirectedGraph,
+    graph: &ActualGraph,
     samples: u32,
     func_indices: &Vec<usize>,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
@@ -158,7 +157,7 @@ fn bk(
         };
         for size in sizes {
             let mut rng = ChaChaRng::from_seed(SEED);
-            let graph: SlimUndirectedGraph =
+            let graph: ActualGraph =
                 generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
             let stats = bron_kerbosch_timed(&graph, samples, &func_indices);
             for func_index in 0..NUM_FUNCS {
