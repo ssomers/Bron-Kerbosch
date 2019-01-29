@@ -87,18 +87,6 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
     return times
 
 
-def random_graph(order: int, size: int) -> Graph:
-    begin = time.process_time()
-    g = random_undirected_graph(order=order, size=size)
-    secs = time.process_time() - begin
-    name = f"random of order {order}, size {size}"
-    if order < 10:
-        print(f"{name}: {g.adjacencies}")
-    else:
-        print(f"{name} (generating took {secs:.2f}s)")
-    return g
-
-
 def test_order_0():
     assert bron_kerbosch(Graph(adjacencies=[])) == []
 
@@ -181,16 +169,16 @@ def test_sample():
 
 def test_random_graph():
     random.seed(19680516)
-    random_graph(order=2, size=0)
-    random_graph(order=3, size=0)
-    random_graph(order=3, size=1)
-    random_graph(order=3, size=2)
-    random_graph(order=4, size=0)
-    random_graph(order=4, size=1)
-    random_graph(order=4, size=2)
-    random_graph(order=4, size=3)
-    random_graph(order=4, size=4)
-    random_graph(order=4, size=5)
+    random_undirected_graph(order=2, size=0)
+    random_undirected_graph(order=3, size=0)
+    random_undirected_graph(order=3, size=1)
+    random_undirected_graph(order=3, size=2)
+    random_undirected_graph(order=4, size=0)
+    random_undirected_graph(order=4, size=1)
+    random_undirected_graph(order=4, size=2)
+    random_undirected_graph(order=4, size=3)
+    random_undirected_graph(order=4, size=4)
+    random_undirected_graph(order=4, size=5)
 
 
 def bk(orderstr: str, sizes):
@@ -203,7 +191,14 @@ def bk(orderstr: str, sizes):
     stats_per_size = []
     for size in sizes:
         random.seed(seed)
-        g = random_graph(order=order, size=size)
+        begin = time.process_time()
+        g = random_undirected_graph(order=order, size=size)
+        secs = time.process_time() - begin
+        name = f"random of order {order}, size {size}"
+        if order < 10:
+            print(f"{name}: {g.adjacencies}")
+        else:
+            print(f"{name} (generating took {secs:.2f}s)")
         stats_per_size.append(bron_kerbosch_timed(g, samples=5))
     publish(
         language="python3",
