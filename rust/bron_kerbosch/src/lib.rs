@@ -169,6 +169,20 @@ mod tests {
     }
 
     #[test]
+    fn bk_order_5_penultimate() {
+        bk(
+            vec![
+                vec![1, 2, 3, 4],
+                vec![0, 2, 3, 4],
+                vec![0, 1, 3, 4],
+                vec![0, 1, 2],
+                vec![0, 1, 2],
+            ],
+            vec![vec![0, 1, 2, 3], vec![0, 1, 2, 4]],
+        );
+    }
+
+    #[test]
     fn bk_sample() {
         bk(
             vec![

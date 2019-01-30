@@ -171,10 +171,30 @@ def test_order_4_size_5(func):
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_6(func):
     assert bkf(
-        func=func, adjacencies=[{1, 2, 3}, {0, 2, 3}, {0, 1, 3},
-                                {0, 1, 2}]) == [
-                                    [0, 1, 2, 3],
-                                ]
+        func=func, adjacencies=[
+            {1, 2, 3},
+            {0, 2, 3},
+            {0, 1, 3},
+            {0, 1, 2},
+        ]) == [
+            [0, 1, 2, 3],
+        ]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_5_penultimate(func):
+    assert bkf(
+        func=func,
+        adjacencies=[
+            {1, 2, 3, 4},
+            {0, 2, 3, 4},
+            {0, 1, 3, 4},
+            {0, 1, 2},
+            {0, 1, 2},
+        ]) == [
+            [0, 1, 2, 3],
+            [0, 1, 2, 4],
+        ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
