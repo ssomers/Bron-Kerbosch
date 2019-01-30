@@ -122,4 +122,5 @@ def publish_csv(language: str, orderstr: str):
 
 
 if __name__ == '__main__':
-    publish_csv(language=sys.argv[1], orderstr=sys.argv[2])
+    for orderstr in sys.argv[2:]:
+        publish_csv(language=sys.argv[1], orderstr=orderstr)

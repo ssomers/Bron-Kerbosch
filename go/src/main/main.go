@@ -3,12 +3,32 @@ package main
 import (
 	"bron_kerbosch"
 	"fmt"
+	"os"
 )
 
-func bk(order int, sizes []int) {
+func bk(orderstr string, order int, sizes []int) {
 	const SAMPLES = 3
+	name := "bron_kerbosch_go_order_" + orderstr
+	path := "../" + name + ".csv"
+	fo, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		if err := fo.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	if _, err := fo.Write([]byte("Size,Ver1 min,Ver1 max,Ver1 mean\n")); err != nil {
+		panic(err)
+	}
 	for _, size := range sizes {
 		stats := bron_kerbosch.Timed(order, size, SAMPLES)
+		if _, err := fo.Write([]byte(fmt.Sprintf("%d,%f,%f,%f\n", size, stats[0].Min(), stats[0].Max(), stats[0].Mean()))); err != nil {
+			panic(err)
+		}
 		for func_index, func_name := range bron_kerbosch.FUNC_NAMES {
 			mean := stats[func_index].Mean()
 			dev := stats[func_index].Deviation()
@@ -31,6 +51,6 @@ func main() {
 			s += 10000
 		}
 	}
-	bk(100, sizes_100)
-	bk(10000, sizes_10k)
+	bk("100", 100, sizes_100)
+	bk("100k", 10000, sizes_10k)
 }

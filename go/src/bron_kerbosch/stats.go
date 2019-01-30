@@ -26,6 +26,14 @@ func (s *SampleStatistics) Put(v float64) {
 	s.sum_of_squares += v * v
 }
 
+func (s *SampleStatistics) Max() float64 {
+	return s.max
+}
+
+func (s *SampleStatistics) Min() float64 {
+	return s.min
+}
+
 func (s *SampleStatistics) Mean() float64 {
 	return s.sum / float64(s.samples)
 }

@@ -28,6 +28,7 @@ Compared to the original forked from, the code is:
 
     cd python3 && python -O test_maximal_cliques.py
     cd rust && cargo run --release
+    cd go && go run main && python ..\python3\publish.py go 100 10k
 
 ## Results
 
@@ -50,6 +51,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
     
     cd python3 && pytest
     cd rust && cargo test --all
+    co go && go test bron_kerbosch
 
 ## Context
 
