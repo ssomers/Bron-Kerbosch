@@ -9,7 +9,7 @@ Compared to the original forked from, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* all that mirrored in Rust 
+* all that mirrored in Rust and partly in Go (which frankly sucks for this kind of programs)
 
 ## Implementations
 

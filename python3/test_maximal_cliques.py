@@ -75,7 +75,7 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
-                    if not are_maximal(current):
+                    if graph.order < 100 and not are_maximal(current):
                         print(f"  {FUNC_NAMES[func_index]:8} not maximal")
                     first = current
                 elif first != current:
