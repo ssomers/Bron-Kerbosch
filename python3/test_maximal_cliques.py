@@ -47,12 +47,22 @@ FUNC_NAMES = [
 ]
 
 
+def are_maximal(cliques: List[List[Vertex]]):
+    for j, clique2 in enumerate(cliques):
+        if j % 1000 == 0:
+            print(f"checking maximality {j}/{len(cliques)}")
+        for i, clique1 in enumerate(cliques[:j]):
+            if clique1[:len(clique2)] == clique2[:len(clique1)]:
+                return False
+    print("checked maximality")
+    return True
+
+
 def bron_kerbosch_timed(graph: Graph, samples: int):
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
     for sample in range(samples):
         for func_index, func in enumerate(FUNCS):
-            diagnostic = None
             reporter = SimpleReporter()
             begin = time.process_time()
             try:
@@ -65,6 +75,8 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
+                    if not are_maximal(current):
+                        print(f"  {FUNC_NAMES[func_index]:8} not maximal")
                     first = current
                 elif first != current:
                     print(f"  {FUNC_NAMES[func_index]}: " +
@@ -175,20 +187,6 @@ def test_sample(func):
         ]
 
 
-def test_random_graph():
-    random.seed(19680516)
-    random_undirected_graph(order=2, size=0)
-    random_undirected_graph(order=3, size=0)
-    random_undirected_graph(order=3, size=1)
-    random_undirected_graph(order=3, size=2)
-    random_undirected_graph(order=4, size=0)
-    random_undirected_graph(order=4, size=1)
-    random_undirected_graph(order=4, size=2)
-    random_undirected_graph(order=4, size=3)
-    random_undirected_graph(order=4, size=4)
-    random_undirected_graph(order=4, size=5)
-
-
 def bk(orderstr: str, sizes):
     if orderstr.endswith('M'):
         order = int(orderstr[:-1]) * 1_000_000
@@ -208,12 +206,13 @@ def bk(orderstr: str, sizes):
         else:
             print(f"{name} (generating took {secs:.2f}s)")
         stats_per_size.append(bron_kerbosch_timed(g, samples=5))
-    publish(
-        language="python3",
-        orderstr=orderstr,
-        func_names=FUNC_NAMES,
-        sizes=sizes,
-        stats_per_size=stats_per_size)
+    if len(sizes) > 1:
+        publish(
+            language="python3",
+            orderstr=orderstr,
+            func_names=FUNC_NAMES,
+            sizes=sizes,
+            stats_per_size=stats_per_size)
 
 
 if __name__ == '__main__':
