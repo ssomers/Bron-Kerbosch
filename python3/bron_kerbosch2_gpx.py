@@ -5,7 +5,7 @@ from graph import UndirectedGraph
 from reporter import Reporter
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch2_gpx(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot, slightly optimized'''
     candidates = graph.connected_nodes()
     if candidates:

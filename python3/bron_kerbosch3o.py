@@ -6,7 +6,7 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch3o(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
     optimized'''
     reporter.inc_count()

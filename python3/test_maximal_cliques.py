@@ -1,14 +1,14 @@
 # coding: utf-8
 
-import bron_kerbosch1
-import bron_kerbosch2
-import bron_kerbosch3
-import bron_kerbosch1o
-import bron_kerbosch2_rp
-import bron_kerbosch2_gp
-import bron_kerbosch2_gpx
-import bron_kerbosch3o
-import bron_kerbosch3n
+from bron_kerbosch1 import bron_kerbosch1
+from bron_kerbosch2 import bron_kerbosch2
+from bron_kerbosch3 import bron_kerbosch3
+from bron_kerbosch1o import bron_kerbosch1o
+from bron_kerbosch2_rp import bron_kerbosch2_rp
+from bron_kerbosch2_gp import bron_kerbosch2_gp
+from bron_kerbosch2_gpx import bron_kerbosch2_gpx
+from bron_kerbosch3o import bron_kerbosch3o
+from bron_kerbosch3n import bron_kerbosch3n
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
@@ -16,21 +16,22 @@ from stats import SampleStatistics
 from publish import publish
 
 import argparse
+import pytest
 import random
 import sys
 import time
-from typing import List
+from typing import List, Set
 
 FUNCS = [
-    bron_kerbosch1.explore,
-    bron_kerbosch2.explore,
-    bron_kerbosch3.explore,
-    bron_kerbosch1o.explore,
-    bron_kerbosch2_rp.explore,
-    bron_kerbosch2_gp.explore,
-    bron_kerbosch2_gpx.explore,
-    bron_kerbosch3o.explore,
-    bron_kerbosch3n.explore,
+    bron_kerbosch1,
+    bron_kerbosch2,
+    bron_kerbosch3,
+    bron_kerbosch1o,
+    bron_kerbosch2_rp,
+    bron_kerbosch2_gp,
+    bron_kerbosch2_gpx,
+    bron_kerbosch3o,
+    bron_kerbosch3n,
 ]
 
 FUNC_NAMES = [
@@ -44,20 +45,6 @@ FUNC_NAMES = [
     "Ver3+",
     "Ver3-",
 ]
-
-
-def bron_kerbosch(graph: Graph) -> List[List[Vertex]]:
-    first = None
-    for func in FUNCS:
-        reporter = SimpleReporter()
-        func(graph=graph, reporter=reporter)
-        current = sorted(sorted(clique) for clique in reporter.cliques)
-        if first is None:
-            first = current
-        elif first != current:
-            raise ValueError(f'oops, {first} != {current}')
-    assert first is not None
-    return first
 
 
 def bron_kerbosch_timed(graph: Graph, samples: int):
@@ -87,56 +74,72 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
     return times
 
 
-def test_order_0():
-    assert bron_kerbosch(Graph(adjacencies=[])) == []
+def bkf(func, adjacencies: List[Set[Vertex]]) -> List[List[Vertex]]:
+    reporter = SimpleReporter()
+    func(graph=Graph(adjacencies=adjacencies), reporter=reporter)
+    return sorted(sorted(clique) for clique in reporter.cliques)
 
 
-def test_order_1():
-    assert bron_kerbosch(Graph(adjacencies=[[]])) == []
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_0(func):
+    assert bkf(func=func, adjacencies=[]) == []
 
 
-def test_order_2_isolated():
-    assert bron_kerbosch(Graph(adjacencies=[[], []])) == []
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_1(func):
+    assert bkf(func=func, adjacencies=[[]]) == []
 
 
-def test_order_2_connected():
-    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}])) == [[0, 1]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_2_isolated(func):
+    assert bkf(func=func, adjacencies=[[], []]) == []
 
 
-def test_order_3_size_1():
-    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, []])) == [[0, 1]]
-    assert bron_kerbosch(Graph(adjacencies=[[], {2}, {1}])) == [[1, 2]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_2_connected(func):
+    assert bkf(func=func, adjacencies=[{1}, {0}]) == [[0, 1]]
 
 
-def test_order_3_size_2():
-    assert bron_kerbosch(Graph(adjacencies=[{1}, {0, 2}, {1}])) == [[0, 1],
-                                                                    [1, 2]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_3_size_1(func):
+    assert bkf(func=func, adjacencies=[{1}, {0}, []]) == [[0, 1]]
+    assert bkf(func=func, adjacencies=[[], {2}, {1}]) == [[1, 2]]
 
 
-def test_order_3_size_3():
-    assert bron_kerbosch(
-        Graph(adjacencies=[{1, 2}, {0, 2}, {0, 1}])) == [[0, 1, 2]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_3_size_2(func):
+    assert bkf(func=func, adjacencies=[{1}, {0, 2}, {1}]) == [[0, 1], [1, 2]]
 
 
-def test_order_4_size_2_isolated():
-    assert bron_kerbosch(Graph(adjacencies=[{1, 2}, {0}, {0}, []])) == [[0, 1],
-                                                                        [0, 2]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_3_size_3(func):
+    assert bkf(func=func, adjacencies=[{1, 2}, {0, 2}, {0, 1}]) == [[0, 1, 2]]
 
 
-def test_order_4_size_2_connected():
-    assert bron_kerbosch(Graph(adjacencies=[{1}, {0}, {3}, {2}])) == [[0, 1],
-                                                                      [2, 3]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_2_isolated(func):
+    assert bkf(
+        func=func, adjacencies=[{1, 2}, {0}, {0}, []]) == [[0, 1], [0, 2]]
 
 
-def test_order_4_size_4_p():
-    assert bron_kerbosch(
-        Graph(adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}])) == [[0, 1],
-                                                                 [1, 2, 3]]
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_2_connected(func):
+    assert bkf(func=func, adjacencies=[{1}, {0}, {3}, {2}]) == [[0, 1], [2, 3]]
 
 
-def test_order_4_size_4_square():
-    assert bron_kerbosch(
-        Graph(adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}])) == [
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_4_p(func):
+    assert bkf(
+        func=func, adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}]) == [
+            [0, 1],
+            [1, 2, 3],
+        ]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_4_square(func):
+    assert bkf(
+        func=func, adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}]) == [
             [0, 1],
             [0, 3],
             [1, 2],
@@ -144,27 +147,32 @@ def test_order_4_size_4_square():
         ]
 
 
-def test_order_4_size_5():
-    assert bron_kerbosch(
-        Graph(adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}])) == [
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_5(func):
+    assert bkf(
+        func=func, adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}]) == [
             [0, 1, 2],
             [0, 2, 3],
         ]
 
 
-def test_order_4_size_6():
-    assert bron_kerbosch(
-        Graph(adjacencies=[{1, 2, 3}, {0, 2, 3}, {0, 1, 3}, {0, 1, 2}])) == [
-            [0, 1, 2, 3],
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_6(func):
+    assert bkf(
+        func=func, adjacencies=[{1, 2, 3}, {0, 2, 3}, {0, 1, 3},
+                                {0, 1, 2}]) == [
+                                    [0, 1, 2, 3],
+                                ]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_sample(func):
+    assert bkf(
+        func=func, adjacencies=SAMPLE_ADJACENCY_LIST) == [
+            [1, 2, 3, 4],
+            [2, 3, 5],
+            [5, 6, 7],
         ]
-
-
-def test_sample():
-    assert bron_kerbosch(Graph(adjacencies=SAMPLE_ADJACENCY_LIST)) == [
-        [1, 2, 3, 4],
-        [2, 3, 5],
-        [5, 6, 7],
-    ]
 
 
 def test_random_graph():

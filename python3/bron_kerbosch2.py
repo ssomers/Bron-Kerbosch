@@ -5,7 +5,7 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch2(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with arbitrarily chosen pivot'''
     candidates = graph.connected_nodes()
     if candidates:

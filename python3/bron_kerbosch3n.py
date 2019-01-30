@@ -6,7 +6,7 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degenerate degeneracy ordering'''
     reporter.inc_count()
     candidates = set()
@@ -22,7 +22,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter):
         degree = graph.degree(node)
         if degree:
             candidates.add(node)
-            candidates_per_degree[degree-1].append(node)
+            candidates_per_degree[degree - 1].append(node)
 
     excluded: Set[Vertex] = set()
     for cands in candidates_per_degree:
