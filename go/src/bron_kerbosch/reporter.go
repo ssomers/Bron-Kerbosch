@@ -9,5 +9,7 @@ type SimpleReporter struct {
 }
 
 func (r *SimpleReporter) Record(clique []Vertex) {
-	r.cliques = append(r.cliques, clique)
+	cc := make([]Vertex, len(clique))
+	copy(cc, clique)
+	r.cliques = append(r.cliques, cc)
 }

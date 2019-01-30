@@ -1,52 +1,18 @@
 package bron_kerbosch
 
 import (
-	"fmt"
-	"sort"
 	"testing"
 )
 
-func bron_kerbosch(graph *UndirectedGraph) [][]Vertex {
-	var reporter SimpleReporter
-	bron_kerbosch1(graph, &reporter)
-	var cliques [][]Vertex = reporter.cliques
-	for _, clique := range cliques {
-		sort.Slice(clique, func(l int, r int) bool {
-			return clique[l] < clique[r]
-		})
-	}
-	sort.Slice(cliques, func(l int, r int) bool {
-		for i := 0; i < len(cliques[l]) && i < len(cliques[r]); i++ {
-			if d := cliques[l][i] - cliques[r][i]; d != 0 {
-				return d < 0
-			}
-		}
-		panic(fmt.Sprintf("got two cliques (#%d of length %d and #%d of length %d) with the same vertices",
-			l+1, len(cliques[l]),
-			r+1, len(cliques[r])))
-		return false
-	})
-	return cliques
-}
-
 func bk(t *testing.T, adjacencies []VertexSet, expected_cliques [][]Vertex) {
 	graph := newUndirectedGraph(adjacencies)
-	obtained_cliques := bron_kerbosch(&graph)
-	if len(obtained_cliques) != len(expected_cliques) {
-		t.Errorf("%d <> %d cliques", len(obtained_cliques), len(expected_cliques))
-	}
-	for j, o := range obtained_cliques {
-		e := expected_cliques[j]
-		if len(o) != len(e) {
-			t.Errorf("clique #%d: %d <> %d vertices", j+1, len(o), len(e))
-		} else {
-			for i, l := range o {
-				r := e[i]
-				if l != r {
-					t.Errorf("clique #%d vertex #%d/%d: %d <> %d", j+1, len(o), i+1, l, r)
-				}
-			}
-		}
+	for func_index, bron_kerbosch_func := range FUNCS {
+		var reporter SimpleReporter
+		bron_kerbosch_func(&graph, &reporter)
+		obtained_cliques := reporter.cliques
+		sort_cliques(obtained_cliques)
+		compare_cliques(obtained_cliques, expected_cliques,
+			func(e string) { t.Errorf("%s: %s", FUNC_NAMES[func_index], e) })
 	}
 }
 
@@ -75,7 +41,7 @@ func TestOrder2_connected(t *testing.T) {
 			[]Vertex{0, 1}})
 }
 
-func TestOrder3_size_1(t *testing.T) {
+func TestOrder3_Size1(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}},
@@ -90,10 +56,9 @@ func TestOrder3_size_1(t *testing.T) {
 			VertexSet{1: struct{}{}}},
 		[][]Vertex{
 			[]Vertex{1, 2}})
-
 }
 
-func TestOrder3_size_2(t *testing.T) {
+func TestOrder3_Size2(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}},
@@ -102,10 +67,9 @@ func TestOrder3_size_2(t *testing.T) {
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{1, 2}})
-
 }
 
-func TestOrder3_size_3(t *testing.T) {
+func TestOrder3_Size3(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}, 2: struct{}{}},
@@ -113,10 +77,9 @@ func TestOrder3_size_3(t *testing.T) {
 			VertexSet{0: struct{}{}, 1: struct{}{}}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2}})
-
 }
 
-func TestOrder4_size_2_isolated(t *testing.T) {
+func TestOrder4_Size2_isolated(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}, 2: struct{}{}},
@@ -126,10 +89,9 @@ func TestOrder4_size_2_isolated(t *testing.T) {
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{0, 2}})
-
 }
 
-func TestOrder4_size_2_connected(t *testing.T) {
+func TestOrder4_Size2_connected(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}},
@@ -139,10 +101,9 @@ func TestOrder4_size_2_connected(t *testing.T) {
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{2, 3}})
-
 }
 
-func TestOrder4_size_4_p(t *testing.T) {
+func TestOrder4_Size4_p(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}},
@@ -154,7 +115,7 @@ func TestOrder4_size_4_p(t *testing.T) {
 			[]Vertex{1, 2, 3}})
 }
 
-func TestOrder4_size_4_square(t *testing.T) {
+func TestOrder4_Size4_square(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}, 3: struct{}{}},
@@ -167,10 +128,9 @@ func TestOrder4_size_4_square(t *testing.T) {
 			[]Vertex{1, 2},
 			[]Vertex{2, 3},
 		})
-
 }
 
-func TestOrder4_size_5(t *testing.T) {
+func TestOrder4_Size5(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
@@ -180,10 +140,9 @@ func TestOrder4_size_5(t *testing.T) {
 		[][]Vertex{
 			[]Vertex{0, 1, 2},
 			[]Vertex{0, 2, 3}})
-
 }
 
-func TestOrder4_size_6(t *testing.T) {
+func TestOrder4_Size6(t *testing.T) {
 	bk(t,
 		[]VertexSet{
 			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
@@ -192,7 +151,19 @@ func TestOrder4_size_6(t *testing.T) {
 			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2, 3}})
+}
 
+func TestOrder5_Size9_penultimate(t *testing.T) {
+	bk(t,
+		[]VertexSet{
+			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}, 4: struct{}{}},
+			VertexSet{0: struct{}{}, 2: struct{}{}, 3: struct{}{}, 4: struct{}{}},
+			VertexSet{0: struct{}{}, 1: struct{}{}, 3: struct{}{}, 4: struct{}{}},
+			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}},
+			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{0, 1, 2, 3},
+			[]Vertex{0, 1, 2, 4}})
 }
 
 func TestSample(t *testing.T) {
