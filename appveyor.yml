@@ -23,3 +23,4 @@ build_script:
 test_script:
   - pytest -p no:cacheprovider python3
   - cd rust && cargo test --all
+  - go test bron_kerbosch
