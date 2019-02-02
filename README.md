@@ -28,7 +28,7 @@ Compared to the original forked from, the code is:
 
     cd python3 && python -O test_maximal_cliques.py
     cd rust && cargo run --release
-    set GOPATH=%CD%\go && go run main && python python3\publish.py go 100 10k 1M
+    set GOPATH=%CD%\go&& go run main && python python3\publish.py go 100 10k 1M
 
 ## Results
 
