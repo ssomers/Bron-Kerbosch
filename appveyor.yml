@@ -18,9 +18,8 @@ install:
   - PATH %PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -V
   - cargo -V
-build_script:
-  - mypy --cache-dir=/dev/null --ignore-missing-import python3
 test_script:
+  - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
   - cd rust && cargo test --all
   - go test bron_kerbosch
