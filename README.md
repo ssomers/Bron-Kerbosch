@@ -49,6 +49,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 * Sparse random graphs of order 1M: who scales best?
 [![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
 [![Time spent in Go on order !M graphs](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
+
 Note that I skipped Ver1 (and others) in Rust because they take minutes, while the noob translation to Go passes with flying colors.
 
 ## Test

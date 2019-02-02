@@ -21,5 +21,5 @@ install:
 test_script:
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
-  - cd rust && cargo test --all
   - set GOPATH=%CD%\go && go test bron_kerbosch
+  - pushd rust && cargo test --all & popd
