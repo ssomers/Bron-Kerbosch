@@ -51,7 +51,7 @@ def publish_csv(language: str, orderstr: str):
         head = next(reader)
         num_funcs = (len(head) - 1) // 3
         if len(head) != 1 + num_funcs * 3:
-            raise ImportError(f"Head: Found {len(row)} columns")
+            raise ImportError(f"Head: Found {len(head)} columns")
         if head[0] != "Size":
             raise ImportError("unexpected " + str(head[0]))
         if not all(h.endswith(" min") for h in head[1::3]):
