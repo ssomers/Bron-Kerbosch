@@ -28,7 +28,7 @@ Compared to the original forked from, the code is:
 
     cd python3 && python -O test_maximal_cliques.py
     cd rust && cargo run --release
-    cd go && go run main && python ..\python3\publish.py go 100 10k
+    set GOPATH=%CD%\go && go run main && python python3\publish.py go 100 10k 1M
 
 ## Results
 
@@ -36,22 +36,25 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 * Dense random graphs of order 100: Ver1 indeed can't cope.
 
-[![Time spent in Rust on order 100 graphs](https://plot.ly/~stein.somers/153.png?share_key=AvQmqLCv53BIi1Hj30a8Dd "View interactively")](https://plot.ly/~stein.somers/153/?share_key=AvQmqLCv53BIi1Hj30a8Dd)
-[![Time spent in Python3 on order 100 graphs](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
+[![Time spent in Rust on graphs of order 100](https://plot.ly/~stein.somers/153.png?share_key=AvQmqLCv53BIi1Hj30a8Dd "View interactively")](https://plot.ly/~stein.somers/153/?share_key=AvQmqLCv53BIi1Hj30a8Dd)
+[![Time spent in Go on graphs of order 100](https://plot.ly/~stein.somers/183.png?share_key=WseMiu6UJZgAKyQvTF2bJp "View interactively")](https://plot.ly/~stein.somers/183/?share_key=WseMiu6UJZgAKyQvTF2bJp)
+[![Time spent in Python3 on graphs of order 100](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
 
 * Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
 
-[![Time spent in Rust on order 10k graphs](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
-[![Time spent in Python3 on order 10k graphs](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
+[![Time spent in Rust on graphs of order 10k](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
+[![Time spent in Go on graphs of order 10k](https://plot.ly/~stein.somers/187.png?share_key=EtNe8FbmD8BwrxBaC7dHBt "View interactively")](https://plot.ly/~stein.somers/187/?share_key=EtNe8FbmD8BwrxBaC7dHBt)
+[![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 
 * Sparse random graphs of order 1M: who scales best?
-[![Time spent in Rust on order 1M graphs](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
+[![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
+[![Time spent in Go on order !M graphs](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
 
 ## Test
     
     cd python3 && pytest
     cd rust && cargo test --all
-    co go && go test bron_kerbosch
+    set GOPATH=%CD%\go && go test bron_kerbosch
 
 ## Context
 

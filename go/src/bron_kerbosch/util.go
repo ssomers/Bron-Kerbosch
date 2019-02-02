@@ -24,6 +24,13 @@ func intersection(vset1 *VertexSet, vset2 *VertexSet) VertexSet {
 	return result
 }
 
+func pick_arbitrary(vset *VertexSet) Vertex {
+	for v, _ := range *vset {
+		return v
+	}
+	panic("attempt to pick from empty set")
+}
+
 func pop_arbitrary(vset *VertexSet) Vertex {
 	for v, _ := range *vset {
 		delete(*vset, v)

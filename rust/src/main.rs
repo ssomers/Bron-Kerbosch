@@ -99,7 +99,7 @@ pub fn bron_kerbosch_timed(
                     -99.9
                 }
             };
-            if secs >= 1.0 {
+            if secs >= 3.0 {
                 println!("  {:8}: {:5.2}s", FUNC_NAMES[func_index], secs);
             }
             if sample < 2 {
@@ -144,14 +144,15 @@ fn bk(
             let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
             let file = File::create(path)?;
             let mut wtr = csv::Writer::from_writer(file);
-            wtr.write_record(
-                ["Size"]
-                    .iter()
-                    .map(|&s| String::from(s))
-                    .chain((0..NUM_FUNCS).map(|i| format!("{} min", FUNC_NAMES[i])))
-                    .chain((0..NUM_FUNCS).map(|i| format!("{} max", FUNC_NAMES[i])))
-                    .chain((0..NUM_FUNCS).map(|i| format!("{} mean", FUNC_NAMES[i]))),
-            )?;
+            wtr.write_record(["Size"].iter().map(|&s| String::from(s)).chain(
+                FUNC_NAMES.iter().flat_map(|name| {
+                    vec![
+                        format!("{} min", name),
+                        format!("{} mean", name),
+                        format!("{} max", name),
+                    ]
+                }),
+            ))?;
             Some(wtr)
         } else {
             None
@@ -170,14 +171,15 @@ fn bk(
                 );
             }
             if let Some(mut wtr) = writer.as_mut() {
-                wtr.write_record(
-                    [size]
-                        .iter()
-                        .map(|&i| i.to_string())
-                        .chain(stats.iter().map(|&s| s.min().to_string()))
-                        .chain(stats.iter().map(|&s| s.max().to_string()))
-                        .chain(stats.iter().map(|&s| s.mean().to_string())),
-                )?;
+                wtr.write_record([size].iter().map(|&i| i.to_string()).chain(
+                    stats.iter().flat_map(|&s| {
+                        vec![
+                            s.min().to_string(),
+                            s.mean().to_string(),
+                            s.max().to_string(),
+                        ]
+                    }),
+                ))?;
             }
         }
     }
@@ -206,7 +208,9 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (0..=2_500_000).step_by(250_000);
+        let sizes_1m = (0..1_000_000)
+            .step_by(250_000)
+            .chain((1_000_000..=3_000_000).step_by(500_000));
         bk("100", 100, sizes_100.collect(), 5, &all_func_indices)?;
         thread::sleep(Duration::from_secs(10));
         bk("10k", 10_000, sizes_10k.collect(), 5, &all_func_indices)?;

@@ -27,20 +27,21 @@ def publish(language: str, orderstr: str, func_names: List[str],
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
         w = csv.writer(csvfile)
-        w.writerow(["Size"] +
-                   [f"{func_names[i]} min" for i in range(num_funcs)] +
-                   [f"{func_names[i]} max" for i in range(num_funcs)] +
-                   [f"{func_names[i]} mean" for i in range(num_funcs)])
+        w.writerow(["Size"] + [(name + " " + t) for name in func_names
+                               for t in ["min", "mean", "max"]])
         for i, size in enumerate(sizes):
             stats = stats_per_size[i]
-            w.writerow([size] + [s.min for s in stats] +
-                       [s.max for s in stats] + [s.mean() for s in stats])
+            w.writerow([size] +
+                       [f for s in stats
+                        for f in [s.min, s.mean(), s.max]])
     publish_csv(language=language, orderstr=orderstr)
 
 
 def publish_csv(language: str, orderstr: str):
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
-    path = os.path.join(os.pardir, filename + ".csv")
+    path = filename + ".csv"
+    if not os.path.exists(path):
+        path = os.path.join(os.pardir, path)
     sizes = []
     min_per_size = []
     max_per_size = []
@@ -49,34 +50,28 @@ def publish_csv(language: str, orderstr: str):
         reader = csv.reader(csvfile)
         head = next(reader)
         num_funcs = (len(head) - 1) // 3
-        assert len(head) == 1 + num_funcs * 3
-        assert head[0] == "Size"
-        for f in range(num_funcs):
-            assert head[1 + num_funcs * 0 + f].endswith(" min")
-            assert head[1 + num_funcs * 1 + f].endswith(" max")
-            assert head[1 + num_funcs * 2 + f].endswith(" mean")
-        func_names = [
-            head[1 + num_funcs * 2 + f][:-5] for f in range(num_funcs)
-        ]
+        if len(head) != 1 + num_funcs * 3:
+            raise ImportError(f"Head: Found {len(row)} columns")
+        if head[0] != "Size":
+            raise ImportError("unexpected " + str(head[0]))
+        if not all(h.endswith(" min") for h in head[1::3]):
+            raise ImportError("unexpected " + str(head[1::3]))
+        if not all(h.endswith(" mean") for h in head[2::3]):
+            raise ImportError("unexpected " + str(head[2::3]))
+        if not all(h.endswith(" max") for h in head[3::3]):
+            raise ImportError("unexpected " + str(head[3::3]))
+        func_names = [h.split()[0] for h in head[2::3]]
 
         assert all(func_names[f] in COLORS
                    for f in range(num_funcs)), f"Unknown in {func_names}"
-        for row in reader:
-            assert len(row) == 1 + num_funcs * 3
+        for i, row in enumerate(reader):
+            if len(row) != 1 + num_funcs * 3:
+                raise ImportError(f"Row {i+2}: Found {len(row)} columns")
             size = int(row[0])
             sizes.append(size)
-            min_per_size.append([
-                float(cell)
-                for cell in row[1 + num_funcs * 0:1 + num_funcs * 1]
-            ])
-            max_per_size.append([
-                float(cell)
-                for cell in row[1 + num_funcs * 1:1 + num_funcs * 2]
-            ])
-            mean_per_size.append([
-                float(cell)
-                for cell in row[1 + num_funcs * 2:1 + num_funcs * 3]
-            ])
+            min_per_size.append([float(cell) for cell in row[1::3]])
+            mean_per_size.append([float(cell) for cell in row[2::3]])
+            max_per_size.append([float(cell) for cell in row[3::3]])
 
     try:
         from plotly import graph_objs, plotly

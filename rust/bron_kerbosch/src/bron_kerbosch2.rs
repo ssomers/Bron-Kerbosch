@@ -29,16 +29,14 @@ pub fn visit(
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
-    if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(clique);
+    if candidates.is_empty() {
+        if excluded.is_empty() {
+            reporter.record(clique);
+        }
         return;
     }
 
-    let pivot = pick_arbitrary(if !candidates.is_empty() {
-        &candidates
-    } else {
-        &excluded
-    });
+    let pivot = pick_arbitrary(&candidates);
     let far_candidates: HashSet<Vertex> = candidates
         .difference(graph.neighbours(pivot))
         .cloned()
