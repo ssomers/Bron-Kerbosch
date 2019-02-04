@@ -56,7 +56,7 @@ Note that I skipped Ver1 (and others) in Rust because they take minutes, while t
     
     cd python3 && pytest
     cd rust && cargo test --all
-    set GOPATH=%CD%\go && go test bron_kerbosch
+    set GOPATH=%CD%\go&& go test bron_kerbosch
 
 ## Context
 
