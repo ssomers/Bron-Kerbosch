@@ -10,14 +10,16 @@ func random_choice(vlist *[]Vertex) Vertex {
 }
 
 func random_sample(vset *VertexSet) Vertex {
-	i := rand.Intn(len(*vset))
-	for v, _ := range *vset {
-		if i == 0 {
-			return v
-		}
-		i -= 1
+	l := vset.bits.BitLen()
+	if l == 0 {
+		panic("sampling empty set")
 	}
-	panic("should have returned")
+	for {
+		i := rand.Intn(l)
+		if vset.Contains(Vertex(i)) {
+			return Vertex(i)
+		}
+	}
 }
 
 func array_remove(vlist []Vertex, doomed Vertex) []Vertex {

@@ -11,7 +11,7 @@ type UndirectedGraph struct {
 func newUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 	for i, adjacent_to_v := range adjacencies {
 		v := Vertex(i)
-		for w, _ := range adjacent_to_v {
+		for _, w := range adjacent_to_v.Iterate() {
 			if v == w {
 				panic(fmt.Sprintf("%d is adjacent to itself", v))
 			}
@@ -46,7 +46,7 @@ func (g *UndirectedGraph) degree(v Vertex) int {
 
 func (g *UndirectedGraph) connected_nodes() VertexSet {
 	order := g.order()
-	result := make(VertexSet)
+	var result VertexSet
 	for v := 0; v < order; v++ {
 		if !g.adjacencies[v].IsEmpty() {
 			result.Add(Vertex(v))
@@ -65,7 +65,6 @@ func random_undirected_graph(order int, size int) UndirectedGraph {
 	adjacency_sets := make([]VertexSet, order)
 	for v := 0; v < order; v++ {
 		unsaturated_vertices[v] = Vertex(v)
-		adjacency_sets[v] = make(VertexSet)
 	}
 	adjacency_complements := make([]VertexSet, order)
 	for i := 0; i < size; i++ {
@@ -107,7 +106,6 @@ func random_undirected_graph(order int, size int) UndirectedGraph {
 				if !adjacency_complements[x].IsEmpty() {
 					panic("unexpected adjacency_complements")
 				}
-				adjacency_complements[x] = make(VertexSet)
 				for _, v := range unsaturated_vertices {
 					if v != x {
 						if !adjacency_sets[x].Contains(v) {

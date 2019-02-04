@@ -1,10 +1,16 @@
 package bron_kerbosch
 
+import (
+	"math/big"
+)
+
 type Vertex int
-type VertexSet map[Vertex]struct{}
+type VertexSet struct {
+	bits big.Int
+}
 
 func NewVertexSet(vertices []Vertex) VertexSet {
-	r := make(VertexSet)
+	var r VertexSet
 	for _, v := range vertices {
 		r.Add(v)
 	}
@@ -12,46 +18,54 @@ func NewVertexSet(vertices []Vertex) VertexSet {
 }
 
 func (vset *VertexSet) IsEmpty() bool {
-	return len(*vset) == 0
+	return vset.bits.Cmp(big.NewInt(0)) == 0
 }
 
 func (vset *VertexSet) Cardinality() int {
-	return len(*vset)
+	var r uint
+	for l := vset.bits.BitLen() - 1; l >= 0; l-- {
+		r += vset.bits.Bit(l)
+	}
+	return int(r)
+}
+
+func (vset *VertexSet) Iterate() []Vertex {
+	var r []Vertex
+	for l := vset.bits.BitLen() - 1; l >= 0; l-- {
+		if vset.bits.Bit(l) != 0 {
+			r = append(r, Vertex(l))
+		}
+	}
+	return r
 }
 
 func (vset *VertexSet) Contains(v Vertex) bool {
-	_, ok := (*vset)[v]
-	return ok
+	return vset.bits.Bit(int(v)) != 0
 }
 
 func (vset1 *VertexSet) Intersection(vset2 *VertexSet) VertexSet {
-	result := make(VertexSet)
-	if vset1 != nil && vset2 != nil {
-		if len(*vset1) > len(*vset2) {
-			vset1, vset2 = vset2, vset1
-		}
-		for v, _ := range *vset1 {
-			if vset2.Contains(v) {
-				result.Add(v)
-			}
-		}
-	}
-	return result
+	var r VertexSet
+	r.bits.And(&vset1.bits, &vset2.bits)
+	return r
 }
 
 func (vset *VertexSet) Add(v Vertex) {
-	(*vset)[v] = struct{}{}
+	vset.bits.SetBit(&vset.bits, int(v), 1)
 }
 
 func (vset *VertexSet) Remove(v Vertex) {
-	delete(*vset, v)
+	vset.bits.SetBit(&vset.bits, int(v), 0)
 }
 
 func (vset *VertexSet) PickArbitrary() Vertex {
-	for v, _ := range *vset {
-		return v
+	l := vset.bits.BitLen() - 1
+	if l < 0 {
+		panic("picking from empty set")
 	}
-	panic("attempt to pick from empty set")
+	if vset.bits.Bit(l) != 1 {
+		panic("eek")
+	}
+	return Vertex(l)
 }
 
 func (vset *VertexSet) PopArbitrary() Vertex {

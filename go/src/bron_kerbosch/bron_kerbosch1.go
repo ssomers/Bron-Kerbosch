@@ -4,7 +4,7 @@ func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
 	// Naive Bron-Kerbosch algorithm
 	candidates := graph.connected_nodes()
 	if !candidates.IsEmpty() {
-		excluded := make(VertexSet)
+		var excluded VertexSet
 		bron_kerbosch1_visit(
 			graph,
 			reporter,
