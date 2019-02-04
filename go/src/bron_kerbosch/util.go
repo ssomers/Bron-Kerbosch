@@ -4,41 +4,6 @@ import (
 	"math/rand"
 )
 
-func contains(vset *VertexSet, v Vertex) bool {
-	_, ok := (*vset)[v]
-	return ok
-}
-
-func intersection(vset1 *VertexSet, vset2 *VertexSet) VertexSet {
-	result := make(VertexSet)
-	if vset1 != nil && vset2 != nil {
-		if len(*vset1) > len(*vset2) {
-			vset1, vset2 = vset2, vset1
-		}
-		for v, _ := range *vset1 {
-			if contains(vset2, v) {
-				result[v] = struct{}{}
-			}
-		}
-	}
-	return result
-}
-
-func pick_arbitrary(vset *VertexSet) Vertex {
-	for v, _ := range *vset {
-		return v
-	}
-	panic("attempt to pick from empty set")
-}
-
-func pop_arbitrary(vset *VertexSet) Vertex {
-	for v, _ := range *vset {
-		delete(*vset, v)
-		return v
-	}
-	panic("attempt to pop from empty set")
-}
-
 func random_choice(vlist *[]Vertex) Vertex {
 	i := rand.Intn(len(*vlist))
 	return (*vlist)[i]

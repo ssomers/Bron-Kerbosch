@@ -3,7 +3,7 @@ package bron_kerbosch
 func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
 	// Naive Bron-Kerbosch algorithm
 	candidates := graph.connected_nodes()
-	if len(candidates) != 0 {
+	if !candidates.IsEmpty() {
 		excluded := make(VertexSet)
 		bron_kerbosch1_visit(
 			graph,
@@ -16,19 +16,19 @@ func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
 
 func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter, candidates *VertexSet,
 	excluded *VertexSet, clique []Vertex) {
-	if len(*candidates) == 0 && len(*excluded) == 0 {
+	if candidates.IsEmpty() && excluded.IsEmpty() {
 		reporter.Record(clique)
 	}
 
-	for len(*candidates) != 0 {
-		v := pop_arbitrary(candidates)
+	for !candidates.IsEmpty() {
+		v := candidates.PopArbitrary()
 		neighbours := &graph.adjacencies[v]
-		neighbouring_candidates := intersection(candidates, neighbours)
-		neighbouring_excluded := intersection(excluded, neighbours)
+		neighbouring_candidates := candidates.Intersection(neighbours)
+		neighbouring_excluded := excluded.Intersection(neighbours)
 		bron_kerbosch1_visit(graph, reporter,
 			&neighbouring_candidates,
 			&neighbouring_excluded,
 			append(clique, v))
-		(*excluded)[v] = struct{}{}
+		excluded.Add(v)
 	}
 }

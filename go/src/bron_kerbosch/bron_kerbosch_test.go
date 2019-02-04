@@ -1,10 +1,18 @@
 package bron_kerbosch
 
 import (
+	"fmt"
 	"testing"
 )
 
-func bk(t *testing.T, adjacencies []VertexSet, expected_cliques [][]Vertex) {
+func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
+	adjacencies := make([]VertexSet, len(adjacencylist))
+	for i, neighbours := range adjacencylist {
+		adjacencies[i] = NewVertexSet(neighbours)
+		if adjacencies[i].Cardinality() != len(neighbours) {
+			panic(fmt.Sprintf("Invalid adjacencylist %v", neighbours))
+		}
+	}
 	graph := newUndirectedGraph(adjacencies)
 	for func_index, bron_kerbosch_func := range FUNCS {
 		var reporter SimpleReporter
@@ -17,53 +25,53 @@ func bk(t *testing.T, adjacencies []VertexSet, expected_cliques [][]Vertex) {
 }
 
 func TestOrder0(t *testing.T) {
-	bk(t, []VertexSet{}, [][]Vertex{})
+	bk(t, [][]Vertex{}, [][]Vertex{})
 }
 
 func TestOrder1(t *testing.T) {
-	bk(t, []VertexSet{VertexSet{}}, [][]Vertex{})
+	bk(t, [][]Vertex{[]Vertex{}}, [][]Vertex{})
 }
 
 func TestOrder2_isolated(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{},
-			VertexSet{}},
+		[][]Vertex{
+			[]Vertex{},
+			[]Vertex{}},
 		[][]Vertex{})
 }
 
 func TestOrder2_connected(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}},
-			VertexSet{0: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0}},
 		[][]Vertex{
 			[]Vertex{0, 1}})
 }
 
 func TestOrder3_Size1(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}},
-			VertexSet{0: struct{}{}},
-			VertexSet{}},
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0},
+			[]Vertex{}},
 		[][]Vertex{
 			[]Vertex{0, 1}})
 	bk(t,
-		[]VertexSet{
-			VertexSet{},
-			VertexSet{2: struct{}{}},
-			VertexSet{1: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{},
+			[]Vertex{2},
+			[]Vertex{1}},
 		[][]Vertex{
 			[]Vertex{1, 2}})
 }
 
 func TestOrder3_Size2(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}},
-			VertexSet{1: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0, 2},
+			[]Vertex{1}},
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{1, 2}})
@@ -71,21 +79,21 @@ func TestOrder3_Size2(t *testing.T) {
 
 func TestOrder3_Size3(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 2: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1, 2},
+			[]Vertex{0, 2},
+			[]Vertex{0, 1}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2}})
 }
 
 func TestOrder4_Size2_isolated(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 2: struct{}{}},
-			VertexSet{0: struct{}{}},
-			VertexSet{0: struct{}{}},
-			VertexSet{}},
+		[][]Vertex{
+			[]Vertex{1, 2},
+			[]Vertex{0},
+			[]Vertex{0},
+			[]Vertex{}},
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{0, 2}})
@@ -93,11 +101,11 @@ func TestOrder4_Size2_isolated(t *testing.T) {
 
 func TestOrder4_Size2_connected(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}},
-			VertexSet{0: struct{}{}},
-			VertexSet{3: struct{}{}},
-			VertexSet{2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0},
+			[]Vertex{3},
+			[]Vertex{2}},
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{2, 3}})
@@ -105,11 +113,11 @@ func TestOrder4_Size2_connected(t *testing.T) {
 
 func TestOrder4_Size4_p(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			VertexSet{1: struct{}{}, 3: struct{}{}},
-			VertexSet{1: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0, 2, 3},
+			[]Vertex{1, 3},
+			[]Vertex{1, 2}},
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{1, 2, 3}})
@@ -117,11 +125,11 @@ func TestOrder4_Size4_p(t *testing.T) {
 
 func TestOrder4_Size4_square(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}},
-			VertexSet{1: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1, 3},
+			[]Vertex{0, 2},
+			[]Vertex{1, 3},
+			[]Vertex{0, 2}},
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{0, 3},
@@ -132,11 +140,11 @@ func TestOrder4_Size4_square(t *testing.T) {
 
 func TestOrder4_Size5(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1, 2, 3},
+			[]Vertex{0, 2},
+			[]Vertex{0, 1, 3},
+			[]Vertex{0, 2}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2},
 			[]Vertex{0, 2, 3}})
@@ -144,23 +152,23 @@ func TestOrder4_Size5(t *testing.T) {
 
 func TestOrder4_Size6(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 3: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1, 2, 3},
+			[]Vertex{0, 2, 3},
+			[]Vertex{0, 1, 3},
+			[]Vertex{0, 1, 2}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2, 3}})
 }
 
 func TestOrder5_Size9_penultimate(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}, 4: struct{}{}},
-			VertexSet{0: struct{}{}, 2: struct{}{}, 3: struct{}{}, 4: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 3: struct{}{}, 4: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}},
-			VertexSet{0: struct{}{}, 1: struct{}{}, 2: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{1, 2, 3, 4},
+			[]Vertex{0, 2, 3, 4},
+			[]Vertex{0, 1, 3, 4},
+			[]Vertex{0, 1, 2},
+			[]Vertex{0, 1, 2}},
 		[][]Vertex{
 			[]Vertex{0, 1, 2, 3},
 			[]Vertex{0, 1, 2, 4}})
@@ -168,15 +176,15 @@ func TestOrder5_Size9_penultimate(t *testing.T) {
 
 func TestSample(t *testing.T) {
 	bk(t,
-		[]VertexSet{
-			VertexSet{},
-			VertexSet{2: struct{}{}, 3: struct{}{}, 4: struct{}{}},
-			VertexSet{1: struct{}{}, 3: struct{}{}, 4: struct{}{}, 5: struct{}{}},
-			VertexSet{1: struct{}{}, 2: struct{}{}, 4: struct{}{}, 5: struct{}{}},
-			VertexSet{1: struct{}{}, 2: struct{}{}, 3: struct{}{}},
-			VertexSet{2: struct{}{}, 3: struct{}{}, 6: struct{}{}, 7: struct{}{}},
-			VertexSet{5: struct{}{}, 7: struct{}{}},
-			VertexSet{5: struct{}{}, 6: struct{}{}}},
+		[][]Vertex{
+			[]Vertex{},
+			[]Vertex{2, 3, 4},
+			[]Vertex{1, 3, 4, 5},
+			[]Vertex{1, 2, 4, 5},
+			[]Vertex{1, 2, 3},
+			[]Vertex{2, 3, 6, 7},
+			[]Vertex{5, 7},
+			[]Vertex{5, 6}},
 		[][]Vertex{
 			[]Vertex{1, 2, 3, 4},
 			[]Vertex{2, 3, 5},
