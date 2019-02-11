@@ -79,17 +79,18 @@ fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Ver
     *candidates.iter().choose(&mut rng).unwrap()
 }
 
-fn max_degree(graph: &UndirectedGraph, vertices: impl Iterator<Item = Vertex>) -> Vertex {
-    vertices.max_by_key(|&v| graph.degree(v)).unwrap()
-}
-
 fn pick_max_degree(
     graph: &UndirectedGraph,
     candidates: &HashSet<Vertex>,
     excluded: &HashSet<Vertex>,
 ) -> Vertex {
     debug_assert!(!candidates.is_empty());
-    max_degree(graph, candidates.iter().chain(excluded).cloned())
+    candidates
+        .iter()
+        .chain(excluded)
+        .cloned()
+        .max_by_key(|&v| graph.degree(v))
+        .unwrap()
 }
 
 fn pick_max_degree_local(

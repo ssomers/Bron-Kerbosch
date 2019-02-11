@@ -1,5 +1,5 @@
 import base.Clique
 
 trait Reporter {
-  def record(clique: Clique):Unit
+  def record(clique: Clique): Unit
 }

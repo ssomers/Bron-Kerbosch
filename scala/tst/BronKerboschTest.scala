@@ -1,32 +1,7 @@
 import base.{Clique, Vertex}
-
-import scala.collection.immutable.{SortedSet, TreeSet}
+import main.{OrderedCliques, order_cliques}
 
 class BronKerboschTest extends org.scalatest.FunSuite {
-
-  type OrderedClique = SortedSet[Vertex]
-  type OrderedCliques = SortedSet[OrderedClique]
-  implicit def CliqueOrdering = new Ordering[OrderedClique] {
-    def compare(a: OrderedClique, b: OrderedClique): Int = {
-      assert(a.size > 1)
-      assert(b.size > 1)
-      a.iterator.zip(b.iterator)
-          .find { case (ea, eb) => ea != eb }
-          .map { case (ea, eb) => ea - eb }
-          .getOrElse(a.size - b.size)
-    }
-  }
-
-  def bk(adjacencylist: List[List[Vertex]],
-         expected_cliques: List[Clique]): Unit = {
-    val adjacencies = adjacencylist.map { neighbours =>
-      neighbours.toSet
-    }
-    val graph = new SlimUndirectedGraph(adjacencies)
-    val current = bron_kerbosch(graph)
-    assert(current == order_cliques(expected_cliques))
-  }
-
   def bron_kerbosch(graph: UndirectedGraph): OrderedCliques = {
     /*
         let mut first: Option<OrderedCliques> = None;
@@ -46,13 +21,17 @@ class BronKerboschTest extends org.scalatest.FunSuite {
    */
   }
 
-  def order_cliques(cliques: List[Clique]): OrderedCliques = {
-    new TreeSet[OrderedClique] ++ cliques
-      .map(clique => new TreeSet[Vertex] ++ clique.toSet)
-      .toSet
+  def bk(adjacencylist: List[List[Vertex]],
+         expected_cliques: List[Clique]): Unit = {
+    val adjacencies = adjacencylist.map { neighbours =>
+      neighbours.toSet
+    }
+    val graph = new SlimUndirectedGraph(adjacencies)
+    val current = bron_kerbosch(graph)
+    assert(current == order_cliques(expected_cliques))
   }
 
-  test("order 0") {
+  test("order_0") {
     bk(List(), List())
   }
 
@@ -69,7 +48,7 @@ class BronKerboschTest extends org.scalatest.FunSuite {
   }
 
   test("order_3_size_1") {
-    bk(List(List(1), List(0), List()), List(List(0, 1)));
+    bk(List(List(1), List(0), List()), List(List(0, 1)))
     bk(List(List(), List(2), List(1)), List(List(1, 2)))
   }
 
