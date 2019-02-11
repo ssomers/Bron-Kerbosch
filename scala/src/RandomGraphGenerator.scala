@@ -4,7 +4,7 @@ import scala.collection.immutable.TreeSet
 import scala.collection.mutable
 
 object RandomGraphGenerator {
-  def random_choice(vseq: mutable.IndexedSeq[Vertex]): Vertex = {
+  def random_choice(vseq: mutable.ListBuffer[Vertex]): Vertex = {
     val i = util.Random.nextInt(vseq.size)
     vseq(i)
   }
@@ -14,11 +14,11 @@ object RandomGraphGenerator {
     vset.iterator.drop(i).next()
   }
 
-  def remove_from(vseq: mutable.IndexedSeq[Vertex], v: Vertex) = {
+  def remove_from(vseq: mutable.Buffer[Vertex], v: Vertex): Unit = {
     val i = vseq.indexOf(v)
     val last = vseq.size - 1
     vseq(i) = vseq(last)
-    vseq.patch(last, List(), 1)
+    vseq.trimEnd(1)
   }
 
   def new_adjacencies(n: Int): mutable.IndexedSeq[mutable.Set[Vertex]] = {
@@ -32,16 +32,18 @@ object RandomGraphGenerator {
       size <= fully_meshed_size,
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
-    var unsaturated_vertices: mutable.IndexedSeq[Vertex] =
-      mutable.IndexedSeq(0 until order: _*)
-    var adjacency_sets = new_adjacencies(order)
-    var adjacency_complements = new_adjacencies(order)
+    var unsaturated_vertices: mutable.ListBuffer[Vertex] =
+      mutable.ListBuffer(0 until order: _*)
+    val adjacency_sets = new_adjacencies(order)
+    val adjacency_complements = new_adjacencies(order)
     for (_ <- 1 to size) {
+      require(
+        unsaturated_vertices.forall(v => adjacency_sets(v).size < order - 1)
+      )
       var v: Vertex = -1
       var w: Vertex = -1
       v = random_choice(unsaturated_vertices)
-      require(adjacency_sets(v).size < (order - 1))
-      if (!adjacency_complements(v).isEmpty) {
+      if (adjacency_complements(v).nonEmpty) {
         w = random_sample(adjacency_complements(v))
       } else {
         w = v
@@ -66,7 +68,8 @@ object RandomGraphGenerator {
           s -= x
           adjacency_complements(x) = s
         } else if (neighbours > order / 2) {
-          adjacency_complements(x).remove(y)
+          val ok = adjacency_complements(x).remove(y)
+          require(ok)
         }
       }
     }

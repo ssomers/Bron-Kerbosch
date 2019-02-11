@@ -3,7 +3,7 @@ import base.Clique
 import scala.collection.mutable.ArrayBuffer
 
 class SimpleReporter extends Reporter {
-  var cliques = ArrayBuffer[Clique]()
+  var cliques: ArrayBuffer[Clique] = ArrayBuffer[Clique]()
 
   override def record(clique: Clique): Unit = {
     assert(clique.size > 1)

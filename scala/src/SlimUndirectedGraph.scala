@@ -25,8 +25,8 @@ class SlimUndirectedGraph(neighboursByNode: Adjacencies)
 
   override def connected_nodes(): mutable.Set[Vertex] = {
     val set = neighboursByNode.zipWithIndex
-      .filter { case (n, v) => !n.isEmpty }
-      .map { case (n, v) => v }
+      .filter { case (n, _) => n.nonEmpty }
+      .map { case (_, v) => v }
       .toSet
     mutable.Set.empty[Vertex] ++= set
   }

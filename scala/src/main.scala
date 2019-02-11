@@ -8,8 +8,8 @@ object main {
 
   type OrderedClique = SortedSet[Vertex]
   type OrderedCliques = SortedSet[OrderedClique]
-  implicit def CliqueOrdering = new Ordering[OrderedClique] {
-    def compare(a: OrderedClique, b: OrderedClique): Int = {
+  implicit def CliqueOrdering: Ordering[OrderedClique] =
+    (a: OrderedClique, b: OrderedClique) => {
       require(a.size > 1)
       require(b.size > 1)
       a.iterator
@@ -18,7 +18,6 @@ object main {
         .find { _ != 0 }
         .getOrElse(a.size - b.size)
     }
-  }
   def order_cliques(cliques: List[Clique]): OrderedCliques = {
     new TreeSet[OrderedClique] ++ cliques
       .map(clique => new TreeSet[Vertex] ++ clique.toSet)
@@ -49,9 +48,9 @@ object main {
     times
   }
 
-  def bk(orderstr: String, order: Int, sizes: List[Int]) = {
+  def bk(order_str: String, order: Int, sizes: List[Int]): Unit = {
     val samples = 5
-    val name = "bron_kerbosch_scala_order_" + orderstr
+    val name = "bron_kerbosch_scala_order_" + order_str
     val path = f"..\\$name.csv"
 
     val fo = new java.io.PrintWriter(new java.io.File(path))
@@ -82,7 +81,9 @@ object main {
   }
 
   def main(args: Array[String]) {
+    //noinspection NameBooleanParameters
     assert(false, "Turn off assertions for meaningful measurements")
+
     val k = 1000
     val sizes_100: List[Int] = List((2 * k) to (3 * k) by 50: _*)
     val sizes_10k: List[Int] = List(

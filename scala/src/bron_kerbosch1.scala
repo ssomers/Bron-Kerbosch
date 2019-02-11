@@ -1,11 +1,11 @@
 import base.{Clique, Vertex}
 
-import scala.collection.mutable.Set
+import scala.collection.mutable
 
 object bron_kerbosch1 {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
     val candidates: collection.mutable.Set[Vertex] = graph.connected_nodes()
-    if (!candidates.isEmpty) {
+    if (candidates.nonEmpty) {
       visit(
         graph,
         reporter,
@@ -28,7 +28,7 @@ object bron_kerbosch1 {
       return
     }
 
-    while (!candidates.isEmpty) {
+    while (candidates.nonEmpty) {
       val v = pop_arbitrary(candidates)
       val neighbours = graph.neighbours(v)
       visit(
@@ -42,7 +42,7 @@ object bron_kerbosch1 {
     }
   }
 
-  def pop_arbitrary(s: Set[Vertex]): Vertex = {
+  def pop_arbitrary(s: mutable.Set[Vertex]): Vertex = {
     val v = s.head
     s.remove(v)
     v

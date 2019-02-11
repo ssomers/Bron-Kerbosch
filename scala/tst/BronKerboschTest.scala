@@ -21,9 +21,9 @@ class BronKerboschTest extends org.scalatest.FunSuite {
    */
   }
 
-  def bk(adjacencylist: List[List[Vertex]],
+  def bk(adjacency_list: List[List[Vertex]],
          expected_cliques: List[Clique]): Unit = {
-    val adjacencies = adjacencylist.map { neighbours =>
+    val adjacencies = adjacency_list.map { neighbours =>
       neighbours.toSet
     }
     val graph = new SlimUndirectedGraph(adjacencies)
