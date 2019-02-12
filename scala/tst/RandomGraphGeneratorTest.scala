@@ -1,14 +1,17 @@
+import scala.util.Random
 class RandomGraphGeneratorTest extends org.scalatest.FunSuite {
   test("random_graph") {
-    RandomGraphGenerator.new_undirected(2, 0)
-    RandomGraphGenerator.new_undirected(3, 0)
-    RandomGraphGenerator.new_undirected(3, 1)
-    RandomGraphGenerator.new_undirected(3, 2)
-    RandomGraphGenerator.new_undirected(4, 0)
-    RandomGraphGenerator.new_undirected(4, 1)
-    RandomGraphGenerator.new_undirected(4, 2)
-    RandomGraphGenerator.new_undirected(4, 3)
-    RandomGraphGenerator.new_undirected(4, 4)
-    RandomGraphGenerator.new_undirected(4, 5)
+    val rng = new Random(19680516L)
+    RandomGraphGenerator.new_undirected(rng, 2, 0)
+    RandomGraphGenerator.new_undirected(rng, 3, 0)
+    RandomGraphGenerator.new_undirected(rng, 3, 1)
+    RandomGraphGenerator.new_undirected(rng, 3, 2)
+    RandomGraphGenerator.new_undirected(rng, 4, 0)
+    RandomGraphGenerator.new_undirected(rng, 4, 1)
+    RandomGraphGenerator.new_undirected(rng, 4, 2)
+    RandomGraphGenerator.new_undirected(rng, 4, 3)
+    RandomGraphGenerator.new_undirected(rng, 4, 4)
+    RandomGraphGenerator.new_undirected(rng, 4, 5)
+    RandomGraphGenerator.new_undirected(rng, 4, 5) // yes, again
   }
 }

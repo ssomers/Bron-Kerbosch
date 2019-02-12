@@ -2,24 +2,18 @@ import base.{Clique, Vertex}
 
 import scala.collection.mutable
 
-object bron_kerbosch1 {
+object bron_kerbosch1 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
-    val candidates: collection.mutable.Set[Vertex] = graph.connected_nodes()
+    val candidates: mutable.Set[Vertex] = graph.connected_nodes()
     if (candidates.nonEmpty) {
-      visit(
-        graph,
-        reporter,
-        candidates,
-        collection.mutable.Set.empty[Vertex],
-        List()
-      )
+      visit(graph, reporter, candidates, mutable.Set.empty[Vertex], List())
     }
   }
 
   def visit(graph: UndirectedGraph,
             reporter: Reporter,
-            candidates: collection.mutable.Set[Vertex],
-            excluded: collection.mutable.Set[Vertex],
+            candidates: mutable.Set[Vertex],
+            excluded: mutable.Set[Vertex],
             clique: Clique): Unit = {
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
@@ -36,7 +30,7 @@ object bron_kerbosch1 {
         reporter,
         candidates & neighbours,
         excluded & neighbours,
-        clique ++ List(v)
+        clique :+ v
       )
       excluded += v
     }

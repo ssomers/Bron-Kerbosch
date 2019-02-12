@@ -1,10 +1,11 @@
 import base.{Clique, Vertex}
 
 import scala.collection.immutable.{SortedSet, TreeSet}
+import scala.util.Random
 
 object main {
-  val FUNC_NAMES = List("Ver1")
-  val FUNCS = List(bron_kerbosch1)
+  val FUNC_NAMES = List("Ver1", "Ver2")
+  val FUNCS = List(bron_kerbosch1, bron_kerbosch2)
 
   type OrderedClique = SortedSet[Vertex]
   type OrderedCliques = SortedSet[OrderedClique]
@@ -61,7 +62,8 @@ object main {
     fo.println()
 
     for (size <- sizes) {
-      val graph = RandomGraphGenerator.new_undirected(order, size)
+      val rng = new Random(19680516L)
+      val graph = RandomGraphGenerator.new_undirected(rng, order, size)
       val times = bron_kerbosch_timed(graph, samples)
 
       fo.print(f"$size")

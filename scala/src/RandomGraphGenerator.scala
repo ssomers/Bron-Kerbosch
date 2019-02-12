@@ -2,22 +2,22 @@ import base.Vertex
 
 import scala.collection.immutable.TreeSet
 import scala.collection.mutable
+import scala.util.Random
 
 object RandomGraphGenerator {
-  def random_choice(vseq: mutable.ListBuffer[Vertex]): Vertex = {
-    val i = util.Random.nextInt(vseq.size)
+  def random_choice(rng: Random, vseq: mutable.ListBuffer[Vertex]): Vertex = {
+    val i = rng.nextInt(vseq.size)
     vseq(i)
   }
 
-  def random_sample(vset: mutable.Set[Vertex]): Vertex = {
-    val i = util.Random.nextInt(vset.size)
+  def random_sample(rng: Random, vset: mutable.Set[Vertex]): Vertex = {
+    val i = rng.nextInt(vset.size)
     vset.iterator.drop(i).next()
   }
 
   def remove_from(vseq: mutable.Buffer[Vertex], v: Vertex): Unit = {
     val i = vseq.indexOf(v)
-    val last = vseq.size - 1
-    vseq(i) = vseq(last)
+    vseq(i) = vseq.last
     vseq.trimEnd(1)
   }
 
@@ -25,48 +25,50 @@ object RandomGraphGenerator {
     mutable.IndexedSeq.fill(n) { mutable.Set() }
   }
 
-  def new_undirected(order: Int, size: Int): UndirectedGraph = {
+  def new_undirected(rng: Random, order: Int, size: Int): UndirectedGraph = {
+    require(order > 0)
     val fully_meshed_size = order
       .asInstanceOf[Long] * (order.asInstanceOf[Long] - 1) / 2
     require(
       size <= fully_meshed_size,
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
-    var unsaturated_vertices: mutable.ListBuffer[Vertex] =
+    val unsaturated_vertices: mutable.ListBuffer[Vertex] =
       mutable.ListBuffer(0 until order: _*)
     val adjacency_sets = new_adjacencies(order)
     val adjacency_complements = new_adjacencies(order)
     for (_ <- 1 to size) {
-      require(
-        unsaturated_vertices.forall(v => adjacency_sets(v).size < order - 1)
+      assert(
+        unsaturated_vertices
+          .forall(v => adjacency_sets(v).size < order - 1),
+        adjacency_sets
       )
-      var v: Vertex = -1
-      var w: Vertex = -1
-      v = random_choice(unsaturated_vertices)
-      if (adjacency_complements(v).nonEmpty) {
-        w = random_sample(adjacency_complements(v))
-      } else {
-        w = v
-        while (w == v || adjacency_sets(v).contains(w)) {
-          w = random_choice(unsaturated_vertices)
+      val v = random_choice(rng, unsaturated_vertices)
+      val w =
+        if (adjacency_complements(v).nonEmpty) {
+          random_sample(rng, adjacency_complements(v))
+        } else {
+          var w = v
+          while (w == v || adjacency_sets(v).contains(w)) {
+            w = random_choice(rng, unsaturated_vertices)
+          }
+          w
         }
-      }
       assert(v != w)
       assert(!adjacency_sets(v).contains(w))
       assert(!adjacency_sets(w).contains(v))
       for ((x, y) <- List((v, w), (w, v))) {
-        adjacency_sets(x) = adjacency_sets(x) + y
+        adjacency_sets(x) += y
         val neighbours = adjacency_sets(x).size
         if (neighbours == order - 1) {
-          remove_from(unsaturated_vertices, v)
+          remove_from(unsaturated_vertices, x)
+          adjacency_complements(x).clear()
         } else if (neighbours == order / 2) {
           // start using adjacency complement
           require(adjacency_complements(x).isEmpty)
-          var s: mutable.Set[Vertex] = mutable.Set.empty
-          s ++= unsaturated_vertices
-          s --= adjacency_sets(x)
-          s -= x
-          adjacency_complements(x) = s
+          adjacency_complements(x) ++= unsaturated_vertices.filter(_ != x)
+          adjacency_complements(x) --= adjacency_sets(x)
+          assert(!adjacency_complements(x).contains(x))
         } else if (neighbours > order / 2) {
           val ok = adjacency_complements(x).remove(y)
           require(ok)

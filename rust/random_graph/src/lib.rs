@@ -21,31 +21,34 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
     let Order::Of(order) = order;
     let Size::Of(size) = size;
     let fully_meshed_size = order * (order - 1) / 2;
-    if size > fully_meshed_size {
-        panic!(
-            "{} nodes accommodate at most {} edges",
-            order, fully_meshed_size
-        );
-    }
+    assert!(order > 0);
+    assert!(
+        size <= fully_meshed_size,
+        "{} nodes accommodate at most {} edges",
+        order,
+        fully_meshed_size
+    );
     let mut unsaturated_vertices: Vec<Vertex> = (0..order as Vertex).into_iter().collect();
     let mut adjacency_sets = new_adjacencies(order);
     let mut adjacency_complements = new_adjacencies(order);
     for _ in 0..size {
-        let mut v: Vertex;
-        let mut w: Vertex;
-        v = *unsaturated_vertices.choose(rng).unwrap();
-        debug_assert!(adjacency_sets[v as usize].len() < (order - 1) as usize);
-        if !adjacency_complements[v as usize].is_empty() {
-            w = *adjacency_complements[v as usize]
+        debug_assert!(unsaturated_vertices
+            .iter()
+            .all(|&v| adjacency_sets[v as usize].len() < (order - 1) as usize));
+        let v = *unsaturated_vertices.choose(rng).unwrap();
+        let w = if !adjacency_complements[v as usize].is_empty() {
+            *adjacency_complements[v as usize]
                 .iter()
                 .choose(rng)
-                .unwrap();
+                .unwrap()
         } else {
-            w = v;
-            while w == v || adjacency_sets[v as usize].contains(&w) {
-                w = *unsaturated_vertices.choose(rng).unwrap();
+            loop {
+                let w = *unsaturated_vertices.choose(rng).unwrap();
+                if w != v && !adjacency_sets[v as usize].contains(&w) {
+                    break w;
+                }
             }
-        }
+        };
         debug_assert_ne!(v, w);
         debug_assert!(!adjacency_sets[v as usize].contains(&w));
         debug_assert!(!adjacency_sets[w as usize].contains(&v));
@@ -53,8 +56,8 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
             adjacency_sets[x as usize].insert(y);
             let neighbours = adjacency_sets[x as usize].len() as u32;
             if neighbours == order - 1 {
-                let index = unsaturated_vertices.iter().position(|&v| v == x).unwrap();
-                unsaturated_vertices.remove(index);
+                remove_from(&mut unsaturated_vertices, x);
+                adjacency_complements[x as usize].clear();
             } else if neighbours == order / 2 {
                 // start using adjacency complement
                 debug_assert!(adjacency_complements[x as usize].is_empty());
@@ -71,6 +74,13 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
     assert_eq!(g.order(), order);
     assert_eq!(g.size(), size);
     g
+}
+
+fn remove_from(vseq: &mut Vec<Vertex>, v: Vertex) {
+    let index = vseq.iter().position(|&x| x == v).unwrap();
+    let last = vseq.len() - 1;
+    vseq[index] = vseq[last];
+    vseq.truncate(last);
 }
 
 #[cfg(test)]
