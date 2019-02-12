@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <option name="deprecationWarnings" value="true" />
-    <option name="uncheckedWarnings" value="true" />
-    <option name="featureWarnings" value="true" />
-    <profile name="release" modules="">
+    <profile name="release" modules="bron-kerbosch">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />
       <parameters>
         <parameter value="-Xdisable-assertions" />
       </parameters>
+    </profile>
+    <profile name="debug" modules="">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
     </profile>
   </component>
 </project>

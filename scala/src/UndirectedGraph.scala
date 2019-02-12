@@ -1,7 +1,5 @@
 import base.Vertex
 
-import scala.collection.mutable
-
 trait UndirectedGraph {
   def order(): Int
 
@@ -11,5 +9,5 @@ trait UndirectedGraph {
 
   def neighbours(node: Vertex): Set[Vertex]
 
-  def connected_nodes(): mutable.Set[Vertex]
+  def connected_nodes(): Set[Vertex]
 }

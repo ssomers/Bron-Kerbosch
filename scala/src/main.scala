@@ -38,7 +38,7 @@ object main {
       val elapsed = System.currentTimeMillis() - start
       times(func_index).put(elapsed)
 
-      if (sample <= 2) {
+      if (samples > 1 && sample <= 2) {
         val orderedCliques = order_cliques(reporter.cliques.toList)
         first match {
           case None               => first = Some(orderedCliques)
@@ -49,8 +49,10 @@ object main {
     times
   }
 
-  def bk(order_str: String, order: Int, sizes: List[Int]): Unit = {
-    val samples = 5
+  def bk(order_str: String,
+         order: Int,
+         sizes: List[Int],
+         samples: Int): Unit = {
     val name = "bron_kerbosch_scala_order_" + order_str
     val path = f"..\\$name.csv"
 
@@ -91,7 +93,9 @@ object main {
     val sizes_10k: List[Int] = List(
       ((1 * k) until (10 * k) by k) ++ ((10 * k) to (200 * k) by 10 * k): _*
     )
-    bk("100", 100, sizes_100)
-    bk("10k", 10 * k, sizes_10k)
+    Thread.sleep(3210) // let launcher cool down
+    bk("init", 2, List(1), 3)
+    bk("100", 100, sizes_100, 5)
+    bk("10k", 10 * k, sizes_10k, 5)
   }
 }

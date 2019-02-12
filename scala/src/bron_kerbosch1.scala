@@ -1,20 +1,20 @@
 import base.{Clique, Vertex}
 
-import scala.collection.mutable
-
 object bron_kerbosch1 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
-    val candidates: mutable.Set[Vertex] = graph.connected_nodes()
+    val candidates: Set[Vertex] = graph.connected_nodes()
     if (candidates.nonEmpty) {
-      visit(graph, reporter, candidates, mutable.Set.empty[Vertex], List())
+      visit(graph, reporter, candidates, Set.empty[Vertex], List())
     }
   }
 
   def visit(graph: UndirectedGraph,
             reporter: Reporter,
-            candidates: mutable.Set[Vertex],
-            excluded: mutable.Set[Vertex],
+            initial_candidates: Set[Vertex],
+            initial_excluded: Set[Vertex],
             clique: Clique): Unit = {
+    var candidates = initial_candidates
+    var excluded = initial_excluded
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
     if (candidates.isEmpty && excluded.isEmpty) {
@@ -23,7 +23,8 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
     }
 
     while (candidates.nonEmpty) {
-      val v = pop_arbitrary(candidates)
+      val v = candidates.head
+      candidates = candidates.tail
       val neighbours = graph.neighbours(v)
       visit(
         graph,
@@ -34,11 +35,5 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
       )
       excluded += v
     }
-  }
-
-  def pop_arbitrary(s: mutable.Set[Vertex]): Vertex = {
-    val v = s.head
-    s.remove(v)
-    v
   }
 }
