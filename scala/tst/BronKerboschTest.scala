@@ -1,34 +1,24 @@
 import base.{Clique, Vertex}
-import main.{OrderedCliques, order_cliques}
+import main.{FUNCS, FUNC_NAMES, order_cliques}
 
 class BronKerboschTest extends org.scalatest.FunSuite {
-  def bron_kerbosch(graph: UndirectedGraph): OrderedCliques = {
-    /*
-        let mut first: Option<OrderedCliques> = None;
-        for func in FUNCS {
-     */
-    val reporter = new SimpleReporter
-    bron_kerbosch1.explore(graph, reporter)
-    val cliques = reporter.cliques.toList
-    order_cliques(cliques) /*
-            if first.is_none() {
-                first = Some(current);
-            } else {
-                assert_eq!(current, *first.as_ref().unwrap());
-            }
-        }
-        first.unwrap()
-   */
-  }
-
   def bk(adjacency_list: List[List[Vertex]],
          expected_cliques: List[Clique]): Unit = {
     val adjacencies = adjacency_list.map { neighbours =>
       neighbours.toSet
     }
+    val expected = order_cliques(expected_cliques)
     val graph = new SlimUndirectedGraph(adjacencies)
-    val current = bron_kerbosch(graph)
-    assert(current == order_cliques(expected_cliques))
+    for ((func, func_index) <- FUNCS.zipWithIndex) {
+      val func_name = FUNC_NAMES(func_index)
+      val reporter = new SimpleReporter
+      func.explore(graph, reporter)
+      val cliques = reporter.cliques.toList
+      assert(
+        order_cliques(cliques) == expected,
+        f"Unexpected result for $func_name: $cliques"
+      )
+    }
   }
 
   test("order_0") {

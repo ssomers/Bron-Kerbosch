@@ -1,7 +1,5 @@
 import base.{Adjacencies, Vertex}
 
-import scala.collection.mutable
-
 class SlimUndirectedGraph(neighboursByNode: Adjacencies)
     extends UndirectedGraph {
 
