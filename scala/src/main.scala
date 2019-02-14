@@ -1,4 +1,4 @@
-import base.{Clique, Vertex}
+import base.Vertex
 
 import scala.collection.immutable.{SortedSet, TreeSet}
 import scala.util.Random
@@ -19,7 +19,7 @@ object main {
         .find { _ != 0 }
         .getOrElse(a.size - b.size)
     }
-  def order_cliques(cliques: List[Clique]): OrderedCliques = {
+  def order_cliques(cliques: Iterable[Iterable[Vertex]]): OrderedCliques = {
     new TreeSet[OrderedClique] ++ cliques
       .map(clique => new TreeSet[Vertex] ++ clique.toSet)
       .toSet
@@ -99,8 +99,8 @@ object main {
     )
     Thread.sleep(4321) // give launcher some time to cool down
     bk("init", 2, List(1), 3)
-      bk("100", 100, sizes_100, 5)
-      bk("10k", 10 * k, sizes_10k, 5)
+    bk("100", 100, sizes_100, 5)
+    bk("10k", 10 * k, sizes_10k, 5)
     bk("1M", 1 * M, sizes_1M, 3)
   }
 }

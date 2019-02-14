@@ -1,8 +1,7 @@
-import base.{Adjacencies, Vertex}
+import base.Vertex
 
-class SlimUndirectedGraph(neighboursByNode: Adjacencies)
+class SlimUndirectedGraph(neighboursByNode: IndexedSeq[Set[Vertex]])
     extends UndirectedGraph {
-
   override def order(): Int = {
     neighboursByNode.length
   }

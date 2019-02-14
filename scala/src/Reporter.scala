@@ -1,5 +1,5 @@
-import base.Clique
+import base.Vertex
 
 trait Reporter {
-  def record(clique: Clique): Unit
+  def record(clique: Iterable[Vertex]): Unit
 }

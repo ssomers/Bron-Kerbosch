@@ -1,4 +1,4 @@
-import base.{Clique, Vertex, intersect}
+import base.Vertex
 
 object bron_kerbosch2 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
@@ -12,7 +12,7 @@ object bron_kerbosch2 extends bron_kerbosch_algorithm {
             reporter: Reporter,
             initial_candidates: Set[Vertex],
             initial_excluded: Set[Vertex],
-            clique: Clique): Unit = {
+            clique: Seq[Vertex]): Unit = {
     var candidates = initial_candidates
     var excluded = initial_excluded
     assert(candidates.forall(v => graph.degree(v) > 0))
@@ -32,8 +32,8 @@ object bron_kerbosch2 extends bron_kerbosch_algorithm {
       visit(
         graph,
         reporter,
-        intersect(candidates, neighbours),
-        intersect(excluded, neighbours),
+        util.intersect(candidates, neighbours),
+        util.intersect(excluded, neighbours),
         clique :+ v
       )
       excluded += v

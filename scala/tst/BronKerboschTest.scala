@@ -1,9 +1,9 @@
-import base.{Clique, Vertex}
+import base.Vertex
 import main.{FUNCS, FUNC_NAMES, order_cliques}
 
 class BronKerboschTest extends org.scalatest.FunSuite {
   def bk(adjacency_list: List[List[Vertex]],
-         expected_cliques: List[Clique]): Unit = {
+         expected_cliques: List[List[Vertex]]): Unit = {
     val adjacencies = adjacency_list.map { neighbours =>
       neighbours.toSet
     }.toIndexedSeq
