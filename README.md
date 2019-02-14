@@ -53,7 +53,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Go on graphs of order !M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
 [![Time spent in Scala on graphs of order 1M](https://plot.ly/~stein.somers/201.png?share_key=pAZbwXAIC0C96nD9WP38yl "View interactively")](https://plot.ly/~stein.somers/201/?share_key=pAZbwXAIC0C96nD9WP38yl)
 
-Note that I skipped Ver1 (and others) in Rust because they take minutes, while the noob translation to Go passes with flying colors.
+Note that I skipped Ver1 (and others) in Rust and Python because they take minutes, while the noob implementations in Go and Scala pass with flying colours.
 
 ## Test
     
