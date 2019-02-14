@@ -89,13 +89,18 @@ object main {
     assert(false, "Turn off assertions for meaningful measurements")
 
     val k = 1000
+    val M = k * k
     val sizes_100: List[Int] = List((2 * k) to (3 * k) by 50: _*)
     val sizes_10k: List[Int] = List(
       ((1 * k) until (10 * k) by k) ++ ((10 * k) to (200 * k) by 10 * k): _*
     )
-    Thread.sleep(3210) // let launcher cool down
+    val sizes_1M: List[Int] = List(
+      (0 until (1 * M) by 250 * k) ++ ((1 * M) to (3 * M) by 500 * k): _*
+    )
+    Thread.sleep(4321) // give launcher some time to cool down
     bk("init", 2, List(1), 3)
-    bk("100", 100, sizes_100, 5)
-    bk("10k", 10 * k, sizes_10k, 5)
+      bk("100", 100, sizes_100, 5)
+      bk("10k", 10 * k, sizes_10k, 5)
+    bk("1M", 1 * M, sizes_1M, 3)
   }
 }

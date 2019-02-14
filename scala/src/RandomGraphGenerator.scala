@@ -1,11 +1,11 @@
 import base.Vertex
 
-import scala.collection.immutable.TreeSet
+import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.util.Random
 
 object RandomGraphGenerator {
-  def random_choice(rng: Random, vseq: mutable.ListBuffer[Vertex]): Vertex = {
+  def random_choice(rng: Random, vseq: mutable.ArrayBuffer[Vertex]): Vertex = {
     val i = rng.nextInt(vseq.size)
     vseq(i)
   }
@@ -33,8 +33,8 @@ object RandomGraphGenerator {
       size <= fully_meshed_size,
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
-    val unsaturated_vertices: mutable.ListBuffer[Vertex] =
-      mutable.ListBuffer(0 until order: _*)
+    val unsaturated_vertices: mutable.ArrayBuffer[Vertex] =
+      mutable.ArrayBuffer(0 until order: _*)
     val adjacency_sets = new_adjacencies(order)
     val adjacency_complements = new_adjacencies(order)
     for (_ <- 1 to size) {
@@ -75,8 +75,8 @@ object RandomGraphGenerator {
         }
       }
     }
-    val adjacencies: List[Set[Vertex]] = List.empty ++ adjacency_sets
-      .map(neighbours => new TreeSet[Vertex] ++ neighbours)
+    val adjacencies = IndexedSeq.empty[Set[Vertex]] ++ adjacency_sets
+      .map(neighbours => new HashSet[Vertex] ++ neighbours)
     val g = new SlimUndirectedGraph(adjacencies)
     require(g.order == order)
     require(g.size == size)

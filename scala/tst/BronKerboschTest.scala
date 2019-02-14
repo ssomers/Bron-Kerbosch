@@ -6,7 +6,7 @@ class BronKerboschTest extends org.scalatest.FunSuite {
          expected_cliques: List[Clique]): Unit = {
     val adjacencies = adjacency_list.map { neighbours =>
       neighbours.toSet
-    }
+    }.toIndexedSeq
     val expected = order_cliques(expected_cliques)
     val graph = new SlimUndirectedGraph(adjacencies)
     for ((func, func_index) <- FUNCS.zipWithIndex) {
