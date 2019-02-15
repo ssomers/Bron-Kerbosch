@@ -63,7 +63,7 @@ Note that I skipped Ver1 (and others) in Rust and Python because they take minut
 
 ## Context
 
-[More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorith).
+[More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
 
 Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
