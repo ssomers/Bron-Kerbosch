@@ -3,6 +3,13 @@ use std::collections::HashSet;
 pub type Vertex = u32;
 pub type VertexSet = HashSet<Vertex>;
 
+pub fn vertex_set_with_capacity(capacity: usize) -> VertexSet {
+    HashSet::with_capacity(capacity)
+}
+pub fn vertex_set_reserve(set: &mut VertexSet, additional: usize) {
+    set.reserve(additional)
+}
+
 pub trait UndirectedGraph: Sync {
     fn order(&self) -> u32;
     fn size(&self) -> u32;

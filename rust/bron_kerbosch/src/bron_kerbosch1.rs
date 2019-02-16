@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm
 
-use graph::{connected_nodes, UndirectedGraph, VertexSet};
+use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, VertexSet};
 use reporter::{Clique, Reporter};
 use util::{intersect, pop_arbitrary};
 
@@ -12,7 +12,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             graph,
             reporter,
             candidates,
-            VertexSet::with_capacity(num_candidates),
+            vertex_set_with_capacity(num_candidates),
             Clique::new(),
         );
     }

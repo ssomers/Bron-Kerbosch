@@ -1,6 +1,6 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
-use graph::{UndirectedGraph, Vertex, VertexSet};
+use graph::{vertex_set_reserve, UndirectedGraph, Vertex, VertexSet};
 use pile::Pile;
 use reporter::Reporter;
 use util::intersect;
@@ -48,7 +48,7 @@ pub fn visit(
         .difference(graph.neighbours(pivot))
         .cloned()
         .collect();
-    excluded.reserve(far_candidates.len());
+    vertex_set_reserve(&mut excluded, far_candidates.len());
     for v in far_candidates {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());

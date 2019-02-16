@@ -2,7 +2,7 @@
 
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSet};
+use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, Vertex, VertexSet};
 use pile::Pile;
 use reporter::{Clique, Reporter};
 use util::intersect;
@@ -58,7 +58,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             degeneracy_order_smart(graph, &candidates).collect::<VertexSet>(),
             candidates
         );
-        let mut excluded = VertexSet::with_capacity(candidates.len());
+        let mut excluded = vertex_set_with_capacity(candidates.len());
         for (i, v) in degeneracy_order_smart(graph, &candidates).enumerate() {
             let neighbours = graph.neighbours(v);
             debug_assert!(!neighbours.is_empty());
