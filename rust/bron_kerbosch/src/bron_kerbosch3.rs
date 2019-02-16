@@ -1,15 +1,15 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering
 
 use super::bron_kerbosch2;
-use graph::{connected_nodes, UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSet};
 use reporter::Reporter;
 use util::intersect;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let mut candidates = connected_nodes(graph);
-    let mut excluded = HashSet::with_capacity(candidates.len());
+    let mut excluded = VertexSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
         let neighbours = graph.neighbours(v);
@@ -28,7 +28,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     }
 }
 
-fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Vertex> {
+fn degeneracy_order(graph: &UndirectedGraph, nodes: &VertexSet) -> Vec<Vertex> {
     // FIXME: can improve it to linear time
     let mut degrees: HashMap<Vertex, u32> = nodes.iter().map(|&v| (v, graph.degree(v))).collect();
     let mut ordered: Vec<Vertex> = Vec::with_capacity(nodes.len());
@@ -43,6 +43,6 @@ fn degeneracy_order(graph: &UndirectedGraph, nodes: &HashSet<Vertex>) -> Vec<Ver
             }
         }
     }
-    debug_assert_eq!(ordered.iter().cloned().collect::<HashSet<Vertex>>(), *nodes);
+    debug_assert_eq!(ordered.iter().cloned().collect::<VertexSet>(), *nodes);
     ordered
 }

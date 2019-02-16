@@ -1,13 +1,12 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
-use graph::{UndirectedGraph, Vertex};
+use graph::{UndirectedGraph, Vertex, VertexSet};
 use pile::Pile;
 use reporter::Reporter;
 use util::intersect;
 
 extern crate rand;
 use self::rand::seq::IteratorRandom;
-use std::collections::HashSet;
 
 #[derive(Clone, Debug)]
 pub enum PivotChoice {
@@ -24,12 +23,13 @@ pub fn visit(
     reporter: &mut Reporter,
     initial_pivot_selection: PivotChoice,
     further_pivot_selection: PivotChoice,
-    mut candidates: HashSet<Vertex>,
-    mut excluded: HashSet<Vertex>,
+    mut candidates: VertexSet,
+    mut excluded: VertexSet,
     clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
+    debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
         if excluded.is_empty() {
@@ -68,12 +68,12 @@ pub fn visit(
     }
 }
 
-fn pick_arbitrary(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Vertex {
+fn pick_arbitrary(candidates: &VertexSet, _excluded: &VertexSet) -> Vertex {
     debug_assert!(!candidates.is_empty());
     *candidates.iter().next().unwrap()
 }
 
-fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Vertex {
+fn pick_random(candidates: &VertexSet, _excluded: &VertexSet) -> Vertex {
     debug_assert!(!candidates.is_empty());
     let mut rng = rand::thread_rng();
     *candidates.iter().choose(&mut rng).unwrap()
@@ -81,8 +81,8 @@ fn pick_random(candidates: &HashSet<Vertex>, _excluded: &HashSet<Vertex>) -> Ver
 
 fn pick_max_degree(
     graph: &UndirectedGraph,
-    candidates: &HashSet<Vertex>,
-    excluded: &HashSet<Vertex>,
+    candidates: &VertexSet,
+    excluded: &VertexSet,
 ) -> Vertex {
     debug_assert!(!candidates.is_empty());
     candidates
@@ -95,8 +95,8 @@ fn pick_max_degree(
 
 fn pick_max_degree_local(
     graph: &UndirectedGraph,
-    candidates: &HashSet<Vertex>,
-    excluded: &HashSet<Vertex>,
+    candidates: &VertexSet,
+    excluded: &VertexSet,
 ) -> Vertex {
     debug_assert!(!candidates.is_empty());
     candidates

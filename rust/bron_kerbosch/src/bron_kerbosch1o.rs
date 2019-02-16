@@ -1,11 +1,9 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use graph::{connected_nodes, UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSet};
 use pile::Pile;
 use reporter::Reporter;
 use util::{intersect, pop_arbitrary};
-
-use std::collections::HashSet;
 
 type Clique<'a> = Pile<'a, Vertex>;
 
@@ -17,7 +15,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             graph,
             reporter,
             candidates,
-            HashSet::with_capacity(num_candidates),
+            VertexSet::with_capacity(num_candidates),
             Pile::new(),
         );
     }
@@ -26,20 +24,22 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 fn visit(
     graph: &UndirectedGraph,
     reporter: &mut Reporter,
-    mut candidates: HashSet<Vertex>,
-    mut excluded: HashSet<Vertex>,
+    mut candidates: VertexSet,
+    mut excluded: VertexSet,
     clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
-    if candidates.is_empty() && excluded.is_empty() {
-        reporter.record(clique.collect());
+    debug_assert!(candidates.is_disjoint(&excluded));
+
+    if candidates.is_empty() {
+        if excluded.is_empty() {
+            reporter.record(clique.collect());
+        }
         return;
     }
-
     while let Some(v) = pop_arbitrary(&mut candidates) {
         let neighbours = graph.neighbours(v);
-        debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
         let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
         visit(

@@ -7,7 +7,8 @@ from typing import List
 
 COLORS = {
     "Ver1": "#000099",
-    "Ver1+": "#0000FF",
+    "Ver1+": "#0000CC",
+    "Ver1++": "#0000FF",
     "Ver2": "#CC6600",
     "Ver2+": "#FF6600",
     "Ver2_RP": "#FF9900",

@@ -1,6 +1,4 @@
-use std::collections::HashSet;
-
-use graph::{assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex};
+use graph::{assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSet};
 
 #[derive(Debug)]
 pub struct SlimUndirectedGraph {
@@ -22,7 +20,7 @@ impl UndirectedGraph for SlimUndirectedGraph {
         self.neighbours(node).len() as u32
     }
 
-    fn neighbours(&self, node: Vertex) -> &HashSet<Vertex> {
+    fn neighbours(&self, node: Vertex) -> &VertexSet {
         &self.adjacencies[node as usize]
     }
 }

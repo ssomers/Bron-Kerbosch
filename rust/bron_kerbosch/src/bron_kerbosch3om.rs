@@ -2,13 +2,11 @@
 
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSet};
 use pile::Pile;
 use reporter::{Clique, Reporter};
 use util::intersect;
 
-extern crate crossbeam;
-use std::collections::HashSet;
 use std::sync::mpsc;
 
 struct SendingReporter {
@@ -22,8 +20,8 @@ impl Reporter for SendingReporter {
 }
 
 struct VisitJob<'a> {
-    candidates: HashSet<Vertex>,
-    excluded: HashSet<Vertex>,
+    candidates: VertexSet,
+    excluded: VertexSet,
     clique: Pile<'a, Vertex>,
 }
 
@@ -57,10 +55,10 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 
         let mut candidates = connected_nodes(graph);
         debug_assert_eq!(
-            degeneracy_order_smart(graph, &candidates).collect::<HashSet<_>>(),
+            degeneracy_order_smart(graph, &candidates).collect::<VertexSet>(),
             candidates
         );
-        let mut excluded = HashSet::with_capacity(candidates.len());
+        let mut excluded = VertexSet::with_capacity(candidates.len());
         for (i, v) in degeneracy_order_smart(graph, &candidates).enumerate() {
             let neighbours = graph.neighbours(v);
             debug_assert!(!neighbours.is_empty());

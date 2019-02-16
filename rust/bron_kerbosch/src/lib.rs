@@ -1,5 +1,6 @@
 mod bron_kerbosch1;
 mod bron_kerbosch1o;
+mod bron_kerbosch1oo;
 mod bron_kerbosch2;
 mod bron_kerbosch2_gp;
 mod bron_kerbosch2_gpx;
@@ -20,13 +21,15 @@ use graph::{UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
-pub const NUM_FUNCS: usize = 10;
+pub const NUM_FUNCS: usize = 11;
 pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
-    "Ver1", "Ver1+", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+", "Ver3+MT",
+    "Ver1", "Ver1+", "Ver1++", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+",
+    "Ver3+MT",
 ];
 pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
     bron_kerbosch1::explore,
     bron_kerbosch1o::explore,
+    bron_kerbosch1oo::explore,
     bron_kerbosch2::explore,
     bron_kerbosch2o::explore,
     bron_kerbosch2_rp::explore,

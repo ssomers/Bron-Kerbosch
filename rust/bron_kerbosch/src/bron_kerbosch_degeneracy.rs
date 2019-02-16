@@ -1,9 +1,8 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
 
-use graph::{UndirectedGraph, Vertex};
+use graph::{UndirectedGraph, Vertex, VertexSet};
 
 use std::cmp::max;
-use std::collections::HashSet;
 
 #[derive(Debug)]
 struct PriorityQueue<T> {
@@ -96,7 +95,7 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
 
 pub fn degeneracy_order_smart<'a>(
     graph: &'a UndirectedGraph,
-    candidates: &HashSet<Vertex>,
+    candidates: &VertexSet,
 ) -> DegeneracyOrderIter<'a> {
     let order = graph.order();
     let no_priority = order;

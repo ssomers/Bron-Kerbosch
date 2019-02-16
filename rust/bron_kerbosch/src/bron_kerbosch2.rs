@@ -1,10 +1,8 @@
 //! Bron-Kerbosch algorithm with pivot picked arbitrarily
 
-use graph::{connected_nodes, UndirectedGraph, Vertex};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSet};
 use reporter::{Clique, Reporter};
 use util::intersect;
-
-use std::collections::HashSet;
 
 pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     let candidates = connected_nodes(graph);
@@ -14,7 +12,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             graph,
             reporter,
             candidates,
-            HashSet::with_capacity(num_candidates),
+            VertexSet::with_capacity(num_candidates),
             Clique::new(),
         );
     }
@@ -23,12 +21,14 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
 pub fn visit(
     graph: &UndirectedGraph,
     reporter: &mut Reporter,
-    mut candidates: HashSet<Vertex>,
-    mut excluded: HashSet<Vertex>,
+    mut candidates: VertexSet,
+    mut excluded: VertexSet,
     clique: Clique,
 ) {
     debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
+    debug_assert!(candidates.is_disjoint(&excluded));
+
     if candidates.is_empty() {
         if excluded.is_empty() {
             reporter.record(clique);
@@ -37,7 +37,7 @@ pub fn visit(
     }
 
     let pivot = pick_arbitrary(&candidates);
-    let far_candidates: HashSet<Vertex> = candidates
+    let far_candidates: VertexSet = candidates
         .difference(graph.neighbours(pivot))
         .cloned()
         .collect();
@@ -58,6 +58,6 @@ pub fn visit(
     }
 }
 
-fn pick_arbitrary(s: &HashSet<Vertex>) -> Vertex {
+fn pick_arbitrary(s: &VertexSet) -> Vertex {
     s.iter().next().unwrap().clone()
 }

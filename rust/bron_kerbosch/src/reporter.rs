@@ -1,6 +1,6 @@
 use graph::Vertex;
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 pub type Clique = Vec<Vertex>;
 
@@ -23,7 +23,7 @@ impl Reporter for SimpleReporter {
     fn record(&mut self, clique: Clique) {
         debug_assert!(clique.len() > 1);
         debug_assert_eq!(
-            clique.iter().cloned().collect::<HashSet<Vertex>>().len(),
+            clique.iter().cloned().collect::<BTreeSet<Vertex>>().len(),
             clique.len()
         );
         self.cliques.push(clique);

@@ -1,10 +1,9 @@
 extern crate bron_kerbosch;
-use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex};
+use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex, VertexSet};
 
 extern crate rand;
 use self::rand::seq::{IteratorRandom, SliceRandom};
 use self::rand::Rng;
-use std::collections::HashSet;
 
 pub enum Order {
     Of(u32),
@@ -61,7 +60,7 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
             } else if neighbours == order / 2 {
                 // start using adjacency complement
                 debug_assert!(adjacency_complements[x as usize].is_empty());
-                let mut s: HashSet<Vertex> = unsaturated_vertices.iter().cloned().collect();
+                let mut s: VertexSet = unsaturated_vertices.iter().cloned().collect();
                 s.remove(&x);
                 adjacency_complements[x as usize] =
                     s.difference(&adjacency_sets[x as usize]).cloned().collect();
@@ -78,9 +77,7 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
 
 fn remove_from(vseq: &mut Vec<Vertex>, v: Vertex) {
     let index = vseq.iter().position(|&x| x == v).unwrap();
-    let last = vseq.len() - 1;
-    vseq[index] = vseq[last];
-    vseq.truncate(last);
+    vseq.swap_remove(index);
 }
 
 #[cfg(test)]
