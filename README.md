@@ -17,6 +17,7 @@ Compared to the original forked from, the code is:
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
 * **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
 * **Ver1+:** Ver1 slightly optimized with language-specific tweaks
+* **Ver1++:** Ver1 further optimized for scalability with a language-specific tweak
 * **Ver2_RP:** Ver2 slightly optimized and picking pivot randomly (IK\_RP)
 * **Ver2_GP:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
 * **Ver2_GPX:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
