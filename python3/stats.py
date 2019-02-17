@@ -1,10 +1,10 @@
-from math import sqrt
+from math import nan, sqrt
 
 
 class SampleStatistics(object):
     def __init__(self):
-        self.max = None
-        self.min = None
+        self.max = nan
+        self.min = nan
         self.samples = 0
         self.sum = 0
         self.sum_of_squares = 0
@@ -22,12 +22,19 @@ class SampleStatistics(object):
         self.sum_of_squares += v * v
 
     def mean(self):
-        return self.sum / self.samples
+        if self.samples > 0:
+            return self.sum / self.samples
+        else:
+            return nan
 
     def variance(self):
-        n = self.samples
-        m = self.sum / n
-        return (self.sum_of_squares - 2.0 * m * self.sum + m * m * n) / (n - 1)
+        if self.samples > 1:
+            n = self.samples
+            m = self.sum / n
+            return (self.sum_of_squares - 2.0 * m * self.sum + m * m * n) / (
+                n - 1)
+        else:
+            return nan
 
     def deviation(self):
         return sqrt(self.variance())

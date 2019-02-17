@@ -58,11 +58,12 @@ def are_maximal(cliques: List[List[Vertex]]):
     return True
 
 
-def bron_kerbosch_timed(graph: Graph, samples: int):
+def bron_kerbosch_timed(graph: Graph, func_indices: List[int], samples: int):
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
     for sample in range(samples):
-        for func_index, func in enumerate(FUNCS):
+        for func_index in func_indices:
+            func = FUNCS[func_index]
             reporter = SimpleReporter()
             begin = time.process_time()
             try:
@@ -71,7 +72,7 @@ def bron_kerbosch_timed(graph: Graph, samples: int):
                 print(f"  {FUNC_NAMES[func_index]} recursed out")
             secs = time.process_time() - begin
             if secs >= 1.0:
-                print(f"  {FUNC_NAMES[func_index]:8}: {secs:5.2}s")
+                print(f"  {FUNC_NAMES[func_index]:8}: {secs:5.2f}s")
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
@@ -207,7 +208,7 @@ def test_sample(func):
         ]
 
 
-def bk(orderstr: str, sizes):
+def bk(orderstr: str, sizes: List[int], func_indices: List[int], samples: int):
     if orderstr.endswith('M'):
         order = int(orderstr[:-1]) * 1_000_000
     elif orderstr.endswith('k'):
@@ -225,7 +226,8 @@ def bk(orderstr: str, sizes):
             print(f"{name}: {g.adjacencies}")
         else:
             print(f"{name} (generating took {secs:.2f}s)")
-        stats_per_size.append(bron_kerbosch_timed(g, samples=5))
+        stats_per_size.append(
+            bron_kerbosch_timed(g, func_indices=func_indices, samples=samples))
     if len(sizes) > 1:
         publish(
             language="python3",
@@ -247,13 +249,28 @@ if __name__ == '__main__':
         seed = int(args.seed[0])
     else:
         seed = 19680516
+    all_func_indices = list(range(len(FUNCS)))
     if args.order is not None and args.size is not None:
-        bk(orderstr=args.order, sizes=[int(size) for size in args.size])
+        bk(orderstr=args.order,
+           sizes=[int(size) for size in args.size],
+           func_indices=all_func_indices,
+           samples=1)
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="100", sizes=range(2_000, 3_001, 50))  # max 4_950
+        bk(orderstr="100",
+           sizes=range(2_000, 3_001, 50),
+           func_indices=all_func_indices,
+           samples=5)  # max 4_950
         time.sleep(10)
         bk(orderstr="10k",
            sizes=list(range(1_000, 10_000, 1_000)) + list(
-               range(10_000, 200_001, 10_000)))
+               range(10_000, 200_001, 10_000)),
+           func_indices=all_func_indices,
+           samples=5)
+        time.sleep(10)
+        bk(orderstr="1M",
+           sizes=list(range(0, 1_000_000, 250_000)) + list(
+               range(1_000_000, 3_000_001, 500_000)),
+           samples=3,
+           func_indices=[0, 1, 3, 4, 5, 6, 7, 8])
     print(f"random seed was {seed}")

@@ -10,10 +10,13 @@ where
     selv.is_disjoint(other)
 }
 
+enum MyIntersectionOther<'a, T> {
+    PEEK(Peekable<std::collections::btree_set::Iter<'a, T>>),
+    FIND(&'a BTreeSet<T>),
+}
 pub struct MyIntersection<'a, T> {
     a: Peekable<std::collections::btree_set::Iter<'a, T>>,
-    b: Peekable<std::collections::btree_set::Iter<'a, T>>,
-    big: Option<&'a BTreeSet<T>>,
+    b: MyIntersectionOther<'a, T>,
 }
 
 impl<'a, T> Iterator for MyIntersection<'a, T>
@@ -23,22 +26,22 @@ where
     type Item = &'a T;
 
     fn next(&mut self) -> Option<&'a T> {
-        match self.big {
-            None => loop {
-                match Ord::cmp(self.a.peek()?, self.b.peek()?) {
+        match self.b {
+            MyIntersectionOther::PEEK(ref mut self_b) => loop {
+                match Ord::cmp(self.a.peek()?, self_b.peek()?) {
                     std::cmp::Ordering::Less => {
                         self.a.next();
                     }
                     std::cmp::Ordering::Equal => {
-                        self.b.next();
+                        self_b.next();
                         return self.a.next();
                     }
                     std::cmp::Ordering::Greater => {
-                        self.b.next();
+                        self_b.next();
                     }
                 }
             },
-            Some(big) => loop {
+            MyIntersectionOther::FIND(big) => loop {
                 match self.a.next() {
                     None => return None,
                     Some(e) => {
@@ -52,7 +55,11 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, Some(min(self.a.len(), self.b.len())))
+        let b_len = match self.b {
+            MyIntersectionOther::PEEK(ref iter) => iter.len(),
+            MyIntersectionOther::FIND(ref set) => set.len(),
+        };
+        (0, Some(min(self.a.len(), b_len)))
     }
 }
 
@@ -69,20 +76,17 @@ pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyInte
     if have_comparable_len(selv, other) {
         MyIntersection {
             a: selv.iter().peekable(),
-            b: other.iter().peekable(),
-            big: None,
+            b: MyIntersectionOther::PEEK(other.iter().peekable()),
         }
     } else if selv.len() <= other.len() {
         MyIntersection {
             a: selv.iter().peekable(),
-            b: selv.iter().peekable(), // not used
-            big: Some(&other),
+            b: MyIntersectionOther::FIND(&other),
         }
     } else {
         MyIntersection {
             a: other.iter().peekable(),
-            b: other.iter().peekable(), // not used
-            big: Some(&selv),
+            b: MyIntersectionOther::FIND(&selv),
         }
     }
 }

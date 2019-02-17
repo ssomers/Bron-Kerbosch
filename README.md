@@ -17,7 +17,6 @@ Compared to the original forked from, the code is:
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
 * **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
 * **Ver1+:** Ver1 slightly optimized with language-specific tweaks
-* **Ver1++:** Ver1 further optimized for scalability with a language-specific tweak
 * **Ver2_RP:** Ver2 slightly optimized and picking pivot randomly (IK\_RP)
 * **Ver2_GP:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
 * **Ver2_GPX:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
@@ -51,10 +50,9 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 * Sparse random graphs of order 1M: who scales best?
 [![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
-[![Time spent in Go on graphs of order !M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
+[![Time spent in Go on graphs of order 1M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
 [![Time spent in Scala on graphs of order 1M](https://plot.ly/~stein.somers/201.png?share_key=pAZbwXAIC0C96nD9WP38yl "View interactively")](https://plot.ly/~stein.somers/201/?share_key=pAZbwXAIC0C96nD9WP38yl)
-
-Note that I skipped Ver1 (and others) in Rust and Python because they take minutes, while the noob implementations in Go and Scala pass with flying colours.
+[![Time spent in Python3 on graphs of order 1M](https://plot.ly/~stein.somers/213.png?share_key=FNQg1eSkoQaxjuw5yoEwNJ "View interactively")](https://plot.ly/~stein.somers/213/?share_key=FNQg1eSkoQaxjuw5yoEwNJ")
 
 ## Test
     
@@ -66,7 +64,7 @@ Note that I skipped Ver1 (and others) in Rust and Python because they take minut
 
 [More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
 
-Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques�, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 
