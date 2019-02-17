@@ -1,26 +1,21 @@
 from stats import SampleStatistics
-from math import sqrt
+from math import isnan,sqrt
 import pytest
 
 
 def test_stats_0_i32():
     s = SampleStatistics()
-    with pytest.raises(ZeroDivisionError):
-        s.mean()
-    with pytest.raises(ZeroDivisionError):
-        s.variance()
-    with pytest.raises(ZeroDivisionError):
-        s.deviation()
+    assert isnan(s.mean())
+    assert isnan(s.variance())
+    assert isnan(s.deviation())
 
 
 def test_stats_1_int():
     s = SampleStatistics()
     s.put(-1)
     assert s.mean() == -1.0
-    with pytest.raises(ZeroDivisionError):
-        s.variance()
-    with pytest.raises(ZeroDivisionError):
-        s.deviation()
+    assert isnan(s.variance())
+    assert isnan(s.deviation())
 
 
 def test_stats_2_int():
