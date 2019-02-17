@@ -1,5 +1,5 @@
 from stats import SampleStatistics
-from math import isnan,sqrt
+from math import isnan, sqrt
 import pytest
 
 
