@@ -1,13 +1,12 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 pub type Vertex = u32;
-pub type VertexSet = HashSet<Vertex>;
+pub type VertexSet = BTreeSet<Vertex>;
 
-pub fn vertex_set_with_capacity(capacity: usize) -> VertexSet {
-    HashSet::with_capacity(capacity)
+pub fn vertex_set_with_capacity(_capacity: usize) -> VertexSet {
+    BTreeSet::new()
 }
-pub fn vertex_set_reserve(set: &mut VertexSet, additional: usize) {
-    set.reserve(additional)
+pub fn vertex_set_reserve(_set: &mut VertexSet, _additional: usize) {
 }
 
 pub trait UndirectedGraph: Sync {
