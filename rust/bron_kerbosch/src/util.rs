@@ -11,8 +11,8 @@ where
 }
 
 enum MyIntersectionOther<'a, T> {
-    PEEK(Peekable<std::collections::btree_set::Iter<'a, T>>),
-    FIND(&'a BTreeSet<T>),
+    ITER(Peekable<std::collections::btree_set::Iter<'a, T>>),
+    SET(&'a BTreeSet<T>),
 }
 pub struct MyIntersection<'a, T> {
     a: Peekable<std::collections::btree_set::Iter<'a, T>>,
@@ -27,7 +27,7 @@ where
 
     fn next(&mut self) -> Option<&'a T> {
         match self.b {
-            MyIntersectionOther::PEEK(ref mut self_b) => loop {
+            MyIntersectionOther::ITER(ref mut self_b) => loop {
                 match Ord::cmp(self.a.peek()?, self_b.peek()?) {
                     std::cmp::Ordering::Less => {
                         self.a.next();
@@ -41,11 +41,11 @@ where
                     }
                 }
             },
-            MyIntersectionOther::FIND(big) => loop {
+            MyIntersectionOther::SET(set) => loop {
                 match self.a.next() {
                     None => return None,
                     Some(e) => {
-                        if big.contains(&e) {
+                        if set.contains(&e) {
                             return Some(e);
                         }
                     }
@@ -56,37 +56,37 @@ where
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         let b_len = match self.b {
-            MyIntersectionOther::PEEK(ref iter) => iter.len(),
-            MyIntersectionOther::FIND(ref set) => set.len(),
+            MyIntersectionOther::ITER(ref iter) => iter.len(),
+            MyIntersectionOther::SET(set) => set.len(),
         };
         (0, Some(min(self.a.len(), b_len)))
     }
 }
 
-fn have_comparable_len<T>(selv: &BTreeSet<T>, other: &BTreeSet<T>) -> bool {
-    let (min, delta) = if selv.len() <= other.len() {
-        (selv.len(), other.len() - selv.len())
+fn are_proportionate_for_intersection(len1: usize, len2: usize) -> bool {
+    let (small, large) = if len1 <= len2 {
+        (len1, len2)
     } else {
-        (other.len(), selv.len() - other.len())
+        (len2, len1)
     };
-    delta / 128 <= min
+    (large >> 7) <= small
 }
 
 pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyIntersection<'a, T> {
-    if have_comparable_len(selv, other) {
+    if are_proportionate_for_intersection(selv.len(), other.len()) {
         MyIntersection {
             a: selv.iter().peekable(),
-            b: MyIntersectionOther::PEEK(other.iter().peekable()),
+            b: MyIntersectionOther::ITER(other.iter().peekable()),
         }
     } else if selv.len() <= other.len() {
         MyIntersection {
             a: selv.iter().peekable(),
-            b: MyIntersectionOther::FIND(&other),
+            b: MyIntersectionOther::SET(&other),
         }
     } else {
         MyIntersection {
             a: other.iter().peekable(),
-            b: MyIntersectionOther::FIND(&selv),
+            b: MyIntersectionOther::SET(&selv),
         }
     }
 }
@@ -104,6 +104,19 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_are_proportionate_for_intersection() {
+        assert!(are_proportionate_for_intersection(0, 0));
+        assert!(are_proportionate_for_intersection(0, 127));
+        assert!(!are_proportionate_for_intersection(0, 128));
+        assert!(are_proportionate_for_intersection(1, 255));
+        assert!(!are_proportionate_for_intersection(1, 256));
+        assert!(are_proportionate_for_intersection(127, 0));
+        assert!(!are_proportionate_for_intersection(128, 0));
+        assert!(are_proportionate_for_intersection(255, 1));
+        assert!(!are_proportionate_for_intersection(256, 1));
+    }
 
     #[test]
     fn test_pop_arbitrary() {
