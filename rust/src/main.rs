@@ -163,12 +163,10 @@ fn bk(
                 generate_random_graph(&mut rng, Order::Of(order), Size::Of(size));
             let stats = bron_kerbosch_timed(&graph, samples, &func_indices);
             for func_index in 0..NUM_FUNCS {
+                let name = FUNC_NAMES[func_index]; 
                 let mean = stats[func_index].mean();
                 let dev = stats[func_index].deviation();
-                println!(
-                    "{:8}: {:5.2}s {}{:5.2}",
-                    FUNC_NAMES[func_index], mean, 177 as char, dev
-                );
+                println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
             }
             if let Some(mut wtr) = writer.as_mut() {
                 wtr.write_record([size].iter().map(|&i| i.to_string()).chain(

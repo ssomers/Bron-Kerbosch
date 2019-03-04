@@ -137,16 +137,6 @@ mod tests {
     }
 
     #[test]
-    fn stats_2_f32() {
-        let mut s: SampleStatistics<f32> = SampleStatistics::new();
-        s.put(1.0).unwrap();
-        s.put(2.0).unwrap();
-        assert_eq!(s.mean(), 1.5);
-        assert_eq!(s.variance(), 0.5);
-        assert_eq!(s.deviation(), 0.5_f64.sqrt());
-    }
-
-    #[test]
     fn stats_2_f64() {
         let mut s: SampleStatistics<f64> = SampleStatistics::new();
         s.put(1.0).unwrap();

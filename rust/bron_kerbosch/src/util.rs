@@ -3,13 +3,6 @@ use std::collections::BTreeSet;
 use util::core::cmp::min;
 use util::core::iter::Peekable;
 
-pub fn is_disjoint<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> bool
-where
-    T: std::cmp::Ord,
-{
-    selv.is_disjoint(other)
-}
-
 enum MyIntersectionOther<'a, T> {
     ITER(Peekable<std::collections::btree_set::Iter<'a, T>>),
     SET(&'a BTreeSet<T>),
@@ -69,10 +62,13 @@ fn are_proportionate_for_intersection(len1: usize, len2: usize) -> bool {
     } else {
         (len2, len1)
     };
-    (large >> 7) <= small
+    (large >> 4) <= small
 }
 
-pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyIntersection<'a, T> {
+pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyIntersection<'a, T>
+where
+    T: std::cmp::Ord,
+{
     if are_proportionate_for_intersection(selv.len(), other.len()) {
         MyIntersection {
             a: selv.iter().peekable(),
@@ -91,13 +87,13 @@ pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyInte
     }
 }
 
-pub fn pop_arbitrary<T>(s: &mut BTreeSet<T>) -> Option<T>
+pub fn pop_arbitrary<T>(set: &mut BTreeSet<T>) -> Option<T>
 where
     T: std::cmp::Ord + Clone,
 {
-    s.iter().next().cloned().map(|v| {
-        s.remove(&v);
-        v
+    set.iter().next().cloned().map(|elt| {
+        set.remove(&elt);
+        elt
     })
 }
 
@@ -126,5 +122,6 @@ mod tests {
         assert!(pop_arbitrary(&mut s).is_some());
         assert_eq!(s.len(), 0);
         assert!(pop_arbitrary(&mut s).is_none());
+        assert_eq!(s.len(), 0);
     }
 }
