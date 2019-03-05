@@ -104,14 +104,14 @@ mod tests {
     #[test]
     fn test_are_proportionate_for_intersection() {
         assert!(are_proportionate_for_intersection(0, 0));
-        assert!(are_proportionate_for_intersection(0, 127));
-        assert!(!are_proportionate_for_intersection(0, 128));
-        assert!(are_proportionate_for_intersection(1, 255));
-        assert!(!are_proportionate_for_intersection(1, 256));
-        assert!(are_proportionate_for_intersection(127, 0));
-        assert!(!are_proportionate_for_intersection(128, 0));
-        assert!(are_proportionate_for_intersection(255, 1));
-        assert!(!are_proportionate_for_intersection(256, 1));
+        assert!(are_proportionate_for_intersection(0, 15));
+        assert!(!are_proportionate_for_intersection(0, 16));
+        assert!(are_proportionate_for_intersection(1, 31));
+        assert!(!are_proportionate_for_intersection(1, 32));
+        assert!(are_proportionate_for_intersection(15, 0));
+        assert!(!are_proportionate_for_intersection(16, 0));
+        assert!(are_proportionate_for_intersection(31, 1));
+        assert!(!are_proportionate_for_intersection(32, 1));
     }
 
     #[test]
