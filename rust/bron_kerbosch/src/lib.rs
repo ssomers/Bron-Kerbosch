@@ -16,7 +16,7 @@ pub mod reporter;
 pub mod slimgraph;
 pub mod util;
 
-use graph::{UndirectedGraph, Vertex};
+use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
@@ -24,18 +24,28 @@ pub const NUM_FUNCS: usize = 10;
 pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
     "Ver1", "Ver1+", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+", "Ver3+MT",
 ];
-pub static FUNCS: &'static [fn(graph: &UndirectedGraph, reporter: &mut Reporter); NUM_FUNCS] = &[
-    bron_kerbosch1::explore,
-    bron_kerbosch1o::explore,
-    bron_kerbosch2::explore,
-    bron_kerbosch2o::explore,
-    bron_kerbosch2_rp::explore,
-    bron_kerbosch2_gp::explore,
-    bron_kerbosch2_gpx::explore,
-    bron_kerbosch3::explore,
-    bron_kerbosch3o::explore,
-    bron_kerbosch3om::explore,
-];
+
+pub fn explore<VertexSet>(
+    func_index: usize,
+    graph: &UndirectedGraph<VertexSet>,
+    reporter: &mut Reporter,
+) where
+    VertexSet: VertexSetLike<VertexSet> + Send,
+{
+    match func_index {
+        0 => bron_kerbosch1::explore(graph, reporter),
+        1 => bron_kerbosch1o::explore(graph, reporter),
+        2 => bron_kerbosch2::explore(graph, reporter),
+        3 => bron_kerbosch2o::explore(graph, reporter),
+        4 => bron_kerbosch2_rp::explore(graph, reporter),
+        5 => bron_kerbosch2_gp::explore(graph, reporter),
+        6 => bron_kerbosch2_gpx::explore(graph, reporter),
+        7 => bron_kerbosch3::explore(graph, reporter),
+        8 => bron_kerbosch3o::explore(graph, reporter),
+        9 => bron_kerbosch3om::explore(graph, reporter),
+        _ => panic!(),
+    }
+}
 
 pub type OrderedClique = BTreeSet<Vertex>;
 pub type OrderedCliques = BTreeSet<OrderedClique>;
@@ -46,11 +56,14 @@ pub fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
         .collect()
 }
 
-pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
+pub fn bron_kerbosch<VertexSet>(graph: &UndirectedGraph<VertexSet>) -> OrderedCliques
+where
+    VertexSet: VertexSetLike<VertexSet> + Send,
+{
     let mut first: Option<OrderedCliques> = None;
-    for func in FUNCS {
+    for func_index in 0..NUM_FUNCS {
         let mut reporter = SimpleReporter::new();
-        func(graph, &mut reporter);
+        explore(func_index, graph, &mut reporter);
         let current = order_cliques(reporter.cliques);
         if first.is_none() {
             first = Some(current);
@@ -64,18 +77,27 @@ pub fn bron_kerbosch(graph: &UndirectedGraph) -> OrderedCliques {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use graph::NewableUndirectedGraph;
+    use graph::{Adjacencies, NewableUndirectedGraph};
     use reporter::Clique;
     use slimgraph::SlimUndirectedGraph;
 
-    fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
-        let adjacencies = adjacencies
+    use std::collections::HashSet;
+
+    fn bk_core<VertexSet>(adjacencies: &Vec<Vec<Vertex>>) -> OrderedCliques
+    where
+        VertexSet: VertexSetLike<VertexSet> + Send + Sync,
+    {
+        let adjacencies: Adjacencies<VertexSet> = adjacencies
             .iter()
             .map(|neighbours| neighbours.into_iter().cloned().collect())
             .collect();
         let graph = SlimUndirectedGraph::new(adjacencies);
-        let current = bron_kerbosch(&graph);
-        assert_eq!(current, order_cliques(expected_cliques));
+        bron_kerbosch(&graph)
+    }
+    fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
+        let expected_cliques = order_cliques(expected_cliques);
+        assert_eq!(bk_core::<BTreeSet<Vertex>>(&adjacencies), expected_cliques);
+        assert_eq!(bk_core::<HashSet<Vertex>>(&adjacencies), expected_cliques);
     }
 
     #[test]

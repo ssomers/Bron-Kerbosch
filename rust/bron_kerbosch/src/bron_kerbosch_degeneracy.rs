@@ -1,6 +1,6 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
 
-use graph::{UndirectedGraph, Vertex, VertexSet};
+use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
 use std::cmp::max;
 
@@ -40,8 +40,8 @@ where
 
 type Priority = u32;
 
-pub struct DegeneracyOrderIter<'a> {
-    graph: &'a UndirectedGraph,
+pub struct DegeneracyOrderIter<'a, VertexSet> {
+    graph: &'a UndirectedGraph<VertexSet>,
     no_priority: Priority, // some number distinct from any degree or decrement thereof
     priority_per_node: Vec<Priority>,
     // If priority is no_priority, node was already picked or was always irrelevant (unconnected);
@@ -50,7 +50,7 @@ pub struct DegeneracyOrderIter<'a> {
     num_left_to_pick: usize,
 }
 
-impl<'a> DegeneracyOrderIter<'a> {
+impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
         debug_assert!(self
             .priority_per_node
@@ -68,7 +68,10 @@ impl<'a> DegeneracyOrderIter<'a> {
     }
 }
 
-impl<'a> Iterator for DegeneracyOrderIter<'a> {
+impl<'a, VertexSet> Iterator for DegeneracyOrderIter<'a, VertexSet>
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
         if self.num_left_to_pick == 0 {
@@ -76,7 +79,7 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
         } else {
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
-            for &v in self.graph.neighbours(i) {
+            self.graph.neighbours(i).for_each(|v| {
                 let old_priority = self.priority_per_node[v as usize];
                 if old_priority != self.no_priority {
                     debug_assert!(old_priority > 0);
@@ -87,30 +90,33 @@ impl<'a> Iterator for DegeneracyOrderIter<'a> {
                     self.priority_per_node[v as usize] = new_priority;
                     self.queue.put(new_priority as usize, v);
                 }
-            }
+            });
             Some(i)
         }
     }
 }
 
-pub fn degeneracy_order_smart<'a>(
-    graph: &'a UndirectedGraph,
+pub fn degeneracy_order_smart<'a, VertexSet>(
+    graph: &'a UndirectedGraph<VertexSet>,
     candidates: &VertexSet,
-) -> DegeneracyOrderIter<'a> {
+) -> DegeneracyOrderIter<'a, VertexSet>
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let order = graph.order();
     let no_priority = order;
     let mut max_priority: Priority = 0;
     let mut priority_per_node: Vec<Priority> = vec![no_priority; order as usize];
-    for &c in candidates {
+    candidates.for_each(|c| {
         let priority = graph.degree(c);
         debug_assert_ne!(priority, no_priority);
         max_priority = max(max_priority, priority);
         priority_per_node[c as usize] = priority;
-    }
+    });
     let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority as usize);
-    for &c in candidates {
+    candidates.for_each(|c| {
         queue.put(priority_per_node[c as usize] as usize, c);
-    }
+    });
     DegeneracyOrderIter {
         graph,
         no_priority,

@@ -2,24 +2,25 @@
 
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, VertexSet};
+use graph::{connected_nodes, UndirectedGraph, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
-use util::intersect;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let mut candidates = connected_nodes(graph);
-    debug_assert_eq!(
-        degeneracy_order_smart(graph, &candidates).collect::<VertexSet>(),
-        candidates
+    debug_assert!(
+        candidates.has_same_elements(&degeneracy_order_smart(graph, &candidates).collect())
     );
-    let mut excluded = vertex_set_with_capacity(candidates.len());
+    let mut excluded = VertexSet::with_capacity(candidates.len());
     for v in degeneracy_order_smart(graph, &candidates) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates);
+        let neighbouring_excluded = neighbours.intersection(&excluded);
         excluded.insert(v);
         visit(
             graph,
@@ -28,7 +29,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             PivotChoice::MaxDegree,
             neighbouring_candidates,
             neighbouring_excluded,
-            Pile::new().cons(v),
+            Pile::from(v),
         );
     }
 }

@@ -63,7 +63,7 @@ def publish_csv(language: str, orderstr: str):
             raise ImportError("unexpected " + str(head[3::3]))
         func_names = [h.split()[0] for h in head[2::3]]
 
-        assert all(func_names[f] in COLORS
+        assert all(func_names[f].split('@')[0] in COLORS
                    for f in range(num_funcs)), f"Unknown in {func_names}"
         for i, row in enumerate(reader):
             if len(row) != 1 + num_funcs * 3:
@@ -93,10 +93,10 @@ def publish_csv(language: str, orderstr: str):
                         mean_per_size[s][f] - min_per_size[s][f]
                         for s in range(len(sizes))
                     ],
-                    color=COLORS[func_names[f]],
+                    color=COLORS[func_names[f].split('@')[0]],
                 ),
-                line=dict(color=COLORS[func_names[f]]),
-                marker=dict(color=COLORS[func_names[f]]),
+                line=dict(color=COLORS[func_names[f].split('@')[0]]),
+                marker=dict(color=COLORS[func_names[f].split('@')[0]]),
                 mode="lines+markers",
                 name=func_names[f],
             ) for f in range(num_funcs) if any(

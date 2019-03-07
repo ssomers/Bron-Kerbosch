@@ -1,8 +1,8 @@
 extern crate bron_kerbosch;
-use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex, VertexSet};
+use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 
 extern crate rand;
-use self::rand::seq::{IteratorRandom, SliceRandom};
+use self::rand::seq::SliceRandom;
 use self::rand::Rng;
 
 pub enum Order {
@@ -12,11 +12,11 @@ pub enum Size {
     Of(u32),
 }
 
-pub fn new_undirected<G: NewableUndirectedGraph>(
-    rng: &mut impl Rng,
-    order: Order,
-    size: Size,
-) -> G {
+pub fn new_undirected<VertexSet, G>(rng: &mut impl Rng, order: Order, size: Size) -> G
+where
+    VertexSet: VertexSetLike<VertexSet> + Clone,
+    G: NewableUndirectedGraph<VertexSet>,
+{
     let Order::Of(order) = order;
     let Size::Of(size) = size;
     let fully_meshed_size = order * (order - 1) / 2;
@@ -28,18 +28,15 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
         fully_meshed_size
     );
     let mut unsaturated_vertices: Vec<Vertex> = (0..order as Vertex).into_iter().collect();
-    let mut adjacency_sets = new_adjacencies(order);
-    let mut adjacency_complements = new_adjacencies(order);
+    let mut adjacency_sets: Vec<VertexSet> = new_adjacencies(order);
+    let mut adjacency_complements: Vec<VertexSet> = new_adjacencies(order);
     for _ in 0..size {
         debug_assert!(unsaturated_vertices
             .iter()
             .all(|&v| adjacency_sets[v as usize].len() < (order - 1) as usize));
         let v = *unsaturated_vertices.choose(rng).unwrap();
         let w = if !adjacency_complements[v as usize].is_empty() {
-            *adjacency_complements[v as usize]
-                .iter()
-                .choose(rng)
-                .unwrap()
+            *adjacency_complements[v as usize].choose(rng).unwrap()
         } else {
             loop {
                 let w = *unsaturated_vertices.choose(rng).unwrap();
@@ -62,8 +59,8 @@ pub fn new_undirected<G: NewableUndirectedGraph>(
                 debug_assert!(adjacency_complements[x as usize].is_empty());
                 let mut s: VertexSet = unsaturated_vertices.iter().cloned().collect();
                 s.remove(&x);
-                adjacency_complements[x as usize] =
-                    s.difference(&adjacency_sets[x as usize]).cloned().collect();
+                let complement = s.difference(&adjacency_sets[x as usize]);
+                adjacency_complements[x as usize] = complement.into_iter().collect();
             } else if neighbours > order / 2 {
                 adjacency_complements[x as usize].remove(&y);
             }
@@ -88,19 +85,21 @@ mod tests {
     extern crate rand_chacha;
     use self::rand_chacha::ChaChaRng;
     use rand::SeedableRng;
+    use std::collections::BTreeSet;
 
     #[test]
     fn random_graph() {
+        type G = SlimUndirectedGraph<BTreeSet<Vertex>>;
         let mut rng = ChaChaRng::from_seed([68u8; 32]);
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(2), Size::Of(0));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(0));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(1));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(3), Size::Of(2));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(0));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(1));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(2));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(3));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(4));
-        let _: SlimUndirectedGraph = new_undirected(&mut rng, Order::Of(4), Size::Of(5));
+        let _: G = new_undirected(&mut rng, Order::Of(2), Size::Of(0));
+        let _: G = new_undirected(&mut rng, Order::Of(3), Size::Of(0));
+        let _: G = new_undirected(&mut rng, Order::Of(3), Size::Of(1));
+        let _: G = new_undirected(&mut rng, Order::Of(3), Size::Of(2));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(0));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(1));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(2));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(3));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(4));
+        let _: G = new_undirected(&mut rng, Order::Of(4), Size::Of(5));
     }
 }

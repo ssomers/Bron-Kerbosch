@@ -2,10 +2,9 @@
 
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, Vertex, VertexSet};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::{Clique, Reporter};
-use util::intersect;
 
 use std::sync::mpsc;
 
@@ -19,17 +18,21 @@ impl Reporter for SendingReporter {
     }
 }
 
-struct VisitJob<'a> {
+struct VisitJob<'a, VertexSet> {
     candidates: VertexSet,
     excluded: VertexSet,
     clique: Pile<'a, Vertex>,
 }
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet> + Send,
+{
     const NUM_THREADS: usize = 3;
     crossbeam::thread::scope(|scope| {
         let (reporter_tx, reporter_rx) = mpsc::channel();
-        let mut job_txs: Vec<mpsc::Sender<VisitJob>> = Vec::with_capacity(NUM_THREADS);
+        let mut job_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> =
+            Vec::with_capacity(NUM_THREADS);
         for _ in 0..NUM_THREADS {
             let (job_tx, thread_job_rx) = mpsc::channel();
             job_txs.push(job_tx);
@@ -54,17 +57,16 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
         drop(reporter_tx);
 
         let mut candidates = connected_nodes(graph);
-        debug_assert_eq!(
-            degeneracy_order_smart(graph, &candidates).collect::<VertexSet>(),
-            candidates
+        debug_assert!(
+            candidates.has_same_elements(&degeneracy_order_smart(graph, &candidates).collect())
         );
-        let mut excluded = vertex_set_with_capacity(candidates.len());
+        let mut excluded = VertexSet::with_capacity(candidates.len());
         for (i, v) in degeneracy_order_smart(graph, &candidates).enumerate() {
             let neighbours = graph.neighbours(v);
             debug_assert!(!neighbours.is_empty());
             candidates.remove(&v);
-            let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-            let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+            let neighbouring_candidates = neighbours.intersection(&candidates);
+            let neighbouring_excluded = neighbours.intersection(&excluded);
             excluded.insert(v);
             job_txs[i % NUM_THREADS]
                 .send(VisitJob {

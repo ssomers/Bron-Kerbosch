@@ -1,13 +1,15 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, Vertex, VertexSet};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
-use util::{intersect, pop_arbitrary};
 
 type Clique<'a> = Pile<'a, Vertex>;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
@@ -15,21 +17,23 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             graph,
             reporter,
             candidates,
-            vertex_set_with_capacity(num_candidates),
+            VertexSet::with_capacity(num_candidates),
             Pile::new(),
         );
     }
 }
 
-fn visit(
-    graph: &UndirectedGraph,
+fn visit<VertexSet>(
+    graph: &UndirectedGraph<VertexSet>,
     reporter: &mut Reporter,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Clique,
-) {
-    debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
+) where
+    VertexSet: VertexSetLike<VertexSet>,
+{
+    debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
+    debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
@@ -38,10 +42,10 @@ fn visit(
         }
         return;
     }
-    while let Some(v) = pop_arbitrary(&mut candidates) {
+    while let Some(v) = candidates.pop_arbitrary() {
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates);
+        let neighbouring_excluded = neighbours.intersection(&excluded);
         visit(
             graph,
             reporter,

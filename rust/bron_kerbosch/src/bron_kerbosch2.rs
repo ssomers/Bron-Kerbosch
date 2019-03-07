@@ -1,10 +1,12 @@
 //! Bron-Kerbosch algorithm with pivot picked arbitrarily
 
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, Vertex, VertexSet};
+use graph::{connected_nodes, UndirectedGraph, VertexSetLike};
 use reporter::{Clique, Reporter};
-use util::intersect;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
@@ -12,21 +14,23 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             graph,
             reporter,
             candidates,
-            vertex_set_with_capacity(num_candidates),
+            VertexSet::with_capacity(num_candidates),
             Clique::new(),
         );
     }
 }
 
-pub fn visit(
-    graph: &UndirectedGraph,
+pub fn visit<VertexSet>(
+    graph: &UndirectedGraph<VertexSet>,
     reporter: &mut Reporter,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Clique,
-) {
-    debug_assert!(candidates.iter().all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.iter().all(|&v| graph.degree(v) > 0));
+) where
+    VertexSet: VertexSetLike<VertexSet>,
+{
+    debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
+    debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
@@ -36,16 +40,13 @@ pub fn visit(
         return;
     }
 
-    let pivot = pick_arbitrary(&candidates);
-    let far_candidates: VertexSet = candidates
-        .difference(graph.neighbours(pivot))
-        .cloned()
-        .collect();
+    let &pivot = candidates.choose_arbitrary().unwrap();
+    let far_candidates = candidates.difference(graph.neighbours(pivot));
     for v in far_candidates {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates);
+        let neighbouring_excluded = neighbours.intersection(&excluded);
         visit(
             graph,
             reporter,
@@ -56,8 +57,4 @@ pub fn visit(
         candidates.remove(&v);
         excluded.insert(v);
     }
-}
-
-fn pick_arbitrary(s: &VertexSet) -> Vertex {
-    s.iter().next().unwrap().clone()
 }

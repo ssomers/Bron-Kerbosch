@@ -65,7 +65,10 @@ fn are_proportionate_for_intersection(len1: usize, len2: usize) -> bool {
     (large >> 4) <= small
 }
 
-pub fn intersect<'a, T>(selv: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> MyIntersection<'a, T>
+pub fn btree_intersect<'a, T>(
+    selv: &'a BTreeSet<T>,
+    other: &'a BTreeSet<T>,
+) -> MyIntersection<'a, T>
 where
     T: std::cmp::Ord,
 {
@@ -87,16 +90,6 @@ where
     }
 }
 
-pub fn pop_arbitrary<T>(set: &mut BTreeSet<T>) -> Option<T>
-where
-    T: std::cmp::Ord + Clone,
-{
-    set.iter().next().cloned().map(|elt| {
-        set.remove(&elt);
-        elt
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,16 +105,5 @@ mod tests {
         assert!(!are_proportionate_for_intersection(16, 0));
         assert!(are_proportionate_for_intersection(31, 1));
         assert!(!are_proportionate_for_intersection(32, 1));
-    }
-
-    #[test]
-    fn test_pop_arbitrary() {
-        let mut s: BTreeSet<u32> = [4, 2].iter().cloned().collect();
-        assert!(pop_arbitrary(&mut s).is_some());
-        assert_eq!(s.len(), 1);
-        assert!(pop_arbitrary(&mut s).is_some());
-        assert_eq!(s.len(), 0);
-        assert!(pop_arbitrary(&mut s).is_none());
-        assert_eq!(s.len(), 0);
     }
 }

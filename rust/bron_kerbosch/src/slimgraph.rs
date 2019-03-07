@@ -1,11 +1,19 @@
-use graph::{assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSet};
+use graph::{
+    assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSetLike,
+};
 
 #[derive(Debug)]
-pub struct SlimUndirectedGraph {
-    adjacencies: Adjacencies,
+pub struct SlimUndirectedGraph<VertexSet>
+where
+    VertexSet: Sync,
+{
+    adjacencies: Adjacencies<VertexSet>,
 }
 
-impl UndirectedGraph for SlimUndirectedGraph {
+impl<VertexSet> UndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
+where
+    VertexSet: VertexSetLike<VertexSet> + Sync,
+{
     fn order(&self) -> u32 {
         self.adjacencies.len() as u32
     }
@@ -25,8 +33,11 @@ impl UndirectedGraph for SlimUndirectedGraph {
     }
 }
 
-impl NewableUndirectedGraph for SlimUndirectedGraph {
-    fn new(adjacencies: Adjacencies) -> Self {
+impl<VertexSet> NewableUndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
+where
+    VertexSet: VertexSetLike<VertexSet> + Sync,
+{
+    fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
         debug_assert!(assert_adjacencies(&adjacencies));
         SlimUndirectedGraph { adjacencies }
     }

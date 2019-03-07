@@ -1,21 +1,23 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering
 
 use super::bron_kerbosch2;
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph, Vertex, VertexSet};
+use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
 use reporter::Reporter;
-use util::intersect;
 
 use std::collections::HashMap;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let mut candidates = connected_nodes(graph);
-    let mut excluded = vertex_set_with_capacity(candidates.len());
+    let mut excluded = VertexSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_candidates = intersect(&neighbours, &candidates).cloned().collect();
-        let neighbouring_excluded = intersect(&neighbours, &excluded).cloned().collect();
+        let neighbouring_candidates = neighbours.intersection(&candidates);
+        let neighbouring_excluded = neighbours.intersection(&excluded);
         bron_kerbosch2::visit(
             graph,
             reporter,
@@ -28,21 +30,27 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
     }
 }
 
-fn degeneracy_order(graph: &UndirectedGraph, nodes: &VertexSet) -> Vec<Vertex> {
+fn degeneracy_order<VertexSet>(
+    graph: &UndirectedGraph<VertexSet>,
+    nodes: &VertexSet,
+) -> Vec<Vertex>
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     // FIXME: can improve it to linear time
-    let mut degrees: HashMap<Vertex, u32> = nodes.iter().map(|&v| (v, graph.degree(v))).collect();
+    let mut degrees: HashMap<Vertex, u32> = nodes.map(|v| graph.degree(v));
     let mut ordered: Vec<Vertex> = Vec::with_capacity(nodes.len());
 
     while !degrees.is_empty() {
         let i = *degrees.iter().min_by_key(|(&_v, &d)| d).unwrap().0;
         ordered.push(i);
         degrees.remove(&i);
-        for v in graph.neighbours(i) {
-            if let Some(d) = degrees.get_mut(v) {
+        graph.neighbours(i).for_each(|v| {
+            if let Some(d) = degrees.get_mut(&v) {
                 *d -= 1;
             }
-        }
+        });
     }
-    debug_assert_eq!(ordered.iter().cloned().collect::<VertexSet>(), *nodes);
+    debug_assert!(nodes.has_same_elements(&ordered));
     ordered
 }

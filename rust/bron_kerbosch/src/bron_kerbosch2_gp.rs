@@ -2,11 +2,14 @@
 //! with highest degree (IK_GP)
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, vertex_set_with_capacity, UndirectedGraph};
+use graph::{connected_nodes, UndirectedGraph, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
 
-pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
+pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+where
+    VertexSet: VertexSetLike<VertexSet>,
+{
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
@@ -16,7 +19,7 @@ pub fn explore(graph: &UndirectedGraph, reporter: &mut Reporter) {
             PivotChoice::MaxDegree,
             PivotChoice::MaxDegree,
             candidates,
-            vertex_set_with_capacity(num_candidates),
+            VertexSet::with_capacity(num_candidates),
             Pile::new(),
         );
     }
