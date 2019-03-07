@@ -55,7 +55,9 @@ func (vset *VertexSet) PickArbitrary() Vertex {
 }
 
 func (vset *VertexSet) PopArbitrary() Vertex {
-	v := vset.PickArbitrary()
-	vset.Remove(v)
-	return v
+	for v, _ := range *vset {
+		vset.Remove(v)
+		return v
+	}
+	panic("attempt to pop from empty set")
 }
