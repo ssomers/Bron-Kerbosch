@@ -10,15 +10,14 @@ where
     VertexSet: VertexSetLike<VertexSet>,
 {
     let candidates = connected_nodes(graph);
-    let num_candidates = candidates.len();
-    if num_candidates > 0 {
+    if !candidates.is_empty() {
         visit(
             graph,
             reporter,
             PivotChoice::Random,
             PivotChoice::Random,
             candidates,
-            VertexSet::with_capacity(num_candidates),
+            VertexSet::new(),
             Pile::new(),
         );
     }

@@ -26,8 +26,11 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 struct Opt {
-    #[structopt(short = "f", long = "focus")]
-    focus: Option<usize>,
+    #[structopt(long = "ver")]
+    ver: Option<usize>,
+
+    #[structopt(long = "set")]
+    set: Option<usize>,
 
     #[structopt(name = "order", default_value = "")]
     order: String,
@@ -90,7 +93,7 @@ fn bron_kerbosch_timed<VertexSet>(
 where
     VertexSet: VertexSetLike<VertexSet> + Send,
 {
-    let mut times = [SampleStatistics::new(); NUM_FUNCS];
+    let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
     for sample in 0..samples {
         for func_index in 0..NUM_FUNCS {
@@ -147,17 +150,22 @@ where
 {
     const SEED: [u8; 32] = [68u8; 32];
 
-    let mut rng = ChaChaRng::from_seed(SEED);
-    let graph: SlimUndirectedGraph<VertexSet> =
-        generate_random_graph(&mut rng, set_kind, Order::Of(order), Size::Of(size));
-    let stats = bron_kerbosch_timed(&graph, samples, excluded_funcs);
-    for func_index in 0..NUM_FUNCS {
-        let name = FUNC_NAMES[func_index];
-        let mean = stats[func_index].mean();
-        let dev = stats[func_index].deviation();
-        println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
+    if excluded_funcs.len() < NUM_FUNCS {
+        let mut rng = ChaChaRng::from_seed(SEED);
+        let graph: SlimUndirectedGraph<VertexSet> =
+            generate_random_graph(&mut rng, set_kind, Order::Of(order), Size::Of(size));
+        let stats = bron_kerbosch_timed(&graph, samples, excluded_funcs);
+        for func_index in 0..NUM_FUNCS {
+            let name = FUNC_NAMES[func_index];
+            let mean = stats[func_index].mean();
+            let dev = stats[func_index].deviation();
+            println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
+        }
+        stats
+    } else {
+        let stats: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
+        stats
     }
-    stats
 }
 
 fn bk(
@@ -171,11 +179,11 @@ fn bk(
     const LANGUAGE: &str = "rust";
 
     let published = sizes.len() > 1;
+    let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
+    let temppath = Path::new("tmp").with_extension("csv");
     {
         let mut writer: Option<csv::Writer<File>> = if published {
-            let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
-            let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
-            let file = File::create(path)?;
+            let file = File::create(&temppath)?;
             let mut wtr = csv::Writer::from_writer(file);
             wtr.write_record(
                 ["Size"]
@@ -215,14 +223,14 @@ fn bk(
                     [size]
                         .iter()
                         .map(|&i| i.to_string())
-                        .chain(stats1.iter().flat_map(|&s| {
+                        .chain(stats1.into_iter().flat_map(|s| {
                             vec![
                                 s.min().to_string(),
                                 s.mean().to_string(),
                                 s.max().to_string(),
                             ]
                         }))
-                        .chain(stats2.iter().flat_map(|&s| {
+                        .chain(stats2.into_iter().flat_map(|s| {
                             vec![
                                 s.min().to_string(),
                                 s.mean().to_string(),
@@ -235,6 +243,8 @@ fn bk(
     }
 
     if published {
+        let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
+        std::fs::rename(temppath, path)?;
         let publish = Path::new("..")
             .join(Path::new("python3"))
             .join(Path::new("publish.py"));
@@ -250,7 +260,7 @@ fn bk(
 
 fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
-    if opt.order.is_empty() {
+    if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         let sizes_100 = (2_000..=3_000).step_by(50); // max 4_950
         let sizes_10k = (1_000..10_000)
@@ -271,27 +281,30 @@ fn main() -> Result<(), std::io::Error> {
             vec![7],
             vec![0, 1, 7],
         )?;
-    } else if !opt.sizes.is_empty() {
+    } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
         let order = parse_positive_int(&opt.order);
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
-        let mut excluded_funcs = vec![];
-        if let Some(f) = opt.focus {
-            for i in 0..NUM_FUNCS {
-                if i != f {
-                    excluded_funcs.push(i);
-                }
+        let mut excluded_funcs_btree = vec![];
+        let mut excluded_funcs_hash = vec![];
+        for i in 0..NUM_FUNCS {
+            let out_of_focus = opt.ver.filter(|&f| f != i).is_some();
+            if out_of_focus || opt.set.filter(|&k| k != 0).is_some() {
+                excluded_funcs_btree.push(i);
             }
-        };
+            if out_of_focus || opt.set.filter(|&k| k != 1).is_some() {
+                excluded_funcs_hash.push(i);
+            }
+        }
         bk(
             &opt.order,
             order,
             sizes.collect(),
             1,
-            excluded_funcs.clone(),
-            excluded_funcs,
+            excluded_funcs_btree,
+            excluded_funcs_hash,
         )?;
     } else {
-        eprintln!("Specify size(s) too")
+        eprintln!("Specify order and size(s)")
     }
     Ok(())
 }

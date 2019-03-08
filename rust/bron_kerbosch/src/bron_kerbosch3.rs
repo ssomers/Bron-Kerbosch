@@ -30,15 +30,16 @@ where
     }
 }
 
-fn degeneracy_order<VertexSet>(
-    graph: &UndirectedGraph<VertexSet>,
-    nodes: &VertexSet,
-) -> Vec<Vertex>
+fn degeneracy_order<VertexSet>(graph: &UndirectedGraph<VertexSet>, nodes: &VertexSet) -> Vec<Vertex>
 where
     VertexSet: VertexSetLike<VertexSet>,
 {
     // FIXME: can improve it to linear time
-    let mut degrees: HashMap<Vertex, u32> = nodes.map(|v| graph.degree(v));
+    let mut degrees: HashMap<Vertex, u32> = HashMap::new();
+    nodes.for_each(|v| {
+        let previous = degrees.insert(v, graph.degree(v));
+        debug_assert!(previous.is_none());
+    });
     let mut ordered: Vec<Vertex> = Vec::with_capacity(nodes.len());
 
     while !degrees.is_empty() {

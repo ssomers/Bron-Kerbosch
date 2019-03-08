@@ -3,12 +3,13 @@ use util::btree_intersect;
 extern crate rand;
 use self::rand::prelude::IteratorRandom;
 use self::rand::Rng;
-use std::collections::{BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeSet, HashSet};
 use std::iter::FromIterator;
 
 pub type Vertex = u32;
 
 pub trait VertexSetLike<VertexSet>: FromIterator<Vertex> {
+    fn new() -> VertexSet;
     fn with_capacity(capacity: usize) -> VertexSet;
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
@@ -22,29 +23,28 @@ pub trait VertexSetLike<VertexSet>: FromIterator<Vertex> {
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: &Vertex);
-    fn choose_arbitrary(&self) -> Option<&Vertex>;
     fn pop_arbitrary(&mut self) -> Option<Vertex>;
+    fn choose_arbitrary(&self) -> Option<&Vertex>;
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex>;
     fn clear(&mut self);
 
     fn all<F>(&self, f: F) -> bool
     where
-        F: FnMut(&Vertex) -> bool;
+        F: Fn(&Vertex) -> bool;
 
     fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a VertexSet, f: F) -> Option<&'a Vertex>
     where
-        F: FnMut(&&Vertex) -> usize;
+        F: Fn(&&Vertex) -> usize;
 
     fn for_each<F>(&self, f: F)
     where
         F: FnMut(Vertex);
-
-    fn map<F>(&self, f: F) -> HashMap<Vertex, u32>
-    where
-        F: Fn(Vertex) -> u32;
 }
 
 impl VertexSetLike<BTreeSet<Vertex>> for BTreeSet<Vertex> {
+    fn new() -> BTreeSet<Vertex> {
+        BTreeSet::new()
+    }
     fn with_capacity(_capacity: usize) -> BTreeSet<Vertex> {
         BTreeSet::new()
     }
@@ -83,14 +83,14 @@ impl VertexSetLike<BTreeSet<Vertex>> for BTreeSet<Vertex> {
     fn remove(&mut self, v: &Vertex) {
         self.remove(v);
     }
-    fn choose_arbitrary(&self) -> Option<&Vertex> {
-        self.iter().next()
-    }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         match self.iter().next().cloned() {
             None => None,
             Some(elt) => self.take(&elt),
         }
+    }
+    fn choose_arbitrary(&self) -> Option<&Vertex> {
+        self.iter().next()
     }
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
@@ -125,16 +125,12 @@ impl VertexSetLike<BTreeSet<Vertex>> for BTreeSet<Vertex> {
             f(v);
         }
     }
-
-    fn map<F>(&self, f: F) -> HashMap<Vertex, u32>
-    where
-        F: Fn(Vertex) -> u32,
-    {
-        self.iter().map(|&v| (v, f(v))).collect()
-    }
 }
 
 impl VertexSetLike<HashSet<Vertex>> for HashSet<Vertex> {
+    fn new() -> HashSet<Vertex> {
+        HashSet::new()
+    }
     fn with_capacity(capacity: usize) -> HashSet<Vertex> {
         HashSet::with_capacity(capacity)
     }
@@ -175,14 +171,14 @@ impl VertexSetLike<HashSet<Vertex>> for HashSet<Vertex> {
     fn remove(&mut self, v: &Vertex) {
         self.remove(v);
     }
-    fn choose_arbitrary(&self) -> Option<&Vertex> {
-        self.iter().next()
-    }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         match self.iter().next().cloned() {
             None => None,
             Some(elt) => self.take(&elt),
         }
+    }
+    fn choose_arbitrary(&self) -> Option<&Vertex> {
+        self.iter().next()
     }
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
@@ -216,13 +212,6 @@ impl VertexSetLike<HashSet<Vertex>> for HashSet<Vertex> {
         for &v in self {
             f(v);
         }
-    }
-
-    fn map<F>(&self, f: F) -> HashMap<Vertex, u32>
-    where
-        F: Fn(Vertex) -> u32,
-    {
-        self.iter().map(|&v| (v, f(v))).collect()
     }
 }
 

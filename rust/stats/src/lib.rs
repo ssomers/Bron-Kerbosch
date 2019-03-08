@@ -1,7 +1,7 @@
 extern crate num_traits;
-use num_traits::{ToPrimitive, Zero};
+use num_traits::ToPrimitive;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Default)]
 pub struct SampleStatistics<T> {
     max: T,
     min: T,
@@ -17,18 +17,8 @@ pub struct StatisticalTypeError<T> {
 
 impl<T> SampleStatistics<T>
 where
-    T: Clone + PartialOrd + ToPrimitive + Zero,
+    T: Clone + PartialOrd + ToPrimitive,
 {
-    pub fn new() -> Self {
-        SampleStatistics {
-            samples: 0,
-            sum: 0.0,
-            sum_of_squares: 0.0,
-            min: Zero::zero(),
-            max: Zero::zero(),
-        }
-    }
-
     pub fn put(&mut self, v: T) -> Result<(), StatisticalTypeError<T>> {
         if let Some(vf) = v.to_f64() {
             if self.samples == 0 {
@@ -83,7 +73,7 @@ mod tests {
 
     #[test]
     fn stats_0_i32() {
-        let s: SampleStatistics<i32> = SampleStatistics::new();
+        let s: SampleStatistics<i32> = Default::default();
         assert!(s.mean().is_nan());
         assert!(s.variance().is_nan());
         assert!(s.deviation().is_nan());
@@ -91,7 +81,7 @@ mod tests {
 
     #[test]
     fn stats_1_i32() {
-        let mut s: SampleStatistics<i32> = SampleStatistics::new();
+        let mut s: SampleStatistics<i32> = Default::default();
         s.put(-1).unwrap();
         assert_eq!(s.mean(), -1.0);
         assert!(s.variance().is_nan());
@@ -100,7 +90,7 @@ mod tests {
 
     #[test]
     fn stats_2_i32() {
-        let mut s: SampleStatistics<i32> = SampleStatistics::new();
+        let mut s: SampleStatistics<i32> = Default::default();
         s.put(-1).unwrap();
         s.put(1).unwrap();
         assert_eq!(s.mean(), 0.0);
@@ -110,7 +100,7 @@ mod tests {
 
     #[test]
     fn stats_3_i32() {
-        let mut s: SampleStatistics<i32> = SampleStatistics::new();
+        let mut s: SampleStatistics<i32> = Default::default();
         s.put(89).unwrap();
         s.put(90).unwrap();
         s.put(91).unwrap();
@@ -121,7 +111,7 @@ mod tests {
 
     #[test]
     fn stats_9_u32() {
-        let mut s: SampleStatistics<u32> = SampleStatistics::new();
+        let mut s: SampleStatistics<u32> = Default::default();
         s.put(2).unwrap();
         s.put(4).unwrap();
         s.put(4).unwrap();
@@ -138,7 +128,7 @@ mod tests {
 
     #[test]
     fn stats_2_f64() {
-        let mut s: SampleStatistics<f64> = SampleStatistics::new();
+        let mut s: SampleStatistics<f64> = Default::default();
         s.put(1.0).unwrap();
         s.put(2.0).unwrap();
         assert_eq!(s.mean(), 1.5);

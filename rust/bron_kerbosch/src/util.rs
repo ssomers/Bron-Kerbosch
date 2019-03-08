@@ -65,6 +65,7 @@ fn are_proportionate_for_intersection(len1: usize, len2: usize) -> bool {
     (large >> 4) <= small
 }
 
+// Temporary optimization awaiting https://github.com/rust-lang/rust/pull/58577
 pub fn btree_intersect<'a, T>(
     selv: &'a BTreeSet<T>,
     other: &'a BTreeSet<T>,
