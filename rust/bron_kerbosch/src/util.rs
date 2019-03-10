@@ -121,10 +121,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    extern crate rand;
-    extern crate test;
-    use self::rand::{thread_rng, Rng};
-    use self::test::{black_box, Bencher};
 
     #[test]
     fn test_sets_empty_small() {
@@ -162,6 +158,12 @@ mod tests {
             vec![5, 10]
         );
     }
+
+    /*
+    extern crate rand;
+    extern crate test;
+    use self::rand::{thread_rng, Rng};
+    use self::test::{black_box, Bencher};
 
     fn random(n1: usize, n2: usize) -> [BTreeSet<usize>; 2] {
         let mut rng = thread_rng();
@@ -326,4 +328,5 @@ mod tests {
     intersection_bench! {intersect_stagger_diff6_search,    stagger(100, 1 << 6), intersection_search}
     intersection_bench! {intersect_stagger_diff6_spring,    stagger(100, 1 << 6), intersection_spring}
     intersection_bench! {intersect_stagger_diff6_stitch,    stagger(100, 1 << 6), intersection_stitch}
+    */
     }
