@@ -1,3 +1,4 @@
+#![feature(test)]
 mod bron_kerbosch1;
 mod bron_kerbosch1o;
 mod bron_kerbosch2;
