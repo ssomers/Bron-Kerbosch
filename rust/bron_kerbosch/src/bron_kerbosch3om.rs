@@ -31,8 +31,7 @@ where
     const NUM_THREADS: usize = 3;
     crossbeam::thread::scope(|scope| {
         let (reporter_tx, reporter_rx) = mpsc::channel();
-        let mut job_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> =
-            Vec::with_capacity(NUM_THREADS);
+        let mut job_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> = Vec::with_capacity(NUM_THREADS);
         for _ in 0..NUM_THREADS {
             let (job_tx, thread_job_rx) = mpsc::channel();
             job_txs.push(job_tx);
