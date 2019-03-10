@@ -121,7 +121,7 @@ where
                     }
                     Some(first_result) => {
                         if first_result != current {
-                            println!(
+                            eprintln!(
                                 "  {:8}: expected {} cliques, obtained {} different cliques",
                                 FUNC_NAMES[func_index],
                                 first_result.len(),
@@ -159,7 +159,9 @@ where
             let name = FUNC_NAMES[func_index];
             let mean = stats[func_index].mean();
             let dev = stats[func_index].deviation();
-            println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
+            if !mean.is_nan() {
+                println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
+            }
         }
         stats
     } else {
