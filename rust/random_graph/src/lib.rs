@@ -14,7 +14,7 @@ pub enum Size {
 
 pub fn new_undirected<VertexSet, G>(rng: &mut impl Rng, order: Order, size: Size) -> G
 where
-    VertexSet: VertexSetLike<VertexSet> + Clone,
+    VertexSet: VertexSetLike + Clone,
     G: NewableUndirectedGraph<VertexSet>,
 {
     let Order::Of(order) = order;

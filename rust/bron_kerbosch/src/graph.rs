@@ -8,18 +8,18 @@ use std::iter::FromIterator;
 
 pub type Vertex = u32;
 
-pub trait VertexSetLike<VertexSet>: FromIterator<Vertex> {
-    fn new() -> VertexSet;
-    fn with_capacity(capacity: usize) -> VertexSet;
+pub trait VertexSetLike: FromIterator<Vertex> {
+    fn new() -> Self;
+    fn with_capacity(capacity: usize) -> Self;
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
     fn contains(&self, v: &Vertex) -> bool;
-    fn difference(&self, other: &VertexSet) -> Vec<Vertex>;
+    fn difference(&self, other: &Self) -> Vec<Vertex>;
     fn has_same_elements(&self, vec: &Vec<Vertex>) -> bool;
-    fn is_disjoint(&self, other: &VertexSet) -> bool;
-    fn intersection_count(&self, other: &VertexSet) -> usize;
-    fn intersection(&self, other: &VertexSet) -> VertexSet;
-    fn intervection(&self, other: &VertexSet) -> Vec<Vertex>;
+    fn is_disjoint(&self, other: &Self) -> bool;
+    fn intersection_count(&self, other: &Self) -> usize;
+    fn intersection(&self, other: &Self) -> Self;
+    fn intervection(&self, other: &Self) -> Vec<Vertex>;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: &Vertex);
@@ -32,7 +32,7 @@ pub trait VertexSetLike<VertexSet>: FromIterator<Vertex> {
     where
         F: Fn(&Vertex) -> bool;
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a VertexSet, f: F) -> Option<&'a Vertex>
+    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
     where
         F: Fn(&&Vertex) -> usize;
 
@@ -41,7 +41,7 @@ pub trait VertexSetLike<VertexSet>: FromIterator<Vertex> {
         F: FnMut(Vertex);
 }
 
-impl VertexSetLike<BTreeSet<Vertex>> for BTreeSet<Vertex> {
+impl VertexSetLike for BTreeSet<Vertex> {
     fn new() -> BTreeSet<Vertex> {
         BTreeSet::new()
     }
@@ -127,7 +127,7 @@ impl VertexSetLike<BTreeSet<Vertex>> for BTreeSet<Vertex> {
     }
 }
 
-impl VertexSetLike<HashSet<Vertex>> for HashSet<Vertex> {
+impl VertexSetLike for HashSet<Vertex> {
     fn new() -> HashSet<Vertex> {
         HashSet::new()
     }
@@ -233,14 +233,14 @@ pub type Adjacencies<VertexSet> = Vec<VertexSet>;
 
 pub fn new_adjacencies<VertexSet>(order: u32) -> Adjacencies<VertexSet>
 where
-    VertexSet: VertexSetLike<VertexSet> + Clone,
+    VertexSet: VertexSetLike + Clone,
 {
     std::vec::from_elem(VertexSet::with_capacity(0), order as usize)
 }
 
 pub fn assert_adjacencies<VertexSet>(adjacencies: &Adjacencies<VertexSet>) -> bool
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     for (i, adjacent_to_v) in adjacencies.iter().enumerate() {
         let v = i as Vertex;

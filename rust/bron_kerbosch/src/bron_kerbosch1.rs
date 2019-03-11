@@ -5,7 +5,7 @@ use reporter::{Clique, Reporter};
 
 pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     let candidates = connected_nodes(graph);
     let num_candidates = candidates.len();
@@ -27,7 +27,7 @@ fn visit<VertexSet>(
     mut excluded: VertexSet,
     clique: Clique,
 ) where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

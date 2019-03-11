@@ -70,7 +70,7 @@ fn generate_random_graph<VertexSet, G>(
     size: Size,
 ) -> G
 where
-    VertexSet: VertexSetLike<VertexSet> + Clone,
+    VertexSet: VertexSetLike + Clone,
     G: NewableUndirectedGraph<VertexSet>,
 {
     let Order::Of(order) = order;
@@ -91,7 +91,7 @@ fn bron_kerbosch_timed<VertexSet>(
     excluded_funcs: &Vec<usize>,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
-    VertexSet: VertexSetLike<VertexSet> + Send,
+    VertexSet: VertexSetLike + Send,
 {
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
@@ -146,7 +146,7 @@ fn bk_core<VertexSet>(
     set_kind: &str,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
-    VertexSet: VertexSetLike<VertexSet> + Clone + Sync + Send,
+    VertexSet: VertexSetLike + Clone + Sync + Send,
 {
     const SEED: [u8; 32] = [68u8; 32];
 

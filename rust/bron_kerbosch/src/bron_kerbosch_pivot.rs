@@ -23,7 +23,7 @@ pub fn visit<VertexSet>(
     mut excluded: VertexSet,
     clique: Clique,
 ) where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
@@ -65,7 +65,7 @@ fn choose<'a, VertexSet>(
     graph: &UndirectedGraph<VertexSet>,
 ) -> Option<&'a Vertex>
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     match pivot_choice {
         PivotChoice::Arbitrary => candidates.choose_arbitrary(),

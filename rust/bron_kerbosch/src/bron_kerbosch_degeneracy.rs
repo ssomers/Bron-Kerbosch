@@ -70,7 +70,7 @@ impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
 
 impl<'a, VertexSet> Iterator for DegeneracyOrderIter<'a, VertexSet>
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
@@ -101,7 +101,7 @@ pub fn degeneracy_order_smart<'a, VertexSet>(
     candidates: &VertexSet,
 ) -> DegeneracyOrderIter<'a, VertexSet>
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     let order = graph.order();
     let no_priority = order;

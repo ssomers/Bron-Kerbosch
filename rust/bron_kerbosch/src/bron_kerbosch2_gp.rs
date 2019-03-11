@@ -8,7 +8,7 @@ use reporter::Reporter;
 
 pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     let candidates = connected_nodes(graph);
     if !candidates.is_empty() {

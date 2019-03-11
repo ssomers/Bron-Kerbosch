@@ -26,7 +26,7 @@ struct VisitJob<'a, VertexSet> {
 
 pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
 where
-    VertexSet: VertexSetLike<VertexSet> + Send,
+    VertexSet: VertexSetLike + Send,
 {
     const NUM_THREADS: usize = 3;
     crossbeam::thread::scope(|scope| {

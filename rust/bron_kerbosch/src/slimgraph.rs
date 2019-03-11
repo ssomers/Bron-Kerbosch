@@ -12,7 +12,7 @@ where
 
 impl<VertexSet> UndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
 where
-    VertexSet: VertexSetLike<VertexSet> + Sync,
+    VertexSet: VertexSetLike + Sync,
 {
     fn order(&self) -> u32 {
         self.adjacencies.len() as u32
@@ -35,7 +35,7 @@ where
 
 impl<VertexSet> NewableUndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
 where
-    VertexSet: VertexSetLike<VertexSet> + Sync,
+    VertexSet: VertexSetLike + Sync,
 {
     fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
         debug_assert!(assert_adjacencies(&adjacencies));

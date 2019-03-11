@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     let mut candidates = connected_nodes(graph);
     let mut excluded = VertexSet::with_capacity(candidates.len());
@@ -32,7 +32,7 @@ where
 
 fn degeneracy_order<VertexSet>(graph: &UndirectedGraph<VertexSet>, nodes: &VertexSet) -> Vec<Vertex>
 where
-    VertexSet: VertexSetLike<VertexSet>,
+    VertexSet: VertexSetLike,
 {
     // FIXME: can improve it to linear time
     let mut degrees: HashMap<Vertex, u32> = HashMap::new();

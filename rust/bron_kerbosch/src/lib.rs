@@ -31,7 +31,7 @@ pub fn explore<VertexSet>(
     graph: &UndirectedGraph<VertexSet>,
     reporter: &mut Reporter,
 ) where
-    VertexSet: VertexSetLike<VertexSet> + Send,
+    VertexSet: VertexSetLike + Send,
 {
     match func_index {
         0 => bron_kerbosch1::explore(graph, reporter),
@@ -59,7 +59,7 @@ pub fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
 
 pub fn bron_kerbosch<VertexSet>(graph: &UndirectedGraph<VertexSet>) -> OrderedCliques
 where
-    VertexSet: VertexSetLike<VertexSet> + Send,
+    VertexSet: VertexSetLike + Send,
 {
     let mut first: Option<OrderedCliques> = None;
     for func_index in 0..NUM_FUNCS {
@@ -86,7 +86,7 @@ mod tests {
 
     fn bk_core<VertexSet>(adjacencies: &Vec<Vec<Vertex>>) -> OrderedCliques
     where
-        VertexSet: VertexSetLike<VertexSet> + Send + Sync,
+        VertexSet: VertexSetLike + Send + Sync,
     {
         let adjacencies: Adjacencies<VertexSet> = adjacencies
             .iter()
