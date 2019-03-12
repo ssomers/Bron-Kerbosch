@@ -59,8 +59,7 @@ where
                 debug_assert!(adjacency_complements[x as usize].is_empty());
                 let mut s: VertexSet = unsaturated_vertices.iter().cloned().collect();
                 s.remove(&x);
-                let complement = s.difference(&adjacency_sets[x as usize]);
-                adjacency_complements[x as usize] = complement.into_iter().collect();
+                adjacency_complements[x as usize] = s.difference(&adjacency_sets[x as usize]);
             } else if neighbours > order / 2 {
                 adjacency_complements[x as usize].remove(&y);
             }

@@ -11,6 +11,11 @@ where
     VertexSet: VertexSetLike,
 {
     let mut candidates = connected_nodes(graph);
+    debug_assert_eq!(candidates.len(), degeneracy_order(graph, &candidates).len());
+    debug_assert_eq!(
+        candidates,
+        degeneracy_order(graph, &candidates).into_iter().collect()
+    );
     let mut excluded = VertexSet::with_capacity(candidates.len());
     let ordered = degeneracy_order(graph, &candidates);
     for v in ordered {
@@ -52,6 +57,7 @@ where
             }
         });
     }
-    debug_assert!(nodes.has_same_elements(&ordered));
+    debug_assert_eq!(nodes.len(), ordered.len());
+    debug_assert_eq!(*nodes, ordered.iter().cloned().collect());
     ordered
 }

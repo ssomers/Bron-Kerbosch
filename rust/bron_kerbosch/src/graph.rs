@@ -4,22 +4,25 @@ extern crate rand;
 use self::rand::prelude::IteratorRandom;
 use self::rand::Rng;
 use std::collections::{BTreeSet, HashSet};
+use std::fmt::Debug;
 use std::iter::FromIterator;
 
 pub type Vertex = u32;
 
-pub trait VertexSetLike: FromIterator<Vertex> {
+pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     fn new() -> Self;
     fn with_capacity(capacity: usize) -> Self;
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
     fn contains(&self, v: &Vertex) -> bool;
-    fn difference(&self, other: &Self) -> Vec<Vertex>;
-    fn has_same_elements(&self, vec: &Vec<Vertex>) -> bool;
+    fn difference<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>;
     fn is_disjoint(&self, other: &Self) -> bool;
-    fn intersection_count(&self, other: &Self) -> usize;
-    fn intersection(&self, other: &Self) -> Self;
-    fn intervection(&self, other: &Self) -> Vec<Vertex>;
+    fn intersection_size(&self, other: &Self) -> usize;
+    fn intersection<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: &Vertex);
@@ -57,23 +60,22 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn contains(&self, v: &Vertex) -> bool {
         self.contains(v)
     }
-    fn difference(&self, other: &BTreeSet<Vertex>) -> Vec<Vertex> {
+    fn difference<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>,
+    {
         self.difference(other).cloned().collect()
     }
-    fn has_same_elements(&self, vec: &Vec<Vertex>) -> bool {
-        let other: BTreeSet<Vertex> = vec.iter().cloned().collect();
-        *self == other
-    }
-    fn is_disjoint(&self, other: &BTreeSet<Vertex>) -> bool {
+    fn is_disjoint(&self, other: &Self) -> bool {
         btree_intersect(self, other).next().is_none()
     }
-    fn intersection_count(&self, other: &BTreeSet<Vertex>) -> usize {
+    fn intersection_size(&self, other: &Self) -> usize {
         btree_intersect(self, other).count()
     }
-    fn intersection(&self, other: &BTreeSet<Vertex>) -> BTreeSet<Vertex> {
-        btree_intersect(self, other).cloned().collect()
-    }
-    fn intervection(&self, other: &BTreeSet<Vertex>) -> Vec<Vertex> {
+    fn intersection<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>,
+    {
         btree_intersect(self, other).cloned().collect()
     }
     fn reserve(&mut self, _additional: usize) {}
@@ -84,10 +86,8 @@ impl VertexSetLike for BTreeSet<Vertex> {
         self.remove(v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        match self.iter().next().cloned() {
-            None => None,
-            Some(elt) => self.take(&elt),
-        }
+        let elt = self.iter().next().cloned()?;
+        self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
@@ -106,11 +106,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(
-        &'a self,
-        excluded: &'a BTreeSet<Vertex>,
-        f: F,
-    ) -> Option<&'a Vertex>
+    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {
@@ -128,10 +124,10 @@ impl VertexSetLike for BTreeSet<Vertex> {
 }
 
 impl VertexSetLike for HashSet<Vertex> {
-    fn new() -> HashSet<Vertex> {
+    fn new() -> Self {
         HashSet::new()
     }
-    fn with_capacity(capacity: usize) -> HashSet<Vertex> {
+    fn with_capacity(capacity: usize) -> Self {
         HashSet::with_capacity(capacity)
     }
     fn is_empty(&self) -> bool {
@@ -143,23 +139,22 @@ impl VertexSetLike for HashSet<Vertex> {
     fn contains(&self, v: &Vertex) -> bool {
         self.contains(v)
     }
-    fn difference(&self, other: &HashSet<Vertex>) -> Vec<Vertex> {
+    fn difference<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>,
+    {
         self.difference(other).cloned().collect()
     }
-    fn has_same_elements(&self, vec: &Vec<Vertex>) -> bool {
-        let other: HashSet<Vertex> = vec.iter().cloned().collect();
-        *self == other
-    }
-    fn is_disjoint(&self, other: &HashSet<Vertex>) -> bool {
+    fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
     }
-    fn intersection_count(&self, other: &HashSet<Vertex>) -> usize {
+    fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
-    fn intersection(&self, other: &HashSet<Vertex>) -> HashSet<Vertex> {
-        self.intersection(other).cloned().collect()
-    }
-    fn intervection(&self, other: &HashSet<Vertex>) -> Vec<Vertex> {
+    fn intersection<C>(&self, other: &Self) -> C
+    where
+        C: FromIterator<Vertex>,
+    {
         self.intersection(other).cloned().collect()
     }
     fn reserve(&mut self, additional: usize) {
@@ -172,10 +167,8 @@ impl VertexSetLike for HashSet<Vertex> {
         self.remove(v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        match self.iter().next().cloned() {
-            None => None,
-            Some(elt) => self.take(&elt),
-        }
+        let elt = self.iter().next().cloned()?;
+        self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
@@ -194,11 +187,7 @@ impl VertexSetLike for HashSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(
-        &'a self,
-        excluded: &'a HashSet<Vertex>,
-        f: F,
-    ) -> Option<&'a Vertex>
+    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {

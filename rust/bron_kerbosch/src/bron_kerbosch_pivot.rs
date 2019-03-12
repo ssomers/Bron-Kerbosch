@@ -37,7 +37,7 @@ pub fn visit<VertexSet>(
     }
 
     let &pivot = choose(initial_pivot_selection, &candidates, &excluded, graph).unwrap();
-    let far_candidates = candidates.difference(graph.neighbours(pivot));
+    let far_candidates: Vec<Vertex> = candidates.difference(graph.neighbours(pivot));
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
         let neighbours = graph.neighbours(v);
@@ -77,7 +77,7 @@ where
             candidates.max_by_key_from_either(excluded, |&&v| graph.degree(v) as usize)
         }
         PivotChoice::MaxDegreeLocal => candidates.max_by_key_from_either(excluded, |&&v| {
-            graph.neighbours(v).intersection_count(&candidates)
+            graph.neighbours(v).intersection_size(&candidates)
         }),
     }
 }

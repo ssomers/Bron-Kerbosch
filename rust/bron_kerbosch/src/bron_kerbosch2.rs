@@ -41,8 +41,8 @@ pub fn visit<VertexSet>(
     }
 
     let &pivot = candidates.choose_arbitrary().unwrap();
-    let far_candidates = candidates.difference(graph.neighbours(pivot));
-    for v in far_candidates {
+    let far_candidates: VertexSet = candidates.difference(graph.neighbours(pivot));
+    far_candidates.for_each(|v| {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         let neighbouring_candidates = neighbours.intersection(&candidates);
@@ -56,5 +56,5 @@ pub fn visit<VertexSet>(
         );
         candidates.remove(&v);
         excluded.insert(v);
-    }
+    });
 }

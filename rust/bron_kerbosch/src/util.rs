@@ -31,12 +31,8 @@ where
                 let mut b_next = b_iter.next()?;
                 loop {
                     match Ord::cmp(a_next, b_next) {
-                        std::cmp::Ordering::Less => {
-                            a_next = a_iter.next()?;
-                        }
-                        std::cmp::Ordering::Greater => {
-                            b_next = b_iter.next()?;
-                        }
+                        std::cmp::Ordering::Less => a_next = a_iter.next()?,
+                        std::cmp::Ordering::Greater => b_next = b_iter.next()?,
                         std::cmp::Ordering::Equal => return Some(a_next),
                     }
                 }
@@ -106,6 +102,14 @@ where
         (other, selv)
     };
     if a_set.len() > b_set.len() / 16 {
+        /*
+        MyIntersection::Spring {
+            a_range: a_set.range(..),
+            b_range: b_set.range(..),
+            a_set,
+            b_set,
+        }
+        */
         MyIntersection::Stitch {
             a_iter: a_set.iter(),
             b_iter: b_set.iter(),
@@ -213,7 +217,7 @@ mod tests {
     }
 
     fn intersection_search<T>(sets: &[BTreeSet<T>; 2]) -> MyIntersection<T>
-        where T: std::cmp::Ord 
+        where T: std::cmp::Ord
     {
         MyIntersection::Search {
             a_iter: sets[0].iter(),
@@ -222,7 +226,7 @@ mod tests {
     }
 
     fn intersection_spring<T>(sets: &[BTreeSet<T>; 2]) -> MyIntersection<T>
-        where T: std::cmp::Ord 
+        where T: std::cmp::Ord
     {
         MyIntersection::Spring {
             a_range: sets[0].range(..),
@@ -233,7 +237,7 @@ mod tests {
     }
 
     fn intersection_stitch<T>(sets: &[BTreeSet<T>; 2]) -> MyIntersection<T>
-        where T: std::cmp::Ord 
+        where T: std::cmp::Ord
     {
         MyIntersection::Stitch {
             a_iter: sets[0].iter(),
@@ -329,4 +333,4 @@ mod tests {
     intersection_bench! {intersect_stagger_diff6_spring,    stagger(100, 1 << 6), intersection_spring}
     intersection_bench! {intersect_stagger_diff6_stitch,    stagger(100, 1 << 6), intersection_stitch}
     */
-    }
+}
