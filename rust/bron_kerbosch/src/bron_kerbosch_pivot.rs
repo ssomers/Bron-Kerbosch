@@ -53,7 +53,7 @@ pub fn visit<VertexSet>(
             further_pivot_selection.clone(),
             neighbouring_candidates,
             neighbouring_excluded,
-            clique.cons(v),
+            clique.place(v),
         );
     }
 }

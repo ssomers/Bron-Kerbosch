@@ -51,7 +51,7 @@ fn visit<VertexSet>(
             reporter,
             neighbouring_candidates,
             neighbouring_excluded,
-            clique.cons(v),
+            clique.place(v),
         );
         excluded.insert(v);
     }
