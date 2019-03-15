@@ -1,11 +1,10 @@
 [package]
-name = "test_bron_kerbosch"
+name = "compare_bron_kerbosch_on_random_graphs"
 version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
-[profile.dev]
-debug-assertions = false
-overflow-checks = false
+[profile.release]
+debug = true
 
 [workspace]
 
