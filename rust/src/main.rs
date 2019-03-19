@@ -1,6 +1,6 @@
 extern crate bron_kerbosch;
-extern crate random_graph;
 extern crate stats;
+mod random_graph;
 
 extern crate csv;
 extern crate rand;
