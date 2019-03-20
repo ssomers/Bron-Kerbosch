@@ -3,6 +3,10 @@ name = "bron_kerbosch"
 version = "0.1.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 
+[dev-dependencies]
+proptest = "0.9"
+rand_chacha = "0.1.0"
+
 [dependencies]
 crossbeam = "0.6"
 rand = "0.6"

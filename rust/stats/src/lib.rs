@@ -160,8 +160,8 @@ mod proptests {
         fn put_1_f64(x in proptest::num::f64::NORMAL) {
             let mut s: SampleStatistics<f64> = Default::default();
             s.put(x).unwrap();
-            assert!(s.mean() >= s.min() as f64);
-            assert!(s.mean() <= s.max() as f64);
+            assert!(s.mean() >= s.min());
+            assert!(s.mean() <= s.max());
         }
 
         #[test]

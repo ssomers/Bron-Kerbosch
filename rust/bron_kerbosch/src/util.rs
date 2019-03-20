@@ -88,7 +88,7 @@ where
     }
 }
 
-// Temporary optimization awaiting https://github.com/rust-lang/rust/pull/58577
+// Temporary optimization awaiting https://github.com/rust-lang/rust/pull/59186
 pub fn btree_intersect<'a, T>(
     selv: &'a BTreeSet<T>,
     other: &'a BTreeSet<T>,
@@ -333,4 +333,43 @@ mod tests {
     intersection_bench! {intersect_stagger_diff6_spring,    stagger(100, 1 << 6), intersection_spring}
     intersection_bench! {intersect_stagger_diff6_stitch,    stagger(100, 1 << 6), intersection_stitch}
     */
+}
+
+#[cfg(test)]
+mod proptests {
+    extern crate proptest;
+    extern crate rand;
+    extern crate rand_chacha;
+    use self::proptest::prelude::*;
+    use self::rand::Rng;
+    use self::rand::SeedableRng;
+    use self::rand_chacha::ChaChaRng;
+    use super::*;
+
+    fn random_set(size: usize, ovule: u8) -> BTreeSet<usize> {
+        let mut rng = ChaChaRng::from_seed([ovule; 32]);
+        let mut s = BTreeSet::<usize>::new();
+        while s.len() < size {
+            s.insert(rng.gen());
+        }
+        s
+    }
+
+    proptest! {
+        #[test]
+        fn intersection(len1 in 0..1000usize, len2 in 0..1000usize) {
+            let s1 = random_set(len1, 11u8);
+            let s2 = random_set(len2, 22u8);
+            let mut collected = BTreeSet::<usize>::new();
+            for elt in btree_intersect(&s1, &s2) {
+                assert!(collected.insert(*elt));
+            }
+            for elt in &s1 {
+                assert_eq!(collected.contains(elt), s2.contains(elt));
+            }
+            for elt in &s2 {
+                assert_eq!(collected.contains(elt), s1.contains(elt));
+            }
+        }
+    }
 }

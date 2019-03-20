@@ -1,3 +1,7 @@
+/// Cheap & simple immutable stack data structure, of which the layers
+/// somehow live long enough (e.g. they are on the runtime stack).
+/// The only supported change is to add, and the only supported query is to
+/// convert to a vector.
 pub struct Pile<'a, T> {
     layers: PileLayer<'a, T>,
 }
@@ -50,7 +54,7 @@ where
         }
     }
 
-    /// Place additional element on a pile
+    /// Create a pile on top of an existing pile
     pub fn place(&'a self, last: T) -> Self {
         Self {
             layers: PileLayer::Cons {
@@ -65,5 +69,24 @@ where
         let mut result: Vec<T> = Vec::with_capacity(self.layers.height());
         self.layers.push_to(&mut result);
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pile() {
+        let p0: Pile<i32> = Pile::new();
+        {
+            let p1 = p0.place(4);
+            {
+                let p2 = p1.place(2);
+                assert_eq!(p2.collect(), vec![4, 2]);
+            }
+            assert_eq!(p1.collect(), vec![4]);
+        }
+        assert_eq!(p0.collect(), vec![]);
     }
 }
