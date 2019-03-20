@@ -22,7 +22,7 @@ where
     pub fn put(&mut self, v: T) -> Result<(), StatisticalTypeError<T>> {
         if let Some(vf) = v.to_f64() {
             if self.samples == 0 {
-                self.min = v.clone();
+                self.min.clone_from(&v);
                 self.max = v;
             } else if self.min > v {
                 self.min = v;
