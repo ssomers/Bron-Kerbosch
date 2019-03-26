@@ -5,30 +5,41 @@ import os
 import sys
 from typing import List
 
-COLORS = {
-    "Ver1": "#000099",
-    "Ver1+": "#0000CC",
-    "Ver1++": "#0000FF",
-    "Ver2": "#CC6600",
-    "Ver2+": "#FF6600",
-    "Ver2_RP": "#FF9900",
-    "Ver2_GP": "#FF0099",
-    "Ver2_GPX": "#FF3333",
-    "Ver3": "#006600",
-    "Ver3+": "#00CC00",
-    "Ver3-": "#66CC66",
-    "Ver3+MT": "#66FF66",
-}
+
+def color(case_name: str) -> str:
+    func_name = case_name.split('@')[0]
+    return {
+        "Ver1": "#000099",
+        "Ver1+": "#0000CC",
+        "Ver1++": "#0000FF",
+        "Ver2": "#CC6600",
+        "Ver2+": "#FF6600",
+        "Ver2_RP": "#FF9900",
+        "Ver2_GP": "#FF0099",
+        "Ver2_GPX": "#FF3333",
+        "Ver3": "#006600",
+        "Ver3+": "#00CC00",
+        "Ver3-": "#66CC66",
+        "Ver3+MT": "#66FF66",
+    }[func_name]
 
 
-def publish(language: str, orderstr: str, func_names: List[str],
+def dash(case_name: str) -> str:
+    if case_name.endswith("@HashSet"):
+        return "dash"
+    if case_name.endswith("@FnvHashSet"):
+        return "dot"
+    return "solid"
+
+
+def publish(language: str, orderstr: str, case_names: List[str],
             sizes: List[int], stats_per_size: List[List[SampleStatistics]]):
-    num_funcs = len(func_names)
+    num_cases = len(case_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
     with open(path, 'w', newline='') as csvfile:
         w = csv.writer(csvfile)
-        w.writerow(["Size"] + [(name + " " + t) for name in func_names
+        w.writerow(["Size"] + [(name + " " + t) for name in case_names
                                for t in ["min", "mean", "max"]])
         for i, size in enumerate(sizes):
             stats = stats_per_size[i]
@@ -50,8 +61,8 @@ def publish_csv(language: str, orderstr: str):
     with open(path, newline='') as csvfile:
         reader = csv.reader(csvfile)
         head = next(reader)
-        num_funcs = (len(head) - 1) // 3
-        if len(head) != 1 + num_funcs * 3:
+        num_cases = (len(head) - 1) // 3
+        if len(head) != 1 + num_cases * 3:
             raise ImportError(f"Head: Found {len(head)} columns")
         if head[0] != "Size":
             raise ImportError("unexpected " + str(head[0]))
@@ -61,12 +72,12 @@ def publish_csv(language: str, orderstr: str):
             raise ImportError("unexpected " + str(head[2::3]))
         if not all(h.endswith(" max") for h in head[3::3]):
             raise ImportError("unexpected " + str(head[3::3]))
-        func_names = [h.split()[0] for h in head[2::3]]
+        case_names = [h.split()[0] for h in head[2::3]]
 
-        assert all(func_names[f].split('@')[0] in COLORS
-                   for f in range(num_funcs)), f"Unknown in {func_names}"
+        assert all(color(case_names[f])
+                   for f in range(num_cases)), f"Unknown in {case_names}"
         for i, row in enumerate(reader):
-            if len(row) != 1 + num_funcs * 3:
+            if len(row) != 1 + num_cases * 3:
                 raise ImportError(f"Row {i+2}: Found {len(row)} columns")
             size = int(row[0])
             sizes.append(size)
@@ -93,13 +104,13 @@ def publish_csv(language: str, orderstr: str):
                         mean_per_size[s][f] - min_per_size[s][f]
                         for s in range(len(sizes))
                     ],
-                    color=COLORS[func_names[f].split('@')[0]],
                 ),
-                line=dict(color=COLORS[func_names[f].split('@')[0]]),
-                marker=dict(color=COLORS[func_names[f].split('@')[0]]),
+                line=dict(
+                    color=color(case_names[f]), dash=dash(case_names[f])),
+                marker=dict(color=color(case_names[f])),
                 mode="lines+markers",
-                name=func_names[f],
-            ) for f in range(num_funcs) if any(
+                name=case_names[f],
+            ) for f in range(num_cases) if any(
                 not math.isnan(mean_per_size[s][f]) for s in range(len(sizes)))
         ]
         layout = dict(

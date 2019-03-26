@@ -3,6 +3,7 @@ extern crate stats;
 mod random_graph;
 
 extern crate csv;
+extern crate fnv;
 extern crate rand;
 extern crate rand_chacha;
 extern crate structopt;
@@ -14,6 +15,7 @@ use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNC
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
+use fnv::FnvHashSet;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaChaRng;
 use std::collections::{BTreeSet, HashSet};
@@ -177,6 +179,7 @@ fn bk(
     samples: u32,
     excluded_funcs_btree: Vec<usize>,
     excluded_funcs_hash: Vec<usize>,
+    excluded_funcs_fnvhash: Vec<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
 
@@ -204,6 +207,13 @@ fn bk(
                             format!("{}@HashSet mean", name),
                             format!("{}@HashSet max", name),
                         ]
+                    }))
+                    .chain(FUNC_NAMES.iter().flat_map(|name| {
+                        vec![
+                            format!("{}@FnvHashSet min", name),
+                            format!("{}@FnvHashSet mean", name),
+                            format!("{}@FnvHashSet max", name),
+                        ]
                     })),
             )?;
             Some(wtr)
@@ -220,6 +230,13 @@ fn bk(
             );
             let stats2 =
                 bk_core::<HashSet<Vertex>>(order, size, samples, &excluded_funcs_hash, "HashSet");
+            let stats3 = bk_core::<FnvHashSet<Vertex>>(
+                order,
+                size,
+                samples,
+                &excluded_funcs_fnvhash,
+                "FnvHashSet",
+            );
             if let Some(mut wtr) = writer.as_mut() {
                 wtr.write_record(
                     [size]
@@ -233,6 +250,13 @@ fn bk(
                             ]
                         }))
                         .chain(stats2.into_iter().flat_map(|s| {
+                            vec![
+                                s.min().to_string(),
+                                s.mean().to_string(),
+                                s.max().to_string(),
+                            ]
+                        }))
+                        .chain(stats3.into_iter().flat_map(|s| {
                             vec![
                                 s.min().to_string(),
                                 s.mean().to_string(),
@@ -271,9 +295,17 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_1m = (0..1_000_000)
             .step_by(250_000)
             .chain((1_000_000..=3_000_000).step_by(500_000));
-        bk("100", 100, sizes_100.collect(), 5, vec![], vec![])?;
+        bk("100", 100, sizes_100.collect(), 5, vec![], vec![], vec![])?;
         thread::sleep(Duration::from_secs(10));
-        bk("10k", 10_000, sizes_10k.collect(), 5, vec![], vec![])?;
+        bk(
+            "10k",
+            10_000,
+            sizes_10k.collect(),
+            5,
+            vec![],
+            vec![],
+            vec![],
+        )?;
         thread::sleep(Duration::from_secs(10));
         bk(
             "1M",
@@ -282,12 +314,14 @@ fn main() -> Result<(), std::io::Error> {
             3,
             vec![7],
             vec![0, 1, 7],
+            vec![0, 1, 7],
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
         let order = parse_positive_int(&opt.order);
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
         let mut excluded_funcs_btree = vec![];
         let mut excluded_funcs_hash = vec![];
+        let mut excluded_funcs_fnvhash = vec![];
         for i in 0..NUM_FUNCS {
             let out_of_focus = opt.ver.filter(|&f| f != i).is_some();
             if out_of_focus || opt.set.filter(|&k| k != 0).is_some() {
@@ -295,6 +329,9 @@ fn main() -> Result<(), std::io::Error> {
             }
             if out_of_focus || opt.set.filter(|&k| k != 1).is_some() {
                 excluded_funcs_hash.push(i);
+            }
+            if out_of_focus || opt.set.filter(|&k| k != 2).is_some() {
+                excluded_funcs_fnvhash.push(i);
             }
         }
         bk(
@@ -304,6 +341,7 @@ fn main() -> Result<(), std::io::Error> {
             1,
             excluded_funcs_btree,
             excluded_funcs_hash,
+            excluded_funcs_fnvhash,
         )?;
     } else {
         eprintln!("Specify order and size(s)")

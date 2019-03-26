@@ -1,4 +1,3 @@
-// #![feature(test)]
 mod bron_kerbosch1;
 mod bron_kerbosch1o;
 mod bron_kerbosch2;
@@ -82,6 +81,8 @@ mod tests {
     use reporter::Clique;
     use slimgraph::SlimUndirectedGraph;
 
+    extern crate fnv;
+    use self::fnv::FnvHashSet;
     use std::collections::HashSet;
 
     fn bk_core<VertexSet>(adjacencies: &Vec<Vec<Vertex>>) -> OrderedCliques
@@ -99,6 +100,10 @@ mod tests {
         let expected_cliques = order_cliques(expected_cliques);
         assert_eq!(bk_core::<BTreeSet<Vertex>>(&adjacencies), expected_cliques);
         assert_eq!(bk_core::<HashSet<Vertex>>(&adjacencies), expected_cliques);
+        assert_eq!(
+            bk_core::<FnvHashSet<Vertex>>(&adjacencies),
+            expected_cliques
+        );
     }
 
     #[test]
