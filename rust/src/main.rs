@@ -112,7 +112,7 @@ where
                     -99.9
                 }
             };
-            if secs >= 3.0 {
+            if samples > 1 && secs >= 3.0 {
                 println!("  {:8}: {:5.2}s", FUNC_NAMES[func_index], secs);
             }
             if sample < 2 {
