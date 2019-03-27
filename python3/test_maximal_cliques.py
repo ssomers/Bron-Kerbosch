@@ -232,7 +232,7 @@ def bk(orderstr: str, sizes: List[int], func_indices: List[int], samples: int):
         publish(
             language="python3",
             orderstr=orderstr,
-            func_names=FUNC_NAMES,
+            case_names=FUNC_NAMES,
             sizes=sizes,
             stats_per_size=stats_per_size)
 
