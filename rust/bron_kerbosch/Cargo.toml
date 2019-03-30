@@ -8,6 +8,6 @@ proptest = "0.9"
 rand_chacha = "0.1.0"
 
 [dependencies]
-crossbeam = "0.6"
+crossbeam = "0.7"
 fnv = "1.0.6"
 rand = "0.6"
