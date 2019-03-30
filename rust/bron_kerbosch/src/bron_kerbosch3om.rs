@@ -34,8 +34,10 @@ where
 {
     const NUM_VISITING_THREADS: usize = 3;
 
-    let (reporter_tx, reporter_rx) = mpsc::channel();
     crossbeam::thread::scope(|scope| {
+        let (start_tx, start_rx): (mpsc::Sender<StartJob>, mpsc::Receiver<StartJob>) =
+            mpsc::channel();
+        let (reporter_tx, reporter_rx) = mpsc::channel();
         let mut visit_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> =
             Vec::with_capacity(NUM_VISITING_THREADS);
         for _ in 0..NUM_VISITING_THREADS {
@@ -61,8 +63,6 @@ where
         }
         drop(reporter_tx);
 
-        let (start_tx, start_rx): (mpsc::Sender<StartJob>, mpsc::Receiver<StartJob>) =
-            mpsc::channel();
         scope.spawn(move |_| {
             let mut candidates = connected_nodes(graph);
             let mut excluded = VertexSet::with_capacity(candidates.len());
@@ -85,13 +85,14 @@ where
             }
         });
         scope.spawn(move |_| {
-            for vertex in degeneracy_order_smart(graph) {
-                start_tx.send(StartJob { vertex }).unwrap();
+            while let Ok(clique) = reporter_rx.recv() {
+                reporter.record(clique);
             }
         });
+
+        for vertex in degeneracy_order_smart(graph) {
+            start_tx.send(StartJob { vertex }).unwrap();
+        }
     })
     .unwrap();
-    while let Ok(clique) = reporter_rx.recv() {
-        reporter.record(clique);
-    }
 }

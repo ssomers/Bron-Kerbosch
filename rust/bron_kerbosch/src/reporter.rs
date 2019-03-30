@@ -4,7 +4,7 @@ use std::collections::BTreeSet;
 
 pub type Clique = Vec<Vertex>;
 
-pub trait Reporter {
+pub trait Reporter: Send {
     fn record(&mut self, clique: Clique);
 }
 
