@@ -18,10 +18,6 @@ impl Reporter for SendingReporter {
     }
 }
 
-struct StartJob {
-    vertex: Vertex,
-}
-
 struct VisitJob<'a, VertexSet> {
     candidates: VertexSet,
     excluded: VertexSet,
@@ -35,8 +31,7 @@ where
     const NUM_VISITING_THREADS: usize = 3;
 
     crossbeam::thread::scope(|scope| {
-        let (start_tx, start_rx): (mpsc::Sender<StartJob>, mpsc::Receiver<StartJob>) =
-            mpsc::channel();
+        let (start_tx, start_rx) = mpsc::channel();
         let (reporter_tx, reporter_rx) = mpsc::channel();
         let mut visit_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> =
             Vec::with_capacity(NUM_VISITING_THREADS);
@@ -66,8 +61,7 @@ where
         scope.spawn(move |_| {
             let mut candidates = connected_nodes(graph);
             let mut excluded = VertexSet::with_capacity(candidates.len());
-            while let Ok(job) = start_rx.recv() {
-                let v = job.vertex;
+            while let Ok(v) = start_rx.recv() {
                 let i = excluded.len() % NUM_VISITING_THREADS;
                 let neighbours = graph.neighbours(v);
                 debug_assert!(!neighbours.is_empty());
@@ -91,7 +85,7 @@ where
         });
 
         for vertex in degeneracy_order_smart(graph) {
-            start_tx.send(StartJob { vertex }).unwrap();
+            start_tx.send(vertex).unwrap();
         }
     })
     .unwrap();
