@@ -11,18 +11,13 @@ where
     VertexSet: VertexSetLike,
 {
     let mut candidates = connected_nodes(graph);
-    debug_assert_eq!(
-        candidates.len(),
-        degeneracy_order_smart(graph, &candidates).count()
-    );
+    debug_assert_eq!(candidates.len(), degeneracy_order_smart(graph).count());
     debug_assert_eq!(
         candidates,
-        degeneracy_order_smart(graph, &candidates)
-            .into_iter()
-            .collect()
+        degeneracy_order_smart(graph).into_iter().collect()
     );
     let mut excluded = VertexSet::with_capacity(candidates.len());
-    for v in degeneracy_order_smart(graph, &candidates) {
+    for v in degeneracy_order_smart(graph) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);

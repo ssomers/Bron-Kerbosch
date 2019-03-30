@@ -61,25 +61,13 @@ where
         }
         drop(reporter_tx);
 
-        let mut candidates = connected_nodes(graph);
-        debug_assert_eq!(
-            candidates.len(),
-            degeneracy_order_smart(graph, &candidates).count()
-        );
-        debug_assert_eq!(
-            candidates,
-            degeneracy_order_smart(graph, &candidates)
-                .into_iter()
-                .collect()
-        );
-        let order_iter = degeneracy_order_smart(graph, &candidates);
-
         let (start_tx, start_rx): (mpsc::Sender<StartJob>, mpsc::Receiver<StartJob>) =
             mpsc::channel();
         scope.spawn(move |_| {
+            let mut candidates = connected_nodes(graph);
             let mut excluded = VertexSet::with_capacity(candidates.len());
             while let Ok(job) = start_rx.recv() {
-                let v: Vertex = job.vertex;
+                let v = job.vertex;
                 let i = excluded.len() % NUM_VISITING_THREADS;
                 let neighbours = graph.neighbours(v);
                 debug_assert!(!neighbours.is_empty());
@@ -97,7 +85,7 @@ where
             }
         });
         scope.spawn(move |_| {
-            for vertex in order_iter {
+            for vertex in degeneracy_order_smart(graph) {
                 start_tx.send(StartJob { vertex }).unwrap();
             }
         });

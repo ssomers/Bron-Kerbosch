@@ -12,9 +12,9 @@ def bron_kerbosch3o(graph: UndirectedGraph, reporter: Reporter):
     reporter.inc_count()
     candidates = graph.connected_nodes()
     excluded: Set[Vertex] = set()
-    assert candidates == set(
-        degeneracy_order_smart(graph=graph, candidates=candidates))
-    for v in degeneracy_order_smart(graph=graph, candidates=candidates):
+    assert len(candidates) == len(list(degeneracy_order(graph=graph)))
+    assert candidates == set(degeneracy_order(graph=graph))
+    for v in degeneracy_order(graph=graph):
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
@@ -45,14 +45,16 @@ class PriorityQueue:
                 pass
 
 
-def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
+def degeneracy_order(graph: UndirectedGraph):
     priority_per_node = [-2] * graph.order
     max_degree = 0
-    for c in candidates:
+    num_candidates = 0
+    for c in range(graph.order):
         degree = graph.degree(c)
-        assert degree > 0  # only connected nodes are candidates
-        priority_per_node[c] = degree
-        max_degree = max(max_degree, degree)
+        if degree > 0:
+            priority_per_node[c] = degree
+            max_degree = max(max_degree, degree)
+            num_candidates += 1
     # Possible values of priority_per_node:
     #   -2: if unconnected (should never come up again)
     #   -1: when yielded
@@ -62,7 +64,7 @@ def degeneracy_order_smart(graph: UndirectedGraph, candidates: Set[Vertex]):
         if p > 0:
             q.put(priority=p, element=c)
 
-    for _ in range(len(candidates)):
+    for _ in range(num_candidates):
         i = q.pop()
         while priority_per_node[i] == -1:
             # was requeued with a more urgent priority and therefore already picked
