@@ -183,7 +183,7 @@ mod proptests {
             assert!(s.mean() >= s.min());
             assert!(s.mean() <= s.max());
             assert!(s.variance() >= 0.);
-            assert!(s.deviation() <= (s.max() - s.min()));
+            assert!(s.deviation() <= (s.max() - s.min()) * 1.25);
         }
 
         #[test]
