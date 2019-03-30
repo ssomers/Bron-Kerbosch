@@ -90,7 +90,7 @@ where
 fn bron_kerbosch_timed<VertexSet>(
     graph: &UndirectedGraph<VertexSet>,
     samples: u32,
-    excluded_funcs: &Vec<usize>,
+    func_indices: &Vec<usize>,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
     VertexSet: VertexSetLike + Send,
@@ -98,10 +98,7 @@ where
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
     for sample in 0..samples {
-        for func_index in 0..NUM_FUNCS {
-            if excluded_funcs.contains(&func_index) {
-                continue;
-            }
+        for &func_index in func_indices {
             let mut reporter = SimpleReporter::new();
             let sys_time = SystemTime::now();
             explore(func_index, graph, &mut reporter);
@@ -144,7 +141,7 @@ fn bk_core<VertexSet>(
     order: u32,
     size: u32,
     samples: u32,
-    excluded_funcs: &Vec<usize>,
+    func_indices: Vec<usize>,
     set_kind: &str,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
@@ -152,12 +149,12 @@ where
 {
     const SEED: [u8; 32] = [68u8; 32];
 
-    if excluded_funcs.len() < NUM_FUNCS {
+    if !func_indices.is_empty() {
         let mut rng = ChaChaRng::from_seed(SEED);
         let graph: SlimUndirectedGraph<VertexSet> =
             generate_random_graph(&mut rng, set_kind, Order::Of(order), Size::Of(size));
-        let stats = bron_kerbosch_timed(&graph, samples, excluded_funcs);
-        for func_index in 0..NUM_FUNCS {
+        let stats = bron_kerbosch_timed(&graph, samples, &func_indices);
+        for func_index in func_indices {
             let name = FUNC_NAMES[func_index];
             let mean = stats[func_index].mean();
             let dev = stats[func_index].deviation();
@@ -177,9 +174,7 @@ fn bk(
     order: u32,
     sizes: Vec<u32>,
     samples: u32,
-    excluded_funcs_btree: Vec<usize>,
-    excluded_funcs_hash: Vec<usize>,
-    excluded_funcs_fnvhash: Vec<usize>,
+    included_funcs: impl Fn(usize, u32) -> Vec<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
 
@@ -221,20 +216,25 @@ fn bk(
             None
         };
         for size in sizes {
-            let stats1 = bk_core::<BTreeSet<Vertex>>(
+            let stats0 = bk_core::<BTreeSet<Vertex>>(
                 order,
                 size,
                 samples,
-                &excluded_funcs_btree,
+                included_funcs(0, size),
                 "BTreeSet",
             );
-            let stats2 =
-                bk_core::<HashSet<Vertex>>(order, size, samples, &excluded_funcs_hash, "HashSet");
-            let stats3 = bk_core::<FnvHashSet<Vertex>>(
+            let stats1 = bk_core::<HashSet<Vertex>>(
                 order,
                 size,
                 samples,
-                &excluded_funcs_fnvhash,
+                included_funcs(1, size),
+                "HashSet",
+            );
+            let stats2 = bk_core::<FnvHashSet<Vertex>>(
+                order,
+                size,
+                samples,
+                included_funcs(2, size),
                 "FnvHashSet",
             );
             if let Some(mut wtr) = writer.as_mut() {
@@ -242,6 +242,13 @@ fn bk(
                     [size]
                         .iter()
                         .map(|&i| i.to_string())
+                        .chain(stats0.into_iter().flat_map(|s| {
+                            vec![
+                                s.min().to_string(),
+                                s.mean().to_string(),
+                                s.max().to_string(),
+                            ]
+                        }))
                         .chain(stats1.into_iter().flat_map(|s| {
                             vec![
                                 s.min().to_string(),
@@ -250,13 +257,6 @@ fn bk(
                             ]
                         }))
                         .chain(stats2.into_iter().flat_map(|s| {
-                            vec![
-                                s.min().to_string(),
-                                s.mean().to_string(),
-                                s.max().to_string(),
-                            ]
-                        }))
-                        .chain(stats3.into_iter().flat_map(|s| {
                             vec![
                                 s.min().to_string(),
                                 s.mean().to_string(),
@@ -292,57 +292,48 @@ fn main() -> Result<(), std::io::Error> {
         let sizes_10k = (1_000..10_000)
             .step_by(1_000)
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (0..1_000_000)
-            .step_by(250_000)
-            .chain((1_000_000..=3_000_000).step_by(500_000));
-        bk("100", 100, sizes_100.collect(), 5, vec![], vec![], vec![])?;
-        thread::sleep(Duration::from_secs(10));
-        bk(
-            "10k",
-            10_000,
-            sizes_10k.collect(),
-            5,
-            vec![],
-            vec![],
-            vec![],
-        )?;
-        thread::sleep(Duration::from_secs(10));
+        let sizes_1m = (0..25_000)
+            .step_by(2_500)
+            .chain((25_000..250_000).step_by(25_000))
+            .chain((250_000..1_000_000).step_by(250_000))
+            .chain((1_000_000..=5_000_000).step_by(1_000_000));
+        let all_funcs = |_kind: usize, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
+        bk("100", 100, sizes_100.collect(), 5, all_funcs)?;
+        thread::sleep(Duration::from_secs(7));
+        bk("10k", 10_000, sizes_10k.collect(), 5, all_funcs)?;
+        thread::sleep(Duration::from_secs(7));
         bk(
             "1M",
             1_000_000,
             sizes_1m.collect(),
             3,
-            vec![7],
-            vec![0, 1, 7],
-            vec![0, 1, 7],
+            |kind: usize, size: u32| -> Vec<usize> {
+                (0..NUM_FUNCS)
+                    .filter(|func_index| {
+                        // No need to keep testing the unimproved ones
+                        match func_index {
+                            9 => true,
+                            0 | 2 | 7 => false,
+                            1 => kind == 0 || size <= 25_000,
+                            _ => kind == 0 && size <= 500_000,
+                        }
+                    })
+                    .collect()
+            },
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
         let order = parse_positive_int(&opt.order);
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
-        let mut excluded_funcs_btree = vec![];
-        let mut excluded_funcs_hash = vec![];
-        let mut excluded_funcs_fnvhash = vec![];
-        for i in 0..NUM_FUNCS {
-            let out_of_focus = opt.ver.filter(|&f| f != i).is_some();
-            if out_of_focus || opt.set.filter(|&k| k != 0).is_some() {
-                excluded_funcs_btree.push(i);
+        let included_funcs = |kind: usize, _size: u32| -> Vec<usize> {
+            if opt.set.filter(|&k| k != kind).is_some() {
+                vec![]
+            } else if let Some(func_index) = opt.ver {
+                vec![func_index]
+            } else {
+                (0..NUM_FUNCS).collect()
             }
-            if out_of_focus || opt.set.filter(|&k| k != 1).is_some() {
-                excluded_funcs_hash.push(i);
-            }
-            if out_of_focus || opt.set.filter(|&k| k != 2).is_some() {
-                excluded_funcs_fnvhash.push(i);
-            }
-        }
-        bk(
-            &opt.order,
-            order,
-            sizes.collect(),
-            1,
-            excluded_funcs_btree,
-            excluded_funcs_hash,
-            excluded_funcs_fnvhash,
-        )?;
+        };
+        bk(&opt.order, order, sizes.collect(), 1, included_funcs)?;
     } else {
         eprintln!("Specify order and size(s)")
     }
