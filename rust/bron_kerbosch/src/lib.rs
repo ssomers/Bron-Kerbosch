@@ -11,6 +11,7 @@ mod bron_kerbosch3om;
 mod bron_kerbosch_degeneracy;
 mod bron_kerbosch_pivot;
 pub mod graph;
+pub mod mpmc;
 pub mod pile;
 pub mod reporter;
 pub mod slimgraph;

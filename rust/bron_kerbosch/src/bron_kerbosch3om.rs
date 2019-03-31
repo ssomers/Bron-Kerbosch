@@ -1,5 +1,6 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
 
+use super::mpmc;
 use bron_kerbosch_degeneracy::degeneracy_order_smart;
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
@@ -32,18 +33,43 @@ where
 
     crossbeam::thread::scope(|scope| {
         let (start_tx, start_rx) = mpsc::channel();
+        let (visit_tx, visit_rx) = mpmc::channel::<VisitJob<VertexSet>>();
         let (reporter_tx, reporter_rx) = mpsc::channel();
-        let mut visit_txs: Vec<mpsc::Sender<VisitJob<VertexSet>>> =
-            Vec::with_capacity(NUM_VISITING_THREADS);
+
+        scope.spawn(move |_| {
+            for vertex in degeneracy_order_smart(graph) {
+                start_tx.send(vertex).unwrap();
+            }
+        });
+
+        scope.spawn(move |_| {
+            let mut candidates = connected_nodes(graph);
+            let mut excluded = VertexSet::with_capacity(candidates.len());
+            while let Ok(v) = start_rx.recv() {
+                let neighbours = graph.neighbours(v);
+                debug_assert!(!neighbours.is_empty());
+                candidates.remove(&v);
+                let neighbouring_candidates = neighbours.intersection(&candidates);
+                let neighbouring_excluded = neighbours.intersection(&excluded);
+                excluded.insert(v);
+                visit_tx
+                    .send(VisitJob {
+                        candidates: neighbouring_candidates,
+                        excluded: neighbouring_excluded,
+                        clique: Pile::from(v),
+                    })
+                    .unwrap();
+            }
+        });
+
         for _ in 0..NUM_VISITING_THREADS {
-            let (job_tx, job_rx) = mpsc::channel();
-            visit_txs.push(job_tx);
             let thread_reporter_tx = reporter_tx.clone();
+            let thread_visit_rx = visit_rx.clone();
             scope.spawn(move |_| {
                 let mut thread_reporter = SendingReporter {
                     tx: thread_reporter_tx,
                 };
-                while let Ok(job) = job_rx.recv() {
+                while let Ok(job) = thread_visit_rx.recv() {
                     visit(
                         graph,
                         &mut thread_reporter,
@@ -59,34 +85,10 @@ where
         drop(reporter_tx);
 
         scope.spawn(move |_| {
-            let mut candidates = connected_nodes(graph);
-            let mut excluded = VertexSet::with_capacity(candidates.len());
-            while let Ok(v) = start_rx.recv() {
-                let i = excluded.len() % NUM_VISITING_THREADS;
-                let neighbours = graph.neighbours(v);
-                debug_assert!(!neighbours.is_empty());
-                candidates.remove(&v);
-                let neighbouring_candidates = neighbours.intersection(&candidates);
-                let neighbouring_excluded = neighbours.intersection(&excluded);
-                excluded.insert(v);
-                visit_txs[i]
-                    .send(VisitJob {
-                        candidates: neighbouring_candidates,
-                        excluded: neighbouring_excluded,
-                        clique: Pile::from(v),
-                    })
-                    .unwrap();
-            }
-        });
-        scope.spawn(move |_| {
             while let Ok(clique) = reporter_rx.recv() {
                 reporter.record(clique);
             }
         });
-
-        for vertex in degeneracy_order_smart(graph) {
-            start_tx.send(vertex).unwrap();
-        }
     })
     .unwrap();
 }

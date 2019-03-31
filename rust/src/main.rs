@@ -289,12 +289,12 @@ fn main() -> Result<(), std::io::Error> {
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         let sizes_100 = (2_000..=3_000).step_by(50); // max 4_950
-        let sizes_10k = (1_000..10_000)
-            .step_by(1_000)
+        let sizes_10k = std::iter::empty()
+            .chain((1_000..10_000).step_by(1_000))
             .chain((10_000..=200_000).step_by(10_000)); // max 499_500
-        let sizes_1m = (0..25_000)
-            .step_by(2_500)
-            .chain((25_000..250_000).step_by(25_000))
+        let sizes_1m = std::iter::empty()
+            .chain((0..=25_000).step_by(2_500))
+            .chain((50_000..250_000).step_by(50_000))
             .chain((250_000..1_000_000).step_by(250_000))
             .chain((1_000_000..=5_000_000).step_by(1_000_000));
         let all_funcs = |_kind: usize, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
@@ -315,7 +315,7 @@ fn main() -> Result<(), std::io::Error> {
                             9 => true,
                             0 | 2 | 7 => false,
                             1 => kind == 0 || size <= 25_000,
-                            _ => kind == 0 && size <= 500_000,
+                            _ => kind == 0 && size <= 2_000_000,
                         }
                     })
                     .collect()
