@@ -63,8 +63,8 @@ where
         });
 
         for _ in 0..NUM_VISITING_THREADS {
-            let thread_reporter_tx = reporter_tx.clone();
             let thread_visit_rx = visit_rx.clone();
+            let thread_reporter_tx = reporter_tx.clone();
             scope.spawn(move |_| {
                 let mut thread_reporter = SendingReporter {
                     tx: thread_reporter_tx,
@@ -82,13 +82,12 @@ where
                 }
             });
         }
+        drop(visit_rx);
         drop(reporter_tx);
 
-        scope.spawn(move |_| {
-            while let Ok(clique) = reporter_rx.recv() {
-                reporter.record(clique);
-            }
-        });
+        while let Ok(clique) = reporter_rx.recv() {
+            reporter.record(clique);
+        }
     })
     .unwrap();
 }
