@@ -9,7 +9,7 @@ environment:
   matrix:
     - python: "C:\\Python37-x64"
 install: 
-  - MSBuild.exe /t:Restore csharp\BronKerboschStudy.sln
+  - MSBuild.exe /t:Restore /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
   - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
   - PATH C:\python37-x64;C:\python37-x64\Scripts;%PATH%
   - python -V
