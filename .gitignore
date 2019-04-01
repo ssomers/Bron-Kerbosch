@@ -4,8 +4,10 @@ __pycache__
 target
 /*.csv
 /csharp/.vs
-/csharp/bin
-/csharp/obj
+/csharp/*/bin
+/csharp/*/obj
+/csharp/*/*.user
+/csharp/packages
 /rust/.vs
 /rust/*.psess
 /rust/*.vspx
