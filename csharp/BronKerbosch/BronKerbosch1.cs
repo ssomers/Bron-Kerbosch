@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-public class BronKerbosch1
+class BronKerbosch1
 {
-    static public void explore(UndirectedGraph graph, Reporter reporter)
+    static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
-        var candidates = graph.connected_nodes();
+        var candidates = graph.ConnectedVertices();
         if (candidates.Any())
         {
-            visit(
+            Visit(
                 graph,
                 reporter,
                 candidates,
@@ -23,11 +23,11 @@ public class BronKerbosch1
     }
 
 
-    static void visit(UndirectedGraph graph, Reporter reporter, HashSet<Vertex> candidates,
+    static void Visit(UndirectedGraph graph, Reporter reporter, HashSet<Vertex> candidates,
           HashSet<Vertex> excluded, List<Vertex> clique)
     {
         if (candidates.Count == 0 && excluded.Count == 0)
-            reporter.record(clique);
+            reporter.Record(clique);
 
         while (candidates.Any())
         {
@@ -35,27 +35,12 @@ public class BronKerbosch1
             var neighbours = graph.Neighbours(v);
             Contract.Assume(neighbours.Any());
             candidates.Remove(v);
-            visit(
-            graph,
-            reporter,
-            candidates.Intersect(neighbours).ToHashSet(),
-            excluded.Intersect(neighbours).ToHashSet(),
-            clique.Concat(new[] { v }.ToList()).ToList());
+            Visit(graph, reporter,
+                  candidates.Intersect(neighbours).ToHashSet(),
+                  excluded.Intersect(neighbours).ToHashSet(),
+                  clique.Concat(new[] { v }.ToList()).ToList());
             excluded.Add(v);
         }
 
-    }
-}
-
-static class Extensions
-{
-    public static T RemoveFirst<T>(this ICollection<T> items)
-    {
-        T item = items.FirstOrDefault();
-        if (item != null)
-        {
-            items.Remove(item);
-        }
-        return item;
     }
 }

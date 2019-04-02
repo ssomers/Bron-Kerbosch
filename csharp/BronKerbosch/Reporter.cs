@@ -6,7 +6,7 @@ namespace BronKerbosch
 {
     public interface Reporter
     {
-        void record(List<Vertex> clique);
+        void Record(List<Vertex> clique);
     }
 
     public class SimpleReporter : Reporter
@@ -15,7 +15,7 @@ namespace BronKerbosch
 
         public List<List<Vertex>> Cliques { get => cliques; }
 
-        public virtual void record(List<Vertex> clique)
+        public virtual void Record(List<Vertex> clique)
         {
             Contract.Requires(clique.Count > 1);
             Cliques.Add(clique);

@@ -53,7 +53,7 @@ namespace Graph
         }
 
         [Pure]
-        public int size()
+        public int Size()
         {
             var total = (from adjacent in itsAdjacencies select adjacent.Count).Sum();
             Contract.Assume(total % 2 == 0);
@@ -67,18 +67,18 @@ namespace Graph
         }
 
         [Pure]
-        public int degree(Vertex node)
+        public int Degree(Vertex node)
         {
             return itsAdjacencies[node].Count;
         }
 
         [Pure]
-        public HashSet<Vertex> connected_nodes()
+        public HashSet<Vertex> ConnectedVertices()
         {
             return itsAdjacencies.Select((neighbours, i) => (neighbours.Any(), i)).Where(p => p.Item1).Select(p => new Vertex(p.Item2)).ToHashSet();
         }
 
-        public static UndirectedGraph random_undirected_graph(int order, int size)
+        public static UndirectedGraph GenerateRandom(int order, int size)
         {
             var random = new Random();
             var fully_meshed_size = order * (order - 1) / 2;
@@ -131,7 +131,7 @@ namespace Graph
             }
             var g = new UndirectedGraph(adjacency_sets);
                     Contract.Requires(g.Order == order);
-                    Contract.Requires(g.size() == size);
+                    Contract.Requires(g.Size() == size);
                     return g;
         }
     }

@@ -10,16 +10,16 @@ namespace BronKerboschUnitTest
         public void random_undirected_graph()
         {
             //random.seed(19680516)
-            UndirectedGraph.random_undirected_graph(2, 0);
-            UndirectedGraph.random_undirected_graph(3, 0);
-            UndirectedGraph.random_undirected_graph(3, 1);
-            UndirectedGraph.random_undirected_graph(3, 2);
-            UndirectedGraph.random_undirected_graph(4, 0);
-            UndirectedGraph.random_undirected_graph(4, 1);
-            UndirectedGraph.random_undirected_graph(4, 2);
-            UndirectedGraph.random_undirected_graph(4, 3);
-            UndirectedGraph.random_undirected_graph(4, 4);
-            UndirectedGraph.random_undirected_graph(4, 5);
+            UndirectedGraph.GenerateRandom(2, 0);
+            UndirectedGraph.GenerateRandom(3, 0);
+            UndirectedGraph.GenerateRandom(3, 1);
+            UndirectedGraph.GenerateRandom(3, 2);
+            UndirectedGraph.GenerateRandom(4, 0);
+            UndirectedGraph.GenerateRandom(4, 1);
+            UndirectedGraph.GenerateRandom(4, 2);
+            UndirectedGraph.GenerateRandom(4, 3);
+            UndirectedGraph.GenerateRandom(4, 4);
+            UndirectedGraph.GenerateRandom(4, 5);
         }
     }
 }

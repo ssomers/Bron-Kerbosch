@@ -26,14 +26,17 @@ namespace BronKerboschUnitTest
         static void bk(Vertex[][] adjacencies, Vertex[][] cliques)
         {
             var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet()).ToList());
-            var reporter = new SimpleReporter();
-            BronKerbosch1.explore(graph, reporter);
-            Assert.AreEqual(reporter.Cliques.Count, cliques.Length);
-            foreach (List<Vertex> clique in reporter.Cliques)
-                clique.Sort();
-            reporter.Cliques.Sort(comparer);
-            foreach ((List<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
-                Assert.IsTrue(clique.SequenceEqual(cliques[i]));
+            foreach (int func_index in Enumerable.Range(0, 2))
+            {
+                var reporter = new SimpleReporter();
+                Portfolio.Explore(func_index, graph, reporter);
+                Assert.AreEqual(reporter.Cliques.Count, cliques.Length);
+                foreach (List<Vertex> clique in reporter.Cliques)
+                    clique.Sort();
+                reporter.Cliques.Sort(comparer);
+                foreach ((List<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
+                    Assert.IsTrue(clique.SequenceEqual(cliques[i]));
+            }
         }
 
         [TestMethod]
