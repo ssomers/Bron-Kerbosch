@@ -2,6 +2,9 @@ image:
   - Visual Studio 2017
 platform:
   - x64
+artifacts:
+  - path: vstest_out.txt
+    name: vstest_out
 environment:
   # Copied from https://github.com/rust-lang/libc/blob/master/appveyor.yml
   RUSTUP_USE_REQWEST: 1
@@ -11,7 +14,7 @@ environment:
 install: 
   - nuget restore csharp\BronKerboschStudy.sln
   - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
-  - vstest.console.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
+  - vstest.console.exe /Diag:vstest_out.txt csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
   - PATH C:\python37-x64;C:\python37-x64\Scripts;%PATH%
   - python -V
   - python -m pip install --upgrade pip
