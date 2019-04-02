@@ -19,7 +19,7 @@ install:
   - PATH %PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -V
   - cargo -V
-build:
+build_script:
   - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
 test_script:
   - vstest.console.exe csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
