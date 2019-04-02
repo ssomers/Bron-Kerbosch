@@ -1,7 +1,7 @@
 image:
   - Visual Studio 2017
 platform:
-  - x64
+  - Any CPU
 configuration:
   - Debug
 environment:
@@ -22,9 +22,9 @@ install:
   - rustc -V
   - cargo -V
 build_script:
-  - MSBuild.exe csharp\BronKerboschStudy.sln
+  - msbuild csharp\BronKerboschStudy.sln
 test_script:
-  - vstest.console.exe csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
+  - vstest.console csharp\BronKerboschUnitTest\bin\%CONFIGURATION%\BronKerboschUnitTest.dll
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
   - set GOPATH=%CD%\go&& go test bron_kerbosch
