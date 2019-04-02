@@ -2,6 +2,8 @@ image:
   - Visual Studio 2017
 platform:
   - x64
+configuration:
+  - Debug
 environment:
   # Copied from https://github.com/rust-lang/libc/blob/master/appveyor.yml
   RUSTUP_USE_REQWEST: 1
@@ -20,7 +22,7 @@ install:
   - rustc -V
   - cargo -V
 build_script:
-  - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
+  - MSBuild.exe csharp\BronKerboschStudy.sln
 test_script:
   - vstest.console.exe csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
