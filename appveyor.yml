@@ -11,6 +11,7 @@ environment:
 install: 
   - nuget restore csharp\BronKerboschStudy.sln
   - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
+  - vstest.console.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
   - PATH C:\python37-x64;C:\python37-x64\Scripts;%PATH%
   - python -V
   - python -m pip install --upgrade pip
@@ -21,7 +22,6 @@ install:
   - rustc -V
   - cargo -V
 test_script:
-  - vstest.console.exe csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
   - set GOPATH=%CD%\go&& go test bron_kerbosch
