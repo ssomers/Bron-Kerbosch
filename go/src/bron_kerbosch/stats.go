@@ -40,8 +40,11 @@ func (s *SampleStatistics) Mean() float64 {
 
 func (s *SampleStatistics) Variance() float64 {
 	n := float64(s.samples)
-	m := s.sum / n
-	return (s.sum_of_squares - 2.0*m*s.sum + m*m*n) / (n - 1)
+	numerator := s.sum_of_squares - s.sum*s.sum/n
+	if numerator < 0 {
+		return 0
+	}
+	return numerator / (n - 1)
 }
 
 func (s *SampleStatistics) Deviation() float64 {

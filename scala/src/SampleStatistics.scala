@@ -29,8 +29,7 @@ class SampleStatistics {
   def variance(): Double = {
     if (samples > 1) {
       val n = samples
-      val m = sum / n
-      (sum_of_squares - 2.0 * m * sum + m * m * n) / (n - 1.0)
+      math.max(sum_of_squares - sum * sum / n, 0) / (n - 1.0)
     } else {
       Double.NaN
     }
