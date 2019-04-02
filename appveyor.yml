@@ -2,9 +2,6 @@ image:
   - Visual Studio 2017
 platform:
   - x64
-artifacts:
-  - path: vstest_out.txt
-    name: vstest_out
 environment:
   # Copied from https://github.com/rust-lang/libc/blob/master/appveyor.yml
   RUSTUP_USE_REQWEST: 1
@@ -13,8 +10,6 @@ environment:
     - python: "C:\\Python37-x64"
 install: 
   - nuget restore csharp\BronKerboschStudy.sln
-  - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
-  - vstest.console.exe /Diag:vstest_out.txt csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
   - PATH C:\python37-x64;C:\python37-x64\Scripts;%PATH%
   - python -V
   - python -m pip install --upgrade pip
@@ -24,7 +19,10 @@ install:
   - PATH %PATH%;C:\Users\appveyor\.cargo\bin
   - rustc -V
   - cargo -V
+build:
+  - MSBuild.exe /p:Configuration=Debug /p:Platform="Any CPU" csharp\BronKerboschStudy.sln
 test_script:
+  - vstest.console.exe csharp\BronKerboschUnitTest\bin\Debug\BronKerboschUnitTest.dll
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
   - set GOPATH=%CD%\go&& go test bron_kerbosch
