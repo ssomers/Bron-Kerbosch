@@ -1,4 +1,4 @@
-using Graph;
+using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
@@ -9,13 +9,11 @@ namespace BronKerbosch
         void Record(List<Vertex> clique);
     }
 
-    public class SimpleReporter : Reporter
+    public sealed class SimpleReporter : Reporter
     {
-        private readonly List<List<Vertex>> cliques = new List<List<Vertex>>();
+        public List<List<Vertex>> Cliques { get; } = new List<List<Vertex>>();
 
-        public List<List<Vertex>> Cliques { get => cliques; }
-
-        public virtual void Record(List<Vertex> clique)
+        public void Record(List<Vertex> clique)
         {
             Contract.Requires(clique.Count > 1);
             Cliques.Add(clique);

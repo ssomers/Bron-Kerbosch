@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BronKerboschTest.cs" />
-    <Compile Include="GraphTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BronKerbosch\BronKerbosch.csproj">
-      <Project>{55565804-9d19-4fda-8185-8987fe284990}</Project>
+      <Project>{3822c812-cb13-4783-8427-8746bc3c0fd9}</Project>
       <Name>BronKerbosch</Name>
     </ProjectReference>
   </ItemGroup>

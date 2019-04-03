@@ -1,7 +1,6 @@
 // Naive Bron-Kerbosch algorithm
 
 using BronKerbosch;
-using Graph;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;

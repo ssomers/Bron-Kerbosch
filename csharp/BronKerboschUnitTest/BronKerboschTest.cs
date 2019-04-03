@@ -1,5 +1,4 @@
 ﻿using BronKerbosch;
-using Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +8,6 @@ namespace BronKerboschUnitTest
     [TestClass]
     public class BronKerboschTest
     {
-        static int comparer(List<Vertex> lhs, List<Vertex> rhs)
-        {
-            for (var i = 0; i < lhs.Count && i < rhs.Count; i++)
-            {
-                var d = lhs[i] - rhs[i];
-                if (d != 0)
-                {
-                    return d;
-                }
-            }
-            Assert.Fail("got overlapping cliques of length {} <> length {}", lhs.Count, rhs.Count);
-            return 0;
-        }
-
         static void bk(Vertex[][] adjacencies, Vertex[][] cliques)
         {
             var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet()).ToList());
@@ -31,9 +16,7 @@ namespace BronKerboschUnitTest
                 var reporter = new SimpleReporter();
                 Portfolio.Explore(func_index, graph, reporter);
                 Assert.AreEqual(reporter.Cliques.Count, cliques.Length);
-                foreach (List<Vertex> clique in reporter.Cliques)
-                    clique.Sort();
-                reporter.Cliques.Sort(comparer);
+                Portfolio.SortCliques(reporter.Cliques);
                 foreach ((List<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
                     Assert.IsTrue(clique.SequenceEqual(cliques[i]));
             }
