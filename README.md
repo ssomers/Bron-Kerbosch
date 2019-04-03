@@ -15,13 +15,13 @@ Compared to the original forked from, the code is:
 
 * **Ver1:** Naive Bron-Kerbosch algorithm
 * **Ver2:** Ver1 with pivot, picking pivot arbitrarily
-* **Ver3:** Ver2 with degeneracy ordering (clearly marked as needing a performance fix)
+* **Ver3:** Ver2 with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver1+:** Ver1 slightly optimized with language-specific tweaks
-* **Ver2_RP:** Ver2 slightly optimized and picking pivot randomly (IK\_RP)
-* **Ver2_GP:** Ver2 slightly optimized and picking pivot with highest degree (IK\_GP)
-* **Ver2_GPX:** Ver2 slightly optimized and picking pivot with highest degree towards the remaining candidates (IK\_GPX)
-* **Ver3+:** Ver3 optimized with scalability and language-specific tweaks
-* **Ver3+MT:** (Rust only) Ver3+ with multi-threading (4 threads, measured on a CPU with 2 cores and hyperthreading)
+* **Ver2_GP:** Ver2 picking pivot with highest degree (IK\_GP)
+* **Ver2_GPX:** Ver2 picking pivot with highest degree towards the remaining candidates (IK\_GPX)
+* **Ver2_RP:** Ver2 picking pivot randomly (IK\_RP)
+* **Ver3_GP:** Ver3 with recursive calls picking pivot with highest degree
+* **Ver3+MT:** (Rust only) Ver3_GP with multi-threading (±4 threads, measured on a CPU with 2 cores and hyperthreading)
 * **Ver3-:** (Python only) Ver3 with simplified order, determined by degree only
 
 ## Run
@@ -64,7 +64,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 [More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
 
-Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques�, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques�, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 

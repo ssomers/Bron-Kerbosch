@@ -8,7 +8,6 @@ from typing import List, Set
 
 def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot and degenerate degeneracy ordering'''
-    reporter.inc_count()
     candidates = set()
     max_degree = 0
     for node in range(graph.order):

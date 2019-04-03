@@ -96,7 +96,7 @@ where
     }
 }
 
-pub fn degeneracy_order_smart<'a, VertexSet>(
+pub fn degeneracy_order<'a, VertexSet>(
     graph: &'a UndirectedGraph<VertexSet>,
 ) -> DegeneracyOrderIter<'a, VertexSet>
 where

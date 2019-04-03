@@ -19,7 +19,6 @@ def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter):
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
           excluded: Set[Vertex], clique: List[Vertex]):
-    reporter.inc_count()
     if not candidates and not excluded:
         reporter.record(clique)
 

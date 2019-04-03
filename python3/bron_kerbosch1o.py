@@ -20,19 +20,29 @@ def bron_kerbosch1o(graph: UndirectedGraph, reporter: Reporter):
 VertexStack = Optional[Tuple[Any, Vertex]]
 
 
-def append_to(lst: List[Vertex], clique: VertexStack):
-    if clique is not None:
-        append_to(lst, clique[0])
-        lst.append(clique[1])
+def length(clique: VertexStack) -> int:
+    return 0 if clique is None else 1 + length(clique[0])
+
+
+def append_to(lst: List[Vertex], at: int, clique: VertexStack) -> int:
+    if clique is None:
+        return at
+    else:
+        at = append_to(lst, at, clique[0])
+        lst[at] = clique[1]
+        return at + 1
+
+
+def collect(clique: VertexStack):
+    lst: List[Vertex] = [-1] * length(clique)
+    append_to(lst, 0, clique)
+    return lst
 
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
           excluded: Set[Vertex], clique: VertexStack):
-    reporter.inc_count()
     if not candidates and not excluded:
-        lst: List[Vertex] = []
-        append_to(lst, clique)
-        reporter.record(lst)
+        reporter.record(collect(clique))
 
     while candidates:
         v = candidates.pop()

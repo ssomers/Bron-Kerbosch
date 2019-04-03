@@ -3,6 +3,7 @@ import random
 
 Vertex = int
 
+
 class UndirectedGraph(object):
     def __init__(self, adjacencies: List[Set[Vertex]]):
         for v, adjacent_to_v in enumerate(adjacencies):

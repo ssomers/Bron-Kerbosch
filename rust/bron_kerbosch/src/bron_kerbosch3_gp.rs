@@ -1,6 +1,6 @@
-//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
+//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, recursing with arbitrary pivots
 
-use bron_kerbosch_degeneracy::degeneracy_order_smart;
+use bron_kerbosch_degeneracy::degeneracy_order;
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, VertexSetLike};
 use pile::Pile;
@@ -11,13 +11,10 @@ where
     VertexSet: VertexSetLike,
 {
     let mut candidates = connected_nodes(graph);
-    debug_assert_eq!(candidates.len(), degeneracy_order_smart(graph).count());
-    debug_assert_eq!(
-        candidates,
-        degeneracy_order_smart(graph).into_iter().collect()
-    );
+    debug_assert_eq!(candidates.len(), degeneracy_order(graph).count());
+    debug_assert_eq!(candidates, degeneracy_order(graph).into_iter().collect());
     let mut excluded = VertexSet::with_capacity(candidates.len());
-    for v in degeneracy_order_smart(graph) {
+    for v in degeneracy_order(graph) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);

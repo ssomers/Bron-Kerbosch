@@ -3,37 +3,39 @@ import csv
 import math
 import os
 import sys
-from typing import List
+from typing import List, Mapping
 
 
 def color(case_name: str) -> str:
     func_name = case_name.split('@')[0]
     return {
         "Ver1": "#000099",
-        "Ver1+": "#0000CC",
-        "Ver1++": "#0000FF",
-        "Ver2": "#CC6600",
-        "Ver2+": "#FF6600",
-        "Ver2_RP": "#FF9900",
-        "Ver2_GP": "#FF0099",
-        "Ver2_GPX": "#FF3333",
+        "Ver1+": "#3333CC",
+        "Ver2": "#990000",
+        "Ver2_GP": "#FF6666",
+        "Ver2_GPX": "#FF9966",
+        "Ver2_RP": "#CC00CC",
         "Ver3": "#006600",
-        "Ver3+": "#00CC00",
-        "Ver3-": "#66CC66",
-        "Ver3+MT": "#66FF66",
+        "Ver3_GP": "#339900",
+        "Ver3_GPX": "#33CC00",
+        "Ver3_RP": "#999900",
+        "Ver3-": "#99CC99",
+        "Ver3+MT": "#99FF99",
     }[func_name]
 
 
 def dash(case_name: str) -> str:
     if case_name.endswith("@HashSet"):
         return "dash"
-    if case_name.endswith("@FnvHashSet"):
+    if case_name.endswith("@Fnv"):
         return "dot"
+    if case_name.endswith("@Hashbrown"):
+        return "longdash"
     return "solid"
 
 
 def publish(language: str, orderstr: str, case_names: List[str],
-            sizes: List[int], stats_per_size: List[List[SampleStatistics]]):
+            stats_per_func_by_size: Mapping[int, List[SampleStatistics]]):
     num_cases = len(case_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
@@ -41,8 +43,7 @@ def publish(language: str, orderstr: str, case_names: List[str],
         w = csv.writer(csvfile)
         w.writerow(["Size"] + [(name + " " + t) for name in case_names
                                for t in ["min", "mean", "max"]])
-        for i, size in enumerate(sizes):
-            stats = stats_per_size[i]
+        for size, stats in stats_per_func_by_size.items():
             w.writerow([size] +
                        [f for s in stats
                         for f in [s.min, s.mean(), s.max]])

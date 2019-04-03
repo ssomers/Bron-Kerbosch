@@ -18,9 +18,9 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
 
-    reporter.inc_count()
-    if not candidates and not excluded:
-        reporter.record(clique)
+    if not candidates:
+        if not excluded:
+            reporter.record(clique)
         return
 
     pivot = initial_pivot_choice(
@@ -40,9 +40,14 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
         excluded.add(v)
 
 
+def pick_arbitrary(graph: UndirectedGraph, candidates: Set[Vertex],
+                   excluded: Set[Vertex]) -> Vertex:
+    return next(iter(candidates))
+
+
 def pick_random(graph: UndirectedGraph, candidates: Set[Vertex],
                 excluded: Set[Vertex]) -> Vertex:
-    return random.sample(candidates | excluded, k=1)[0]
+    return random.sample(candidates, k=1)[0]
     """
     return random.sample(
         random.choices(

@@ -1,7 +1,7 @@
 //! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
 
 use super::mpmc;
-use bron_kerbosch_degeneracy::degeneracy_order_smart;
+use bron_kerbosch_degeneracy::degeneracy_order;
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
@@ -37,7 +37,7 @@ where
         let (reporter_tx, reporter_rx) = mpsc::channel();
 
         scope.spawn(move |_| {
-            for vertex in degeneracy_order_smart(graph) {
+            for vertex in degeneracy_order(graph) {
                 start_tx.send(vertex).unwrap();
             }
         });

@@ -1,13 +1,14 @@
 # coding: utf-8
 
 from bron_kerbosch1 import bron_kerbosch1
-from bron_kerbosch2 import bron_kerbosch2
-from bron_kerbosch3 import bron_kerbosch3
 from bron_kerbosch1o import bron_kerbosch1o
+from bron_kerbosch2 import bron_kerbosch2
 from bron_kerbosch2_rp import bron_kerbosch2_rp
 from bron_kerbosch2_gp import bron_kerbosch2_gp
 from bron_kerbosch2_gpx import bron_kerbosch2_gpx
-from bron_kerbosch3o import bron_kerbosch3o
+from bron_kerbosch3 import bron_kerbosch3
+from bron_kerbosch3_gp import bron_kerbosch3_gp
+from bron_kerbosch3_gpx import bron_kerbosch3_gpx
 from bron_kerbosch3n import bron_kerbosch3n
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
@@ -16,33 +17,36 @@ from stats import SampleStatistics
 from publish import publish
 
 import argparse
+import itertools
 import pytest
 import random
 import sys
 import time
-from typing import List, Set
+from typing import Iterable, List, Set
 
 FUNCS = [
     bron_kerbosch1,
-    bron_kerbosch2,
-    bron_kerbosch3,
     bron_kerbosch1o,
-    bron_kerbosch2_rp,
+    bron_kerbosch2,
     bron_kerbosch2_gp,
     bron_kerbosch2_gpx,
-    bron_kerbosch3o,
+    bron_kerbosch2_rp,
+    bron_kerbosch3,
+    bron_kerbosch3_gp,
+    bron_kerbosch3_gpx,
     bron_kerbosch3n,
 ]
 
 FUNC_NAMES = [
     "Ver1",
-    "Ver2",
-    "Ver3",
     "Ver1+",
-    "Ver2_RP",
+    "Ver2",
     "Ver2_GP",
     "Ver2_GPX",
-    "Ver3+",
+    "Ver2_RP",
+    "Ver3",
+    "Ver3_GP",
+    "Ver3_GPX",
     "Ver3-",
 ]
 
@@ -71,7 +75,7 @@ def bron_kerbosch_timed(graph: Graph, func_indices: List[int], samples: int):
             except RecursionError:
                 print(f"  {FUNC_NAMES[func_index]} recursed out")
             secs = time.process_time() - begin
-            if secs >= 1.0:
+            if secs >= 3.0:
                 print(f"  {FUNC_NAMES[func_index]:8}: {secs:5.2f}s")
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
@@ -208,14 +212,15 @@ def test_sample(func):
         ]
 
 
-def bk(orderstr: str, sizes: List[int], func_indices: List[int], samples: int):
+def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
+       samples: int):
     if orderstr.endswith('M'):
         order = int(orderstr[:-1]) * 1_000_000
     elif orderstr.endswith('k'):
         order = int(orderstr[:-1]) * 1_000
     else:
         order = int(orderstr)
-    stats_per_size = []
+    stats_per_func_by_size = {}
     for size in sizes:
         random.seed(seed)
         begin = time.process_time()
@@ -226,15 +231,14 @@ def bk(orderstr: str, sizes: List[int], func_indices: List[int], samples: int):
             print(f"{name}: {g.adjacencies}")
         else:
             print(f"{name} (generating took {secs:.2f}s)")
-        stats_per_size.append(
-            bron_kerbosch_timed(g, func_indices=func_indices, samples=samples))
-    if len(sizes) > 1:
+        stats_per_func_by_size[size] = bron_kerbosch_timed(
+            g, func_indices=func_indices, samples=samples)
+    if len(stats_per_func_by_size) > 1:
         publish(
             language="python3",
             orderstr=orderstr,
             case_names=FUNC_NAMES,
-            sizes=sizes,
-            stats_per_size=stats_per_size)
+            stats_per_func_by_size=stats_per_func_by_size)
 
 
 if __name__ == '__main__':
@@ -257,20 +261,22 @@ if __name__ == '__main__':
            samples=1)
     else:
         assert False, "Run with -O for meaningful measurements"
-        bk(orderstr="100",
-           sizes=range(2_000, 3_001, 50),
-           func_indices=all_func_indices,
-           samples=5)  # max 4_950
-        time.sleep(10)
-        bk(orderstr="10k",
-           sizes=list(range(1_000, 10_000, 1_000)) + list(
-               range(10_000, 200_001, 10_000)),
-           func_indices=all_func_indices,
-           samples=5)
-        time.sleep(10)
+        bk(
+            orderstr="100",
+            sizes=range(2_000, 3_001, 50),  # max 4_950
+            func_indices=all_func_indices,
+            samples=5)
+        time.sleep(7)
+        bk(
+            orderstr="10k",
+            sizes=range(150_000, 250_001, 10_000),  # max 499_500
+            func_indices=all_func_indices,
+            samples=5)
+        time.sleep(7)
         bk(orderstr="1M",
-           sizes=list(range(0, 1_000_000, 250_000)) + list(
-               range(1_000_000, 3_000_001, 500_000)),
-           samples=3,
-           func_indices=[0, 1, 3, 4, 5, 6, 7, 8])
+           sizes=itertools.chain(
+               range(10_000, 50_000, 10_000), range(50_000, 200_000, 50_000),
+               range(200_000, 1_000_001, 200_000)),
+           func_indices=list(range(1, len(FUNCS))),
+           samples=3)
     print(f"random seed was {seed}")

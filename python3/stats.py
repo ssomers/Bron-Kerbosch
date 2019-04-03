@@ -30,7 +30,8 @@ class SampleStatistics(object):
     def variance(self):
         if self.samples > 1:
             n = self.samples
-            return max(self.sum_of_squares - self.sum * self.sum / n, 0) / (n - 1.)
+            return max(self.sum_of_squares - self.sum * self.sum / n,
+                       0) / (n - 1.)
         else:
             return nan
 

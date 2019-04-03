@@ -4,9 +4,9 @@ mod bron_kerbosch2;
 mod bron_kerbosch2_gp;
 mod bron_kerbosch2_gpx;
 mod bron_kerbosch2_rp;
-mod bron_kerbosch2o;
 mod bron_kerbosch3;
-mod bron_kerbosch3o;
+mod bron_kerbosch3_gp;
+mod bron_kerbosch3_gpx;
 mod bron_kerbosch3om;
 mod bron_kerbosch_degeneracy;
 mod bron_kerbosch_pivot;
@@ -23,7 +23,8 @@ use std::collections::BTreeSet;
 
 pub const NUM_FUNCS: usize = 10;
 pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
-    "Ver1", "Ver1+", "Ver2", "Ver2+", "Ver2_RP", "Ver2_GP", "Ver2_GPX", "Ver3", "Ver3+", "Ver3+MT",
+    "Ver1", "Ver1+", "Ver2", "Ver2_GP", "Ver2_GPX", "Ver2_RP", "Ver3", "Ver3_GP", "Ver3_GPX",
+    "Ver3+MT",
 ];
 
 pub fn explore<VertexSet>(
@@ -37,12 +38,12 @@ pub fn explore<VertexSet>(
         0 => bron_kerbosch1::explore(graph, reporter),
         1 => bron_kerbosch1o::explore(graph, reporter),
         2 => bron_kerbosch2::explore(graph, reporter),
-        3 => bron_kerbosch2o::explore(graph, reporter),
-        4 => bron_kerbosch2_rp::explore(graph, reporter),
-        5 => bron_kerbosch2_gp::explore(graph, reporter),
-        6 => bron_kerbosch2_gpx::explore(graph, reporter),
-        7 => bron_kerbosch3::explore(graph, reporter),
-        8 => bron_kerbosch3o::explore(graph, reporter),
+        3 => bron_kerbosch2_gp::explore(graph, reporter),
+        4 => bron_kerbosch2_gpx::explore(graph, reporter),
+        5 => bron_kerbosch2_rp::explore(graph, reporter),
+        6 => bron_kerbosch3::explore(graph, reporter),
+        7 => bron_kerbosch3_gp::explore(graph, reporter),
+        8 => bron_kerbosch3_gpx::explore(graph, reporter),
         9 => bron_kerbosch3om::explore(graph, reporter),
         _ => panic!(),
     }
@@ -83,6 +84,7 @@ mod tests {
     use slimgraph::SlimUndirectedGraph;
 
     extern crate fnv;
+    extern crate hashbrown;
     use self::fnv::FnvHashSet;
     use std::collections::HashSet;
 
@@ -103,6 +105,10 @@ mod tests {
         assert_eq!(bk_core::<HashSet<Vertex>>(&adjacencies), expected_cliques);
         assert_eq!(
             bk_core::<FnvHashSet<Vertex>>(&adjacencies),
+            expected_cliques
+        );
+        assert_eq!(
+            bk_core::<hashbrown::HashSet<Vertex>>(&adjacencies),
             expected_cliques
         );
     }

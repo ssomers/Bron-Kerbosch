@@ -1,4 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, recursing with GPX pivots
+//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, recursing with arbitrary pivots
 
 use bron_kerbosch_degeneracy::degeneracy_order;
 use bron_kerbosch_pivot::{visit, PivotChoice};
@@ -24,8 +24,8 @@ where
         visit(
             graph,
             reporter,
-            PivotChoice::Arbitrary,
-            PivotChoice::Arbitrary,
+            PivotChoice::MaxDegreeLocal,
+            PivotChoice::MaxDegreeLocal,
             neighbouring_candidates,
             neighbouring_excluded,
             Pile::from(v),
