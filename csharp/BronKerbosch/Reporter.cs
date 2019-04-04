@@ -1,6 +1,6 @@
 using BronKerbosch;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 
 namespace BronKerbosch
 {
@@ -15,7 +15,7 @@ namespace BronKerbosch
 
         public void Record(List<Vertex> clique)
         {
-            Contract.Requires(clique.Count > 1);
+            Debug.Assert(clique.Count > 1);
             Cliques.Add(clique);
         }
     }

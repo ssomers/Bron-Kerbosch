@@ -2,7 +2,7 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 
 class BronKerbosch1
@@ -32,7 +32,7 @@ class BronKerbosch1
         {
             Vertex v = candidates.First();
             var neighbours = graph.Neighbours(v);
-            Contract.Assume(neighbours.Any());
+            Debug.Assert(neighbours.Any());
             candidates.Remove(v);
             Visit(graph, reporter,
                   candidates.Intersect(neighbours).ToHashSet(),

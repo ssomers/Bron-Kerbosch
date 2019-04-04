@@ -1,7 +1,7 @@
 using BronKerbosch;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BronKerboschStudy
@@ -10,18 +10,15 @@ namespace BronKerboschStudy
     {
         public static UndirectedGraph Generate(Random random, int order, int size)
         {
-            Contract.Ensures(Contract.Result<UndirectedGraph>().Order== order);
-            Contract.Ensures(Contract.Result<UndirectedGraph>().Size == size);
-
             var fully_meshed_size = order * (order - 1) / 2;
-            Contract.Requires(size <= fully_meshed_size);
+            Debug.Assert(size <= fully_meshed_size);
             List<Vertex> unsaturated_vertices = Enumerable.Range(0, order).Select(index => new Vertex(index)).ToList();
             List<HashSet<Vertex>> adjacency_sets = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
             List<HashSet<Vertex>> adjacency_complements = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
             for (int i = 0; i < size; ++i)
             {
                 Vertex v = unsaturated_vertices[random.Next(unsaturated_vertices.Count)];
-                Contract.Assume(adjacency_sets[v].Count < order - 1);
+                Debug.Assert(adjacency_sets[v].Count < order - 1);
                 Vertex w;
                 if (adjacency_complements[v].Any())
                 {
@@ -34,9 +31,9 @@ namespace BronKerboschStudy
                     while (w == v || adjacency_sets[v].Contains(w))
                         w = unsaturated_vertices[random.Next(unsaturated_vertices.Count)];
                 }
-                Contract.Assume(v != w);
-                Contract.Assume(!adjacency_sets[v].Contains(w));
-                Contract.Assume(!adjacency_sets[w].Contains(v));
+                Debug.Assert(v != w);
+                Debug.Assert(!adjacency_sets[v].Contains(w));
+                Debug.Assert(!adjacency_sets[w].Contains(v));
                 foreach ((Vertex, Vertex) p in new[] { (v, w), (w, v) })
                 {
                     var x = p.Item1;
@@ -50,7 +47,7 @@ namespace BronKerboschStudy
                     else if (neighbours == order / 2)
                     {
                         // start using adjacency complement
-                        Contract.Assume(adjacency_complements[x].Count == 0);
+                        Debug.Assert(adjacency_complements[x].Count == 0);
                         adjacency_complements[x] = unsaturated_vertices.ToHashSet()
                             .Except(new[] { x }).ToHashSet()
                             .Except(adjacency_sets[x]).ToHashSet();
@@ -61,7 +58,10 @@ namespace BronKerboschStudy
                     }
                 }
             }
-            return new UndirectedGraph(adjacency_sets);
+            var g = new UndirectedGraph(adjacency_sets);
+            Debug.Assert(g.Order == order);
+            Debug.Assert(g.Size == size);
+            return g;
         }
     }
 }

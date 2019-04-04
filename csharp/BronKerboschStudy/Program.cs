@@ -1,7 +1,7 @@
 using BronKerbosch;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -99,7 +99,7 @@ namespace BronKerboschStudy
         static void Main(string[] args)
         {
             var all_func_indices = new[] { 0, 1 };
-            Contract.Requires(false); // Run Release build for meaningful measurements
+            Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), // max 4_950
                all_func_indices, 5);
             bk("10k",

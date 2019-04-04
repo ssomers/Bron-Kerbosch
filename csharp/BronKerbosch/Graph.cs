@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BronKerbosch
@@ -40,8 +40,8 @@ namespace BronKerbosch
             {
                 foreach (Vertex w in adjacent_to_v)
                 {
-                    Contract.Requires(v != w);
-                    Contract.Requires(adjacencies[w].Contains(v));
+                    Debug.Assert(v != w);
+                    Debug.Assert(adjacencies[w].Contains(v));
                 }
             }
             itsAdjacencies = adjacencies;
@@ -56,27 +56,24 @@ namespace BronKerbosch
         {
             get {
                 var total = (from adjacent in itsAdjacencies select adjacent.Count).Sum();
-                Contract.Assume(total % 2 == 0);
+                Debug.Assert(total % 2 == 0);
                 return total / 2;
             }
         }
 
-        [Pure]
         public HashSet<Vertex> Neighbours(Vertex node)
         {
             return itsAdjacencies[node]; // .AsReadOnly()
         }
 
-        [Pure]
         public int Degree(Vertex node)
         {
             return itsAdjacencies[node].Count;
         }
 
-        [Pure]
         public HashSet<Vertex> ConnectedVertices()
         {
-            return itsAdjacencies.Select((neighbours, i) => (neighbours.Any(), i)).Where(p => p.Item1).Select(p => new Vertex(p.Item2)).ToHashSet();
+            return itsAdjacencies.Select((neighbours, i) => (new Vertex(i), neighbours.Any())).Where(p => p.Item2).Select(p => p.Item1).ToHashSet();
         }
     }
 }

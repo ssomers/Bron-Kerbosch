@@ -2,7 +2,7 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 using System.Linq;
 
 public class BronKerbosch2
@@ -38,7 +38,7 @@ public class BronKerbosch2
         foreach (Vertex v in far_candidates)
         {
             var neighbours = graph.Neighbours(v);
-            Contract.Assume(neighbours.Any());
+            Debug.Assert(neighbours.Any());
             Visit(graph, reporter,
                   candidates.Intersect(neighbours).ToHashSet(),
                   excluded.Intersect(neighbours).ToHashSet(),
