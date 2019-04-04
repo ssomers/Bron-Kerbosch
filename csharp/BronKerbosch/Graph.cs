@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace BronKerbosch
 {
@@ -37,9 +36,9 @@ namespace BronKerbosch
 
         public UndirectedGraph(List<HashSet<Vertex>> adjacencies)
         {
-            foreach ((HashSet<Vertex> adjacent_to_v, Vertex v) in adjacencies.Select((s, i) => (s, new Vertex(i))))
+            for (var v = 0; v < adjacencies.Count; ++v)
             {
-                foreach (Vertex w in adjacent_to_v)
+                foreach (Vertex w in adjacencies[v])
                 {
                     Debug.Assert(v != w);
                     Debug.Assert(adjacencies[w].Contains(v));
@@ -57,7 +56,9 @@ namespace BronKerbosch
         {
             get
             {
-                var total = (from adjacent in itsAdjacencies select adjacent.Count).Sum();
+                var total = 0;
+                for (var v = 0; v < Order; ++v)
+                    total += Degree(v);
                 Debug.Assert(total % 2 == 0);
                 return total / 2;
             }
@@ -75,7 +76,11 @@ namespace BronKerbosch
 
         public HashSet<Vertex> ConnectedVertices()
         {
-            return itsAdjacencies.Select((neighbours, i) => (new Vertex(i), neighbours.Any())).Where(p => p.Item2).Select(p => p.Item1).ToHashSet();
+            var result = new HashSet<Vertex>();
+            for (var v = 0; v < Order; ++v)
+                if (Degree(v) > 0)
+                    result.Add(v);
+            return result;
         }
     }
 }

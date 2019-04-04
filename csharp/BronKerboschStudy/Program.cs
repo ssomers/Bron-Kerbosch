@@ -28,11 +28,9 @@ namespace BronKerboschStudy
                     {
                         Portfolio.SortCliques(reporter.Cliques);
                         if (first == null)
-                        {
                             first = reporter.Cliques;
-                        }
-                        else if (first.SequenceEqual(reporter.Cliques))
-                            Console.WriteLine($"  {FUNC_NAMES[func_index],8}: expected {first.Count} cliques, obtained {reporter.Cliques.Count} cliques");
+                        else
+                            Portfolio.AssertSameCliques(first, reporter.Cliques);
                     }
                     times[func_index].Put(secs);
                 }
@@ -51,7 +49,7 @@ namespace BronKerboschStudy
                 order = Int32.Parse(orderstr);
 
             var tmpfname = "tmp.csv";
-            using (StreamWriter fo = File.AppendText(tmpfname))
+            using (StreamWriter fo = new StreamWriter(tmpfname))
             {
                 fo.Write("Size");
                 foreach (string name in FUNC_NAMES)
@@ -78,6 +76,8 @@ namespace BronKerboschStudy
                 }
             }
             var path = "..\\..\\..\\..\\bron_kerbosch_c#_order_" + orderstr + ".csv";
+            if (File.Exists(path))
+                File.Delete(path);
             File.Move(tmpfname, path);
         }
 
@@ -106,9 +106,11 @@ namespace BronKerboschStudy
                Range(1_000, 10_000, 1_000).Concat(Range(10_000, 200_001, 10_000)),
                all_func_indices,
                5);
+            /*
             bk("1M",
-               Range(0, 1_000_000, 250_000).Concat(Range(1_000_000, 3_000_001, 500_000)),
+               Range(250_000, 1_000_000, 250_000).Concat(Range(1_000_000, 3_000_001, 500_000)),
                all_func_indices, 3);
+            */
         }
     }
 }

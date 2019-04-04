@@ -3,14 +3,13 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 class BronKerbosch1
 {
     static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
         var candidates = graph.ConnectedVertices();
-        if (candidates.Any())
+        if (candidates.Count > 0)
         {
             Visit(
                 graph,
@@ -22,23 +21,32 @@ class BronKerbosch1
     }
 
 
-    static void Visit(UndirectedGraph graph, Reporter reporter, HashSet<Vertex> candidates,
-          HashSet<Vertex> excluded, List<Vertex> clique)
+    static void Visit(UndirectedGraph graph, Reporter reporter, ISet<Vertex> candidates,
+          ISet<Vertex> excluded, List<Vertex> clique)
     {
-        if (!candidates.Any() && !excluded.Any())
+        if (candidates.Count == 0 && excluded.Count == 0)
             reporter.Record(clique);
 
-        while (candidates.Any())
+        while (candidates.Count > 0)
         {
-            Vertex v = candidates.First();
-            candidates.Remove(v);
+            Vertex v = PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
-            Debug.Assert(neighbours.Any());
-            Visit(graph, reporter,
-                  candidates.Intersect(neighbours).ToHashSet(),
-                  excluded.Intersect(neighbours).ToHashSet(),
-                  clique.Concat(new[] { v }).ToList());
+            Debug.Assert(neighbours.Count > 0);
+            ISet<Vertex> neighbouring_candidates = new HashSet<Vertex>(candidates);
+            neighbouring_candidates.IntersectWith(neighbours);
+            ISet<Vertex> neighbouring_excluded = new HashSet<Vertex>(excluded);
+            neighbouring_excluded.IntersectWith(neighbours);
+            Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
             excluded.Add(v);
         }
+    }
+
+    private static Vertex PopArbitrary(ISet<Vertex> candidates)
+    {
+        var en = candidates.GetEnumerator();
+        var ok = en.MoveNext();
+        Debug.Assert(ok);
+        candidates.Remove(en.Current);
+        return en.Current;
     }
 }

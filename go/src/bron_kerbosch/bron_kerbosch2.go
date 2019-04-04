@@ -32,6 +32,7 @@ func bron_kerbosch2_visit(graph *UndirectedGraph, reporter Reporter, candidates 
 		}
 	}
 	for _, v := range far_candidates {
+		candidates.Remove(v)
 		neighbours := &graph.adjacencies[v]
 		neighbouring_candidates := candidates.Intersection(neighbours)
 		neighbouring_excluded := excluded.Intersection(neighbours)
@@ -39,7 +40,6 @@ func bron_kerbosch2_visit(graph *UndirectedGraph, reporter Reporter, candidates 
 			&neighbouring_candidates,
 			&neighbouring_excluded,
 			append(clique, v))
-		candidates.Remove(v)
 		excluded.Add(v)
 	}
 }

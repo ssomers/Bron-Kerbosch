@@ -10,7 +10,7 @@ namespace BronKerboschStudy
     {
         public static UndirectedGraph Generate(Random random, int order, int size)
         {
-            var fully_meshed_size = order * (order - 1) / 2;
+            long fully_meshed_size = (long)order * (order - 1) / 2;
             if (size > fully_meshed_size)
                 throw new ArgumentException($"{order} nodes accommodate at most {fully_meshed_size} edges", "size");
             List<Vertex> unsaturated_vertices = Enumerable.Range(0, order).Select(index => new Vertex(index)).ToList();

@@ -8,17 +8,17 @@ namespace BronKerboschUnitTest
     [TestClass]
     public class BronKerboschTest
     {
-        static void bk(Vertex[][] adjacencies, Vertex[][] cliques)
+        static void bk(Vertex[][] adjacencies, Vertex[][] expected_cliques)
         {
             var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet()).ToList());
             foreach (int func_index in Enumerable.Range(0, 2))
             {
                 var reporter = new SimpleReporter();
                 Portfolio.Explore(func_index, graph, reporter);
-                Assert.AreEqual(reporter.Cliques.Count, cliques.Length);
+                Assert.AreEqual(expected_cliques.Length, reporter.Cliques.Count);
                 Portfolio.SortCliques(reporter.Cliques);
                 foreach ((List<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
-                    Assert.IsTrue(clique.SequenceEqual(cliques[i]));
+                    Assert.IsTrue(clique.SequenceEqual(expected_cliques[i]));
             }
         }
 
