@@ -152,5 +152,23 @@ namespace BronKerboschUnitTest
                                 new Vertex[] { 2, 3, 5 },
                                 new Vertex[] { 5, 6, 7 } });
         }
+
+        [TestMethod]
+        public void TestBigger()
+        {
+            bk(new Vertex[][] { new Vertex[] { 1, 2, 3, 4, 6, 7},
+                                new Vertex[] { 0, 3, 6, 7, 8, 9 },
+                                new Vertex[] { 0, 3, 5, 7, 8, 9 },
+                                new Vertex[] { 0, 1, 2, 4, 9 },
+                                new Vertex[] { 0, 3, 6, 7, 9 },
+                                new Vertex[] { 2, 6 },
+                                new Vertex[] { 0, 1, 4, 5, 9 },
+                                new Vertex[] { 0, 1, 2, 4, 9 },
+                                new Vertex[] { 1, 2 },
+                                new Vertex[] { 1, 2, 3, 4, 6, 7 }},
+               new Vertex[][] { new Vertex[] { 1, 2, 3, 4 },
+                                new Vertex[] { 2, 3, 5 },
+                                new Vertex[] { 5, 6, 7 } });
+        }
     }
 }

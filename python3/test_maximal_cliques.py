@@ -212,6 +212,45 @@ def test_sample(func):
         ]
 
 
+@pytest.mark.parametrize("func", FUNCS)
+def test_bigger(func):
+    assert bkf(
+        func=func,
+        adjacencies=[
+            {1, 2, 3, 4, 6, 7},
+            {0, 3, 6, 7, 8, 9},
+            {0, 3, 5, 7, 8, 9},
+            {0, 1, 2, 4, 9},
+            {0, 3, 6, 7, 9},
+            {2, 6},
+            {0, 1, 4, 5, 9},
+            {0, 1, 2, 4, 9},
+            {1, 2},
+            {1, 2, 3, 4, 6, 7},
+        ]) == [
+            [0, 1, 3],
+            [0, 1, 6],
+            [0, 1, 7],
+            [0, 2, 3],
+            [0, 2, 7],
+            [0, 3, 4],
+            [0, 4, 6],
+            [0, 4, 7],
+            [1, 3, 9],
+            [1, 6, 9],
+            [1, 7, 9],
+            [1, 8],
+            [2, 3, 9],
+            [2, 5],
+            [2, 7, 9],
+            [2, 8],
+            [3, 4, 9],
+            [4, 6, 9],
+            [4, 7, 9],
+            [5, 6],
+        ]
+
+
 def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
        samples: int):
     if orderstr.endswith('M'):

@@ -191,3 +191,40 @@ func TestSample(t *testing.T) {
 			[]Vertex{5, 6, 7},
 		})
 }
+
+func TestBigger(t *testing.T) {
+	bk(t,
+		[][]Vertex{
+			[]Vertex{1, 2, 3, 4, 6, 7},
+			[]Vertex{0, 3, 6, 7, 8, 9},
+			[]Vertex{0, 3, 5, 7, 8, 9},
+			[]Vertex{0, 1, 2, 4, 9},
+			[]Vertex{0, 3, 6, 7, 9},
+			[]Vertex{2, 6},
+			[]Vertex{0, 1, 4, 5, 9},
+			[]Vertex{0, 1, 2, 4, 9},
+			[]Vertex{1, 2},
+			[]Vertex{1, 2, 3, 4, 6, 7}},
+		[][]Vertex{
+			[]Vertex{0, 1, 3},
+			[]Vertex{0, 1, 6},
+			[]Vertex{0, 1, 7},
+			[]Vertex{0, 2, 3},
+			[]Vertex{0, 2, 7},
+			[]Vertex{0, 3, 4},
+			[]Vertex{0, 4, 6},
+			[]Vertex{0, 4, 7},
+			[]Vertex{1, 3, 9},
+			[]Vertex{1, 6, 9},
+			[]Vertex{1, 7, 9},
+			[]Vertex{1, 8},
+			[]Vertex{2, 3, 9},
+			[]Vertex{2, 5},
+			[]Vertex{2, 7, 9},
+			[]Vertex{2, 8},
+			[]Vertex{3, 4, 9},
+			[]Vertex{4, 6, 9},
+			[]Vertex{4, 7, 9},
+			[]Vertex{5, 6},
+		})
+}

@@ -114,4 +114,43 @@ class BronKerboschTest extends org.scalatest.FunSuite {
       List(List(1, 2, 3, 4), List(2, 3, 5), List(5, 6, 7))
     )
   }
+
+  test("bigger") {
+    bk(
+      List(
+        List(1, 2, 3, 4, 6, 7),
+        List(0, 3, 6, 7, 8, 9),
+        List(0, 3, 5, 7, 8, 9),
+        List(0, 1, 2, 4, 9),
+        List(0, 3, 6, 7, 9),
+        List(2, 6),
+        List(0, 1, 4, 5, 9),
+        List(0, 1, 2, 4, 9),
+        List(1, 2),
+        List(1, 2, 3, 4, 6, 7)
+      ),
+      List(
+        List(0, 1, 3),
+        List(0, 1, 6),
+        List(0, 1, 7),
+        List(0, 2, 3),
+        List(0, 2, 7),
+        List(0, 3, 4),
+        List(0, 4, 6),
+        List(0, 4, 7),
+        List(1, 3, 9),
+        List(1, 6, 9),
+        List(1, 7, 9),
+        List(1, 8),
+        List(2, 3, 9),
+        List(2, 5),
+        List(2, 7, 9),
+        List(2, 8),
+        List(3, 4, 9),
+        List(4, 6, 9),
+        List(4, 7, 9),
+        List(5, 6)
+      )
+    )
+  }
 }
