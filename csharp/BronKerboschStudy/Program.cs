@@ -22,8 +22,8 @@ namespace BronKerboschStudy
                     DateTime begin = DateTime.Now;
                     Portfolio.Explore(func_index, graph, reporter);
                     var secs = new TimeSpan(DateTime.Now.Ticks - begin.Ticks).TotalSeconds;
-                    if (secs >= 1.0)
-                        Console.WriteLine("  {0:8}: {1:5.2f}s", FUNC_NAMES[func_index], secs);
+                    if (secs >= 3.0)
+                        Console.WriteLine($"  {FUNC_NAMES[func_index],8}: {secs,5:N2}s");
                     if (sample < 2)
                     {
                         Portfolio.SortCliques(reporter.Cliques);
@@ -32,7 +32,7 @@ namespace BronKerboschStudy
                             first = reporter.Cliques;
                         }
                         else if (first.SequenceEqual(reporter.Cliques))
-                            Console.WriteLine("  {0:8}: expected {1} cliques, obtained {2} cliques", FUNC_NAMES[func_index], secs, first.Count, reporter.Cliques.Count);
+                            Console.WriteLine($"  {FUNC_NAMES[func_index],8}: expected {first.Count} cliques, obtained {reporter.Cliques.Count} cliques");
                     }
                     times[func_index].Put(secs);
                 }
@@ -50,10 +50,8 @@ namespace BronKerboschStudy
             else
                 order = Int32.Parse(orderstr);
 
-            var fname = "bron_kerbosch_go_order_" + orderstr;
-            var path = fname + ".csv";
-
-            using (StreamWriter fo = File.AppendText(path))
+            var tmpfname = "tmp.csv";
+            using (StreamWriter fo = File.AppendText(tmpfname))
             {
                 fo.Write("Size");
                 foreach (string name in FUNC_NAMES)
@@ -66,19 +64,21 @@ namespace BronKerboschStudy
                     var random = new Random(19680516);
                     var g = RandomUndirectedGraph.Generate(random, order, size);
                     var stats = BronKerboschTimed(g, func_indices, samples);
-                    fo.Write("{0}", size);
+                    fo.Write($"{size}");
                     foreach ((int func_index, string func_name) in FUNC_NAMES.Select((n, i) => (i, n)))
                     {
                         var max = stats[func_index].Max;
                         var min = stats[func_index].Min;
                         var mean = stats[func_index].Mean;
                         var dev = stats[func_index].Deviation;
-                        fo.Write(",{0},{1},{2}", min, mean, max);
-                        Console.WriteLine("order {0:7} size {1:7) {2:8}s: {3:5.2}s ±{4:5.2}s", order, size, func_name, mean, dev);
+                        fo.Write($",{min},{mean},{max}");
+                        Console.WriteLine($"order {order,7:D} size {size,7:D} {func_name,8}: {mean,5:N2}s ±{dev,5:N2}s");
                     }
                     fo.WriteLine();
                 }
             }
+            var path = "..\\..\\..\\..\\bron_kerbosch_c#_order_" + orderstr + ".csv";
+            File.Move(tmpfname, path);
         }
 
         private static IEnumerable<int> Range(int start, int stop, int step)

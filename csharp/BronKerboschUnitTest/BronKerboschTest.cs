@@ -166,9 +166,26 @@ namespace BronKerboschUnitTest
                                 new Vertex[] { 0, 1, 2, 4, 9 },
                                 new Vertex[] { 1, 2 },
                                 new Vertex[] { 1, 2, 3, 4, 6, 7 }},
-               new Vertex[][] { new Vertex[] { 1, 2, 3, 4 },
-                                new Vertex[] { 2, 3, 5 },
-                                new Vertex[] { 5, 6, 7 } });
+               new Vertex[][] { new Vertex[] { 0, 1, 3 },
+                                new Vertex[] { 0, 1, 6 },
+                                new Vertex[] { 0, 1, 7 },
+                                new Vertex[] { 0, 2, 3 },
+                                new Vertex[] { 0, 2, 7 },
+                                new Vertex[] { 0, 3, 4 },
+                                new Vertex[] { 0, 4, 6 },
+                                new Vertex[] { 0, 4, 7 },
+                                new Vertex[] { 1, 3, 9 },
+                                new Vertex[] { 1, 6, 9 },
+                                new Vertex[] { 1, 7, 9 },
+                                new Vertex[] { 1, 8 },
+                                new Vertex[] { 2, 3, 9 },
+                                new Vertex[] { 2, 5 },
+                                new Vertex[] { 2, 7, 9 },
+                                new Vertex[] { 2, 8 },
+                                new Vertex[] { 3, 4, 9 },
+                                new Vertex[] { 4, 6, 9 },
+                                new Vertex[] { 4, 7, 9 },
+                                new Vertex[] { 5, 6 } });
         }
     }
 }

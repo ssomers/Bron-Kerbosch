@@ -25,21 +25,20 @@ class BronKerbosch1
     static void Visit(UndirectedGraph graph, Reporter reporter, HashSet<Vertex> candidates,
           HashSet<Vertex> excluded, List<Vertex> clique)
     {
-        if (candidates.Count == 0 && excluded.Count == 0)
+        if (!candidates.Any() && !excluded.Any())
             reporter.Record(clique);
 
         while (candidates.Any())
         {
             Vertex v = candidates.First();
+            candidates.Remove(v);
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            candidates.Remove(v);
             Visit(graph, reporter,
                   candidates.Intersect(neighbours).ToHashSet(),
                   excluded.Intersect(neighbours).ToHashSet(),
-                  clique.Concat(new[] { v }.ToList()).ToList());
+                  clique.Concat(new[] { v }).ToList());
             excluded.Add(v);
         }
-
     }
 }

@@ -27,24 +27,23 @@ public class BronKerbosch2
         if (!candidates.Any())
         {
             if (!excluded.Any())
-            {
                 reporter.Record(clique);
-            }
             return;
         }
 
         var pivot = candidates.First();
-        var far_candidates = candidates.Except(graph.Neighbours(pivot)).ToList();
+        var far_candidates = candidates.Except(graph.Neighbours(pivot)).ToArray();
         foreach (Vertex v in far_candidates)
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
+            candidates.Remove(v);
             Visit(graph, reporter,
                   candidates.Intersect(neighbours).ToHashSet(),
                   excluded.Intersect(neighbours).ToHashSet(),
-                  clique.Concat(new[] { v }.ToList()).ToList());
-            candidates.Remove(v);
-            excluded.Add(v);
+                  clique.Concat(new[] { v }).ToList());
+            bool ok = excluded.Add(v);
+            Debug.Assert(ok);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace BronKerbosch
 {
+    [DebuggerDisplay("{Index}")]
     public struct Vertex : IComparable<Vertex>
     {
         private readonly int Index;
@@ -54,7 +55,8 @@ namespace BronKerbosch
 
         public int Size
         {
-            get {
+            get
+            {
                 var total = (from adjacent in itsAdjacencies select adjacent.Count).Sum();
                 Debug.Assert(total % 2 == 0);
                 return total / 2;

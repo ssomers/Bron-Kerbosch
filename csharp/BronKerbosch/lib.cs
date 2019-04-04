@@ -1,4 +1,3 @@
-using BronKerbosch;
 using System;
 using System.Collections.Generic;
 
@@ -27,6 +26,10 @@ namespace BronKerbosch
 
         static int comparer(List<Vertex> lhs, List<Vertex> rhs)
         {
+            if (Object.Equals(lhs, rhs))
+            {   // Seriously, Sort sometimes compares an element with itself
+                return 0;
+            }
             for (var i = 0; i < lhs.Count && i < rhs.Count; i++)
             {
                 var d = lhs[i] - rhs[i];
@@ -35,8 +38,7 @@ namespace BronKerbosch
                     return d;
                 }
             }
-            throw new ArgumentException(String.Format("got overlapping or equal cliques (length {0} <> length {1})", lhs.Count, rhs.Count));
+            throw new ArgumentException($"got overlapping or equal cliques (length {lhs.Count} <> length {rhs.Count})");
         }
-
     }
 }

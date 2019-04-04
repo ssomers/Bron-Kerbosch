@@ -11,7 +11,8 @@ namespace BronKerboschStudy
         public static UndirectedGraph Generate(Random random, int order, int size)
         {
             var fully_meshed_size = order * (order - 1) / 2;
-            Debug.Assert(size <= fully_meshed_size);
+            if (size > fully_meshed_size)
+                throw new ArgumentException($"{order} nodes accommodate at most {fully_meshed_size} edges", "size");
             List<Vertex> unsaturated_vertices = Enumerable.Range(0, order).Select(index => new Vertex(index)).ToList();
             List<HashSet<Vertex>> adjacency_sets = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
             List<HashSet<Vertex>> adjacency_complements = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
