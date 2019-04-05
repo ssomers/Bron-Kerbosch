@@ -91,11 +91,11 @@ object main {
     val k = 1000
     val M = k * k
     val sizes_100: List[Int] = List((2 * k) to (3 * k) by 50: _*)
-    val sizes_10k: List[Int] = List(
-      ((1 * k) until (10 * k) by k) ++ ((10 * k) to (200 * k) by 10 * k): _*
-    )
+    val sizes_10k: List[Int] = List(((100 * k) to (800 * k) by 100 * k): _*)
     val sizes_1M: List[Int] = List(
-      (0 until (1 * M) by 250 * k) ++ ((1 * M) to (3 * M) by 500 * k): _*
+      (10 * k until (50 * k) by 10 * k)
+        ++ ((200 * k) until (1 * M) by 50 * k)
+        ++ ((1 * M) to (5 * M) by 1 * M): _*
     )
     Thread.sleep(4321) // give launcher some time to cool down
     bk("init", 2, List(1), 3)

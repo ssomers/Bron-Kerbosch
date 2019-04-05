@@ -221,7 +221,7 @@ fn bk(
     samples: u32,
     included_funcs: impl Fn(SetType, u32) -> Vec<usize>,
 ) -> Result<(), std::io::Error> {
-    const LANGUAGE: &str = "rustn";
+    const LANGUAGE: &str = "rust";
 
     let published = sizes.len() > 1;
     let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
