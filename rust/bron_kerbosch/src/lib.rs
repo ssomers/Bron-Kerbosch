@@ -15,7 +15,6 @@ pub mod mpmc;
 pub mod pile;
 pub mod reporter;
 pub mod slimgraph;
-pub mod util;
 
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use reporter::{Clique, Reporter, SimpleReporter};

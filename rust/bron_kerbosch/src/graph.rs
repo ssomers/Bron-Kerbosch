@@ -1,5 +1,3 @@
-use util::btree_intersect;
-
 extern crate fnv;
 extern crate hashbrown;
 extern crate rand;
@@ -70,16 +68,16 @@ impl VertexSetLike for BTreeSet<Vertex> {
         self.difference(other).cloned().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
-        btree_intersect(self, other).next().is_none()
+        self.is_disjoint(other)
     }
     fn intersection_size(&self, other: &Self) -> usize {
-        btree_intersect(self, other).count()
+        self.intersection(other).count()
     }
     fn intersection<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
-        btree_intersect(self, other).cloned().collect()
+        self.intersection(other).cloned().collect()
     }
     fn reserve(&mut self, _additional: usize) {}
     fn insert(&mut self, v: Vertex) {
