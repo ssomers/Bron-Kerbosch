@@ -52,7 +52,9 @@ struct Opt {
 enum SetType {
     BTreeSet,
     HashSet,
+    #[strum(to_string = "fnv")]
     Fnv,
+    #[strum(to_string = "hashbrown")]
     Hashbrown,
 }
 
@@ -292,7 +294,7 @@ fn main() -> Result<(), std::io::Error> {
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         let sizes_100 = (2_000..=3_000).step_by(50); // max 4_950
-        let sizes_10k = (150_000..=250_000).step_by(10_000); // max 499_500
+        let sizes_10k = (100_000..=800_000).step_by(100_000); // max 49_995_000
         let sizes_1m = std::iter::empty()
             .chain((10_000..50_000).step_by(10_000))
             .chain((50_000..200_000).step_by(50_000))
@@ -301,7 +303,20 @@ fn main() -> Result<(), std::io::Error> {
         let all_funcs = |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
         bk("100", 100, sizes_100.collect(), 5, all_funcs)?;
         thread::sleep(Duration::from_secs(7));
-        bk("10k", 10_000, sizes_10k.collect(), 5, all_funcs)?;
+        bk(
+            "10k",
+            10_000,
+            sizes_10k.collect(),
+            3,
+            |set_type: SetType, size: u32| -> Vec<usize> {
+                (0..NUM_FUNCS)
+                    .filter(|func_index| match func_index {
+                        0 | 4 | 8 => size <= 500_000 || set_type == SetType::Fnv,
+                        _ => true,
+                    })
+                    .collect()
+            },
+        )?;
         thread::sleep(Duration::from_secs(7));
         bk(
             "1M",

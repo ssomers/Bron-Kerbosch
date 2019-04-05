@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-func bk(orderstr string, order int, sizes []int) {
-	const SAMPLES = 3
+func bk(orderstr string, order int, sizes []int, samples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
 	path := name + ".csv"
 	fo, err := os.Create(path)
@@ -28,7 +27,7 @@ func bk(orderstr string, order int, sizes []int) {
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := bron_kerbosch.Timed(order, size, SAMPLES)
+		stats := bron_kerbosch.Timed(order, size, samples)
 		for func_index, func_name := range bron_kerbosch.FUNC_NAMES {
 			max := stats[func_index].Max()
 			min := stats[func_index].Min()
@@ -45,26 +44,25 @@ func main() {
 	var sizes_100 []int
 	var sizes_10k []int
 	var sizes_1M []int
-	for s := 2000; s <= 3000; s += 50 {
+	for s := int(2e3); s <= 3e3; s += 50 {
 		sizes_100 = append(sizes_100, s)
 	}
-	for s := 1000; s <= 200000; {
+	for s := int(100e3); s <= 800e3; s += 100e3 {
 		sizes_10k = append(sizes_10k, s)
-		if s < 10000 {
-			s += 1000
-		} else {
-			s += 10000
-		}
 	}
-	for s := 0; s <= 3e6; {
+	for s := int(10e3); s <= 5e6; {
 		sizes_1M = append(sizes_1M, s)
-		if s < 1e6 {
-			s += 0.25e6
+		if s < 50e3 {
+			s += 10e3
+		} else if s < 200e3 {
+			s += 50e3
+		} else if s < 1e6 {
+			s += 200e3
 		} else {
-			s += 0.5e6
+			s += 1e6
 		}
 	}
-	bk("100", 1e2, sizes_100)
-	bk("10k", 1e4, sizes_10k)
-	bk("1M", 1e6, sizes_1M)
+	bk("100", 1e2, sizes_100, 5)
+	bk("10k", 1e4, sizes_10k, 3)
+	bk("1M", 1e6, sizes_1M, 3)
 }

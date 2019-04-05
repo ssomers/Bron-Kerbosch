@@ -308,9 +308,9 @@ if __name__ == '__main__':
         time.sleep(7)
         bk(
             orderstr="10k",
-            sizes=range(150_000, 250_001, 10_000),  # max 499_500
+            sizes=range(100_000, 500_001, 100_000),  # max 49_995_000
             func_indices=all_func_indices,
-            samples=5)
+            samples=3)
         time.sleep(7)
         bk(orderstr="1M",
            sizes=itertools.chain(

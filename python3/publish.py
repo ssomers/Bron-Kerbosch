@@ -27,9 +27,9 @@ def color(case_name: str) -> str:
 def dash(case_name: str) -> str:
     if case_name.endswith("@HashSet"):
         return "dash"
-    if case_name.endswith("@Fnv"):
+    if case_name.endswith("@fnv"):
         return "dot"
-    if case_name.endswith("@Hashbrown"):
+    if case_name.endswith("@hashbrown"):
         return "longdash"
     return "solid"
 
@@ -106,6 +106,7 @@ def publish_csv(language: str, orderstr: str):
                         for s in range(len(sizes))
                     ],
                 ),
+                hoverinfo="name",
                 line=dict(
                     color=color(case_names[f]), dash=dash(case_names[f])),
                 marker=dict(color=color(case_names[f])),
