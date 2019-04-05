@@ -7,7 +7,7 @@ from typing import List, Set
 
 
 def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
-    '''Bron-Kerbosch algorithm with pivot and degenerate degeneracy ordering'''
+    '''Bron-Kerbosch algorithm with degenerate degeneracy ordering'''
     candidates = set()
     max_degree = 0
     for node in range(graph.order):
@@ -29,12 +29,17 @@ def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
             neighbours = graph.adjacencies[v]
             assert neighbours
             candidates.remove(v)
-            visit(
-                graph=graph,
-                reporter=reporter,
-                initial_pivot_choice=pick_max_degree,
-                further_pivot_choice=pick_max_degree,
-                candidates=candidates.intersection(neighbours),
-                excluded=excluded.intersection(neighbours),
-                clique=[v])
+            neighbouring_candidates = candidates.intersection(neighbours)
+            if not neighbouring_candidates:
+                assert not excluded.isdisjoint(neighbours)
+            else:
+                neighbouring_excluded = excluded.intersection(neighbours)
+                visit(
+                    graph=graph,
+                    reporter=reporter,
+                    initial_pivot_choice=pick_max_degree,
+                    further_pivot_choice=pick_max_degree,
+                    candidates=neighbouring_candidates,
+                    excluded=neighbouring_excluded,
+                    clique=[v])
             excluded.add(v)

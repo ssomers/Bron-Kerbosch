@@ -1,4 +1,5 @@
-//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, recursing with arbitrary pivots
+//! Bron-Kerbosch algorithm with degeneracy ordering,
+//! recursing with pivot of highest degree towards the remaining candidates (IK_GPX)
 
 use bron_kerbosch_degeneracy::degeneracy_order;
 use bron_kerbosch_pivot::{visit, PivotChoice};
@@ -18,17 +19,21 @@ where
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates = neighbours.intersection(&candidates);
-        let neighbouring_excluded = neighbours.intersection(&excluded);
+        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        if neighbouring_candidates.is_empty() {
+            debug_assert!(!neighbours.is_disjoint(&excluded));
+        } else {
+            let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+            visit(
+                graph,
+                reporter,
+                PivotChoice::MaxDegreeLocal,
+                PivotChoice::MaxDegreeLocal,
+                neighbouring_candidates,
+                neighbouring_excluded,
+                Pile::from(v),
+            );
+        }
         excluded.insert(v);
-        visit(
-            graph,
-            reporter,
-            PivotChoice::MaxDegreeLocal,
-            PivotChoice::MaxDegreeLocal,
-            neighbouring_candidates,
-            neighbouring_excluded,
-            Pile::from(v),
-        );
     }
 }

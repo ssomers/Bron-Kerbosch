@@ -1,5 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot
-//! with highest degree towards the remaining candidates (IK_GPX)
+//! Bron-Kerbosch algorithm with pivot of highest degree towards the remaining candidates (IK_GPX)
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, VertexSetLike};

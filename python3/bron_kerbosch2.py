@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from bron_kerbosch_pivot import pick_arbitrary, visit
-from graph import UndirectedGraph, Vertex
+from graph import UndirectedGraph
 from reporter import Reporter
 
 

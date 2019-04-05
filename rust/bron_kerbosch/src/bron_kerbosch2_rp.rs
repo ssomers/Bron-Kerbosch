@@ -1,4 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot, slightly optimized and picking pivot randomly (IK_RP)
+//! Bron-Kerbosch algorithm with pivot picked randomly (IK_RP)
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, VertexSetLike};

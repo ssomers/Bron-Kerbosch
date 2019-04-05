@@ -8,8 +8,8 @@ from typing import Set
 
 
 def bron_kerbosch3_gpx(graph: UndirectedGraph, reporter: Reporter):
-    '''Bron-Kerbosch algorithm with pivot and degeneracy ordering,
-    optimized'''
+    '''Bron-Kerbosch algorithm with degeneracy ordering,
+    recursing with pivot of highest degree towards the remaining candidates (IK_GPX)'''
     candidates = graph.connected_nodes()
     excluded: Set[Vertex] = set()
     assert len(candidates) == len(list(degeneracy_order(graph=graph)))
@@ -18,12 +18,17 @@ def bron_kerbosch3_gpx(graph: UndirectedGraph, reporter: Reporter):
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
-        visit(
-            graph=graph,
-            reporter=reporter,
-            initial_pivot_choice=pick_max_degree_local,
-            further_pivot_choice=pick_max_degree_local,
-            candidates=candidates.intersection(neighbours),
-            excluded=excluded.intersection(neighbours),
-            clique=[v])
+        neighbouring_candidates = candidates.intersection(neighbours)
+        if not neighbouring_candidates:
+            assert not excluded.isdisjoint(neighbours)
+        else:
+            neighbouring_excluded = excluded.intersection(neighbours)
+            visit(
+                graph=graph,
+                reporter=reporter,
+                initial_pivot_choice=pick_max_degree_local,
+                further_pivot_choice=pick_max_degree_local,
+                candidates=neighbouring_candidates,
+                excluded=neighbouring_excluded,
+                clique=[v])
         excluded.add(v)

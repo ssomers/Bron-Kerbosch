@@ -15,13 +15,9 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
           initial_pivot_choice: PivotChoice, further_pivot_choice: PivotChoice,
           candidates: Set[Vertex], excluded: Set[Vertex],
           clique: List[Vertex]):
+    assert candidates
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
-
-    if not candidates:
-        if not excluded:
-            reporter.record(clique)
-        return
 
     pivot = initial_pivot_choice(
         graph=graph, candidates=candidates, excluded=excluded)
@@ -29,14 +25,20 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
-        visit(
-            graph=graph,
-            reporter=reporter,
-            initial_pivot_choice=further_pivot_choice,
-            further_pivot_choice=further_pivot_choice,
-            candidates=candidates.intersection(neighbours),
-            excluded=excluded.intersection(neighbours),
-            clique=clique + [v])
+        neighbouring_candidates = candidates.intersection(neighbours)
+        if neighbouring_candidates:
+            neighbouring_excluded = excluded.intersection(neighbours)
+            visit(
+                graph=graph,
+                reporter=reporter,
+                initial_pivot_choice=further_pivot_choice,
+                further_pivot_choice=further_pivot_choice,
+                candidates=neighbouring_candidates,
+                excluded=neighbouring_excluded,
+                clique=clique + [v])
+        else:
+            if excluded.isdisjoint(neighbours):
+                reporter.record(clique + [v])
         excluded.add(v)
 
 

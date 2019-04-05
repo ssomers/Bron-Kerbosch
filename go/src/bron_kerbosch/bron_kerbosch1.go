@@ -16,19 +16,24 @@ func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
 
 func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter, candidates *VertexSet,
 	excluded *VertexSet, clique []Vertex) {
-	if candidates.IsEmpty() && excluded.IsEmpty() {
-		reporter.Record(clique)
-	}
-
-	for !candidates.IsEmpty() {
+	for {
 		v := candidates.PopArbitrary()
 		neighbours := &graph.adjacencies[v]
 		neighbouring_candidates := candidates.Intersection(neighbours)
-		neighbouring_excluded := excluded.Intersection(neighbours)
-		bron_kerbosch1_visit(graph, reporter,
-			&neighbouring_candidates,
-			&neighbouring_excluded,
-			append(clique, v))
+		if !neighbouring_candidates.IsEmpty() {
+			neighbouring_excluded := excluded.Intersection(neighbours)
+			bron_kerbosch1_visit(graph, reporter,
+				&neighbouring_candidates,
+				&neighbouring_excluded,
+				append(clique, v))
+		} else {
+			if excluded.IsDisjoint(neighbours) {
+				reporter.Record(append(clique, v))
+			}
+			if candidates.IsEmpty() {
+				break
+			}
+		}
 		excluded.Add(v)
 	}
 }

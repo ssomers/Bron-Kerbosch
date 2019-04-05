@@ -1,5 +1,4 @@
 import base.Vertex
-import util.intersect
 
 object bron_kerbosch1 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
@@ -16,24 +15,32 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
             clique: Seq[Vertex]): Unit = {
     var candidates = initial_candidates
     var excluded = initial_excluded
+    assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
-    if (candidates.isEmpty && excluded.isEmpty) {
-      reporter.record(clique)
-      return
-    }
 
-    while (candidates.nonEmpty) {
+    while (true) {
       val v = candidates.head
       candidates = candidates.tail
       val neighbours = graph.neighbours(v)
-      visit(
-        graph,
-        reporter,
-        intersect(candidates, neighbours),
-        intersect(excluded, neighbours),
-        clique :+ v
-      )
+      val neighbouring_candidates = util.intersect(candidates, neighbours)
+      if (neighbouring_candidates.nonEmpty) {
+        val neighbouring_excluded = util.intersect(excluded, neighbours);
+        visit(
+          graph,
+          reporter,
+          neighbouring_candidates,
+          neighbouring_excluded,
+          clique :+ v
+        )
+      } else {
+        if (util.is_disjoint(excluded, neighbours)) {
+          reporter.record(clique :+ v)
+        }
+        if (candidates.isEmpty) {
+          return
+        }
+      }
       excluded += v
     }
   }

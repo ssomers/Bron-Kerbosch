@@ -1,4 +1,6 @@
-//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
+//! Bron-Kerbosch algorithm with degeneracy ordering,
+//! recursing with pivot of highest degree (IK_GP)
+//! implemented by multiple threads
 
 use super::mpmc;
 use bron_kerbosch_degeneracy::degeneracy_order;
@@ -49,16 +51,20 @@ where
                 let neighbours = graph.neighbours(v);
                 debug_assert!(!neighbours.is_empty());
                 candidates.remove(&v);
-                let neighbouring_candidates = neighbours.intersection(&candidates);
-                let neighbouring_excluded = neighbours.intersection(&excluded);
+                let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+                if neighbouring_candidates.is_empty() {
+                    debug_assert!(!neighbours.is_disjoint(&excluded));
+                } else {
+                    let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+                    visit_tx
+                        .send(VisitJob {
+                            candidates: neighbouring_candidates,
+                            excluded: neighbouring_excluded,
+                            clique: Pile::from(v),
+                        })
+                        .unwrap();
+                }
                 excluded.insert(v);
-                visit_tx
-                    .send(VisitJob {
-                        candidates: neighbouring_candidates,
-                        excluded: neighbouring_excluded,
-                        clique: Pile::from(v),
-                    })
-                    .unwrap();
             }
         });
 

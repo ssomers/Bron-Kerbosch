@@ -32,27 +32,32 @@ fn visit<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
+    debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
 
-    if candidates.is_empty() {
-        if excluded.is_empty() {
-            reporter.record(clique.collect());
-        }
-        return;
-    }
-    while let Some(v) = candidates.pop_arbitrary() {
+    loop {
+        let v = candidates.pop_arbitrary().unwrap();
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates = neighbours.intersection(&candidates);
-        let neighbouring_excluded = neighbours.intersection(&excluded);
-        visit(
-            graph,
-            reporter,
-            neighbouring_candidates,
-            neighbouring_excluded,
-            clique.place(v),
-        );
+        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        if !neighbouring_candidates.is_empty() {
+            let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+            visit(
+                graph,
+                reporter,
+                neighbouring_candidates,
+                neighbouring_excluded,
+                clique.place(v),
+            );
+        } else {
+            if neighbours.is_disjoint(&excluded) {
+                reporter.record(clique.place(v).collect());
+            }
+            if candidates.is_empty() {
+                break;
+            }
+        }
         excluded.insert(v);
     }
 }

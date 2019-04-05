@@ -16,13 +16,6 @@ func bron_kerbosch2(graph *UndirectedGraph, reporter Reporter) {
 
 func bron_kerbosch2_visit(graph *UndirectedGraph, reporter Reporter, candidates *VertexSet,
 	excluded *VertexSet, clique []Vertex) {
-	if candidates.IsEmpty() {
-		if excluded.IsEmpty() {
-			reporter.Record(clique)
-		}
-		return
-	}
-
 	pivot := candidates.PickArbitrary()
 	pivot_neighbours := &graph.adjacencies[pivot]
 	far_candidates := make([]Vertex, 0, len(*candidates))
@@ -35,11 +28,17 @@ func bron_kerbosch2_visit(graph *UndirectedGraph, reporter Reporter, candidates 
 		candidates.Remove(v)
 		neighbours := &graph.adjacencies[v]
 		neighbouring_candidates := candidates.Intersection(neighbours)
-		neighbouring_excluded := excluded.Intersection(neighbours)
-		bron_kerbosch2_visit(graph, reporter,
-			&neighbouring_candidates,
-			&neighbouring_excluded,
-			append(clique, v))
+		if !neighbouring_candidates.IsEmpty() {
+			neighbouring_excluded := excluded.Intersection(neighbours)
+			bron_kerbosch2_visit(graph, reporter,
+				&neighbouring_candidates,
+				&neighbouring_excluded,
+				append(clique, v))
+		} else {
+			if excluded.IsDisjoint(neighbours) {
+				reporter.Record(append(clique, v))
+			}
+		}
 		excluded.Add(v)
 	}
 }

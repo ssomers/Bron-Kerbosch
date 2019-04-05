@@ -1,4 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot picked arbitrarily, slightly optimized
+//! Bron-Kerbosch algorithm with pivot picked arbitrarily
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_nodes, UndirectedGraph, VertexSetLike};

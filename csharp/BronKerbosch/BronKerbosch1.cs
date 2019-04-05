@@ -3,6 +3,7 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 class BronKerbosch1
 {
@@ -29,24 +30,22 @@ class BronKerbosch1
 
         while (candidates.Count > 0)
         {
-            Vertex v = PopArbitrary(candidates);
+            Vertex v = Util.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Count > 0);
-            ISet<Vertex> neighbouring_candidates = new HashSet<Vertex>(candidates);
-            neighbouring_candidates.IntersectWith(neighbours);
-            ISet<Vertex> neighbouring_excluded = new HashSet<Vertex>(excluded);
-            neighbouring_excluded.IntersectWith(neighbours);
-            Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+            var neighbouring_candidates = Util.Intersect(candidates, neighbours);
+            if (neighbouring_candidates.Any())
+            {
+                var neighbouring_excluded = Util.Intersect(excluded, neighbours);
+                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+            }
+            else
+            {
+                if (Util.AreDisjoint(excluded, neighbours))
+                    reporter.Record(new List<Vertex>(clique) { v });
+            }
             excluded.Add(v);
         }
     }
 
-    private static Vertex PopArbitrary(ISet<Vertex> candidates)
-    {
-        var en = candidates.GetEnumerator();
-        var ok = en.MoveNext();
-        Debug.Assert(ok);
-        candidates.Remove(en.Current);
-        return en.Current;
-    }
 }

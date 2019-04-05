@@ -25,36 +25,35 @@ pub fn visit<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
+    debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
-
-    if candidates.is_empty() {
-        if excluded.is_empty() {
-            reporter.record(clique.collect());
-        }
-        return;
-    }
 
     let &pivot = choose(initial_pivot_selection, &candidates, &excluded, graph).unwrap();
     let far_candidates: Vec<Vertex> = candidates.difference(graph.neighbours(pivot));
     excluded.reserve(far_candidates.len());
     for v in far_candidates {
         let neighbours = graph.neighbours(v);
-        debug_assert!(!neighbours.is_empty());
         candidates.remove(&v);
-        let neighbouring_candidates = neighbours.intersection(&candidates);
-        let neighbouring_excluded = neighbours.intersection(&excluded);
+        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        if !neighbouring_candidates.is_empty() {
+            let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+            visit(
+                graph,
+                reporter,
+                further_pivot_selection.clone(),
+                further_pivot_selection.clone(),
+                neighbouring_candidates,
+                neighbouring_excluded,
+                clique.place(v),
+            );
+        } else {
+            if neighbours.is_disjoint(&excluded) {
+                reporter.record(clique.place(v).collect());
+            }
+        }
         excluded.insert(v);
-        visit(
-            graph,
-            reporter,
-            further_pivot_selection.clone(),
-            further_pivot_selection.clone(),
-            neighbouring_candidates,
-            neighbouring_excluded,
-            clique.place(v),
-        );
     }
 }
 

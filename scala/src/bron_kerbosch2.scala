@@ -15,27 +15,30 @@ object bron_kerbosch2 extends bron_kerbosch_algorithm {
             clique: Seq[Vertex]): Unit = {
     var candidates = initial_candidates
     var excluded = initial_excluded
+    assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
-    if (candidates.isEmpty) {
-      if (excluded.isEmpty) {
-        reporter.record(clique)
-      }
-      return
-    }
 
     val pivot = candidates.head
     val far_candidates = candidates diff graph.neighbours(pivot)
     for (v <- far_candidates) {
       val neighbours = graph.neighbours(v)
       candidates -= v
-      visit(
-        graph,
-        reporter,
-        util.intersect(candidates, neighbours),
-        util.intersect(excluded, neighbours),
-        clique :+ v
-      )
+      val neighbouring_candidates = util.intersect(candidates, neighbours)
+      if (neighbouring_candidates.nonEmpty) {
+        val neighbouring_excluded = util.intersect(excluded, neighbours);
+        visit(
+          graph,
+          reporter,
+          neighbouring_candidates,
+          neighbouring_excluded,
+          clique :+ v
+        )
+      } else {
+        if (util.is_disjoint(excluded, neighbours)) {
+          reporter.record(clique :+ v)
+        }
+      }
       excluded += v
     }
   }

@@ -6,7 +6,7 @@ from reporter import Reporter
 
 
 def bron_kerbosch2_gp(graph: UndirectedGraph, reporter: Reporter):
-    '''Bron-Kerbosch algorithm with pivot, slightly optimized'''
+    '''Bron-Kerbosch algorithm with pivot of highest degree (IK_GP)'''
     candidates = graph.connected_nodes()
     if candidates:
         visit(

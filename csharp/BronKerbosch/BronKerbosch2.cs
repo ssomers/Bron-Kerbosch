@@ -3,6 +3,7 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 public class BronKerbosch2
 {
@@ -23,35 +24,26 @@ public class BronKerbosch2
     static void Visit(UndirectedGraph graph, Reporter reporter, ISet<Vertex> candidates,
           ISet<Vertex> excluded, List<Vertex> clique)
     {
-        if (candidates.Count == 0)
-        {
-            if (excluded.Count == 0)
-                reporter.Record(clique);
-            return;
-        }
-
-        var pivot = GetArbitrary(candidates);
-        ISet<Vertex> far_candidates = new HashSet<Vertex>(candidates);
-        far_candidates.ExceptWith(graph.Neighbours(pivot));
+        Debug.Assert(candidates.Count > 0);
+        var pivot = Util.GetArbitrary(candidates);
+        var far_candidates = candidates.Except(graph.Neighbours(pivot)).ToArray();
         foreach (Vertex v in far_candidates)
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Count > 0);
             candidates.Remove(v);
-            ISet<Vertex> neighbouring_candidates = new HashSet<Vertex>(candidates);
-            neighbouring_candidates.IntersectWith(neighbours);
-            ISet<Vertex> neighbouring_excluded = new HashSet<Vertex>(excluded);
-            neighbouring_excluded.IntersectWith(neighbours);
-            Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+            var neighbouring_candidates = Util.Intersect(candidates, neighbours);
+            if (neighbouring_candidates.Any())
+            {
+                var neighbouring_excluded = Util.Intersect(excluded, neighbours);
+                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+            }
+            else
+            {
+                if (Util.AreDisjoint(excluded, neighbours))
+                    reporter.Record(new List<Vertex>(clique) { v });
+            }
             excluded.Add(v);
         }
-    }
-
-    private static Vertex GetArbitrary(ISet<Vertex> candidates)
-    {
-        var en = candidates.GetEnumerator();
-        var ok = en.MoveNext();
-        Debug.Assert(ok);
-        return en.Current;
     }
 }
