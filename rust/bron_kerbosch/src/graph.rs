@@ -36,7 +36,11 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     where
         F: Fn(&Vertex) -> bool;
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
+    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
+    where
+        F: Fn(&&Vertex) -> usize;
+
+    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
     where
         F: Fn(&&Vertex) -> usize;
 
@@ -107,11 +111,18 @@ impl VertexSetLike for BTreeSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
+    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {
-        self.iter().chain(excluded).max_by_key(f)
+        self.iter().max_by_key(f)
+    }
+
+    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
+    where
+        F: FnMut(&&Vertex) -> usize,
+    {
+        self.iter().chain(other).max_by_key(f)
     }
 
     fn for_each<F>(&self, mut f: F)
@@ -188,11 +199,18 @@ impl VertexSetLike for HashSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
+    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {
-        self.iter().chain(excluded).max_by_key(f)
+        self.iter().max_by_key(f)
+    }
+
+    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
+    where
+        F: FnMut(&&Vertex) -> usize,
+    {
+        self.iter().chain(other).max_by_key(f)
     }
 
     fn for_each<F>(&self, mut f: F)
@@ -269,11 +287,18 @@ impl VertexSetLike for FnvHashSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
+    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {
-        self.iter().chain(excluded).max_by_key(f)
+        self.iter().max_by_key(f)
+    }
+
+    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
+    where
+        F: FnMut(&&Vertex) -> usize,
+    {
+        self.iter().chain(other).max_by_key(f)
     }
 
     fn for_each<F>(&self, mut f: F)
@@ -350,11 +375,18 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
         self.iter().all(f)
     }
 
-    fn max_by_key_from_either<'a, F>(&'a self, excluded: &'a Self, f: F) -> Option<&'a Vertex>
+    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
     where
         F: FnMut(&&Vertex) -> usize,
     {
-        self.iter().chain(excluded).max_by_key(f)
+        self.iter().max_by_key(f)
+    }
+
+    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
+    where
+        F: FnMut(&&Vertex) -> usize,
+    {
+        self.iter().chain(other).max_by_key(f)
     }
 
     fn for_each<F>(&self, mut f: F)

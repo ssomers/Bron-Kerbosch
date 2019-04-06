@@ -62,8 +62,7 @@ def pick_random(graph: UndirectedGraph, candidates: Set[Vertex],
 
 def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex],
                     excluded: Set[Vertex]) -> Vertex:
-    return max(
-        itertools.chain(candidates, excluded), key=lambda v: graph.degree(v))
+    return max(candidates, key=lambda v: graph.degree(v))
 
 
 def pick_max_degree_local(graph: UndirectedGraph, candidates: Set[Vertex],

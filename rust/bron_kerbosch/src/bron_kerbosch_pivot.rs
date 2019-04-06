@@ -73,7 +73,7 @@ where
             candidates.choose(&mut rng)
         }
         PivotChoice::MaxDegree => {
-            candidates.max_by_key_from_either(excluded, |&&v| graph.degree(v) as usize)
+            candidates.max_by_key(|&&v| graph.degree(v) as usize)
         }
         PivotChoice::MaxDegreeLocal => candidates.max_by_key_from_either(excluded, |&&v| {
             graph.neighbours(v).intersection_size(&candidates)
