@@ -14,15 +14,15 @@ Compared to the original forked from, the code is:
 ## Implementations
 
 * **Ver1:** Naive Bron-Kerbosch algorithm
-* **Ver2:** Ver1 with pivot, picking pivot arbitrarily
-* **Ver3:** Ver2 with degeneracy ordering (optimized, where the original clearly marked it necessary)
-* **Ver1+:** Ver1 slightly optimized with language-specific tweaks
-* **Ver2_GP:** Ver2 picking pivot with highest degree (IK\_GP)
-* **Ver2_GPX:** Ver2 picking pivot with highest degree towards the remaining candidates (IK\_GPX)
-* **Ver2_RP:** Ver2 picking pivot randomly (IK\_RP)
-* **Ver3_GP:** Ver3 with recursive calls picking pivot with highest degree
-* **Ver3+MT:** (Rust only) Ver3_GP with multi-threading (±4 threads, measured on a CPU with 2 cores and hyperthreading)
-* **Ver3-:** (Python only) Ver3 with simplified order, determined by degree only
+* **Ver1+:** Ver1 optimized, including language-specific tweaks
+* **Ver2+:** Ver1+ with pivot, picking pivot arbitrarily
+* **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
+* **Ver2+GP:** Ver2+ picking pivot with highest degree (IK\_GP)
+* **Ver2+GPX:** Ver2+ picking pivot with highest degree towards the remaining candidates (IK\_GPX)
+* **Ver2+RP:** Ver2+ picking pivot randomly (IK\_RP)
+* **Ver3+GP:** Ver3+ with recursive calls picking pivot with highest degree
+* **Ver3+MT:** (Rust only) Ver3+GP with multi-threading (±4 threads, measured on a CPU with 2 cores and hyperthreading)
+* **Ver3-:** (Python only) Ver3+ with simplified order, determined by degree only
 
 ## Run
 

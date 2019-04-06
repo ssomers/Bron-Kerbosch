@@ -1,33 +1,36 @@
 import base.Vertex
 
-import scala.collection.immutable.{SortedSet, TreeSet}
 import scala.util.Random
 
 object main {
-  val FUNC_NAMES = List("Ver1", "Ver2")
+  val FUNC_NAMES = List("Ver1+", "Ver2+")
   val FUNCS = List(bron_kerbosch1, bron_kerbosch2)
 
-  type OrderedClique = SortedSet[Vertex]
-  type OrderedCliques = SortedSet[OrderedClique]
-  implicit def CliqueOrdering: Ordering[OrderedClique] =
-    (a: OrderedClique, b: OrderedClique) => {
-      require(a.size > 1)
-      require(b.size > 1)
-      a.iterator
-        .zip(b.iterator)
-        .map { case (va, vb) => va - vb }
-        .find { _ != 0 }
-        .getOrElse(a.size - b.size)
-    }
-  def order_cliques(cliques: Iterable[Iterable[Vertex]]): OrderedCliques = {
-    new TreeSet[OrderedClique] ++ cliques
-      .map(clique => new TreeSet[Vertex] ++ clique.toSet)
-      .toSet
+  type Clique = IndexedSeq[Vertex]
+  type Cliques = List[Clique]
+  def order_cliques(cliques: Cliques): Cliques = {
+    cliques
+      .map(clique => clique.sortWith(_.compareTo(_) < 0))
+      .sortWith((a: Clique, b: Clique) => {
+        require(a.size > 1)
+        require(b.size > 1)
+        require(!(a eq b))
+        val result =
+          a.iterator.zip(b.iterator).map { case (va, vb) => va - vb }.find {
+            _ != 0
+          }
+        if (result.isEmpty) {
+          throw new IllegalArgumentException(
+            f"got overlapping or equal cliques {a} <> {b}"
+          )
+        }
+        result.get < 0
+      })
   }
 
   def bron_kerbosch_timed(graph: UndirectedGraph,
                           samples: Int): Array[SampleStatistics] = {
-    var first: Option[OrderedCliques] = None
+    var first: Option[Cliques] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
 
     for (sample <- 1 to samples; (func, func_index) <- FUNCS.zipWithIndex) {
@@ -39,10 +42,10 @@ object main {
       times(func_index).put(elapsed)
 
       if (samples > 1 && sample <= 2) {
-        val orderedCliques = order_cliques(reporter.cliques.toList)
+        val cliques = order_cliques(reporter.cliques.toList)
         first match {
-          case None               => first = Some(orderedCliques)
-          case Some(firstCliques) => require(firstCliques == orderedCliques)
+          case None               => first = Some(cliques)
+          case Some(firstCliques) => require(firstCliques == cliques)
         }
       }
     }
@@ -86,19 +89,19 @@ object main {
 
   def main(args: Array[String]) {
     //noinspection NameBooleanParameters
-    assert(false, "Turn off assertions for meaningful measurements")
+    assert(false, "Specify -Xdisable-assertions for meaningful measurements")
 
     val k = 1000
     val M = k * k
     val sizes_100: List[Int] = List((2 * k) to (3 * k) by 50: _*)
     val sizes_10k: List[Int] = List(((100 * k) to (800 * k) by 100 * k): _*)
     val sizes_1M: List[Int] = List(
-      (10 * k until (50 * k) by 10 * k)
+      (10 * k to (50 * k) by 10 * k)
         ++ ((200 * k) until (1 * M) by 50 * k)
         ++ ((1 * M) to (5 * M) by 1 * M): _*
     )
+    bk("warmup", 100, List(2000), 3)
     Thread.sleep(4321) // give launcher some time to cool down
-    bk("init", 2, List(1), 3)
     bk("100", 100, sizes_100, 5)
     bk("10k", 10 * k, sizes_10k, 5)
     bk("1M", 1 * M, sizes_1M, 3)

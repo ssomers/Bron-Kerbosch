@@ -9,7 +9,8 @@ namespace BronKerboschStudy
 {
     class Program
     {
-        private static readonly string[] FUNC_NAMES = new string[] { "Ver1", "Ver2" };
+        private static readonly string[] FUNC_NAMES = new string[] { "Ver1+", "Ver2+" };
+
         private static SampleStatistics[] BronKerboschTimed(UndirectedGraph graph, int[] func_indices, int samples)
         {
             List<List<Vertex>> first = null;
@@ -100,15 +101,11 @@ namespace BronKerboschStudy
         {
             var all_func_indices = new[] { 0, 1 };
             Debug.Fail("Run Release build for meaningful measurements");
-            bk("100", Range(2_000, 3_001, 50), // max 4_950
-               all_func_indices, 5);
-            bk("10k",
-               Range(1_000, 10_000, 1_000).Concat(Range(10_000, 200_001, 10_000)),
-               all_func_indices,
-               5);
+            //bk("99", Range(3_000, 3_001, 1), new[] { 1 }, 3); return;
+            bk("100", Range(2_000, 3_001, 50), all_func_indices, 5); // max 4_950
             /*
-            bk("1M",
-               Range(250_000, 1_000_000, 250_000).Concat(Range(1_000_000, 3_000_001, 500_000)),
+            bk("10k", Range(100_000, 500_000, 100_000), all_func_indices, 3);
+            bk("1M", Range(250_000, 1_000_000, 250_000).Concat(Range(1_000_000, 3_000_001, 500_000)),
                all_func_indices, 3);
             */
         }

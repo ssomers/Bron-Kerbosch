@@ -9,7 +9,7 @@ import (
 const NUM_FUNCS = 2
 
 var FUNCS = [NUM_FUNCS]func(*UndirectedGraph, Reporter){bron_kerbosch1, bron_kerbosch2}
-var FUNC_NAMES = [NUM_FUNCS]string{"Ver1", "Ver2"}
+var FUNC_NAMES = [NUM_FUNCS]string{"Ver1+", "Ver2+"}
 
 func sort_cliques(cliques [][]Vertex) {
 	for _, clique := range cliques {
@@ -63,11 +63,9 @@ func Timed(order int, size int, samples int) [NUM_FUNCS]SampleStatistics {
 			begin := time.Now()
 			bron_kerbosch_func(&graph, &reporter)
 			secs := time.Since(begin).Seconds()
-			/*
-				if secs >= 1.0 {
-					fmt.Printf("  %8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
-				}
-			*/
+			if secs >= 3.0 {
+				fmt.Printf("  %8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
+			}
 			if sample < 2 {
 				current := reporter.cliques
 				sort_cliques(current)

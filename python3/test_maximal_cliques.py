@@ -40,13 +40,13 @@ FUNCS = [
 FUNC_NAMES = [
     "Ver1",
     "Ver1+",
-    "Ver2",
-    "Ver2_GP",
-    "Ver2_GPX",
-    "Ver2_RP",
-    "Ver3",
-    "Ver3_GP",
-    "Ver3_GPX",
+    "Ver2+",
+    "Ver2+GP",
+    "Ver2+GPX",
+    "Ver2+RP",
+    "Ver3+",
+    "Ver3+GP",
+    "Ver3+GPX",
     "Ver3-",
 ]
 

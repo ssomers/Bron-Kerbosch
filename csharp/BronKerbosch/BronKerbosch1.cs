@@ -22,13 +22,10 @@ class BronKerbosch1
     }
 
 
-    static void Visit(UndirectedGraph graph, Reporter reporter, ISet<Vertex> candidates,
-          ISet<Vertex> excluded, List<Vertex> clique)
+    static void Visit(UndirectedGraph graph, Reporter reporter,
+                      ISet<Vertex> candidates, ISet<Vertex> excluded, List<Vertex> clique)
     {
-        if (candidates.Count == 0 && excluded.Count == 0)
-            reporter.Record(clique);
-
-        while (candidates.Count > 0)
+        while (true)
         {
             Vertex v = Util.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
@@ -37,15 +34,17 @@ class BronKerbosch1
             if (neighbouring_candidates.Any())
             {
                 var neighbouring_excluded = Util.Intersect(excluded, neighbours);
-                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded,
+                      new List<Vertex>(clique) { v });
             }
             else
             {
                 if (Util.AreDisjoint(excluded, neighbours))
                     reporter.Record(new List<Vertex>(clique) { v });
+                if (candidates.Count == 0)
+                    break;
             }
             excluded.Add(v);
         }
     }
-
 }

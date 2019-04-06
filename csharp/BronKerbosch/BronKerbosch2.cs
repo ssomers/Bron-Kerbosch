@@ -21,8 +21,8 @@ public class BronKerbosch2
         }
     }
 
-    static void Visit(UndirectedGraph graph, Reporter reporter, ISet<Vertex> candidates,
-          ISet<Vertex> excluded, List<Vertex> clique)
+    static void Visit(UndirectedGraph graph, Reporter reporter,
+                      ISet<Vertex> candidates, ISet<Vertex> excluded, List<Vertex> clique)
     {
         Debug.Assert(candidates.Count > 0);
         var pivot = Util.GetArbitrary(candidates);
@@ -36,7 +36,8 @@ public class BronKerbosch2
             if (neighbouring_candidates.Any())
             {
                 var neighbouring_excluded = Util.Intersect(excluded, neighbours);
-                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, new List<Vertex>(clique) { v });
+                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded,
+                      new List<Vertex>(clique) { v });
             }
             else
             {
