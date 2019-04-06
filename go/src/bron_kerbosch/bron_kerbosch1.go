@@ -2,9 +2,9 @@ package bron_kerbosch
 
 func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
 	// Naive Bron-Kerbosch algorithm
-	candidates := graph.connected_nodes()
+	candidates := graph.connected_vertices()
 	if !candidates.IsEmpty() {
-		excluded := make(VertexSet)
+		excluded := make(VertexSet, len(candidates))
 		bron_kerbosch1_visit(
 			graph,
 			reporter,

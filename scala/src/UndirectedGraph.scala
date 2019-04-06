@@ -9,5 +9,5 @@ trait UndirectedGraph {
 
   def neighbours(node: Vertex): Set[Vertex]
 
-  def connected_nodes(): Set[Vertex]
+  def connected_vertices(): Set[Vertex]
 }

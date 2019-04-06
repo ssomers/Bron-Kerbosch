@@ -19,7 +19,7 @@ class PriorityQueue:
                 pass
 
 
-def degeneracy_order(graph: UndirectedGraph):
+def degeneracy_ordering(graph: UndirectedGraph):
     priority_per_node = [-2] * graph.order
     max_degree = 0
     num_candidates = 0

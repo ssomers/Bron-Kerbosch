@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from bron_kerbosch_degeneracy import degeneracy_order
+from bron_kerbosch_degeneracy import degeneracy_ordering
 from bron_kerbosch_pivot import pick_max_degree, visit
 from graph import UndirectedGraph, Vertex
 from reporter import Reporter
@@ -10,18 +10,16 @@ from typing import Set
 def bron_kerbosch3_gp(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with degeneracy ordering,
        recursing with pivot of highest degree (IK_GP)'''
-    candidates = graph.connected_nodes()
+    candidates = graph.connected_vertices()
     excluded: Set[Vertex] = set()
-    assert len(candidates) == len(list(degeneracy_order(graph=graph)))
-    assert candidates == set(degeneracy_order(graph=graph))
-    for v in degeneracy_order(graph=graph):
+    assert len(candidates) == len(list(degeneracy_ordering(graph=graph)))
+    assert candidates == set(degeneracy_ordering(graph=graph))
+    for v in degeneracy_ordering(graph=graph):
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
         neighbouring_candidates = candidates.intersection(neighbours)
-        if not neighbouring_candidates:
-            assert not excluded.isdisjoint(neighbours)
-        else:
+        if neighbouring_candidates:
             neighbouring_excluded = excluded.intersection(neighbours)
             visit(
                 graph=graph,
@@ -31,4 +29,6 @@ def bron_kerbosch3_gp(graph: UndirectedGraph, reporter: Reporter):
                 candidates=neighbouring_candidates,
                 excluded=neighbouring_excluded,
                 clique=[v])
+        else:
+            assert not excluded.isdisjoint(neighbours)
         excluded.add(v)

@@ -30,9 +30,7 @@ def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
             assert neighbours
             candidates.remove(v)
             neighbouring_candidates = candidates.intersection(neighbours)
-            if not neighbouring_candidates:
-                assert not excluded.isdisjoint(neighbours)
-            else:
+            if neighbouring_candidates:
                 neighbouring_excluded = excluded.intersection(neighbours)
                 visit(
                     graph=graph,
@@ -42,4 +40,6 @@ def bron_kerbosch3n(graph: UndirectedGraph, reporter: Reporter):
                     candidates=neighbouring_candidates,
                     excluded=neighbouring_excluded,
                     clique=[v])
+            else:
+                assert not excluded.isdisjoint(neighbours)
             excluded.add(v)

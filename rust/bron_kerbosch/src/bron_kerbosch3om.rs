@@ -3,9 +3,9 @@
 //! implemented by multiple threads
 
 use super::mpmc;
-use bron_kerbosch_degeneracy::degeneracy_order;
+use bron_kerbosch_degeneracy::degeneracy_ordering;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
+use graph::{connected_vertices, UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::{Clique, Reporter};
 
@@ -39,13 +39,13 @@ where
         let (reporter_tx, reporter_rx) = mpsc::channel();
 
         scope.spawn(move |_| {
-            for vertex in degeneracy_order(graph) {
+            for vertex in degeneracy_ordering(graph) {
                 start_tx.send(vertex).unwrap();
             }
         });
 
         scope.spawn(move |_| {
-            let mut candidates = connected_nodes(graph);
+            let mut candidates = connected_vertices(graph);
             let mut excluded = VertexSet::with_capacity(candidates.len());
             while let Ok(v) = start_rx.recv() {
                 let neighbours = graph.neighbours(v);

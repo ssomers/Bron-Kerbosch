@@ -2,7 +2,7 @@ import base.Vertex
 
 object bron_kerbosch2 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
-    val candidates: Set[Vertex] = graph.connected_nodes()
+    val candidates: Set[Vertex] = graph.connected_vertices()
     if (candidates.nonEmpty) {
       visit(graph, reporter, candidates, Set.empty[Vertex], List())
     }

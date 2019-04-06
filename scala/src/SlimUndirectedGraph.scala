@@ -20,7 +20,7 @@ class SlimUndirectedGraph(neighboursByNode: IndexedSeq[Set[Vertex]])
     neighboursByNode(node)
   }
 
-  override def connected_nodes(): Set[Vertex] = {
+  override def connected_vertices(): Set[Vertex] = {
     neighboursByNode.zipWithIndex
       .filter { case (n, _) => n.nonEmpty }
       .map { case (_, v) => v }

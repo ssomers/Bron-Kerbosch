@@ -42,7 +42,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Scala on graphs of order 100](https://plot.ly/~stein.somers/197.png?share_key=F33K579eKLzY0A7fSherUI "View interactively")](https://plot.ly/~stein.somers/197/?share_key=F33K579eKLzY0A7fSherUI)
 [![Time spent in Python3 on graphs of order 100](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
 
-* Sparse random graphs of order 10k: Ver3 indeed needed straightening out.
+* Sparse random graphs of order 10k:
 
 [![Time spent in Rust on graphs of order 10k](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
 [![Time spent in Go on graphs of order 10k](https://plot.ly/~stein.somers/187.png?share_key=EtNe8FbmD8BwrxBaC7dHBt "View interactively")](https://plot.ly/~stein.somers/187/?share_key=EtNe8FbmD8BwrxBaC7dHBt)
@@ -65,7 +65,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 [More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
 
-Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques�, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 

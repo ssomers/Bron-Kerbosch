@@ -25,7 +25,7 @@ class UndirectedGraph(object):
     def degree(self, node):
         return len(self.adjacencies[node])
 
-    def connected_nodes(self) -> Set[Vertex]:
+    def connected_vertices(self) -> Set[Vertex]:
         return {node for node in range(self.order) if self.adjacencies[node]}
 
 

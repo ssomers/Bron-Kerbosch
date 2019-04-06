@@ -44,7 +44,7 @@ func (g *UndirectedGraph) degree(v Vertex) int {
 	return g.adjacencies[v].Cardinality()
 }
 
-func (g *UndirectedGraph) connected_nodes() VertexSet {
+func (g *UndirectedGraph) connected_vertices() VertexSet {
 	order := g.order()
 	result := make(VertexSet)
 	for v := 0; v < order; v++ {

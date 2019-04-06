@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+func check_degeneracy_order(graph *UndirectedGraph) {
+	ordered := degeneracy_ordering(graph)
+	unordered := graph.connected_vertices()
+	for _, v := range ordered {
+		if _, ok := unordered[v]; !ok {
+			panic(fmt.Sprintf("degeneracy ordering %v invented vertex %d", ordered, v))
+		}
+		delete(unordered, v)
+
+		if graph.degree(v) < graph.degree(ordered[0]) {
+			panic(fmt.Sprintf("degeneracy ordering %v violates degree at vertex %d", ordered, v))
+		}
+	}
+	if len(unordered) != 0 {
+		panic(fmt.Sprintf("degeneracy ordering %v forgot %d vertices", ordered, len(unordered)))
+	}
+}
+
 func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
 	adjacencies := make([]VertexSet, len(adjacencylist))
 	for i, neighbours := range adjacencylist {
@@ -14,6 +32,7 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
 		}
 	}
 	graph := newUndirectedGraph(adjacencies)
+	check_degeneracy_order(&graph)
 	for func_index, bron_kerbosch_func := range FUNCS {
 		var reporter SimpleReporter
 		bron_kerbosch_func(&graph, &reporter)

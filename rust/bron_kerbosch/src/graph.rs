@@ -374,7 +374,7 @@ pub trait UndirectedGraph<VertexSet>: Sync {
     fn neighbours(&self, node: Vertex) -> &VertexSet;
 }
 
-pub fn connected_nodes<VertexSet>(g: &UndirectedGraph<VertexSet>) -> VertexSet
+pub fn connected_vertices<VertexSet>(g: &UndirectedGraph<VertexSet>) -> VertexSet
 where
     VertexSet: FromIterator<Vertex>,
 {

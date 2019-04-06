@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use graph::{connected_nodes, UndirectedGraph, Vertex, VertexSetLike};
+use graph::{connected_vertices, UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
 
@@ -10,7 +10,7 @@ pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Rep
 where
     VertexSet: VertexSetLike,
 {
-    let candidates = connected_nodes(graph);
+    let candidates = connected_vertices(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
         visit(

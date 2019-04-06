@@ -7,7 +7,7 @@ from typing import List, Set
 
 def bron_kerbosch1o(graph: UndirectedGraph, reporter: Reporter):
     '''Naive Bron-Kerbosch algorithm optimized'''
-    candidates = graph.connected_nodes()
+    candidates = graph.connected_vertices()
     if candidates:
         visit(
             graph=graph,
