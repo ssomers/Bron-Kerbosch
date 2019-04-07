@@ -2,17 +2,34 @@ package bron_kerbosch
 
 type VertexVisitor interface {
 	visit(Vertex)
+	Close()
 }
 
 type SimpleVertexVisitor struct {
 	vertices []Vertex
 }
 
+type ChannelVertexVisitor struct {
+	vertices chan<- Vertex
+}
+
 func (g *SimpleVertexVisitor) visit(v Vertex) {
 	g.vertices = append(g.vertices, v)
 }
 
+func (g *SimpleVertexVisitor) Close() {
+}
+
+func (g *ChannelVertexVisitor) visit(v Vertex) {
+	g.vertices <- v
+}
+
+func (g *ChannelVertexVisitor) Close() {
+	close(g.vertices)
+}
+
 func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor) {
+	defer func() { visitor.Close() }()
 	order := graph.order()
 	priority_per_node := make([]int, order)
 	max_degree := 0

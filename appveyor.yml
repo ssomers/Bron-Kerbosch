@@ -30,5 +30,5 @@ test_script:
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
   - go vet bron_kerbosch main
-  - go test bron_kerbosch
+  - go test -race bron_kerbosch
   - pushd rust && cargo test --all & popd
