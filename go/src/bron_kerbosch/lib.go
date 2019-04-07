@@ -8,7 +8,7 @@ import (
 
 const NUM_FUNCS = 3
 
-var FUNCS = [NUM_FUNCS]func(*UndirectedGraph, Reporter){bron_kerbosch1, bron_kerbosch2, bron_kerbosch3}
+var FUNCS = [NUM_FUNCS]func(*UndirectedGraph) [][]Vertex{bron_kerbosch1, bron_kerbosch2, bron_kerbosch3}
 var FUNC_NAMES = [NUM_FUNCS]string{"Ver1+", "Ver2+GP", "Ver3+GP"}
 
 func sort_cliques(cliques [][]Vertex) {
@@ -26,9 +26,9 @@ func sort_cliques(cliques [][]Vertex) {
 		if len(cliques) < 10 {
 			panic(fmt.Sprintf("got overlapping cliques %d <> %d: %v", l, r, cliques))
 		} else {
-			panic(fmt.Sprintf("got overlapping cliques: #%d of length %d <> #%d of length %d",
-				l+1, len(cliques[l]),
-				r+1, len(cliques[r])))
+			panic(fmt.Sprintf("got overlapping cliques: #%d %d <> #%d %d",
+				l+1, cliques[l],
+				r+1, cliques[r]))
 		}
 	})
 }
@@ -59,15 +59,13 @@ func Timed(order int, size int, samples int) [NUM_FUNCS]SampleStatistics {
 	var first [][]Vertex
 	for sample := 0; sample < samples; sample++ {
 		for func_index, bron_kerbosch_func := range FUNCS {
-			var reporter SimpleReporter
 			begin := time.Now()
-			bron_kerbosch_func(&graph, &reporter)
+			current := bron_kerbosch_func(&graph)
 			secs := time.Since(begin).Seconds()
 			if secs >= 3.0 {
 				fmt.Printf("  %8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
 			}
 			if sample < 2 {
-				current := reporter.cliques
 				sort_cliques(current)
 				if len(first) == 0 {
 					first = current

@@ -6,7 +6,9 @@ import (
 )
 
 func check_degeneracy_order(graph *UndirectedGraph) {
-	ordered := degeneracy_ordering(graph)
+	var ordering SimpleVertexVisitor
+	degeneracy_ordering(graph, &ordering)
+	ordered := ordering.vertices
 	unordered := graph.connected_vertices()
 	for _, v := range ordered {
 		if _, ok := unordered[v]; !ok {
@@ -34,9 +36,7 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
 	graph := newUndirectedGraph(adjacencies)
 	check_degeneracy_order(&graph)
 	for func_index, bron_kerbosch_func := range FUNCS {
-		var reporter SimpleReporter
-		bron_kerbosch_func(&graph, &reporter)
-		obtained_cliques := reporter.cliques
+		obtained_cliques := bron_kerbosch_func(&graph)
 		sort_cliques(obtained_cliques)
 		compare_cliques(obtained_cliques, expected_cliques,
 			func(e string) { t.Errorf("%s: %s", FUNC_NAMES[func_index], e) })

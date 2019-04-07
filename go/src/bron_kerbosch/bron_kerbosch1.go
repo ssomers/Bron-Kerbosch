@@ -1,21 +1,19 @@
 package bron_kerbosch
 
-func bron_kerbosch1(graph *UndirectedGraph, reporter Reporter) {
+func bron_kerbosch1(graph *UndirectedGraph) [][]Vertex {
 	// Naive Bron-Kerbosch algorithm
 	candidates := graph.connected_vertices()
-	if !candidates.IsEmpty() {
-		excluded := make(VertexSet, len(candidates))
-		bron_kerbosch1_visit(
-			graph,
-			reporter,
-			&candidates,
-			&excluded,
-			[]Vertex{})
+	if candidates.IsEmpty() {
+		return nil
 	}
+	excluded := make(VertexSet, len(candidates))
+	var reporter SimpleReporter
+	bron_kerbosch1_visit(graph, &reporter, &candidates, &excluded, nil)
+	return reporter.cliques
 }
 
-func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter, candidates *VertexSet,
-	excluded *VertexSet, clique []Vertex) {
+func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter,
+	candidates *VertexSet, excluded *VertexSet, clique []Vertex) {
 	for {
 		v := candidates.PopArbitrary()
 		neighbours := &graph.adjacencies[v]

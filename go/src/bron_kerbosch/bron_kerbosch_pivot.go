@@ -16,7 +16,8 @@ func visit_max_degree(graph *UndirectedGraph, reporter Reporter,
 		neighbouring_candidates := candidates.Intersection(neighbours)
 		if !neighbouring_candidates.IsEmpty() {
 			neighbouring_excluded := excluded.Intersection(neighbours)
-			visit_max_degree(graph, reporter,
+			visit_max_degree(
+				graph, reporter,
 				&neighbouring_candidates,
 				&neighbouring_excluded,
 				append(clique, v))
