@@ -19,14 +19,14 @@ type VisitJob struct {
 func bron_kerbosch3om_visit(graph *UndirectedGraph, reporter ChannelReporter,
 	candidates *VertexSet) {
 	excluded := make(VertexSet, len(*candidates))
-	const NUM_VISITING_THREADS = 3
+	const NUM_VISITORTS = 8
 
-	vertices := make(chan Vertex, 16)
+	vertices := make(chan Vertex, NUM_VISITORTS)
 	go degeneracy_ordering(graph, &ChannelVertexVisitor{vertices})
-	visits := make(chan VisitJob, NUM_VISITING_THREADS)
+	visits := make(chan VisitJob, NUM_VISITORTS)
 	var wg sync.WaitGroup
-	wg.Add(NUM_VISITING_THREADS)
-	for i := 0; i < NUM_VISITING_THREADS; i++ {
+	wg.Add(NUM_VISITORTS)
+	for i := 0; i < NUM_VISITORTS; i++ {
 		go func() {
 			for job := range visits {
 				visit_max_degree(
