@@ -311,7 +311,8 @@ fn main() -> Result<(), std::io::Error> {
             |set_type: SetType, size: u32| -> Vec<usize> {
                 (0..NUM_FUNCS)
                     .filter(|func_index| match func_index {
-                        0 | 4 | 8 => size <= 500_000 || set_type == SetType::Fnv,
+                        0 => size <= 500_000 || set_type == SetType::Fnv,
+                        4 | 8 => size <= 500_000,
                         _ => true,
                     })
                     .collect()
