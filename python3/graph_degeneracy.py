@@ -19,7 +19,12 @@ class PriorityQueue:
                 pass
 
 
-def degeneracy_ordering(graph: UndirectedGraph):
+def degeneracy_ordering(graph: UndirectedGraph, drop=0):
+    """
+    Iterate connected vertices, lowest degree first.
+    drop=N: omit last N vertices
+    """
+    assert drop >= 0
     priority_per_node = [-2] * graph.order
     max_degree = 0
     num_candidates = 0
@@ -38,7 +43,7 @@ def degeneracy_ordering(graph: UndirectedGraph):
         if p > 0:
             q.put(priority=p, element=c)
 
-    for _ in range(num_candidates):
+    for _ in range(num_candidates - drop):
         i = q.pop()
         while priority_per_node[i] == -1:
             # was requeued with a more urgent priority and therefore already picked

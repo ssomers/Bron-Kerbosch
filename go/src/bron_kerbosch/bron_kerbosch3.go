@@ -2,21 +2,19 @@ package bron_kerbosch
 
 func bron_kerbosch3(graph *UndirectedGraph) [][]Vertex {
 	// Bron-Kerbosch algorithm with degeneracy ordering
-	candidates := graph.connected_vertices()
-	excluded := make(VertexSet, len(candidates))
 	var reporter SimpleReporter
 	var ordering SimpleVertexVisitor
-	degeneracy_ordering(graph, &ordering)
+	degeneracy_ordering(graph, &ordering, -1)
+	excluded := make(VertexSet, len(ordering.vertices))
 	for _, v := range ordering.vertices {
-		neighbours := &graph.adjacencies[v]
-		candidates.Remove(v)
-		neighbouring_candidates := candidates.Intersection(neighbours)
+		neighbours := graph.adjacencies[v]
+		neighbouring_candidates := neighbours.Difference(excluded)
 		if !neighbouring_candidates.IsEmpty() {
-			neighbouring_excluded := excluded.Intersection(neighbours)
+			neighbouring_excluded := neighbours.Intersection(excluded)
 			visit_max_degree(
 				graph, &reporter,
-				&neighbouring_candidates,
-				&neighbouring_excluded,
+				neighbouring_candidates,
+				neighbouring_excluded,
 				[]Vertex{v})
 		}
 		excluded.Add(v)

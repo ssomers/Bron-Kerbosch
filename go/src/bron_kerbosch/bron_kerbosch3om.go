@@ -2,56 +2,50 @@ package bron_kerbosch
 
 import "sync"
 
+const NUM_VISITORS = 8
+
 func bron_kerbosch3om(graph *UndirectedGraph) [][]Vertex {
 	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
+
+	starts := make(chan Vertex, NUM_VISITORS)
+	visits := make(chan VisitJob, NUM_VISITORS)
 	cliques := make(chan []Vertex)
-	candidates := graph.connected_vertices()
-	go bron_kerbosch3om_visit(graph, ChannelReporter{cliques}, &candidates)
+	go degeneracy_ordering(graph, &ChannelVertexVisitor{starts}, -1)
+	go func() {
+		excluded := make(VertexSet, graph.connected_vertex_count()-1)
+		reporter := ChannelReporter{cliques}
+		var wg sync.WaitGroup
+		wg.Add(NUM_VISITORS)
+		for i := 0; i < NUM_VISITORS; i++ {
+			go func() {
+				for job := range visits {
+					visit_max_degree(
+						graph, &reporter,
+						job.candidates,
+						job.excluded,
+						[]Vertex{job.start})
+				}
+				wg.Done()
+			}()
+		}
+		for v := range starts {
+			neighbours := graph.adjacencies[v]
+			neighbouring_candidates := neighbours.Difference(excluded)
+			if !neighbouring_candidates.IsEmpty() {
+				neighbouring_excluded := neighbours.Intersection(excluded)
+				visits <- VisitJob{v, neighbouring_candidates, neighbouring_excluded}
+			}
+			excluded.Add(v)
+		}
+		close(visits)
+		wg.Wait()
+		close(reporter.cliques)
+	}()
 	return gather_cliques(cliques)
 }
 
 type VisitJob struct {
 	start      Vertex
-	candidates *VertexSet
-	excluded   *VertexSet
-}
-
-func bron_kerbosch3om_visit(graph *UndirectedGraph, reporter ChannelReporter,
-	candidates *VertexSet) {
-	excluded := make(VertexSet, len(*candidates))
-	const NUM_VISITORTS = 8
-
-	vertices := make(chan Vertex, NUM_VISITORTS)
-	go degeneracy_ordering(graph, &ChannelVertexVisitor{vertices})
-	visits := make(chan VisitJob, NUM_VISITORTS)
-	var wg sync.WaitGroup
-	wg.Add(NUM_VISITORTS)
-	for i := 0; i < NUM_VISITORTS; i++ {
-		go func() {
-			for job := range visits {
-				visit_max_degree(
-					graph, &reporter,
-					job.candidates,
-					job.excluded,
-					[]Vertex{job.start})
-			}
-			wg.Done()
-		}()
-
-	}
-	for v := range vertices {
-		neighbours := &graph.adjacencies[v]
-		candidates.Remove(v)
-		neighbouring_candidates := candidates.Intersection(neighbours)
-		if !neighbouring_candidates.IsEmpty() {
-			neighbouring_excluded := excluded.Intersection(neighbours)
-			visits <- VisitJob{v,
-				&neighbouring_candidates,
-				&neighbouring_excluded}
-		}
-		excluded.Add(v)
-	}
-	close(visits)
-	wg.Wait()
-	close(reporter.cliques)
+	candidates VertexSet
+	excluded   VertexSet
 }

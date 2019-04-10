@@ -8,21 +8,21 @@ func bron_kerbosch1(graph *UndirectedGraph) [][]Vertex {
 	}
 	excluded := make(VertexSet, len(candidates))
 	var reporter SimpleReporter
-	bron_kerbosch1_visit(graph, &reporter, &candidates, &excluded, nil)
+	bron_kerbosch1_visit(graph, &reporter, candidates, excluded, nil)
 	return reporter.cliques
 }
 
 func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter,
-	candidates *VertexSet, excluded *VertexSet, clique []Vertex) {
+	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	for {
 		v := candidates.PopArbitrary()
-		neighbours := &graph.adjacencies[v]
+		neighbours := graph.adjacencies[v]
 		neighbouring_candidates := candidates.Intersection(neighbours)
 		if !neighbouring_candidates.IsEmpty() {
 			neighbouring_excluded := excluded.Intersection(neighbours)
 			bron_kerbosch1_visit(graph, reporter,
-				&neighbouring_candidates,
-				&neighbouring_excluded,
+				neighbouring_candidates,
+				neighbouring_excluded,
 				append(clique, v))
 		} else {
 			if excluded.IsDisjoint(neighbours) {

@@ -8,6 +8,8 @@ target
 /csharp/*/obj
 /csharp/*/*.user
 /csharp/packages
+/python3/.hypothesis
+/python3/venv
 /rust/.vs
 /rust/*.psess
 /rust/*.vspx

@@ -28,9 +28,15 @@ func (g *ChannelVertexVisitor) Close() {
 	close(g.vertices)
 }
 
-func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor) {
+func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor, drop int) {
+	if drop > 0 {
+		panic("expecting negative drop value")
+	}
 	defer func() { visitor.Close() }()
 	order := graph.order()
+	// Possible values of priority_per_node:
+	//   -1: when yielded
+	//   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
 	priority_per_node := make([]int, order)
 	max_degree := 0
 	num_left_to_visit := 0
@@ -44,12 +50,11 @@ func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor) {
 			num_left_to_visit += 1
 		}
 	}
-	if num_left_to_visit == 0 {
+	num_left_to_visit += drop
+	if num_left_to_visit <= 0 {
 		return
 	}
-	// Possible values of priority_per_node:
-	//   -1: when yielded
-	//   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
+
 	var q priority_queue
 	q.init(max_degree)
 	for c, p := range priority_per_node {

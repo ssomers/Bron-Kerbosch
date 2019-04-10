@@ -1,9 +1,9 @@
 //! Bron-Kerbosch algorithm with degeneracy ordering,
 //! recursing with pivot of highest degree (IK_GP)
 
-use bron_kerbosch_degeneracy::degeneracy_ordering;
 use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_vertices, UndirectedGraph, VertexSetLike};
+use graph::{UndirectedGraph, VertexSetLike};
+use graph_degeneracy::degeneracy_ordering;
 use pile::Pile;
 use reporter::Reporter;
 
@@ -11,15 +11,11 @@ pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Rep
 where
     VertexSet: VertexSetLike,
 {
-    let mut candidates = connected_vertices(graph);
-    debug_assert_eq!(candidates.len(), degeneracy_ordering(graph).count());
-    debug_assert_eq!(candidates, degeneracy_ordering(graph).into_iter().collect());
-    let mut excluded = VertexSet::with_capacity(candidates.len());
-    for v in degeneracy_ordering(graph) {
+    let mut excluded = VertexSet::new();
+    for v in degeneracy_ordering(graph, -1) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        candidates.remove(&v);
-        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        let neighbouring_candidates: VertexSet = neighbours.difference(&excluded);
         if neighbouring_candidates.is_empty() {
             debug_assert!(!neighbours.is_disjoint(&excluded));
         } else {

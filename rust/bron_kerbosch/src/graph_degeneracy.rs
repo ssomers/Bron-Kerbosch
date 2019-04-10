@@ -4,6 +4,46 @@ use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
 use std::cmp::max;
 
+pub fn degeneracy_ordering<'a, VertexSet>(
+    graph: &'a UndirectedGraph<VertexSet>,
+    drop: isize,
+) -> DegeneracyOrderIter<'a, VertexSet>
+where
+    VertexSet: VertexSetLike,
+{
+    debug_assert!(drop <= 0);
+    let order = graph.order();
+    let no_priority = order;
+    let mut max_priority: Priority = 0;
+    let mut num_candidates: isize = 0;
+    let mut priority_per_node: Vec<Priority> = vec![no_priority; order as usize];
+    for c in 0..order {
+        let degree = graph.degree(c);
+        if degree > 0 {
+            let priority = degree;
+            debug_assert_ne!(priority, no_priority);
+            num_candidates += 1;
+            max_priority = max(max_priority, priority);
+            priority_per_node[c as usize] = priority;
+        }
+    }
+    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority as usize);
+    for c in 0..order {
+        let priority = priority_per_node[c as usize];
+        if priority != no_priority {
+            queue.put(priority as usize, c);
+        }
+    }
+
+    DegeneracyOrderIter {
+        graph,
+        no_priority,
+        priority_per_node,
+        queue,
+        num_left_to_pick: num_candidates + drop,
+    }
+}
+
 #[derive(Debug)]
 struct PriorityQueue<T> {
     stack_per_priority: Vec<Vec<T>>,
@@ -47,7 +87,7 @@ pub struct DegeneracyOrderIter<'a, VertexSet> {
     // If priority is no_priority, node was already picked or was always irrelevant (unconnected);
     // otherwise, node is still queued and priority = degree - number of picked neighbours.
     queue: PriorityQueue<Vertex>,
-    num_left_to_pick: usize,
+    num_left_to_pick: isize,
 }
 
 impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
@@ -74,7 +114,7 @@ where
 {
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
-        if self.num_left_to_pick == 0 {
+        if self.num_left_to_pick <= 0 {
             None
         } else {
             self.num_left_to_pick -= 1;
@@ -93,42 +133,5 @@ where
             });
             Some(i)
         }
-    }
-}
-
-pub fn degeneracy_ordering<'a, VertexSet>(
-    graph: &'a UndirectedGraph<VertexSet>,
-) -> DegeneracyOrderIter<'a, VertexSet>
-where
-    VertexSet: VertexSetLike,
-{
-    let order = graph.order();
-    let no_priority = order;
-    let mut max_priority: Priority = 0;
-    let mut num_left_to_pick: usize = 0;
-    let mut priority_per_node: Vec<Priority> = vec![no_priority; order as usize];
-    for c in 0..order {
-        let degree = graph.degree(c);
-        if degree > 0 {
-            let priority = degree;
-            debug_assert_ne!(priority, no_priority);
-            num_left_to_pick += 1;
-            max_priority = max(max_priority, priority);
-            priority_per_node[c as usize] = priority;
-        }
-    }
-    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority as usize);
-    for c in 0..order {
-        let priority = priority_per_node[c as usize];
-        if priority != no_priority {
-            queue.put(priority as usize, c);
-        }
-    }
-    DegeneracyOrderIter {
-        graph,
-        no_priority,
-        priority_per_node,
-        queue,
-        num_left_to_pick,
     }
 }

@@ -8,6 +8,6 @@ func bron_kerbosch2(graph *UndirectedGraph) [][]Vertex {
 	}
 	excluded := make(VertexSet, len(candidates))
 	var reporter SimpleReporter
-	visit_max_degree(graph, &reporter, &candidates, &excluded, nil)
+	visit_max_degree(graph, &reporter, candidates, excluded, nil)
 	return reporter.cliques
 }

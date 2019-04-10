@@ -31,8 +31,8 @@ func (g *UndirectedGraph) order() int {
 
 func (g *UndirectedGraph) size() int {
 	var total int
-	for _, a := range g.adjacencies {
-		total += a.Cardinality()
+	for _, neighbours := range g.adjacencies {
+		total += neighbours.Cardinality()
 	}
 	if total%2 != 0 {
 		panic("symmetry check should have yielded even total")
@@ -45,14 +45,23 @@ func (g *UndirectedGraph) degree(v Vertex) int {
 }
 
 func (g *UndirectedGraph) connected_vertices() VertexSet {
-	order := g.order()
 	result := make(VertexSet)
-	for v := 0; v < order; v++ {
-		if !g.adjacencies[v].IsEmpty() {
+	for v, neighbours := range g.adjacencies {
+		if !neighbours.IsEmpty() {
 			result.Add(Vertex(v))
 		}
 	}
 	return result
+}
+
+func (g *UndirectedGraph) connected_vertex_count() int {
+	var count int
+	for _, neighbours := range g.adjacencies {
+		if !neighbours.IsEmpty() {
+			count++
+		}
+	}
+	return count
 }
 
 func random_undirected_graph(order int, size int) UndirectedGraph {
