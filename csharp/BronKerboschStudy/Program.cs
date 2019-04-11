@@ -39,7 +39,7 @@ namespace BronKerboschStudy
             return times;
         }
 
-        private static void bk(string orderstr, IEnumerable<int> sizes, int[] func_indices, int samples)
+        private static void bk(string orderstr, IEnumerable<int> sizes, Func<int, int[]> included_funcs, int samples)
         {
             int order;
             if (orderstr.EndsWith("M"))
@@ -60,6 +60,7 @@ namespace BronKerboschStudy
                 fo.Write("\n");
                 foreach (int size in sizes)
                 {
+                    var func_indices = included_funcs(size);
                     var random = new Random(19680516);
                     var g = RandomUndirectedGraph.Generate(random, order, size);
                     var stats = BronKerboschTimed(g, func_indices, samples);
@@ -101,13 +102,10 @@ namespace BronKerboschStudy
         {
             var all_func_indices = new[] { 0, 1 };
             Debug.Fail("Run Release build for meaningful measurements");
-            //bk("99", Range(3_000, 3_001, 1), new[] { 1 }, 3); return;
-            bk("100", Range(2_000, 3_001, 50), all_func_indices, 5); // max 4_950
-            /*
-            bk("10k", Range(100_000, 500_000, 100_000), all_func_indices, 3);
-            bk("1M", Range(250_000, 1_000_000, 250_000).Concat(Range(1_000_000, 3_000_001, 500_000)),
-               all_func_indices, 3);
-            */
+            bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
+            bk("10k", Range(100_000, 800_001, 100_000), (size) => all_func_indices, 3);
+            bk("1M", Range(5_000, 25_001, 5_000).Concat(Range(200_000, 1_000_000, 200_000).Concat(Range(1_000_000, 5_000_001, 1_000_000))),
+               (size) => (size <= 50_000) ? all_func_indices : new[] { 1 }, 3);
         }
     }
 }

@@ -17,7 +17,7 @@ public class BronKerbosch2
                 reporter,
                 candidates,
                 new HashSet<Vertex>(),
-                new List<Vertex>());
+                new List<Vertex>(capacity: candidates.Count));
         }
     }
 
@@ -36,10 +36,11 @@ public class BronKerbosch2
         }
 
         var pivot = Util.GetArbitrary(candidates);
-        var far_candidates = candidates.Except(graph.Neighbours(pivot)).ToArray();
-        foreach (Vertex v in far_candidates)
+        foreach (Vertex v in new List<Vertex>(candidates))
         {
             var neighbours = graph.Neighbours(v);
+            if (neighbours.Contains(pivot))
+                continue;
             Debug.Assert(neighbours.Count > 0);
             candidates.Remove(v);
             var neighbouring_candidates = Util.Intersect(candidates, neighbours);

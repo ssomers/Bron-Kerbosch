@@ -17,7 +17,7 @@ class BronKerbosch1
                 reporter,
                 candidates,
                 new HashSet<Vertex>(),
-                new List<Vertex>());
+                new List<Vertex>(capacity: candidates.Count));
         }
     }
 
