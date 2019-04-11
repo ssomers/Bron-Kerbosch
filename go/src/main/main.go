@@ -50,13 +50,9 @@ func main() {
 	for s := int(100e3); s <= 800e3; s += 100e3 {
 		sizes_10k = append(sizes_10k, s)
 	}
-	for s := int(10e3); s <= 5e6; {
+	for s := int(200e3); s <= 5e6; {
 		sizes_1M = append(sizes_1M, s)
-		if s < 50e3 {
-			s += 10e3
-		} else if s < 200e3 {
-			s += 50e3
-		} else if s < 1e6 {
+		if s < 1e6 {
 			s += 200e3
 		} else {
 			s += 1e6

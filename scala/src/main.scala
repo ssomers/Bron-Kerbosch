@@ -87,23 +87,27 @@ object main {
     fo.close()
   }
 
+  implicit class IntContext(val sc: StringContext) {
+    def i(args: Any*): Int = {
+      val orig = sc.s(args: _*)
+      orig.replace("M", "kk").replace("k", "000").toInt
+    }
+  }
+
   def main(args: Array[String]) {
     //noinspection NameBooleanParameters
     assert(false, "Specify -Xdisable-assertions for meaningful measurements")
 
-    val k = 1000
-    val M = k * k
-    val sizes_100: List[Int] = List((2 * k) to (3 * k) by 50: _*)
-    val sizes_10k: List[Int] = List(((100 * k) to (800 * k) by 100 * k): _*)
+    val sizes_100: List[Int] = List(i"2k" to i"3k" by 50: _*)
+    val sizes_10k: List[Int] = List(i"100k" to i"800k" by i"100k": _*)
     val sizes_1M: List[Int] = List(
-      (10 * k to (50 * k) by 10 * k)
-        ++ ((200 * k) until (1 * M) by 50 * k)
-        ++ ((1 * M) to (5 * M) by 1 * M): _*
+      (i"200k" until i"1M" by i"200k")
+        ++ (i"1M" to i"3M" by i"1M"): _*
     )
     bk("warmup", 100, List(2000), 3)
-    Thread.sleep(4321) // give launcher some time to cool down
-    bk("100", 100, sizes_100, 5)
-    bk("10k", 10 * k, sizes_10k, 5)
-    bk("1M", 1 * M, sizes_1M, 3)
+    Thread.sleep(4321) // give IntelliJ launcher some time to cool down
+    bk("100", i"100", sizes_100, 5)
+    bk("10k", i"10k", sizes_10k, 5)
+    bk("1M", i"1M", sizes_1M, 3)
   }
 }

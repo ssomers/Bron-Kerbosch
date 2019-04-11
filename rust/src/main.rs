@@ -335,7 +335,7 @@ fn main() -> Result<(), std::io::Error> {
                                     || size <= 40_000
                                     || (set_type == SetType::Hashbrown && size <= 150_000)
                             }
-                            _ => set_type == SetType::BTreeSet && size <= 2_000_000,
+                            _ => set_type == SetType::BTreeSet && size <= 3_000_000,
                         }
                     })
                     .collect()

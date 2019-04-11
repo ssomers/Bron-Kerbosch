@@ -2,6 +2,16 @@ package bron_kerbosch
 
 func visit_max_degree(graph *UndirectedGraph, reporter Reporter,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
+	if len(candidates) == 1 {
+		for v := range candidates {
+			neighbours := graph.adjacencies[v]
+			if excluded.IsDisjoint(neighbours) {
+				reporter.Record(append(clique, v))
+			}
+		}
+		return
+	}
+
 	pivot := pick_max_degree(graph, candidates, excluded)
 	pivot_neighbours := graph.adjacencies[pivot]
 	far_candidates := make([]Vertex, 0, len(candidates))

@@ -23,7 +23,7 @@ MAX_ORDER = 100
             max_size=MAX_ORDER),
         min_size=0,
         max_size=MAX_ORDER))
-@settings(max_examples=1000)
+@settings(max_examples=333)
 def test_more(given):
     order = len(given)
     adjacencies = [set() for _ in range(order)]

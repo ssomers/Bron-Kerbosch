@@ -13,12 +13,22 @@ object bron_kerbosch2 extends bron_kerbosch_algorithm {
             initial_candidates: Set[Vertex],
             initial_excluded: Set[Vertex],
             clique: Seq[Vertex]): Unit = {
+    assert(initial_candidates.nonEmpty)
+    assert(initial_candidates.forall(v => graph.degree(v) > 0))
+    assert(initial_excluded.forall(v => graph.degree(v) > 0))
+
+    if (initial_candidates.size == 1) {
+      for (v <- initial_candidates) {
+        val neighbours = graph.neighbours(v)
+        if (util.is_disjoint(initial_excluded, neighbours)) {
+          reporter.record(clique :+ v)
+        }
+      }
+      return
+    }
+
     var candidates = initial_candidates
     var excluded = initial_excluded
-    assert(candidates.nonEmpty)
-    assert(candidates.forall(v => graph.degree(v) > 0))
-    assert(excluded.forall(v => graph.degree(v) > 0))
-
     val pivot = candidates.head
     val far_candidates = candidates diff graph.neighbours(pivot)
     for (v <- far_candidates) {

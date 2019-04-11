@@ -30,6 +30,16 @@ pub fn visit<VertexSet>(
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
 
+    if candidates.len() == 1 {
+        candidates.for_each(|v| {
+            let neighbours = graph.neighbours(v);
+            if neighbours.is_disjoint(&excluded) {
+                reporter.record(clique.place(v).collect());
+            }
+        });
+        return;
+    }
+
     let &pivot = choose(initial_pivot_selection, &candidates, &excluded, graph).unwrap();
     let far_candidates: Vec<Vertex> = candidates.difference(graph.neighbours(pivot));
     excluded.reserve(far_candidates.len());

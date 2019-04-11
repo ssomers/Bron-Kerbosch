@@ -25,6 +25,16 @@ public class BronKerbosch2
                       ISet<Vertex> candidates, ISet<Vertex> excluded, List<Vertex> clique)
     {
         Debug.Assert(candidates.Count > 0);
+        if (candidates.Count == 1)
+        {
+            Vertex v = candidates.First();
+            var neighbours = graph.Neighbours(v);
+            Debug.Assert(neighbours.Count > 0);
+            if (Util.AreDisjoint(excluded, neighbours))
+                reporter.Record(new List<Vertex>(clique) { v });
+            return;
+        }
+
         var pivot = Util.GetArbitrary(candidates);
         var far_candidates = candidates.Except(graph.Neighbours(pivot)).ToArray();
         foreach (Vertex v in far_candidates)

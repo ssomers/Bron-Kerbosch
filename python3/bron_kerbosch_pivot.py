@@ -19,9 +19,18 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
 
+    if len(candidates) == 1:
+        for v in candidates:
+            neighbours = graph.adjacencies[v]
+            assert neighbours
+            if excluded.isdisjoint(neighbours):
+                reporter.record(clique + [v])
+        return
+
     pivot = initial_pivot_choice(
         graph=graph, candidates=candidates, excluded=excluded)
-    for v in list(candidates.difference(graph.adjacencies[pivot])):
+    pivot_neighbours = graph.adjacencies[pivot]
+    for v in [v for v in candidates if v not in pivot_neighbours]:
         neighbours = graph.adjacencies[v]
         assert neighbours
         candidates.remove(v)
@@ -62,11 +71,4 @@ def pick_random(graph: UndirectedGraph, candidates: Set[Vertex],
 
 def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex],
                     excluded: Set[Vertex]) -> Vertex:
-    return max(candidates, key=lambda v: graph.degree(v))
-
-
-def pick_max_degree_local(graph: UndirectedGraph, candidates: Set[Vertex],
-                          excluded: Set[Vertex]) -> Vertex:
-    return max(
-        itertools.chain(candidates, excluded),
-        key=lambda v: len(graph.adjacencies[v] & candidates))
+    return max(candidates, key=graph.degree)

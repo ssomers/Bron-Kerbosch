@@ -5,11 +5,8 @@ from bron_kerbosch1o import bron_kerbosch1o
 from bron_kerbosch2 import bron_kerbosch2
 from bron_kerbosch2_rp import bron_kerbosch2_rp
 from bron_kerbosch2_gp import bron_kerbosch2_gp
-from bron_kerbosch2_gpx import bron_kerbosch2_gpx
 from bron_kerbosch3 import bron_kerbosch3
 from bron_kerbosch3_gp import bron_kerbosch3_gp
-from bron_kerbosch3_gpx import bron_kerbosch3_gpx
-from bron_kerbosch3n import bron_kerbosch3n
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
@@ -29,12 +26,9 @@ FUNCS = [
     bron_kerbosch1o,
     bron_kerbosch2,
     bron_kerbosch2_gp,
-    bron_kerbosch2_gpx,
     bron_kerbosch2_rp,
     bron_kerbosch3,
     bron_kerbosch3_gp,
-    bron_kerbosch3_gpx,
-    bron_kerbosch3n,
 ]
 
 FUNC_NAMES = [
@@ -42,12 +36,9 @@ FUNC_NAMES = [
     "Ver1+",
     "Ver2+",
     "Ver2+GP",
-    "Ver2+GPX",
     "Ver2+RP",
     "Ver3+",
     "Ver3+GP",
-    "Ver3+GPX",
-    "Ver3-",
 ]
 
 
@@ -308,14 +299,14 @@ if __name__ == '__main__':
         time.sleep(7)
         bk(
             orderstr="10k",
-            sizes=range(100_000, 500_001, 100_000),  # max 49_995_000
+            sizes=range(100_000, 800_001, 100_000),  # max 49_995_000
             func_indices=all_func_indices,
             samples=3)
         time.sleep(7)
         bk(orderstr="1M",
            sizes=itertools.chain(
-               range(10_000, 50_000, 10_000), range(50_000, 200_000, 50_000),
-               range(200_000, 1_000_001, 200_000)),
+               range(200_000, 1_000_000, 200_000),
+               range(1_000_000, 5_000_001, 1_000_000)),
            func_indices=list(range(1, len(FUNCS))),
            samples=3)
     print(f"random seed was {seed}")
