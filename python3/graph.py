@@ -6,8 +6,10 @@ Vertex = int
 
 class UndirectedGraph(object):
     def __init__(self, adjacencies: List[Set[Vertex]]):
+        order = len(adjacencies)
         for v, adjacent_to_v in enumerate(adjacencies):
             for w in adjacent_to_v:
+                assert 0 <= w < order
                 assert v != w
                 assert v in adjacencies[w], (
                     f'{w} is adjacent to {v} but not vice versa')
