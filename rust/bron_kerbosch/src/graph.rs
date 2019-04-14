@@ -69,15 +69,18 @@ where
     std::vec::from_elem(VertexSet::with_capacity(0), order as usize)
 }
 
-pub fn assert_adjacencies<VertexSet>(adjacencies: &Adjacencies<VertexSet>) -> bool
+pub fn are_valid_adjacencies<VertexSet>(adjacencies: &Adjacencies<VertexSet>) -> bool
 where
     VertexSet: VertexSetLike,
 {
-    for (i, adjacent_to_v) in adjacencies.iter().enumerate() {
-        let v = i as Vertex;
-        adjacent_to_v.all(|&w| w != v && adjacencies[w as usize].contains(&v));
-    }
-    true
+    let order = adjacencies.len() as u32;
+    adjacencies
+        .iter()
+        .enumerate()
+        .map(|(i, neighbours)| (i as Vertex, neighbours))
+        .all(|(v, adjacent_to_v)| {
+            adjacent_to_v.all(|&w| w != v && w < order && adjacencies[w as usize].contains(&v))
+        })
 }
 
 pub trait NewableUndirectedGraph<VertexSet>: UndirectedGraph<VertexSet> {

@@ -1,5 +1,6 @@
 use graph::{
-    assert_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSetLike,
+    are_valid_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex,
+    VertexSetLike,
 };
 
 #[derive(Debug)]
@@ -38,7 +39,7 @@ where
     VertexSet: VertexSetLike + Sync,
 {
     fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
-        debug_assert!(assert_adjacencies(&adjacencies));
+        debug_assert!(are_valid_adjacencies(&adjacencies));
         SlimUndirectedGraph { adjacencies }
     }
 }
