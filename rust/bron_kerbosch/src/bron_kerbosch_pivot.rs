@@ -4,6 +4,9 @@ use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
 
+extern crate rand;
+use self::rand::seq::SliceRandom;
+
 #[derive(Clone, Debug)]
 pub enum PivotChoice {
     Arbitrary,
@@ -41,11 +44,53 @@ pub fn visit<VertexSet>(
         return;
     }
 
-    let &pivot = choose(initial_pivot_selection, &candidates, &excluded, graph).unwrap();
-    let far_candidates: Vec<Vertex> = candidates.difference(graph.neighbours(pivot));
-    excluded.reserve(far_candidates.len());
-    for v in far_candidates {
+    let mut pivot: Option<Vertex> = None;
+    let mut remaining_candidates: Vec<Vertex> = Vec::with_capacity(candidates.len());
+    match initial_pivot_selection {
+        PivotChoice::MaxDegreeLocal => {
+            // Quickly handle locally unconnected candidates while finding pivot
+            let mut seen_local_degree = 0;
+            candidates.for_each(|v| {
+                let neighbours = graph.neighbours(v);
+                let local_degree = neighbours.intersection_size(&candidates);
+                if local_degree == 0 {
+                    // Same logic as below, but stripped down
+                    if neighbours.is_disjoint(&excluded) {
+                        reporter.record(clique.place(v).collect());
+                    }
+                } else {
+                    if seen_local_degree < local_degree {
+                        seen_local_degree = local_degree;
+                        pivot = Some(v);
+                    }
+                    remaining_candidates.push(v);
+                }
+            });
+            if remaining_candidates.is_empty() {
+                return;
+            }
+            excluded.for_each(|v| {
+                let neighbours = graph.neighbours(v);
+                let local_degree = neighbours.intersection_size(&candidates);
+                if seen_local_degree < local_degree {
+                    seen_local_degree = local_degree;
+                    pivot = Some(v);
+                }
+            });
+        }
+        _ => {
+            candidates.for_each(|v| remaining_candidates.push(v));
+            pivot = choose(initial_pivot_selection, &remaining_candidates, graph).cloned();
+        }
+    }
+
+    debug_assert!(!remaining_candidates.is_empty());
+    let pivot = pivot.unwrap();
+    for v in remaining_candidates {
         let neighbours = graph.neighbours(v);
+        if neighbours.contains(&pivot) {
+            continue;
+        }
         candidates.remove(&v);
         let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
         if !neighbouring_candidates.is_empty() {
@@ -70,22 +115,19 @@ pub fn visit<VertexSet>(
 
 fn choose<'a, VertexSet>(
     pivot_choice: PivotChoice,
-    candidates: &'a VertexSet,
-    excluded: &'a VertexSet,
+    candidates: &'a Vec<Vertex>,
     graph: &UndirectedGraph<VertexSet>,
 ) -> Option<&'a Vertex>
 where
     VertexSet: VertexSetLike,
 {
     match pivot_choice {
-        PivotChoice::Arbitrary => candidates.choose_arbitrary(),
+        PivotChoice::Arbitrary => candidates.first(),
         PivotChoice::Random => {
             let mut rng = rand::thread_rng();
             candidates.choose(&mut rng)
         }
-        PivotChoice::MaxDegree => candidates.max_by_key(|&&v| graph.degree(v) as usize),
-        PivotChoice::MaxDegreeLocal => candidates.max_by_key_from_either(excluded, |&&v| {
-            graph.neighbours(v).intersection_size(&candidates)
-        }),
+        PivotChoice::MaxDegree => candidates.iter().max_by_key(|&&v| graph.degree(v) as usize),
+        _ => panic!("Implemented separately"),
     }
 }

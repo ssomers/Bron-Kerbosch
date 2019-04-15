@@ -33,14 +33,6 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     where
         F: Fn(&Vertex) -> bool;
 
-    fn max_by_key<'a, F>(&'a self, f: F) -> Option<&'a Vertex>
-    where
-        F: Fn(&&Vertex) -> usize;
-
-    fn max_by_key_from_either<'a, F>(&'a self, other: &'a Self, f: F) -> Option<&'a Vertex>
-    where
-        F: Fn(&&Vertex) -> usize;
-
     fn for_each<F>(&self, f: F)
     where
         F: FnMut(Vertex);
