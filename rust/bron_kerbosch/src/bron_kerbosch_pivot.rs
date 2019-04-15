@@ -31,6 +31,7 @@ pub fn visit<VertexSet>(
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.len() == 1 {
+        // Same logic as below, but stripped down for this common case
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
             if neighbours.is_disjoint(&excluded) {
