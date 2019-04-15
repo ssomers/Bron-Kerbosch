@@ -3,7 +3,7 @@
 from graph import Vertex, UndirectedGraph
 from graph_degeneracy import degeneracy_ordering
 
-from hypothesis import given, settings
+from hypothesis import given
 from hypothesis.strategies import builds, integers, lists, sets
 from typing import List, Set
 

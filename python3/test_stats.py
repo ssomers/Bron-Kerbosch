@@ -1,4 +1,7 @@
 from stats import SampleStatistics
+
+from hypothesis import given
+from hypothesis.strategies import floats, lists
 from math import isnan, sqrt
 import pytest
 
@@ -60,3 +63,16 @@ def test_stats_2_float():
     assert s.mean() == 1.5
     assert s.variance() == 0.5
     assert s.deviation() == sqrt(0.5)
+
+
+@given(lists(floats(), min_size=2))
+def test_degeneracy_ordering_nonempty(samples):
+    s = SampleStatistics()
+    for sample in samples:
+        s.put(sample)
+    if not isnan(s.mean()):
+        assert s.mean() >= s.min
+        assert s.mean() <= s.max
+    if not isnan(s.variance()):
+        assert s.variance() >= 0.
+        assert s.deviation() <= s.max - s.min
