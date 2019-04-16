@@ -11,7 +11,7 @@ pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Rep
 where
     VertexSet: VertexSetLike,
 {
-    let mut excluded = VertexSet::new();
+    let mut excluded = VertexSet::with_capacity(graph.order() as usize - 1);
     for v in degeneracy_ordering(graph, -1) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());

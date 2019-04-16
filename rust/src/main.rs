@@ -217,12 +217,13 @@ fn bk_core(
 fn bk(
     orderstr: &str,
     order: u32,
-    sizes: Vec<u32>,
+    sizes: impl Iterator<Item = u32>,
     samples: u32,
     included_funcs: impl Fn(SetType, u32) -> Vec<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
 
+    let sizes: Vec<_> = sizes.collect();
     let published = sizes.len() > 1;
     let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
     let temppath = Path::new("tmp").with_extension("csv");
@@ -293,20 +294,13 @@ fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
-        let sizes_100 = (2_000..=3_000).step_by(50); // max 4_950
-        let sizes_10k = (100_000..=800_000).step_by(100_000); // max 49_995_000
-        let sizes_1m = std::iter::empty()
-            .chain((10_000..50_000).step_by(10_000))
-            .chain((50_000..200_000).step_by(50_000))
-            .chain((200_000..1_000_000).step_by(200_000))
-            .chain((1_000_000..=5_000_000).step_by(1_000_000));
         let all_funcs = |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
-        bk("100", 100, sizes_100.collect(), 5, all_funcs)?;
+        bk("100", 100, (2_000..=3_000).step_by(50), 5, all_funcs)?; // max 4_950
         thread::sleep(Duration::from_secs(7));
         bk(
             "10k",
             10_000,
-            sizes_10k.collect(),
+            (100_000..=800_000).step_by(100_000),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
                 (0..NUM_FUNCS)
@@ -322,20 +316,27 @@ fn main() -> Result<(), std::io::Error> {
         bk(
             "1M",
             1_000_000,
-            sizes_1m.collect(),
+            std::iter::empty()
+                .chain((10_000..50_000).step_by(10_000))
+                .chain((50_000..200_000).step_by(50_000))
+                .chain((200_000..1_000_000).step_by(200_000))
+                .chain((1_000_000..=5_000_000).step_by(1_000_000)),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
                 (0..NUM_FUNCS)
                     .filter(|func_index| {
-                        match func_index {
-                            9 => true,
-                            0 => false, // No need to keep testing the unimproved one
-                            1 => {
-                                set_type == SetType::BTreeSet
-                                    || size <= 40_000
-                                    || (set_type == SetType::Hashbrown && size <= 150_000)
-                            }
-                            _ => set_type == SetType::BTreeSet && size <= 3_000_000,
+                        match (func_index, set_type) {
+                            (0, _) => false, // No need to keep testing the unimproved one
+                            (1, SetType::HashSet) => size <= 40_000,
+                            (1, SetType::Fnv) => size <= 40_000,
+                            (1, SetType::Hashbrown) => size <= 150_000,
+                            (8, SetType::HashSet) => size <= 3_000_000,
+                            (8, SetType::Fnv) => size <= 4_000_000,
+                            (8, SetType::Hashbrown) => size <= 4_000_000,
+                            (9, SetType::HashSet) => true,
+                            (9, SetType::Fnv) => true,
+                            (9, SetType::Hashbrown) => true,
+                            (_, _) => size <= 2_000_000,
                         }
                     })
                     .collect()
@@ -353,7 +354,7 @@ fn main() -> Result<(), std::io::Error> {
                 (0..NUM_FUNCS).collect()
             }
         };
-        bk(&opt.order, order, sizes.collect(), 1, included_funcs)?;
+        bk(&opt.order, order, sizes, 1, included_funcs)?;
     } else {
         eprintln!("Specify order and size(s)")
     }
