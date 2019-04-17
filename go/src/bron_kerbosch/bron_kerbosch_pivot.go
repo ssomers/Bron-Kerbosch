@@ -1,6 +1,14 @@
 package bron_kerbosch
 
-func visit_max_degree(graph *UndirectedGraph, reporter Reporter,
+type PivotSelection int
+
+const (
+	MaxDegree      PivotSelection = iota
+	MaxDegreeLocal                = iota
+)
+
+func visit(graph *UndirectedGraph, reporter Reporter,
+	initial_pivot_selection PivotSelection, further_pivot_selection PivotSelection,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	if len(candidates) == 1 {
 		for v := range candidates {
@@ -12,27 +20,65 @@ func visit_max_degree(graph *UndirectedGraph, reporter Reporter,
 		return
 	}
 
-	pivot := pick_max_degree(graph, candidates, excluded)
-	pivot_neighbours := graph.adjacencies[pivot]
-	far_candidates := make([]Vertex, 0, len(candidates))
-	for c, _ := range candidates {
-		if !pivot_neighbours.Contains(c) {
-			far_candidates = append(far_candidates, c)
+	var pivot Vertex
+	remaining_candidates := make([]Vertex, 0, len(candidates))
+	switch initial_pivot_selection {
+	case MaxDegree:
+		pivot = pick_max_degree(graph, candidates, excluded)
+		for v, _ := range candidates {
+			remaining_candidates = append(remaining_candidates, v)
 		}
+		break
+	case MaxDegreeLocal:
+		// Quickly handle locally unconnected candidates while finding pivot
+		var seen_local_degree = 0
+		for v := range candidates {
+			neighbours := graph.adjacencies[v]
+			local_degree := neighbours.IntersectionLen(candidates)
+			if local_degree == 0 {
+				// Same logic as below, but stripped down
+				if neighbours.IsDisjoint(excluded) {
+					reporter.Record(append(clique, v))
+				}
+			} else {
+				if seen_local_degree < local_degree {
+					seen_local_degree = local_degree
+					pivot = v
+				}
+				remaining_candidates = append(remaining_candidates, v)
+			}
+		}
+		if len(remaining_candidates) == 0 {
+			return
+		}
+		for v := range excluded {
+			neighbours := graph.adjacencies[v]
+			local_degree := neighbours.IntersectionLen(candidates)
+			if seen_local_degree < local_degree {
+				seen_local_degree = local_degree
+				pivot = v
+			}
+		}
+		break
 	}
-	for _, v := range far_candidates {
-		candidates.Remove(v)
+
+	for _, v := range remaining_candidates {
 		neighbours := graph.adjacencies[v]
-		neighbouring_candidates := candidates.Intersection(neighbours)
+		if neighbours.Contains(pivot) {
+			continue
+		}
+		candidates.Remove(v)
+		neighbouring_candidates := neighbours.Intersection(candidates)
 		if !neighbouring_candidates.IsEmpty() {
-			neighbouring_excluded := excluded.Intersection(neighbours)
-			visit_max_degree(
+			neighbouring_excluded := neighbours.Intersection(excluded)
+			visit(
 				graph, reporter,
+				further_pivot_selection, further_pivot_selection,
 				neighbouring_candidates,
 				neighbouring_excluded,
 				append(clique, v))
 		} else {
-			if excluded.IsDisjoint(neighbours) {
+			if neighbours.IsDisjoint(excluded) {
 				reporter.Record(append(clique, v))
 			}
 		}

@@ -1,6 +1,6 @@
 package bron_kerbosch
 
-func bron_kerbosch3(graph *UndirectedGraph) [][]Vertex {
+func bron_kerbosch3_gp(graph *UndirectedGraph) [][]Vertex {
 	// Bron-Kerbosch algorithm with degeneracy ordering
 	var reporter SimpleReporter
 	var ordering SimpleVertexVisitor
@@ -11,8 +11,9 @@ func bron_kerbosch3(graph *UndirectedGraph) [][]Vertex {
 		neighbouring_candidates := neighbours.Difference(excluded)
 		if !neighbouring_candidates.IsEmpty() {
 			neighbouring_excluded := neighbours.Intersection(excluded)
-			visit_max_degree(
+			visit(
 				graph, &reporter,
+				MaxDegree, MaxDegree,
 				neighbouring_candidates,
 				neighbouring_excluded,
 				[]Vertex{v})

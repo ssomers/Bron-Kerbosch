@@ -47,6 +47,19 @@ func (vset1 VertexSet) Intersection(vset2 VertexSet) VertexSet {
 	return result
 }
 
+func (vset1 VertexSet) IntersectionLen(vset2 VertexSet) int {
+	if len(vset1) > len(vset2) {
+		vset1, vset2 = vset2, vset1
+	}
+	result := 0
+	for v, _ := range vset1 {
+		if vset2.Contains(v) {
+			result++
+		}
+	}
+	return result
+}
+
 func (vset1 VertexSet) IsDisjoint(vset2 VertexSet) bool {
 	if len(vset1) > len(vset2) {
 		vset1, vset2 = vset2, vset1
