@@ -4,6 +4,7 @@ import (
 	"bron_kerbosch"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func bk(orderstr string, order int, sizes []int, samples int) {
@@ -41,24 +42,43 @@ func bk(orderstr string, order int, sizes []int, samples int) {
 }
 
 func main() {
-	var sizes_100 []int
-	var sizes_10k []int
-	var sizes_1M []int
-	for s := int(2e3); s <= 3e3; s += 50 {
-		sizes_100 = append(sizes_100, s)
-	}
-	for s := int(100e3); s <= 800e3; s += 100e3 {
-		sizes_10k = append(sizes_10k, s)
-	}
-	for s := int(200e3); s <= 5e6; {
-		sizes_1M = append(sizes_1M, s)
-		if s < 1e6 {
-			s += 200e3
-		} else {
-			s += 1e6
+	if len(os.Args) == 1 {
+		var sizes_100 []int
+		var sizes_10k []int
+		var sizes_1M []int
+		for s := int(2e3); s <= 3e3; s += 50 {
+			sizes_100 = append(sizes_100, s)
 		}
+		for s := int(100e3); s <= 800e3; s += 100e3 {
+			sizes_10k = append(sizes_10k, s)
+		}
+		for s := int(200e3); s <= 5e6; {
+			sizes_1M = append(sizes_1M, s)
+			if s < 1e6 {
+				s += 200e3
+			} else {
+				s += 1e6
+			}
+		}
+		bk("100", 1e2, sizes_100, 5)
+		bk("10k", 1e4, sizes_10k, 3)
+		bk("1M", 1e6, sizes_1M, 3)
+	} else if len(os.Args) > 2 {
+		orderstr := os.Args[1]
+		order, err := strconv.Atoi(orderstr)
+		if err != nil {
+			panic(err)
+		}
+		var sizes []int
+		for _, s := range os.Args[2:] {
+			size, err := strconv.Atoi(s)
+			sizes = append(sizes, size)
+			if err != nil {
+				panic(err)
+			}
+		}
+		bk(orderstr, order, sizes, 3)
+	} else {
+		print("give me one or more sizes too")
 	}
-	bk("100", 1e2, sizes_100, 5)
-	bk("10k", 1e4, sizes_10k, 3)
-	bk("1M", 1e6, sizes_1M, 3)
 }
