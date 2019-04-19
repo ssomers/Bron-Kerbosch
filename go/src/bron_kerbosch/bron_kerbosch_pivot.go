@@ -24,14 +24,14 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	remaining_candidates := make([]Vertex, 0, len(candidates))
 	switch initial_pivot_selection {
 	case MaxDegree:
-		pivot = pick_max_degree(graph, candidates, excluded)
-		for v, _ := range candidates {
+		pivot = pick_max_degree(graph, candidates)
+		for v := range candidates {
 			remaining_candidates = append(remaining_candidates, v)
 		}
 		break
 	case MaxDegreeLocal:
 		// Quickly handle locally unconnected candidates while finding pivot
-		var seen_local_degree = 0
+		seen_local_degree := 0
 		for v := range candidates {
 			neighbours := graph.adjacencies[v]
 			local_degree := neighbours.IntersectionLen(candidates)
@@ -86,10 +86,10 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	}
 }
 
-func pick_max_degree(graph *UndirectedGraph, candidates VertexSet, excluded VertexSet) Vertex {
+func pick_max_degree(graph *UndirectedGraph, candidates VertexSet) Vertex {
 	max_degree := 0
 	var max_vertex Vertex
-	for v, _ := range candidates {
+	for v := range candidates {
 		degree := graph.degree(v)
 		if max_degree < degree {
 			max_degree = degree

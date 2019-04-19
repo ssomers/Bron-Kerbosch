@@ -1,7 +1,8 @@
 package bron_kerbosch
 
 func bron_kerbosch3_gpx(graph *UndirectedGraph) [][]Vertex {
-	// Bron-Kerbosch algorithm with degeneracy ordering
+	// Bron-Kerbosch algorithm with degeneracy ordering,
+	// recursing with pivot of highest degree towards the remaining candidates (IK_GPX)
 	var reporter SimpleReporter
 	var ordering SimpleVertexVisitor
 	degeneracy_ordering(graph, &ordering, -1)

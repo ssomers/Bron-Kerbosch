@@ -20,8 +20,8 @@ Compared to the original forked from, the code is:
 * **Ver2+GP:** Ver2+ picking pivot with highest degree (IK\_GP)
 * **Ver2+GPX:** Ver2+ picking pivot with highest degree within the remaining candidates (IK\_GPX)
 * **Ver2+RP:** Ver2+ picking pivot randomly (IK\_RP)
-* **Ver3+GP:** Ver3+ with recursive calls picking pivot with highest degree
-* **Ver3+GPX:** Ver3+ with recursive calls picking pivot with highest degree within the remaining candidates (IK\_GPX)
+* **Ver3+GP:** Ver3+ with nested calls picking pivot with highest degree (IK\_GP)
+* **Ver3+GPX:** Ver3+ with nested calls picking pivot with highest degree within the remaining candidates (IK\_GPX)
 * **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores and hyperthreading)
 
 ## Run
