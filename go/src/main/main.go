@@ -35,7 +35,7 @@ func bk(orderstr string, order int, sizes []int, samples int) {
 			mean := stats[func_index].Mean()
 			dev := stats[func_index].Deviation()
 			fo.WriteString(fmt.Sprintf(",%f,%f,%f", min, mean, max))
-			fmt.Printf("order %7d size %7d %8s: %5.2fs %c%5.2fs\n", order, size, func_name, mean, 177, dev)
+			fmt.Printf("order %7d size %7d %-8s: %5.2fs %c%5.2fs\n", order, size, func_name, mean, 177, dev)
 		}
 		fo.WriteString("\n")
 	}

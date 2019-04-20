@@ -23,8 +23,8 @@ where
             visit(
                 graph,
                 reporter,
-                PivotChoice::MaxDegree,
-                PivotChoice::MaxDegree,
+                PivotChoice::MaxDegreeLocal,
+                PivotChoice::MaxDegreeLocal,
                 neighbouring_candidates,
                 neighbouring_excluded,
                 Pile::from(v),

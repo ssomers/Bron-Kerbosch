@@ -21,7 +21,7 @@ func bron_kerbosch3om(graph *UndirectedGraph) [][]Vertex {
 				for job := range visits {
 					visit(
 						graph, &reporter,
-						MaxDegree, MaxDegree,
+						MaxDegreeLocal, MaxDegreeLocal,
 						job.candidates,
 						job.excluded,
 						[]Vertex{job.start})

@@ -17,11 +17,12 @@ Compared to the original forked from, the code is:
 * **Ver1+:** Ver1 optimized, including language-specific tweaks
 * **Ver2+:** Ver1+ with pivot, picking pivot arbitrarily
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
-* **Ver2+GP:** Ver2+ picking pivot with highest degree (IK\_GP)
-* **Ver2+GPX:** Ver2+ picking pivot with highest degree within the remaining candidates (IK\_GPX)
+* **Ver2+G:** Ver2+ picking pivot, with highest degree in the whole graph, from candidates only
+* **Ver2+GP:** Ver2+ picking pivot, with highest degree within the remaining candidates, from candidates only (IK\_GP)
+* **Ver2+GPX:** Ver2+ picking pivot, with highest degree within the remaining candidates, from both candidates and excluded (IK\_GPX)
 * **Ver2+RP:** Ver2+ picking pivot randomly (IK\_RP)
-* **Ver3+GP:** Ver3+ with nested calls picking pivot with highest degree (IK\_GP)
-* **Ver3+GPX:** Ver3+ with nested calls picking pivot with highest degree within the remaining candidates (IK\_GPX)
+* **Ver3+GP:** Ver3+ with nested calls picking pivot according to IK\_GP
+* **Ver3+GPX:** Ver3+ with nested calls picking pivot according to IK\_GPX
 * **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores and hyperthreading)
 
 ## Run
@@ -50,7 +51,12 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Scala on graphs of order 10k](https://plot.ly/~stein.somers/199.png?share_key=ZM9Igh4glwfW0rFVJFzf3s "View interactively")](https://plot.ly/~stein.somers/199/?share_key=ZM9Igh4glwfW0rFVJFzf3s)
 [![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 
-* Sparse random graphs of order 1M: who scales best?
+* Very sparse random graphs of high order
+
+Ver1 doesn't cut it either, depending on the set implementation
+[![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/265.png?share_key=pr6lBghz9gi7b16rFrFS6n "View interactively")](https://plot.ly/~stein.somers/265/?share_key=pr6lBghz9gi7b16rFrFS6n)
+
+* Random graphs of order 1M: who scales best?
 
 [![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
 [![Time spent in C# on graphs of order 100](https://plot.ly/~stein.somers/261.png?share_key=DSsVRnQJEqbKPxQn8RyaSX "View interactively")](https://plot.ly/~stein.somers/261/?share_key=DSsVRnQJEqbKPxQn8RyaSX)

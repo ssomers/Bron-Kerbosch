@@ -6,16 +6,16 @@ import (
 	"time"
 )
 
-const NUM_FUNCS = 6
+const NUM_FUNCS = 7
 
 var FUNCS = [NUM_FUNCS]func(*UndirectedGraph) [][]Vertex{
 	bron_kerbosch1,
-	bron_kerbosch2_gp, bron_kerbosch2_gpx,
+	bron_kerbosch2_g, bron_kerbosch2_gp, bron_kerbosch2_gpx,
 	bron_kerbosch3_gp, bron_kerbosch3_gpx, bron_kerbosch3om}
 
 var FUNC_NAMES = [NUM_FUNCS]string{
 	"Ver1+",
-	"Ver2+GP", "Ver2+GPX",
+	"Ver2+G", "Ver2+GP", "Ver2+GPX",
 	"Ver3+GP", "Ver3+GPX", "Ver3+MT"}
 
 func sort_cliques(cliques [][]Vertex) {
@@ -70,7 +70,7 @@ func Timed(order int, size int, samples int) [NUM_FUNCS]SampleStatistics {
 			current := bron_kerbosch_func(&graph)
 			secs := time.Since(begin).Seconds()
 			if secs >= 3.0 {
-				fmt.Printf("  %8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
+				fmt.Printf("  %-8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
 			}
 			if sample < 2 {
 				sort_cliques(current)

@@ -7,12 +7,13 @@ use reporter::Reporter;
 extern crate rand;
 use self::rand::seq::SliceRandom;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
     Arbitrary,
     Random,
     MaxDegree,
     MaxDegreeLocal,
+    MaxDegreeLocalX,
 }
 
 type Clique<'a> = Pile<'a, Vertex>;
@@ -47,7 +48,7 @@ pub fn visit<VertexSet>(
     let mut pivot: Option<Vertex> = None;
     let mut remaining_candidates: Vec<Vertex> = Vec::with_capacity(candidates.len());
     match initial_pivot_selection {
-        PivotChoice::MaxDegreeLocal => {
+        PivotChoice::MaxDegreeLocal | PivotChoice::MaxDegreeLocalX => {
             // Quickly handle locally unconnected candidates while finding pivot
             let mut seen_local_degree = 0;
             candidates.for_each(|v| {
@@ -69,14 +70,16 @@ pub fn visit<VertexSet>(
             if remaining_candidates.is_empty() {
                 return;
             }
-            excluded.for_each(|v| {
-                let neighbours = graph.neighbours(v);
-                let local_degree = neighbours.intersection_size(&candidates);
-                if seen_local_degree < local_degree {
-                    seen_local_degree = local_degree;
-                    pivot = Some(v);
-                }
-            });
+            if initial_pivot_selection == PivotChoice::MaxDegreeLocalX {
+                excluded.for_each(|v| {
+                    let neighbours = graph.neighbours(v);
+                    let local_degree = neighbours.intersection_size(&candidates);
+                    if seen_local_degree < local_degree {
+                        seen_local_degree = local_degree;
+                        pivot = Some(v);
+                    }
+                });
+            }
         }
         _ => {
             candidates.for_each(|v| remaining_candidates.push(v));

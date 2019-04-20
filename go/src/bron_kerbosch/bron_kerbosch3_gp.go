@@ -1,8 +1,8 @@
 package bron_kerbosch
 
 func bron_kerbosch3_gp(graph *UndirectedGraph) [][]Vertex {
-	// Bron-Kerbosch algorithm with degeneracy ordering,
-	// recursing with pivot of highest degree (IK_GP)
+	// Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
+	// choosing a pivot from candidates only (IK_GP).
 	var reporter SimpleReporter
 	var ordering SimpleVertexVisitor
 	degeneracy_ordering(graph, &ordering, -1)
@@ -14,7 +14,7 @@ func bron_kerbosch3_gp(graph *UndirectedGraph) [][]Vertex {
 			neighbouring_excluded := neighbours.Intersection(excluded)
 			visit(
 				graph, &reporter,
-				MaxDegree, MaxDegree,
+				MaxDegree, MaxDegreeLocal,
 				neighbouring_candidates,
 				neighbouring_excluded,
 				[]Vertex{v})

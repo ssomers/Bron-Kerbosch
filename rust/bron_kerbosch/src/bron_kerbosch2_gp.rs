@@ -15,7 +15,7 @@ where
             graph,
             reporter,
             PivotChoice::MaxDegree,
-            PivotChoice::MaxDegree,
+            PivotChoice::MaxDegreeLocal,
             candidates,
             VertexSet::new(),
             Pile::new(),

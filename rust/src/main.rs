@@ -303,13 +303,31 @@ fn main() -> Result<(), std::io::Error> {
             (100_000..=800_000).step_by(100_000),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
-                (0..NUM_FUNCS)
-                    .filter(|func_index| match func_index {
-                        0 => size <= 500_000 || set_type == SetType::Fnv,
-                        4 | 8 => size <= 500_000,
-                        _ => true,
+                (2..NUM_FUNCS)
+                    .filter(|func_index| match (func_index, set_type) {
+                        (5, _) => false, // Ver2+RP not interesting on random graph
+                        (3, SetType::BTreeSet) | (3, SetType::HashSet) |
+                        (4, SetType::BTreeSet) | (4, SetType::HashSet) |
+                        (7, SetType::BTreeSet) | (7, SetType::HashSet) |
+                        (8, SetType::BTreeSet) | (8, SetType::HashSet) => size <= 500_000,
+                        (_, _) => true,
                     })
                     .collect()
+            },
+        )?;
+        thread::sleep(Duration::from_secs(7));
+        bk(
+            "999k",
+            999_999,
+            (10_000..250_000).step_by(10_000),
+            3,
+            |set_type: SetType, size: u32| -> Vec<usize> {
+                    if match set_type {
+                        SetType::BTreeSet => true,
+                        SetType::HashSet => size <= 50_000,
+                        SetType::Fnv => size <= 50_000,
+                        SetType::Hashbrown => size <= 140_000,
+                    } { vec![1] } else { vec![] }
             },
         )?;
         thread::sleep(Duration::from_secs(7));
@@ -317,25 +335,23 @@ fn main() -> Result<(), std::io::Error> {
             "1M",
             1_000_000,
             std::iter::empty()
-                .chain((10_000..50_000).step_by(10_000))
-                .chain((50_000..200_000).step_by(50_000))
                 .chain((200_000..1_000_000).step_by(200_000))
                 .chain((1_000_000..=5_000_000).step_by(1_000_000)),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
-                (0..NUM_FUNCS)
+                (2..NUM_FUNCS)
                     .filter(|func_index| {
                         match (func_index, set_type) {
-                            (0, _) => false, // No need to keep testing the unimproved one
-                            (1, SetType::HashSet) => size <= 40_000,
-                            (1, SetType::Fnv) => size <= 40_000,
-                            (1, SetType::Hashbrown) => size <= 150_000,
+                            (5, _) => false, // Ver2+RP not interesting on random graph
+                            (7, SetType::BTreeSet) => size <= 2_000_000,
+                            (7, SetType::HashSet) => size <= 3_000_000,
+                            (7, SetType::Fnv) => true,
+                            (7, SetType::Hashbrown) => size <= 4_000_000,
+                            (8, SetType::BTreeSet) => size <= 2_000_000,
                             (8, SetType::HashSet) => size <= 3_000_000,
-                            (8, SetType::Fnv) => size <= 4_000_000,
+                            (8, SetType::Fnv) => true,
                             (8, SetType::Hashbrown) => size <= 4_000_000,
-                            (9, SetType::HashSet) => true,
-                            (9, SetType::Fnv) => true,
-                            (9, SetType::Hashbrown) => true,
+                            (9, _) => true,
                             (_, _) => size <= 2_000_000,
                         }
                     })

@@ -12,6 +12,7 @@ def color(case_name: str) -> str:
         "Ver1": "#000099",
         "Ver1+": "#3333CC",
         "Ver2+": "#990000",
+        "Ver2+G": "#FF3300",
         "Ver2+GP": "#FF6666",
         "Ver2+GPX": "#FF9966",
         "Ver2+RP": "#CC00CC",
@@ -87,7 +88,7 @@ def publish_csv(language: str, orderstr: str):
     try:
         from plotly import graph_objs, plotly
     except ImportError as e:
-        print(f"{e}, not plotting until you pip install plotly")
+        print(f"{e} (maybe you want to pip install plotly?)")
     else:
         traces = [
             graph_objs.Scatter(

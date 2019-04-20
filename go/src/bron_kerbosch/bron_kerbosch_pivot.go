@@ -3,8 +3,9 @@ package bron_kerbosch
 type PivotSelection int
 
 const (
-	MaxDegree      PivotSelection = iota
-	MaxDegreeLocal                = iota
+	MaxDegree       PivotSelection = iota
+	MaxDegreeLocal                 = iota
+	MaxDegreeLocalX                = iota
 )
 
 func visit(graph *UndirectedGraph, reporter Reporter,
@@ -29,8 +30,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		for v := range candidates {
 			remaining_candidates = append(remaining_candidates, v)
 		}
-		break
-	case MaxDegreeLocal:
+	case MaxDegreeLocal, MaxDegreeLocalX:
 		// Quickly handle locally unconnected candidates while finding pivot
 		seen_local_degree := 0
 		for v := range candidates {
@@ -52,15 +52,16 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		if seen_local_degree == 0 {
 			return
 		}
-		for v := range excluded {
-			neighbours := graph.adjacencies[v]
-			local_degree := neighbours.IntersectionLen(candidates)
-			if seen_local_degree < local_degree {
-				seen_local_degree = local_degree
-				pivot = v
+		if initial_pivot_selection == MaxDegreeLocalX {
+			for v := range excluded {
+				neighbours := graph.adjacencies[v]
+				local_degree := neighbours.IntersectionLen(candidates)
+				if seen_local_degree < local_degree {
+					seen_local_degree = local_degree
+					pivot = v
+				}
 			}
 		}
-		break
 	}
 
 	for _, v := range remaining_candidates {
