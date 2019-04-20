@@ -12,6 +12,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	if len(candidates) == 1 {
 		for v := range candidates {
+			// Same logic as below, stripped down
 			neighbours := graph.adjacencies[v]
 			if excluded.IsDisjoint(neighbours) {
 				reporter.Record(append(clique, v))
@@ -36,7 +37,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 			neighbours := graph.adjacencies[v]
 			local_degree := neighbours.IntersectionLen(candidates)
 			if local_degree == 0 {
-				// Same logic as below, but stripped down
+				// Same logic as below, stripped down
 				if neighbours.IsDisjoint(excluded) {
 					reporter.Record(append(clique, v))
 				}
@@ -48,7 +49,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 				remaining_candidates = append(remaining_candidates, v)
 			}
 		}
-		if len(remaining_candidates) == 0 {
+		if seen_local_degree == 0 {
 			return
 		}
 		for v := range excluded {
