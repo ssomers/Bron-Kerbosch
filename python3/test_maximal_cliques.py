@@ -3,10 +3,13 @@
 from bron_kerbosch1 import bron_kerbosch1
 from bron_kerbosch1o import bron_kerbosch1o
 from bron_kerbosch2 import bron_kerbosch2
-from bron_kerbosch2_rp import bron_kerbosch2_rp
+from bron_kerbosch2_g import bron_kerbosch2_g
 from bron_kerbosch2_gp import bron_kerbosch2_gp
+from bron_kerbosch2_gpx import bron_kerbosch2_gpx
+from bron_kerbosch2_rp import bron_kerbosch2_rp
 from bron_kerbosch3 import bron_kerbosch3
 from bron_kerbosch3_gp import bron_kerbosch3_gp
+from bron_kerbosch3_gpx import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
 from reporter import SimpleReporter
@@ -25,20 +28,26 @@ FUNCS = [
     bron_kerbosch1,
     bron_kerbosch1o,
     bron_kerbosch2,
+    bron_kerbosch2_g,
     bron_kerbosch2_gp,
+    bron_kerbosch2_gpx,
     bron_kerbosch2_rp,
     bron_kerbosch3,
     bron_kerbosch3_gp,
+    bron_kerbosch3_gpx,
 ]
 
 FUNC_NAMES = [
     "Ver1",
     "Ver1+",
     "Ver2+",
+    "Ver2+G",
     "Ver2+GP",
+    "Ver2+GPX",
     "Ver2+RP",
     "Ver3+",
     "Ver3+GP",
+    "Ver3+GPX",
 ]
 
 
@@ -261,8 +270,13 @@ def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
             print(f"{name}: {g.adjacencies}")
         else:
             print(f"{name} (generating took {secs:.2f}s)")
-        stats_per_func_by_size[size] = bron_kerbosch_timed(
+        stats = bron_kerbosch_timed(
             g, func_indices=func_indices, samples=samples)
+        for func_index, func_name in enumerate(FUNC_NAMES):
+            mean = stats[func_index].mean()
+            dev = stats[func_index].deviation()
+            print(f"  {func_name:<8}: {mean:5.2f}s ±{dev:5.2f}s")
+        stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
         publish(
             language="python3",

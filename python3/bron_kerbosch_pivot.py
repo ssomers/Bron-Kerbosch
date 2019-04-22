@@ -27,12 +27,40 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
                 reporter.record(clique + [v])
         return
 
-    pivot = initial_pivot_choice(
-        graph=graph, candidates=candidates, excluded=excluded)
-    pivot_neighbours = graph.adjacencies[pivot]
-    for v in [v for v in candidates if v not in pivot_neighbours]:
+    if initial_pivot_choice in [pick_max_degree_local, pick_max_degree_localX]:
+        # Quickly handle locally unconnected candidates while finding pivot
+        remaining_candidates = []
+        seen_local_degree = 0
+        for v in candidates:
+            neighbours = graph.adjacencies[v]
+            local_degree = len(neighbours.intersection(candidates))
+            if local_degree == 0:
+                # Same logic as below, stripped down
+                if neighbours.isdisjoint(excluded):
+                    reporter.record(clique + [v])
+            else:
+                if seen_local_degree < local_degree:
+                    seen_local_degree = local_degree
+                    pivot = v
+                remaining_candidates.append(v)
+        if seen_local_degree == 0:
+            return
+        if initial_pivot_choice == pick_max_degree_localX:
+            for v in excluded:
+                neighbours = graph.adjacencies[v]
+                local_degree = len(neighbours.intersection(candidates))
+                if seen_local_degree < local_degree:
+                    seen_local_degree = local_degree
+                    pivot = v
+    else:
+        pivot = initial_pivot_choice(graph=graph, candidates=candidates)
+        remaining_candidates = list(candidates)
+
+    for v in remaining_candidates:
         neighbours = graph.adjacencies[v]
         assert neighbours
+        if pivot in neighbours:
+            continue
         candidates.remove(v)
         neighbouring_candidates = candidates.intersection(neighbours)
         if neighbouring_candidates:
@@ -51,13 +79,11 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
         excluded.add(v)
 
 
-def pick_arbitrary(graph: UndirectedGraph, candidates: Set[Vertex],
-                   excluded: Set[Vertex]) -> Vertex:
+def pick_arbitrary(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
     return next(iter(candidates))
 
 
-def pick_random(graph: UndirectedGraph, candidates: Set[Vertex],
-                excluded: Set[Vertex]) -> Vertex:
+def pick_random(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
     return random.sample(candidates, k=1)[0]
     """
     return random.sample(
@@ -69,6 +95,13 @@ def pick_random(graph: UndirectedGraph, candidates: Set[Vertex],
     """
 
 
-def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex],
-                    excluded: Set[Vertex]) -> Vertex:
+def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
     return max(candidates, key=graph.degree)
+
+
+def pick_max_degree_local():
+    pass
+
+
+def pick_max_degree_localX():
+    pass
