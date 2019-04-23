@@ -34,11 +34,11 @@ namespace BronKerbosch
             }
 
             Vertex pivot;
-            List<Vertex> remainingCandidates;
+            var remainingCandidates = new Vertex[candidates.Count];
+            var remainingCandidateCount = 0;
             if (initialChoice >= Choice.MaxDegreeLocal)
             {
                 // Quickly handle locally unconnected candidates while finding pivot
-                remainingCandidates = new List<Vertex>(candidates.Count);
                 pivot = -321;
                 var seenLocalDegree = 0;
                 foreach (Vertex v in candidates)
@@ -58,7 +58,8 @@ namespace BronKerbosch
                             seenLocalDegree = localDegree;
                             pivot = v;
                         }
-                        remainingCandidates.Add(v);
+                        remainingCandidates[remainingCandidateCount] = v;
+                        remainingCandidateCount += 1;
                     }
                 }
                 if (seenLocalDegree == 0)
@@ -81,10 +82,12 @@ namespace BronKerbosch
             else
             {
                 pivot = Choose(initialChoice, candidates, graph);
-                remainingCandidates = new List<Vertex>(candidates);
+                candidates.CopyTo(remainingCandidates, 0);
+                remainingCandidateCount = candidates.Count;
             }
-            foreach (Vertex v in remainingCandidates)
+            for (int i = 0; i < remainingCandidateCount; ++i)
             {
+                var v = remainingCandidates[i];
                 var neighbours = graph.Neighbours(v);
                 if (neighbours.Contains(pivot))
                     continue;
