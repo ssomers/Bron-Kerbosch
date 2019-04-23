@@ -10,7 +10,7 @@ class BronKerbosch1
     static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
         var candidates = graph.ConnectedVertices();
-        if (candidates.Count > 0)
+        if (candidates.Any())
         {
             Visit(
                 graph,
@@ -29,7 +29,7 @@ class BronKerbosch1
         {
             Vertex v = Util.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
-            Debug.Assert(neighbours.Count > 0);
+            Debug.Assert(neighbours.Any());
             var neighbouring_candidates = Util.Intersect(candidates, neighbours);
             if (neighbouring_candidates.Any())
             {
@@ -41,7 +41,7 @@ class BronKerbosch1
             {
                 if (Util.AreDisjoint(excluded, neighbours))
                     reporter.Record(new List<Vertex>(clique) { v });
-                if (candidates.Count == 0)
+                if (!candidates.Any())
                     break;
             }
             excluded.Add(v);

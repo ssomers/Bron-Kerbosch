@@ -5,7 +5,7 @@ namespace BronKerbosch
 {
     public class Portfolio
     {
-        public const int NUM_FUNCS = 2;
+        public static readonly string[] FUNC_NAMES = new string[] { "Ver1+", "Ver2+", "Ver2+G", "Ver2+GP", "Ver2+GPX" };
 
         public static void Explore(int func_index, UndirectedGraph graph, Reporter reporter)
         {
@@ -13,6 +13,9 @@ namespace BronKerbosch
             {
                 case 0: BronKerbosch1.Explore(graph, reporter); break;
                 case 1: BronKerbosch2.Explore(graph, reporter); break;
+                case 2: BronKerbosch2G.Explore(graph, reporter); break;
+                case 3: BronKerbosch2GP.Explore(graph, reporter); break;
+                case 4: BronKerbosch2GPX.Explore(graph, reporter); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

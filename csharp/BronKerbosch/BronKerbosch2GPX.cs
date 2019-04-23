@@ -4,7 +4,7 @@ using BronKerbosch;
 using System.Collections.Generic;
 using System.Linq;
 
-public class BronKerbosch2
+public class BronKerbosch2GPX
 {
     static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
@@ -14,8 +14,8 @@ public class BronKerbosch2
             Pivot.Visit(
                 graph,
                 reporter,
-                Pivot.Choice.Arbitrary,
-                Pivot.Choice.Arbitrary,
+                Pivot.Choice.MaxDegree,
+                Pivot.Choice.MaxDegreeLocalX,
                 candidates,
                 new HashSet<Vertex>(),
                 new List<Vertex>(capacity: candidates.Count));

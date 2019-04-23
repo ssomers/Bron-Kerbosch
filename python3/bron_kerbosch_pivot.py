@@ -20,6 +20,7 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
     assert all(graph.degree(v) > 0 for v in excluded)
 
     if len(candidates) == 1:
+        # Same logic as below, stripped down for this common case
         for v in candidates:
             neighbours = graph.adjacencies[v]
             assert neighbours

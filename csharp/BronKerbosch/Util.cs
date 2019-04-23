@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 public class Util
 {
@@ -10,6 +11,22 @@ public class Util
             return !lhs.Overlaps(rhs);
         else
             return !rhs.Overlaps(lhs);
+    }
+
+    public static int IntersectCount(ISet<Vertex> lhs, ISet<Vertex> rhs)
+    {
+        if (lhs.Count > rhs.Count)
+            return IntersectCount(rhs, lhs);
+
+        var result = 0;
+        foreach (Vertex v in lhs)
+        {
+            if (rhs.Contains(v))
+                result += 1;
+        }
+        return result;
+        // much slower: rhs.Intersect(lhs).Count();
+        // even slower: return lhs.Intersect(rhs).Count();
     }
 
     public static HashSet<Vertex> Intersect(ISet<Vertex> lhs, ISet<Vertex> rhs)
