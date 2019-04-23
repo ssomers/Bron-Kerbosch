@@ -136,6 +136,7 @@ mod tests {
     #[test]
     fn bk_order_3_size_1() {
         bk(vec![vec![1], vec![0], vec![]], vec![vec![0, 1]]);
+        bk(vec![vec![2], vec![], vec![0]], vec![vec![0, 2]]);
         bk(vec![vec![], vec![2], vec![1]], vec![vec![1, 2]]);
     }
 
@@ -156,18 +157,26 @@ mod tests {
     }
 
     #[test]
-    fn bk_order_4_size_2_isolated() {
+    fn bk_order_4_size_2() {
         bk(
-            vec![vec![1, 2], vec![0], vec![0], vec![]],
-            vec![vec![0, 1], vec![0, 2]],
+            vec![vec![1], vec![0], vec![3], vec![2]],
+            vec![vec![0, 1], vec![2, 3]],
         );
     }
 
     #[test]
-    fn bk_order_4_size_2_connected() {
+    fn bk_order_4_size_3_bus() {
         bk(
-            vec![vec![1], vec![0], vec![3], vec![2]],
-            vec![vec![0, 1], vec![2, 3]],
+            vec![vec![1], vec![0, 2], vec![1, 3], vec![2]],
+            vec![vec![0, 1], vec![1, 2], vec![2, 3]],
+        );
+    }
+
+    #[test]
+    fn bk_order_4_size_3_star() {
+        bk(
+            vec![vec![1, 2, 3], vec![0], vec![0], vec![0]],
+            vec![vec![0, 1], vec![0, 2], vec![0, 3]],
         );
     }
 

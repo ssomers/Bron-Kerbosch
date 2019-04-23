@@ -52,17 +52,24 @@ class BronKerboschTest extends org.scalatest.FunSuite {
     bk(List(List(1, 2), List(0, 2), List(0, 1)), List(IndexedSeq(0, 1, 2)))
   }
 
-  test("order_4_size_2_isolated") {
-    bk(
-      List(List(1, 2), List(0), List(0), List()),
-      List(IndexedSeq(0, 1), IndexedSeq(0, 2))
-    )
-  }
-
-  test("order_4_size_2_connected") {
+  test("order_4_size_2") {
     bk(
       List(List(1), List(0), List(3), List(2)),
       List(IndexedSeq(0, 1), IndexedSeq(2, 3))
+    )
+  }
+
+  test("order_4_size_3_bus") {
+    bk(
+      List(List(1), List(0, 2), List(1, 3), List(2)),
+      List(IndexedSeq(0, 1), IndexedSeq(1, 2), IndexedSeq(2, 3))
+    )
+  }
+
+  test("order_4_size_3_star") {
+    bk(
+      List(List(1, 2, 3), List(0), List(0), List(0)),
+      List(IndexedSeq(0, 1), IndexedSeq(0, 2), IndexedSeq(0, 3))
     )
   }
 

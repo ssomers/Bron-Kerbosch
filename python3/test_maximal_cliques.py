@@ -120,6 +120,7 @@ def test_order_2_connected(func):
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_3_size_1(func):
     assert bkf(func=func, adjacencies=[{1}, {0}, []]) == [[0, 1]]
+    assert bkf(func=func, adjacencies=[{2}, [], {0}]) == [[0, 2]]
     assert bkf(func=func, adjacencies=[[], {2}, {1}]) == [[1, 2]]
 
 
@@ -134,14 +135,28 @@ def test_order_3_size_3(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_2_isolated(func):
-    assert bkf(
-        func=func, adjacencies=[{1, 2}, {0}, {0}, []]) == [[0, 1], [0, 2]]
+def test_order_4_size_2(func):
+    assert bkf(func=func, adjacencies=[{1}, {0}, {3}, {2}]) == [[0, 1], [2, 3]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_2_connected(func):
-    assert bkf(func=func, adjacencies=[{1}, {0}, {3}, {2}]) == [[0, 1], [2, 3]]
+def test_order_4_size_3_bus(func):
+    assert bkf(
+        func=func, adjacencies=[{1}, {0, 2}, {1, 3}, {2}]) == [
+            [0, 1],
+            [1, 2],
+            [2, 3],
+        ]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_4_size_3_star(func):
+    assert bkf(
+        func=func, adjacencies=[{1, 2, 3}, {0}, {0}, {0}]) == [
+            [0, 1],
+            [0, 2],
+            [0, 3],
+        ]
 
 
 @pytest.mark.parametrize("func", FUNCS)

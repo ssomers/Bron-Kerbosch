@@ -78,6 +78,13 @@ func TestOrder3_Size1(t *testing.T) {
 			[]Vertex{0, 1}})
 	bk(t,
 		[][]Vertex{
+			[]Vertex{2},
+			[]Vertex{},
+			[]Vertex{0}},
+		[][]Vertex{
+			[]Vertex{0, 2}})
+	bk(t,
+		[][]Vertex{
 			[]Vertex{},
 			[]Vertex{2},
 			[]Vertex{1}},
@@ -106,19 +113,7 @@ func TestOrder3_Size3(t *testing.T) {
 			[]Vertex{0, 1, 2}})
 }
 
-func TestOrder4_Size2_isolated(t *testing.T) {
-	bk(t,
-		[][]Vertex{
-			[]Vertex{1, 2},
-			[]Vertex{0},
-			[]Vertex{0},
-			[]Vertex{}},
-		[][]Vertex{
-			[]Vertex{0, 1},
-			[]Vertex{0, 2}})
-}
-
-func TestOrder4_Size2_connected(t *testing.T) {
+func TestOrder4_Size2(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -128,6 +123,32 @@ func TestOrder4_Size2_connected(t *testing.T) {
 		[][]Vertex{
 			[]Vertex{0, 1},
 			[]Vertex{2, 3}})
+}
+
+func TestOrder4_Size3_bus(t *testing.T) {
+	bk(t,
+		[][]Vertex{
+			[]Vertex{1},
+			[]Vertex{0, 2},
+			[]Vertex{1, 3},
+			[]Vertex{2}},
+		[][]Vertex{
+			[]Vertex{0, 1},
+			[]Vertex{1, 2},
+			[]Vertex{2, 3}})
+}
+
+func TestOrder4_Size3_star(t *testing.T) {
+	bk(t,
+		[][]Vertex{
+			[]Vertex{1, 2, 3},
+			[]Vertex{0},
+			[]Vertex{0},
+			[]Vertex{0}},
+		[][]Vertex{
+			[]Vertex{0, 1},
+			[]Vertex{0, 2},
+			[]Vertex{0, 3}})
 }
 
 func TestOrder4_Size4_p(t *testing.T) {

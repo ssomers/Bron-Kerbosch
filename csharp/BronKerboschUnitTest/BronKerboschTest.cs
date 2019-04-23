@@ -55,6 +55,8 @@ namespace BronKerboschUnitTest
         {
             bk(new Vertex[][] { new Vertex[] { 1 }, new Vertex[] { 0 }, new Vertex[] { } },
                new Vertex[][] { new Vertex[] { 0, 1 } });
+            bk(new Vertex[][] { new Vertex[] { 2 }, new Vertex[] { }, new Vertex[] { 0 } },
+               new Vertex[][] { new Vertex[] { 0, 2 } });
             bk(new Vertex[][] { new Vertex[] { }, new Vertex[] { 2 }, new Vertex[] { 1 } },
                new Vertex[][] { new Vertex[] { 1, 2 } });
         }
@@ -78,21 +80,27 @@ namespace BronKerboschUnitTest
         }
 
         [TestMethod]
-        public void TestOrder4_Size2_Isolated()
-        {
-            bk(new Vertex[][] { new Vertex[] { 1, 2 },
-                                new Vertex[] { 0 },
-                                new Vertex[] { 0 },
-                                new Vertex[] { } },
-               new Vertex[][] { new Vertex[] { 0, 1 }, new Vertex[] { 0, 2 } });
-        }
-
-        [TestMethod]
-        public void TestOrder4_Size2_Connected()
+        public void TestOrder4_Size2()
         {
             bk(new Vertex[][] { new Vertex[] { 1 }, new Vertex[] { 0 },
                                 new Vertex[] { 3 }, new Vertex[] { 2 } },
                new Vertex[][] { new Vertex[] { 0, 1 }, new Vertex[] { 2, 3 } });
+        }
+
+        [TestMethod]
+        public void TestOrder4_Size3_Bus()
+        {
+            bk(new Vertex[][] { new Vertex[] { 1 }, new Vertex[] { 0, 2 },
+                                new Vertex[] { 1, 3 }, new Vertex[] { 2 } },
+               new Vertex[][] { new Vertex[] { 0, 1 }, new Vertex[] { 1, 2 }, new Vertex[] { 2, 3 } });
+        }
+
+        [TestMethod]
+        public void TestOrder4_Size3_Star()
+        {
+            bk(new Vertex[][] { new Vertex[] { 1, 2, 3 }, new Vertex[] { 0 },
+                                new Vertex[] { 0 }, new Vertex[] { 0 } },
+               new Vertex[][] { new Vertex[] { 0, 1 }, new Vertex[] { 0, 2 }, new Vertex[] { 0, 3 } });
         }
 
         [TestMethod]
