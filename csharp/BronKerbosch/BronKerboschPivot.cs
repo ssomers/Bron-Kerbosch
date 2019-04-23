@@ -19,12 +19,15 @@ namespace BronKerbosch
                                  ISet<Vertex> candidates, ISet<Vertex> excluded, List<Vertex> clique)
         {
             Debug.Assert(candidates.Any());
+            Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
+            Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
+            Debug.Assert(!candidates.Overlaps(excluded));
+
             if (candidates.Count == 1)
             {
                 // Same logic as below, stripped down
                 Vertex v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                Debug.Assert(neighbours.Count > 0);
                 if (Util.AreDisjoint(excluded, neighbours))
                     reporter.Record(new List<Vertex>(clique) { v });
                 return;
@@ -35,7 +38,7 @@ namespace BronKerbosch
             if (initialChoice >= Choice.MaxDegreeLocal)
             {
                 // Quickly handle locally unconnected candidates while finding pivot
-                remainingCandidates = new List<Vertex>();
+                remainingCandidates = new List<Vertex>(candidates.Count);
                 pivot = -321;
                 var seenLocalDegree = 0;
                 foreach (Vertex v in candidates)
@@ -83,7 +86,6 @@ namespace BronKerbosch
             foreach (Vertex v in remainingCandidates)
             {
                 var neighbours = graph.Neighbours(v);
-                Debug.Assert(neighbours.Any());
                 if (neighbours.Contains(pivot))
                     continue;
                 candidates.Remove(v);

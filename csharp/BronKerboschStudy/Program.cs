@@ -70,7 +70,7 @@ namespace BronKerboschStudy
                         var mean = stats[func_index].Mean;
                         var dev = stats[func_index].Deviation;
                         fo.Write($",{min},{mean},{max}");
-                        Console.WriteLine($"order {order,7:D} size {size,7:D} {func_name,8}: {mean,5:N2}s ±{dev,5:N2}s");
+                        Console.WriteLine($"order {order,7:D} size {size,7:D} {func_name,-8}: {mean,5:N2}s ±{dev,5:N2}s");
                     }
                     fo.WriteLine();
                 }
@@ -93,12 +93,13 @@ namespace BronKerboschStudy
 
         static void Main(string[] args)
         {
-            var all_func_indices = Range(0, Portfolio.FUNC_NAMES.Length, 1);
+            var all_func_indices = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length);
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(100_000, 800_001, 100_000), (size) => all_func_indices, 3);
-            bk("1M", Range(5_000, 25_001, 5_000).Concat(Range(200_000, 1_000_000, 200_000).Concat(Range(1_000_000, 5_000_001, 1_000_000))),
-               (size) => (size <= 50_000) ? all_func_indices : new[] { 1, 2, 3, 4 }, 3);
+            bk("999k", Range(2_000, 20_001, 2_000), (size) => new[] { 0, 1 }, 3);
+            bk("1M", Range(200_000, 1_000_000, 200_000).Concat(Range(1_000_000, 3_000_001, 1_000_000)),
+               (size) => new[] { 1, 3, 4 }, 3);
         }
     }
 }

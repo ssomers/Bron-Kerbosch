@@ -51,15 +51,16 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Scala on graphs of order 10k](https://plot.ly/~stein.somers/199.png?share_key=ZM9Igh4glwfW0rFVJFzf3s "View interactively")](https://plot.ly/~stein.somers/199/?share_key=ZM9Igh4glwfW0rFVJFzf3s)
 [![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
 
-* Very sparse random graphs of high order
+* Ver1 in large but very sparse random graphs
 
-Ver1 doesn't cut it either, depending on the set implementation
+Ver1 doesn't scale up with some implementation of the set data structure:
 [![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/265.png?share_key=pr6lBghz9gi7b16rFrFS6n "View interactively")](https://plot.ly/~stein.somers/265/?share_key=pr6lBghz9gi7b16rFrFS6n)
+[![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/267.png?share_key=Q6X4A2vOdBvCKcsEkVKoI3 "View interactively")](https://plot.ly/~stein.somers/267/?share_key=Q6X4A2vOdBvCKcsEkVKoI3)
 
 * Random graphs of order 1M: who scales best?
 
 [![Time spent in Rust on graph of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
-[![Time spent in C# on graphs of order 100](https://plot.ly/~stein.somers/261.png?share_key=DSsVRnQJEqbKPxQn8RyaSX "View interactively")](https://plot.ly/~stein.somers/261/?share_key=DSsVRnQJEqbKPxQn8RyaSX)
+[![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/261.png?share_key=DSsVRnQJEqbKPxQn8RyaSX "View interactively")](https://plot.ly/~stein.somers/261/?share_key=DSsVRnQJEqbKPxQn8RyaSX)
 [![Time spent in Go on graphs of order 1M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
 [![Time spent in Scala on graphs of order 1M](https://plot.ly/~stein.somers/201.png?share_key=pAZbwXAIC0C96nD9WP38yl "View interactively")](https://plot.ly/~stein.somers/201/?share_key=pAZbwXAIC0C96nD9WP38yl)
 [![Time spent in Python3 on graphs of order 1M](https://plot.ly/~stein.somers/213.png?share_key=FNQg1eSkoQaxjuw5yoEwNJ "View interactively")](https://plot.ly/~stein.somers/213/?share_key=FNQg1eSkoQaxjuw5yoEwNJ")

@@ -25,7 +25,7 @@ public class Util
                 result += 1;
         }
         return result;
-        // much slower: rhs.Intersect(lhs).Count();
+        // much slower: return rhs.Intersect(lhs).Count();
         // even slower: return lhs.Intersect(rhs).Count();
     }
 
