@@ -25,6 +25,7 @@ public class Util
                 result += 1;
         }
         return result;
+        // wee bit slower: return lhs.Where(v => rhs.Contains(v)).Count();
         // much slower: return rhs.Intersect(lhs).Count();
         // even slower: return lhs.Intersect(rhs).Count();
     }
