@@ -13,6 +13,18 @@ public class Util
             return !rhs.Overlaps(lhs);
     }
 
+    public static HashSet<Vertex> Difference(ISet<Vertex> lhs, ISet<Vertex> rhs)
+    {
+        var result = new HashSet<Vertex>();
+        foreach (Vertex v in lhs)
+        {
+            if (!rhs.Contains(v))
+                result.Add(v);
+        }
+        return result;
+        // much slower: lhs.Except(rhs).ToHashSet();
+    }
+
     public static int IntersectCount(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
         if (lhs.Count > rhs.Count)

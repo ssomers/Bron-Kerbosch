@@ -99,7 +99,7 @@ namespace BronKerboschStudy
             bk("10k", Range(100_000, 800_001, 100_000), (size) => all_func_indices, 3);
             bk("999k", Range(2_000, 20_001, 2_000), (size) => new[] { 0, 1 }, 3);
             bk("1M", Range(200_000, 1_000_000, 200_000).Concat(Range(1_000_000, 3_000_001, 1_000_000)),
-               (size) => new[] { 1, 3, 4 }, 3);
+               (size) => new[] { 1, 2, 3, 4, 5 }, 3);
         }
     }
 }

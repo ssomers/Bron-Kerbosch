@@ -11,7 +11,7 @@ namespace BronKerbosch
     {
         public enum Choice
         {
-            Arbitrary, MaxDegree, MaxDegreeLocal, MaxDegreeLocalX
+            MaxDegree, MaxDegreeLocal, MaxDegreeLocalX
         };
 
         public static void Visit(UndirectedGraph graph, Reporter reporter,
@@ -113,7 +113,6 @@ namespace BronKerbosch
         {
             switch (choice)
             {
-                case Choice.Arbitrary: return Util.GetArbitrary(candidates);
                 case Choice.MaxDegree: return candidates.OrderByDescending(v => graph.Degree(v)).First();
                 default: throw new ArgumentException("implemented differently");
             }

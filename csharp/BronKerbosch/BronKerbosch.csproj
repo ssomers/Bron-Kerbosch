@@ -42,12 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BronKerbosch1.cs" />
-    <Compile Include="BronKerbosch2.cs" />
     <Compile Include="BronKerbosch2G.cs" />
     <Compile Include="BronKerbosch2GP.cs" />
     <Compile Include="BronKerbosch2GPX.cs" />
+    <Compile Include="BronKerbosch3GP.cs" />
+    <Compile Include="BronKerbosch3GPX.cs" />
     <Compile Include="BronKerboschPivot.cs" />
     <Compile Include="Graph.cs" />
+    <Compile Include="GraphDegeneracy.cs" />
     <Compile Include="lib.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reporter.cs" />
