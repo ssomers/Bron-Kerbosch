@@ -2,8 +2,6 @@
 
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
-use std::cmp::max;
-
 pub fn degeneracy_ordering<'a, VertexSet>(
     graph: &'a UndirectedGraph<VertexSet>,
     drop: isize,
@@ -13,36 +11,35 @@ where
 {
     debug_assert!(drop <= 0);
     let order = graph.order();
-    let no_priority = order;
-    let mut max_priority: Priority = 0;
-    let mut priority_per_vertex: Vec<Priority> = vec![no_priority; order as usize];
+    let mut max_priority: Option<Priority> = None;
+    let mut priority_per_vertex: Vec<Option<Priority>> = vec![None; order as usize];
     let mut num_candidates: isize = 0;
     for c in 0..order {
         let degree = graph.degree(c);
         if degree > 0 {
-            let priority = degree;
-            debug_assert_ne!(priority, no_priority);
-            max_priority = max(max_priority, priority);
+            let priority = Priority::new(degree + 1);
+            max_priority = max_priority.iter().cloned().chain(priority).max();
+            debug_assert!(max_priority.is_some());
             priority_per_vertex[c as usize] = priority;
             num_candidates += 1;
         }
     }
-    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority as usize);
+    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority);
     for c in 0..order {
-        let priority = priority_per_vertex[c as usize];
-        if priority != no_priority {
-            queue.put(priority as usize, c);
+        if let Some(priority) = priority_per_vertex[c as usize] {
+            queue.put(priority, c);
         }
     }
 
     DegeneracyOrderIter {
         graph,
-        no_priority,
         priority_per_vertex,
         queue,
         num_left_to_pick: num_candidates + drop,
     }
 }
+
+type Priority = std::num::NonZeroU32;
 
 #[derive(Debug)]
 struct PriorityQueue<T> {
@@ -53,14 +50,15 @@ impl<T> PriorityQueue<T>
 where
     T: Copy + Eq,
 {
-    fn new(max_priority: usize) -> Self {
+    fn new(max_priority: Option<Priority>) -> Self {
+        let max_priority_val = max_priority.map_or(0, |p| p.get());
         PriorityQueue {
-            queue_per_priority: vec![vec![]; max_priority + 1],
+            queue_per_priority: vec![vec![]; max_priority_val as usize],
         }
     }
 
-    fn put(&mut self, priority: usize, element: T) {
-        self.queue_per_priority[priority].push(element);
+    fn put(&mut self, priority: Priority, element: T) {
+        self.queue_per_priority[priority.get() as usize - 1].push(element);
     }
 
     fn pop(&mut self) -> Option<T> {
@@ -73,23 +71,20 @@ where
     }
 
     #[cfg(debug_assertions)]
-    fn contains(&self, priority: usize, element: T) -> bool {
-        self.queue_per_priority[priority].contains(&element)
+    fn contains(&self, priority: Priority, element: T) -> bool {
+        self.queue_per_priority[priority.get() as usize - 1].contains(&element)
     }
     #[cfg(not(debug_assertions))]
     fn contains(&self, _: Priority, _: T) -> bool {
         panic!("don't come here")
     }
 }
-
-type Priority = u32;
-
 pub struct DegeneracyOrderIter<'a, VertexSet> {
     graph: &'a UndirectedGraph<VertexSet>,
-    no_priority: Priority, // some number distinct from any degree or decrement thereof
-    priority_per_vertex: Vec<Priority>,
-    // If priority is no_priority, vertex was already picked or was always irrelevant (unconnected);
-    // otherwise, vertex is still queued and priority = degree - number of picked neighbours.
+    priority_per_vertex: Vec<Option<Priority>>,
+    // If priority is None, vertex was already picked or was always irrelevant (unconnected);
+    // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.
+    // +1 because we want the priority number to be NonZero to allow free wrapping inside Option.
     queue: PriorityQueue<Vertex>,
     num_left_to_pick: isize,
 }
@@ -100,11 +95,14 @@ impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
             .priority_per_vertex
             .iter()
             .enumerate()
-            .all(|(v, &d)| d == self.no_priority || self.queue.contains(d as usize, v as Vertex)));
+            .all(|(v, &p)| match p {
+                None => true, // might still be in some queue
+                Some(p) => self.queue.contains(p, v as Vertex),
+            }));
         loop {
             let v = self.queue.pop().expect("Cannot pop more than has been put");
-            if self.priority_per_vertex[v as usize] != self.no_priority {
-                self.priority_per_vertex[v as usize] = self.no_priority;
+            if self.priority_per_vertex[v as usize].is_some() {
+                self.priority_per_vertex[v as usize] = None;
                 return v;
             }
             // else v was requeued with a more urgent priority and therefore already picked
@@ -124,17 +122,15 @@ where
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
             self.graph.neighbours(i).for_each(|v| {
-                let old_priority = self.priority_per_vertex[v as usize];
-                if old_priority != self.no_priority {
+                if let Some(old_priority) = self.priority_per_vertex[v as usize] {
                     // Since this is an unvisited neighbour of a vertex just being picked,
                     // its priority can't be down to the minimum.
-                    debug_assert!(old_priority > 0);
-                    let new_priority = old_priority - 1;
-                    debug_assert_ne!(new_priority, self.no_priority);
+                    let new_priority = Priority::new(old_priority.get() - 1);
+                    debug_assert!(new_priority.is_some());
                     // Requeue with a more urgent priority, but don't bother to remove
                     // the original entry - it will be skipped if it's reached at all.
                     self.priority_per_vertex[v as usize] = new_priority;
-                    self.queue.put(new_priority as usize, v);
+                    self.queue.put(new_priority.unwrap(), v);
                 }
             });
             Some(i)
