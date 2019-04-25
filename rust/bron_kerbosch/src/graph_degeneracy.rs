@@ -70,13 +70,9 @@ where
         None
     }
 
-    #[cfg(debug_assertions)]
     fn contains(&self, priority: Priority, element: T) -> bool {
+        assert!(cfg!(debug_assertions));
         self.queue_per_priority[priority.get() as usize - 1].contains(&element)
-    }
-    #[cfg(not(debug_assertions))]
-    fn contains(&self, _: Priority, _: T) -> bool {
-        panic!("don't come here")
     }
 }
 pub struct DegeneracyOrderIter<'a, VertexSet> {
