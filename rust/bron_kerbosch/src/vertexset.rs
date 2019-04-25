@@ -21,8 +21,8 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn len(&self) -> usize {
         self.len()
     }
-    fn contains(&self, v: &Vertex) -> bool {
-        self.contains(v)
+    fn contains(&self, v: Vertex) -> bool {
+        self.contains(&v)
     }
     fn difference<C>(&self, other: &Self) -> C
     where
@@ -46,8 +46,8 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
-    fn remove(&mut self, v: &Vertex) {
-        self.remove(v);
+    fn remove(&mut self, v: Vertex) {
+        self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().cloned()?;
@@ -93,8 +93,8 @@ impl VertexSetLike for HashSet<Vertex> {
     fn len(&self) -> usize {
         self.len()
     }
-    fn contains(&self, v: &Vertex) -> bool {
-        self.contains(v)
+    fn contains(&self, v: Vertex) -> bool {
+        self.contains(&v)
     }
     fn difference<C>(&self, other: &Self) -> C
     where
@@ -120,8 +120,8 @@ impl VertexSetLike for HashSet<Vertex> {
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
-    fn remove(&mut self, v: &Vertex) {
-        self.remove(v);
+    fn remove(&mut self, v: Vertex) {
+        self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().cloned()?;
@@ -167,8 +167,8 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     fn len(&self) -> usize {
         self.len()
     }
-    fn contains(&self, v: &Vertex) -> bool {
-        self.contains(v)
+    fn contains(&self, v: Vertex) -> bool {
+        self.contains(&v)
     }
     fn difference<C>(&self, other: &Self) -> C
     where
@@ -194,8 +194,8 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
-    fn remove(&mut self, v: &Vertex) {
-        self.remove(v);
+    fn remove(&mut self, v: Vertex) {
+        self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().cloned()?;
@@ -241,8 +241,8 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn len(&self) -> usize {
         self.len()
     }
-    fn contains(&self, v: &Vertex) -> bool {
-        self.contains(v)
+    fn contains(&self, v: Vertex) -> bool {
+        self.contains(&v)
     }
     fn difference<C>(&self, other: &Self) -> C
     where
@@ -268,8 +268,8 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
-    fn remove(&mut self, v: &Vertex) {
-        self.remove(v);
+    fn remove(&mut self, v: Vertex) {
+        self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().cloned()?;

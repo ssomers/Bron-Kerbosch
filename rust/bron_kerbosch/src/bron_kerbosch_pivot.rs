@@ -91,12 +91,16 @@ pub fn visit<VertexSet>(
     let pivot = pivot.unwrap();
     for v in remaining_candidates {
         let neighbours = graph.neighbours(v);
-        if neighbours.contains(&pivot) {
+        if neighbours.contains(pivot) {
             continue;
         }
-        candidates.remove(&v);
+        candidates.remove(v);
         let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
-        if !neighbouring_candidates.is_empty() {
+        if neighbouring_candidates.is_empty() {
+            if neighbours.is_disjoint(&excluded) {
+                reporter.record(clique.place(v).collect());
+            }
+        } else {
             let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
             visit(
                 graph,
@@ -107,10 +111,6 @@ pub fn visit<VertexSet>(
                 neighbouring_excluded,
                 clique.place(v),
             );
-        } else {
-            if neighbours.is_disjoint(&excluded) {
-                reporter.record(clique.place(v).collect());
-            }
         }
         excluded.insert(v);
     }
@@ -118,7 +118,7 @@ pub fn visit<VertexSet>(
 
 fn choose<'a, VertexSet>(
     pivot_choice: PivotChoice,
-    candidates: &'a Vec<Vertex>,
+    candidates: &'a [Vertex],
     graph: &UndirectedGraph<VertexSet>,
 ) -> Option<&'a Vertex>
 where

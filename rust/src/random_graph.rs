@@ -40,14 +40,14 @@ where
         } else {
             loop {
                 let w = *unsaturated_vertices.choose(rng).unwrap();
-                if w != v && !adjacency_sets[v as usize].contains(&w) {
+                if w != v && !adjacency_sets[v as usize].contains(w) {
                     break w;
                 }
             }
         };
         debug_assert_ne!(v, w);
-        debug_assert!(!adjacency_sets[v as usize].contains(&w));
-        debug_assert!(!adjacency_sets[w as usize].contains(&v));
+        debug_assert!(!adjacency_sets[v as usize].contains(w));
+        debug_assert!(!adjacency_sets[w as usize].contains(v));
         for (x, y) in vec![(v, w), (w, v)] {
             adjacency_sets[x as usize].insert(y);
             let neighbours = adjacency_sets[x as usize].len() as u32;
@@ -58,10 +58,10 @@ where
                 // start using adjacency complement
                 debug_assert!(adjacency_complements[x as usize].is_empty());
                 let mut s: VertexSet = unsaturated_vertices.iter().cloned().collect();
-                s.remove(&x);
+                s.remove(x);
                 adjacency_complements[x as usize] = s.difference(&adjacency_sets[x as usize]);
             } else if neighbours > order / 2 {
-                adjacency_complements[x as usize].remove(&y);
+                adjacency_complements[x as usize].remove(y);
             }
         }
     }

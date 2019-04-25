@@ -12,7 +12,7 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     fn with_capacity(capacity: usize) -> Self;
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
-    fn contains(&self, v: &Vertex) -> bool;
+    fn contains(&self, v: Vertex) -> bool;
     fn difference<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>;
@@ -23,7 +23,7 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
         C: FromIterator<Vertex>;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
-    fn remove(&mut self, v: &Vertex);
+    fn remove(&mut self, v: Vertex);
     fn pop_arbitrary(&mut self) -> Option<Vertex>;
     fn choose_arbitrary(&self) -> Option<&Vertex>;
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex>;
@@ -71,7 +71,7 @@ where
         .enumerate()
         .map(|(i, neighbours)| (i as Vertex, neighbours))
         .all(|(v, adjacent_to_v)| {
-            adjacent_to_v.all(|&w| w != v && w < order && adjacencies[w as usize].contains(&v))
+            adjacent_to_v.all(|&w| w != v && w < order && adjacencies[w as usize].contains(v))
         })
 }
 
