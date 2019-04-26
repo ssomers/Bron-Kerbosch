@@ -2,7 +2,7 @@ import base.Vertex
 
 object bron_kerbosch1 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
-    val candidates: Set[Vertex] = graph.connected_vertices()
+    val candidates = graph.connected_vertices().toSet
     if (candidates.nonEmpty) {
       visit(graph, reporter, candidates, Set.empty[Vertex], List())
     }
@@ -23,9 +23,9 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
       val v = candidates.head
       candidates = candidates.tail
       val neighbours = graph.neighbours(v)
-      val neighbouring_candidates = util.intersect(candidates, neighbours)
+      val neighbouring_candidates = util.intersect(neighbours, candidates)
       if (neighbouring_candidates.nonEmpty) {
-        val neighbouring_excluded = util.intersect(excluded, neighbours);
+        val neighbouring_excluded = util.intersect(neighbours, excluded)
         visit(
           graph,
           reporter,
@@ -34,7 +34,7 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
           clique :+ v
         )
       } else {
-        if (util.is_disjoint(excluded, neighbours)) {
+        if (util.is_disjoint(neighbours, excluded)) {
           reporter.record(clique :+ v)
         }
         if (candidates.isEmpty) {

@@ -15,21 +15,15 @@ Compared to the original forked from, the code is:
 
 * **Ver1:** Naive Bron-Kerbosch algorithm
 * **Ver1+:** Ver1 optimized, including language-specific tweaks
-* **Ver2+:** Ver1+ with pivot, picking pivot arbitrarily
+* **Ver2+:** Ver1+ excluding neighbours of a pivot that is chosen arbitrarily
+* **Ver2+G:** Similar but with pivot of highest degree in the whole graph, chosen from candidates only
+* **Ver2+GP:** Similar but with pivot of highest degree within the remaining candidates, chosen from candidates only (IK\_GP)
+* **Ver2+GPX:** Similar but with pivot of highest degree within the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
+* **Ver2+RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP)
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
-* **Ver2+G:** Ver2+ picking pivot, with highest degree in the whole graph, from candidates only
-* **Ver2+GP:** Ver2+ picking pivot, with highest degree within the remaining candidates, from candidates only (IK\_GP)
-* **Ver2+GPX:** Ver2+ picking pivot, with highest degree within the remaining candidates, from both candidates and excluded (IK\_GPX)
-* **Ver2+RP:** Ver2+ picking pivot randomly (IK\_RP)
-* **Ver3+GP:** Ver3+ with nested calls picking pivot according to IK\_GP
-* **Ver3+GPX:** Ver3+ with nested calls picking pivot according to IK\_GPX
+* **Ver3+GP:** Ver2+GP with degeneracy ordering
+* **Ver3+GPX:** Ver2+GPX with degeneracy ordering
 * **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores and hyperthreading)
-
-## Run
-
-    cd python3 && python -O test_maximal_cliques.py
-    cd rust && cargo run --release
-    set GOPATH=%CD%\go&& go run main && python python3\publish.py go 100 10k 1M
 
 ## Results
 
@@ -64,11 +58,73 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 [![Time spent in Scala on graphs of order 1M](https://plot.ly/~stein.somers/201.png?share_key=pAZbwXAIC0C96nD9WP38yl "View interactively")](https://plot.ly/~stein.somers/201/?share_key=pAZbwXAIC0C96nD9WP38yl)
 [![Time spent in Python3 on graphs of order 1M](https://plot.ly/~stein.somers/213.png?share_key=FNQg1eSkoQaxjuw5yoEwNJ "View interactively")](https://plot.ly/~stein.somers/213/?share_key=FNQg1eSkoQaxjuw5yoEwNJ")
 
-## Test
+## Run & Test
+
+### Run Python 3
+
+    cd python3
+    python -O test_maximal_cliques.py
+
+### Test Python 3
+
+    cd python3
+    (once) python -m venv venv
+    venv\Scripts\activate.bat
+    (once) pip install hypothesis mypy pytest plotly
+    mypy . --ignore-missing-imports
+    pytest
+
+### Run Rust
+
+    (once) rustup default beta
+    cd rust
+    cargo run --release
+
+### Test Rust
+
+    cd rust
+    cargo test --all
+
+### Run Go
+
+    set GOPATH=%CD%\go
+    go run main
+    python python3\publish.py go 100 10k 1M
+
+### Test Go
     
-    cd python3 && pytest
-    cd rust && cargo test --all
-    set GOPATH=%CD%\go&& go test bron_kerbosch
+    set GOPATH=%CD%\go
+    go test bron_kerbosch
+
+### Run C#
+  - open csharp\BronKerboschStudy.sln with Visual Studio Community 2017
+  - set configuration to Release
+  - Debug > Start Without Debuggging
+
+and finally
+
+    python python3\publish.py c# 100 10k 999k 1M
+
+### Test C#
+  - set configuration to Debug
+  - Test > Run > All Tests
+
+### Run Scala
+  - open scala\bron-kerbosch.iml with IntelliJ IDEA 2019.1.1 (Community Edition)
+  - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select bron-kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
+  - Build > Rebuild
+  - set run configuration to main
+  - Run > Run 'main'
+
+and finally
+
+    python python3\publish.py scala 100 10k 1M
+
+### Test Scala
+  - set compiler configuration to debug
+  - Build > Rebuild
+  - set run configuration to test
+  - Run > Run 'test'
 
 ## Context
 

@@ -3,8 +3,14 @@ import base.Vertex
 import scala.util.Random
 
 object main {
-  val FUNC_NAMES = List("Ver1+", "Ver2+")
-  val FUNCS = List(bron_kerbosch1, bron_kerbosch2)
+  val FUNC_NAMES = List("Ver1+", "Ver2+", "Ver2+G", "Ver2+GP", "Ver2+GPX")
+  val FUNCS = List(
+    bron_kerbosch1,
+    bron_kerbosch2,
+    bron_kerbosch2_g,
+    bron_kerbosch2_gp,
+    bron_kerbosch2_gpx
+  )
 
   type Clique = IndexedSeq[Vertex]
   type Cliques = List[Clique]
@@ -21,7 +27,7 @@ object main {
           }
         if (result.isEmpty) {
           throw new IllegalArgumentException(
-            f"got overlapping or equal cliques {a} <> {b}"
+            f"got overlapping or equal cliques $a <> $b"
           )
         }
         result.get < 0
@@ -104,7 +110,7 @@ object main {
       (i"200k" until i"1M" by i"200k")
         ++ (i"1M" to i"3M" by i"1M"): _*
     )
-    bk("warmup", 100, List(2000), 3)
+    bk("warm-up", 100, List(2000), 3)
     Thread.sleep(4321) // give IntelliJ launcher some time to cool down
     bk("100", i"100", sizes_100, 5)
     bk("10k", i"10k", sizes_10k, 5)

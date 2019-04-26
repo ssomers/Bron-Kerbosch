@@ -8,6 +8,13 @@ object util {
       vset2 & vset1
   }
 
+  def intersection_size(vset1: Set[Vertex], vset2: Set[Vertex]): Int = {
+    if (vset1.size <= vset2.size)
+      vset1.count(v => vset2.contains(v))
+    else
+      vset2.count(v => vset1.contains(v))
+  }
+
   def is_disjoint(vset1: Set[Vertex], vset2: Set[Vertex]): Boolean = {
     if (vset1.size <= vset2.size)
       vset1.forall(v => !vset2.contains(v))
