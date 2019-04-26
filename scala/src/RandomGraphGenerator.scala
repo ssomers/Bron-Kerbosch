@@ -57,7 +57,7 @@ object RandomGraphGenerator {
       assert(v != w)
       assert(!adjacency_sets(v).contains(w))
       assert(!adjacency_sets(w).contains(v))
-      for ((x, y) <- List((v, w), (w, v))) {
+      for ((x, y) <- Array((v, w), (w, v))) {
         adjacency_sets(x) += y
         val neighbours = adjacency_sets(x).size
         if (neighbours == order - 1) {

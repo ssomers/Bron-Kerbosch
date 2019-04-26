@@ -4,7 +4,7 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
     val candidates = graph.connected_vertices().toSet
     if (candidates.nonEmpty) {
-      visit(graph, reporter, candidates, Set.empty[Vertex], List())
+      visit(graph, reporter, candidates, Set.empty, Seq.empty)
     }
   }
 

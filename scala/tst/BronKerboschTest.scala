@@ -2,8 +2,7 @@ import base.Vertex
 import main.{Cliques, FUNCS, FUNC_NAMES, order_cliques}
 
 class BronKerboschTest extends org.scalatest.FunSuite {
-  def bk(adjacency_list: List[List[Vertex]],
-         expected_cliques: Cliques): Unit = {
+  def bk(adjacency_list: Seq[Seq[Vertex]], expected_cliques: Cliques): Unit = {
     val adjacencies = adjacency_list.map { neighbours =>
       neighbours.toSet
     }.toIndexedSeq
@@ -21,69 +20,66 @@ class BronKerboschTest extends org.scalatest.FunSuite {
   }
 
   test("order_0") {
-    bk(List(), List())
+    bk(Seq(), Seq())
   }
 
   test("order_1") {
-    bk(List(List()), List())
+    bk(Seq(Seq()), Seq())
   }
 
   test("order_2_isolated") {
-    bk(List(List(), List()), List())
+    bk(Seq(Seq(), Seq()), Seq())
   }
 
   test("order_2_connected") {
-    bk(List(List(1), List(0)), List(IndexedSeq(0, 1)))
+    bk(Seq(Seq(1), Seq(0)), Seq(IndexedSeq(0, 1)))
   }
 
   test("order_3_size_1") {
-    bk(List(List(1), List(0), List()), List(IndexedSeq(0, 1)))
-    bk(List(List(), List(2), List(1)), List(IndexedSeq(1, 2)))
+    bk(Seq(Seq(1), Seq(0), Seq()), Seq(IndexedSeq(0, 1)))
+    bk(Seq(Seq(), Seq(2), Seq(1)), Seq(IndexedSeq(1, 2)))
   }
 
   test("order_3_size_2") {
-    bk(
-      List(List(1), List(0, 2), List(1)),
-      List(IndexedSeq(0, 1), IndexedSeq(1, 2))
-    )
+    bk(Seq(Seq(1), Seq(0, 2), Seq(1)), Seq(IndexedSeq(0, 1), IndexedSeq(1, 2)))
   }
 
   test("order_3_size_3") {
-    bk(List(List(1, 2), List(0, 2), List(0, 1)), List(IndexedSeq(0, 1, 2)))
+    bk(Seq(Seq(1, 2), Seq(0, 2), Seq(0, 1)), Seq(IndexedSeq(0, 1, 2)))
   }
 
   test("order_4_size_2") {
     bk(
-      List(List(1), List(0), List(3), List(2)),
-      List(IndexedSeq(0, 1), IndexedSeq(2, 3))
+      Seq(Seq(1), Seq(0), Seq(3), Seq(2)),
+      Seq(IndexedSeq(0, 1), IndexedSeq(2, 3))
     )
   }
 
   test("order_4_size_3_bus") {
     bk(
-      List(List(1), List(0, 2), List(1, 3), List(2)),
-      List(IndexedSeq(0, 1), IndexedSeq(1, 2), IndexedSeq(2, 3))
+      Seq(Seq(1), Seq(0, 2), Seq(1, 3), Seq(2)),
+      Seq(IndexedSeq(0, 1), IndexedSeq(1, 2), IndexedSeq(2, 3))
     )
   }
 
   test("order_4_size_3_star") {
     bk(
-      List(List(1, 2, 3), List(0), List(0), List(0)),
-      List(IndexedSeq(0, 1), IndexedSeq(0, 2), IndexedSeq(0, 3))
+      Seq(Seq(1, 2, 3), Seq(0), Seq(0), Seq(0)),
+      Seq(IndexedSeq(0, 1), IndexedSeq(0, 2), IndexedSeq(0, 3))
     )
   }
 
   test("order_4_size_4_p") {
     bk(
-      List(List(1), List(0, 2, 3), List(1, 3), List(1, 2)),
-      List(IndexedSeq(0, 1), IndexedSeq(1, 2, 3))
+      Seq(Seq(1), Seq(0, 2, 3), Seq(1, 3), Seq(1, 2)),
+      Seq(IndexedSeq(0, 1), IndexedSeq(1, 2, 3))
     )
   }
 
   test("order_4_size_4_square") {
     bk(
-      List(List(1, 3), List(0, 2), List(1, 3), List(0, 2)),
-      List(
+      Seq(Seq(1, 3), Seq(0, 2), Seq(1, 3), Seq(0, 2)),
+      Seq(
         IndexedSeq(0, 1),
         IndexedSeq(0, 3),
         IndexedSeq(1, 2),
@@ -94,62 +90,62 @@ class BronKerboschTest extends org.scalatest.FunSuite {
 
   test("order_4_size_5") {
     bk(
-      List(List(1, 2, 3), List(0, 2), List(0, 1, 3), List(0, 2)),
-      List(IndexedSeq(0, 1, 2), IndexedSeq(0, 2, 3))
+      Seq(Seq(1, 2, 3), Seq(0, 2), Seq(0, 1, 3), Seq(0, 2)),
+      Seq(IndexedSeq(0, 1, 2), IndexedSeq(0, 2, 3))
     )
   }
 
   test("order_4_size_6") {
     bk(
-      List(List(1, 2, 3), List(0, 2, 3), List(0, 1, 3), List(0, 1, 2)),
-      List(IndexedSeq(0, 1, 2, 3))
+      Seq(Seq(1, 2, 3), Seq(0, 2, 3), Seq(0, 1, 3), Seq(0, 1, 2)),
+      Seq(IndexedSeq(0, 1, 2, 3))
     )
   }
 
   test("order_5_penultimate") {
     bk(
-      List(
-        List(1, 2, 3, 4),
-        List(0, 2, 3, 4),
-        List(0, 1, 3, 4),
-        List(0, 1, 2),
-        List(0, 1, 2)
+      Seq(
+        Seq(1, 2, 3, 4),
+        Seq(0, 2, 3, 4),
+        Seq(0, 1, 3, 4),
+        Seq(0, 1, 2),
+        Seq(0, 1, 2)
       ),
-      List(IndexedSeq(0, 1, 2, 3), IndexedSeq(0, 1, 2, 4))
+      Seq(IndexedSeq(0, 1, 2, 3), IndexedSeq(0, 1, 2, 4))
     )
   }
 
   test("sample") {
     bk(
-      List(
-        List(),
-        List(2, 3, 4),
-        List(1, 3, 4, 5),
-        List(1, 2, 4, 5),
-        List(1, 2, 3),
-        List(2, 3, 6, 7),
-        List(5, 7),
-        List(5, 6)
+      Seq(
+        Seq(),
+        Seq(2, 3, 4),
+        Seq(1, 3, 4, 5),
+        Seq(1, 2, 4, 5),
+        Seq(1, 2, 3),
+        Seq(2, 3, 6, 7),
+        Seq(5, 7),
+        Seq(5, 6)
       ),
-      List(IndexedSeq(1, 2, 3, 4), IndexedSeq(2, 3, 5), IndexedSeq(5, 6, 7))
+      Seq(IndexedSeq(1, 2, 3, 4), IndexedSeq(2, 3, 5), IndexedSeq(5, 6, 7))
     )
   }
 
   test("bigger") {
     bk(
-      List(
-        List(1, 2, 3, 4, 6, 7),
-        List(0, 3, 6, 7, 8, 9),
-        List(0, 3, 5, 7, 8, 9),
-        List(0, 1, 2, 4, 9),
-        List(0, 3, 6, 7, 9),
-        List(2, 6),
-        List(0, 1, 4, 5, 9),
-        List(0, 1, 2, 4, 9),
-        List(1, 2),
-        List(1, 2, 3, 4, 6, 7)
+      Seq(
+        Seq(1, 2, 3, 4, 6, 7),
+        Seq(0, 3, 6, 7, 8, 9),
+        Seq(0, 3, 5, 7, 8, 9),
+        Seq(0, 1, 2, 4, 9),
+        Seq(0, 3, 6, 7, 9),
+        Seq(2, 6),
+        Seq(0, 1, 4, 5, 9),
+        Seq(0, 1, 2, 4, 9),
+        Seq(1, 2),
+        Seq(1, 2, 3, 4, 6, 7)
       ),
-      List(
+      Seq(
         IndexedSeq(0, 1, 3),
         IndexedSeq(0, 1, 6),
         IndexedSeq(0, 1, 7),

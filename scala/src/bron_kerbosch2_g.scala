@@ -1,4 +1,3 @@
-import base.Vertex
 import bron_kerbosch_pivot.PivotChoice.MaxDegree
 import bron_kerbosch_pivot.visit
 
@@ -12,8 +11,8 @@ object bron_kerbosch2_g extends bron_kerbosch_algorithm {
         MaxDegree,
         MaxDegree,
         candidates,
-        Set.empty[Vertex],
-        List()
+        Set.empty,
+        Seq.empty
       )
     }
   }

@@ -12,8 +12,8 @@ object bron_kerbosch2_gpx extends bron_kerbosch_algorithm {
         MaxDegree,
         MaxDegreeLocalX,
         candidates,
-        Set.empty[Vertex],
-        List()
+        Set.empty,
+        Seq.empty
       )
     }
   }
