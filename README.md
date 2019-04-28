@@ -23,7 +23,7 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores and hyperthreading)
+* **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores, 4 logical processors)
 
 ## Results
 
