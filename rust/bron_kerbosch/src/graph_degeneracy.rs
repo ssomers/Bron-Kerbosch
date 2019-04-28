@@ -1,5 +1,3 @@
-//! Bron-Kerbosch algorithm with pivot and degeneracy ordering, optimized
-
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
 pub fn degeneracy_ordering<'a, VertexSet>(
@@ -11,20 +9,20 @@ where
 {
     debug_assert!(drop <= 0);
     let order = graph.order();
-    let mut max_priority: Option<Priority> = None;
     let mut priority_per_vertex: Vec<Option<Priority>> = vec![None; order as usize];
+    let mut max_priority: Option<Priority> = None;
     let mut num_candidates: isize = 0;
     for c in 0..order {
         let degree = graph.degree(c);
         if degree > 0 {
             let priority = Priority::new(degree + 1);
+            priority_per_vertex[c as usize] = priority;
             max_priority = max_priority.iter().cloned().chain(priority).max();
             debug_assert!(max_priority.is_some());
-            priority_per_vertex[c as usize] = priority;
             num_candidates += 1;
         }
     }
-    let mut queue: PriorityQueue<Vertex> = PriorityQueue::new(max_priority);
+    let mut queue = PriorityQueue::new(max_priority);
     for c in 0..order {
         if let Some(priority) = priority_per_vertex[c as usize] {
             queue.put(priority, c);
@@ -41,9 +39,8 @@ where
 
 type Priority = std::num::NonZeroU32;
 
-#[derive(Debug)]
 struct PriorityQueue<T> {
-    queue_per_priority: Vec<Vec<T>>,
+    stack_per_priority: Vec<Vec<T>>,
 }
 
 impl<T> PriorityQueue<T>
@@ -51,19 +48,21 @@ where
     T: Copy + Eq,
 {
     fn new(max_priority: Option<Priority>) -> Self {
-        let max_priority_val = max_priority.map_or(0, |p| p.get());
         PriorityQueue {
-            queue_per_priority: vec![vec![]; max_priority_val as usize],
+            stack_per_priority: match max_priority {
+                None => vec![],
+                Some(max_priority) => vec![vec![]; max_priority.get() as usize],
+            },
         }
     }
 
     fn put(&mut self, priority: Priority, element: T) {
-        self.queue_per_priority[priority.get() as usize - 1].push(element);
+        self.stack_per_priority[priority.get() as usize - 1].push(element);
     }
 
     fn pop(&mut self) -> Option<T> {
-        for queue in &mut self.queue_per_priority {
-            if let Some(element) = queue.pop() {
+        for stack in &mut self.stack_per_priority {
+            if let Some(element) = stack.pop() {
                 return Some(element);
             }
         }
@@ -72,9 +71,10 @@ where
 
     fn contains(&self, priority: Priority, element: T) -> bool {
         assert!(cfg!(debug_assertions));
-        self.queue_per_priority[priority.get() as usize - 1].contains(&element)
+        self.stack_per_priority[priority.get() as usize - 1].contains(&element)
     }
 }
+
 pub struct DegeneracyOrderIter<'a, VertexSet> {
     graph: &'a UndirectedGraph<VertexSet>,
     priority_per_vertex: Vec<Option<Priority>>,
@@ -92,7 +92,7 @@ impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
             .iter()
             .enumerate()
             .all(|(v, &p)| match p {
-                None => true, // might still be in some queue
+                None => true, // might still be in some stack
                 Some(p) => self.queue.contains(p, v as Vertex),
             }));
         loop {
@@ -112,9 +112,7 @@ where
 {
     type Item = Vertex;
     fn next(&mut self) -> Option<Vertex> {
-        if self.num_left_to_pick <= 0 {
-            None
-        } else {
+        if self.num_left_to_pick > 0 {
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
             self.graph.neighbours(i).for_each(|v| {
@@ -130,6 +128,8 @@ where
                 }
             });
             Some(i)
+        } else {
+            None
         }
     }
 }

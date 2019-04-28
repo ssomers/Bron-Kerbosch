@@ -3,13 +3,13 @@
 __pycache__
 target
 /*.csv
-/activate.bat
 /csharp/.vs
 /csharp/*/bin
 /csharp/*/obj
 /csharp/*/*.user
 /csharp/packages
 /python3/.hypothesis
+/python3/activate.bat
 /python3/venv
 /rust/.vs
 /rust/*.psess
