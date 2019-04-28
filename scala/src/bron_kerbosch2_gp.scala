@@ -1,4 +1,3 @@
-import base.Vertex
 import bron_kerbosch_pivot.PivotChoice.{MaxDegree, MaxDegreeLocal}
 import bron_kerbosch_pivot.visit
 

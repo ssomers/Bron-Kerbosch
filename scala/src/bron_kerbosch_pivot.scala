@@ -32,45 +32,47 @@ object bron_kerbosch_pivot {
       return
     }
 
-    val (remaining_candidates, pivot) = initial_pivot_choice match {
-      case Arbitrary => (candidates.toSeq, candidates.head)
-      case MaxDegree => (candidates.toSeq, candidates.maxBy(graph.degree))
-      case MaxDegreeLocal |
-          MaxDegreeLocalX => // Quickly handle locally unconnected candidates while finding pivot
-        var pivot: Option[Vertex] = None
-        var remaining_candidates = mutable.ListBuffer[Vertex]()
-        var seen_local_degree = 0
-        for (v <- candidates) {
-          val neighbours = graph.neighbours(v)
-          val local_degree = util.intersection_size(neighbours, candidates)
-          if (local_degree == 0) {
-            // Same logic as below, stripped down
-            if (util.is_disjoint(neighbours, excluded)) {
-              reporter.record(clique :+ v)
-            }
-          } else {
-            if (seen_local_degree < local_degree) {
-              seen_local_degree = local_degree
-              pivot = Some(v)
-            }
-            remaining_candidates += v
-          }
-        }
-        if (seen_local_degree == 0) {
-          return
-        }
-        if (initial_pivot_choice == MaxDegreeLocalX) {
-          for (v <- excluded) {
+    val (remaining_candidates, pivot): (Traversable[Vertex], Vertex) =
+      initial_pivot_choice match {
+        case Arbitrary => (candidates, candidates.head)
+        case MaxDegree => (candidates, candidates.maxBy(graph.degree))
+        case MaxDegreeLocal |
+            MaxDegreeLocalX => // Quickly handle locally unconnected candidates while finding pivot
+          var pivot: Option[Vertex] = None
+          var remaining_candidates =
+            new mutable.ArrayBuffer[Vertex](candidates.size)
+          var seen_local_degree = 0
+          for (v <- candidates) {
             val neighbours = graph.neighbours(v)
             val local_degree = util.intersection_size(neighbours, candidates)
-            if (seen_local_degree < local_degree) {
-              seen_local_degree = local_degree
-              pivot = Some(v)
+            if (local_degree == 0) {
+              // Same logic as below, stripped down
+              if (util.is_disjoint(neighbours, excluded)) {
+                reporter.record(clique :+ v)
+              }
+            } else {
+              if (seen_local_degree < local_degree) {
+                seen_local_degree = local_degree
+                pivot = Some(v)
+              }
+              remaining_candidates += v
             }
           }
-        }
-        (remaining_candidates, pivot.get)
-    }
+          if (seen_local_degree == 0) {
+            return
+          }
+          if (initial_pivot_choice == MaxDegreeLocalX) {
+            for (v <- excluded) {
+              val neighbours = graph.neighbours(v)
+              val local_degree = util.intersection_size(neighbours, candidates)
+              if (seen_local_degree < local_degree) {
+                seen_local_degree = local_degree
+                pivot = Some(v)
+              }
+            }
+          }
+          (remaining_candidates, pivot.get)
+      }
     assert(remaining_candidates.nonEmpty)
     var mut_candidates = candidates
     var mut_excluded = excluded
