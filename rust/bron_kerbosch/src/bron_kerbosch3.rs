@@ -1,5 +1,5 @@
-//! Bron-Kerbosch algorithm with degeneracy ordering,
-//! recursing with arbitrary pivot
+//! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
+//! choosing a pivot arbitrarily
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{UndirectedGraph, VertexSetLike};

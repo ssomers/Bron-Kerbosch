@@ -8,8 +8,8 @@ from typing import Set
 
 
 def bron_kerbosch3(graph: UndirectedGraph, reporter: Reporter):
-    '''Bron-Kerbosch algorithm with degeneracy ordering,
-       recursing with arbitrary pivot'''
+    '''Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
+       choosing a pivot arbitrarily'''
     excluded: Set[Vertex] = set()
     for v in degeneracy_ordering(graph=graph, drop=1):
         neighbours = graph.adjacencies[v]

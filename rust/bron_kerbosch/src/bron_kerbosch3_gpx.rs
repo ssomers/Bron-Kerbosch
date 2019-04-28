@@ -1,5 +1,5 @@
-//! Bron-Kerbosch algorithm with degeneracy ordering,
-//! recursing with pivot of highest degree towards the remaining candidates (IK_GPX)
+//! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
+//! choosing a pivot from both candidates and excluded vertices (IK_GPX)
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{UndirectedGraph, VertexSetLike};
