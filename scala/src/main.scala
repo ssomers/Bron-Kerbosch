@@ -1,5 +1,3 @@
-import base.Vertex
-
 import scala.util.Random
 
 object main {
@@ -12,7 +10,7 @@ object main {
       "Ver2+GPX",
       "Ver3+",
       "Ver3+GP",
-      "Ver3+GPX"
+      "Ver3+GPX",
     )
   val FUNCS = Seq(
     bron_kerbosch1,
@@ -25,8 +23,8 @@ object main {
     bron_kerbosch3_gpx,
   )
 
-  type Clique = IndexedSeq[Vertex]
-  type Cliques = Seq[Clique]
+  type Clique = bron_kerbosch_algorithm#Clique
+  type Cliques = bron_kerbosch_algorithm#Cliques
   def order_cliques(cliques: Cliques): Cliques = {
     cliques
       .map(clique => clique.sortWith(_.compareTo(_) < 0))
@@ -55,18 +53,17 @@ object main {
 
     for (sample <- 1 to samples; func_index <- func_indices) {
       val func = FUNCS(func_index)
-      val reporter = new SimpleReporter
       val start = System.currentTimeMillis()
 
-      func.explore(graph, reporter)
+      val cliques = func.explore(graph)
       val elapsed = System.currentTimeMillis() - start
       times(func_index).put(elapsed)
 
       if (samples > 1 && sample <= 2) {
-        val cliques = order_cliques(reporter.cliques)
+        val ordered = order_cliques(cliques)
         first match {
-          case None               => first = Some(cliques)
-          case Some(firstCliques) => require(firstCliques == cliques)
+          case None               => first = Some(ordered)
+          case Some(firstCliques) => require(firstCliques == ordered)
         }
       }
     }

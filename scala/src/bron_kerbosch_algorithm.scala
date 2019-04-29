@@ -1,3 +1,7 @@
+import base.Vertex
+
 trait bron_kerbosch_algorithm {
-  def explore(graph: UndirectedGraph, reporter: Reporter): Unit
+  type Clique = Seq[Vertex]
+  type Cliques = Seq[Clique]
+  def explore(graph: UndirectedGraph): Cliques
 }

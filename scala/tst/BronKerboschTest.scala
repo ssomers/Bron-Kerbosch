@@ -9,11 +9,9 @@ class BronKerboschTest extends org.scalatest.FunSuite {
     val graph = new SlimUndirectedGraph(adjacencies)
     for ((func, func_index) <- FUNCS.zipWithIndex) {
       val func_name = FUNC_NAMES(func_index)
-      val reporter = new SimpleReporter
-      func.explore(graph, reporter)
-      val cliques = order_cliques(reporter.cliques.toList)
+      val cliques = order_cliques(func.explore(graph))
       assert(
-        cliques == expected_cliques,
+        expected_cliques == cliques,
         f"Unexpected result for $func_name: $cliques"
       )
     }

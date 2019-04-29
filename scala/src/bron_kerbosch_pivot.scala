@@ -10,12 +10,11 @@ object bron_kerbosch_pivot {
   import PivotChoice._
 
   def visit(graph: UndirectedGraph,
-            reporter: Reporter,
             initial_pivot_choice: PivotChoice,
             further_pivot_choice: PivotChoice,
             candidates: Set[Vertex],
             excluded: Set[Vertex],
-            clique: Seq[Vertex]): Unit = {
+            clique_prefix: Seq[Vertex]): bron_kerbosch_algorithm#Cliques = {
     assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
@@ -23,15 +22,16 @@ object bron_kerbosch_pivot {
 
     if (candidates.size == 1) {
       // Same logic as below, stripped down for this common case
-      for (v <- candidates) {
-        val neighbours = graph.neighbours(v)
-        if (util.is_disjoint(neighbours, excluded)) {
-          reporter.record(clique :+ v)
-        }
+      val v = candidates.head
+      val neighbours = graph.neighbours(v)
+      if (util.is_disjoint(neighbours, excluded)) {
+        Seq(clique_prefix :+ v)
+      } else {
+        Seq()
       }
-      return
     }
 
+    val cliques = new mutable.ArrayBuffer[Seq[Vertex]]
     val (remaining_candidates, pivot): (Traversable[Vertex], Vertex) =
       initial_pivot_choice match {
         case Arbitrary => (candidates, candidates.head)
@@ -48,7 +48,7 @@ object bron_kerbosch_pivot {
             if (local_degree == 0) {
               // Same logic as below, stripped down
               if (util.is_disjoint(neighbours, excluded)) {
-                reporter.record(clique :+ v)
+                cliques += clique_prefix :+ v
               }
             } else {
               if (seen_local_degree < local_degree) {
@@ -59,7 +59,7 @@ object bron_kerbosch_pivot {
             }
           }
           if (seen_local_degree == 0) {
-            return
+            return cliques
           }
           if (initial_pivot_choice == MaxDegreeLocalX) {
             for (v <- excluded) {
@@ -83,22 +83,22 @@ object bron_kerbosch_pivot {
         val neighbouring_candidates = util.intersect(neighbours, mut_candidates)
         if (neighbouring_candidates.isEmpty) {
           if (util.is_disjoint(neighbours, mut_excluded)) {
-            reporter.record(clique :+ v)
+            cliques += (clique_prefix :+ v)
           }
         } else {
           val neighbouring_excluded = util.intersect(neighbours, mut_excluded)
-          visit(
+          cliques ++= visit(
             graph,
-            reporter,
             further_pivot_choice,
             further_pivot_choice,
             neighbouring_candidates,
             neighbouring_excluded,
-            clique :+ v
+            clique_prefix :+ v
           )
         }
         mut_excluded += v
       }
     }
+    cliques
   }
 }

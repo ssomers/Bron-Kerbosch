@@ -1,47 +1,43 @@
 import base.Vertex
 
+import scala.collection.mutable
+
 object bron_kerbosch1 extends bron_kerbosch_algorithm {
-  def explore(graph: UndirectedGraph, reporter: Reporter): Unit = {
+  def explore(graph: UndirectedGraph): Cliques = {
     val candidates = graph.connected_vertices().toSet
-    if (candidates.nonEmpty) {
-      visit(graph, reporter, candidates, Set.empty, Seq.empty)
-    }
+    visit(graph, candidates, Set(), Seq())
   }
 
   def visit(graph: UndirectedGraph,
-            reporter: Reporter,
             initial_candidates: Set[Vertex],
             initial_excluded: Set[Vertex],
-            clique: Seq[Vertex]): Unit = {
+            clique_prefix: Seq[Vertex]): Cliques = {
+    var cliques = new mutable.ArrayBuffer[Clique]()
     var candidates = initial_candidates
     var excluded = initial_excluded
-    assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
 
-    while (true) {
+    while (candidates.nonEmpty) {
       val v = candidates.head
       candidates = candidates.tail
       val neighbours = graph.neighbours(v)
       val neighbouring_candidates = util.intersect(neighbours, candidates)
       if (neighbouring_candidates.nonEmpty) {
         val neighbouring_excluded = util.intersect(neighbours, excluded)
-        visit(
+        cliques ++= visit(
           graph,
-          reporter,
           neighbouring_candidates,
           neighbouring_excluded,
-          clique :+ v
+          clique_prefix :+ v
         )
       } else {
         if (util.is_disjoint(neighbours, excluded)) {
-          reporter.record(clique :+ v)
-        }
-        if (candidates.isEmpty) {
-          return
+          cliques += (clique_prefix :+ v)
         }
       }
       excluded += v
     }
+    cliques
   }
 }
