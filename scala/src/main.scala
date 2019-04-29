@@ -1,8 +1,8 @@
 import scala.util.Random
 
 object main {
-  val FUNC_NAMES =
-    Seq(
+  val FUNC_NAMES: IndexedSeq[String] =
+    IndexedSeq(
       "Ver1+",
       "Ver2+",
       "Ver2+G",
@@ -11,8 +11,9 @@ object main {
       "Ver3+",
       "Ver3+GP",
       "Ver3+GPX",
+      "Ver3+MT",  
     )
-  val FUNCS = Seq(
+  val FUNCS: IndexedSeq[bron_kerbosch_algorithm] = IndexedSeq(
     bron_kerbosch1,
     bron_kerbosch2,
     bron_kerbosch2_g,
@@ -21,6 +22,7 @@ object main {
     bron_kerbosch3,
     bron_kerbosch3_gp,
     bron_kerbosch3_gpx,
+    bron_kerbosch3_mt,
   )
 
   type Clique = bron_kerbosch_algorithm#Clique
@@ -118,18 +120,17 @@ object main {
     //noinspection NameBooleanParameters
     assert(false, "Specify -Xdisable-assertions for meaningful measurements")
 
-    val all_func_indices = Array(0 until FUNCS.size: _*)
     val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
     val sizes_10k = Array(i"100k" to i"800k" by i"100k": _*)
     val sizes_1M = Array(
       (i"200k" until i"1M" by i"200k")
         ++ (i"1M" to i"3M" by i"1M"): _*
     )
-    bk("warm-up", 100, Array(2000), 3, all_func_indices)
+    bk("warm-up", 100, Array(2000), 3, FUNCS.indices.toArray)
     Thread.sleep(4321) // give IntelliJ launcher some time to cool down
-    //bk("9999", i"9999", Array(i"567k"), 3, Array(7))
-    bk("100", i"100", sizes_100, 5, all_func_indices)
-    bk("10k", i"10k", sizes_10k, 3, all_func_indices)
-    bk("1M", i"1M", sizes_1M, 3, all_func_indices)
+    //bk("9999", i"9999", Array(i"567k"), 3, Array(8))
+    bk("100", i"100", sizes_100, 5, FUNCS.indices.toArray)
+    bk("10k", i"10k", sizes_10k, 3, FUNCS.indices.toArray)
+    bk("1M", i"1M", sizes_1M, 3, FUNCS.indices.toArray)
   }
 }
