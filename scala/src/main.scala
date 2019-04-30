@@ -11,7 +11,7 @@ object main {
       "Ver3+",
       "Ver3+GP",
       "Ver3+GPX",
-      "Ver3+MT",  
+      "Ver3+MT",
     )
   val FUNCS: IndexedSeq[bron_kerbosch_algorithm] = IndexedSeq(
     bron_kerbosch1,

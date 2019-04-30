@@ -11,7 +11,7 @@ class BronKerboschTest extends org.scalatest.FunSuite {
       val func_name = FUNC_NAMES(func_index)
       val cliques = order_cliques(func.explore(graph))
       assert(
-        expected_cliques == cliques,
+        cliques == expected_cliques,
         f"Unexpected result for $func_name: $cliques"
       )
     }
