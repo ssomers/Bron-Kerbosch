@@ -27,45 +27,43 @@ object main {
 
   type Clique = bron_kerbosch_algorithm#Clique
   type Cliques = bron_kerbosch_algorithm#Cliques
-  def order_cliques(cliques: Cliques): Cliques = {
+  def order_cliques(cliques: Cliques): Seq[Clique] = {
+    require(cliques.forall(_.size > 1))
     cliques
       .map(clique => clique.sortWith(_.compareTo(_) < 0))
+      .toSeq
       .sortWith((a: Clique, b: Clique) => {
-        require(a.size > 1)
-        require(b.size > 1)
-        require(!(a eq b))
-        val result =
-          a.iterator.zip(b.iterator).map { case (va, vb) => va - vb }.find {
-            _ != 0
-          }
-        if (result.isEmpty) {
+        val diff = a.iterator
+          .zip(b.iterator)
+          .map { case (va, vb) => va.compareTo(vb) }
+          .find { _ != 0 }
+        if (diff.isEmpty) {
           throw new IllegalArgumentException(
             f"got overlapping or equal cliques $a <> $b"
           )
         }
-        result.get < 0
+        diff.get < 0
       })
   }
 
   def bron_kerbosch_timed(graph: UndirectedGraph,
                           samples: Int,
                           func_indices: Array[Int]): Array[SampleStatistics] = {
-    var first: Option[Cliques] = None
+    var firstOrdered: Option[Seq[Clique]] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
 
     for (sample <- 1 to samples; func_index <- func_indices) {
       val func = FUNCS(func_index)
       val start = System.currentTimeMillis()
-
       val cliques = func.explore(graph)
       val elapsed = System.currentTimeMillis() - start
       times(func_index).put(elapsed)
 
       if (samples > 1 && sample <= 2) {
         val ordered = order_cliques(cliques)
-        first match {
-          case None               => first = Some(ordered)
-          case Some(firstCliques) => require(firstCliques == ordered)
+        firstOrdered match {
+          case None           => firstOrdered = Some(ordered)
+          case Some(ordered1) => require(ordered1 == ordered)
         }
       }
     }
@@ -127,8 +125,8 @@ object main {
         ++ (i"1M" to i"3M" by i"1M"): _*
     )
     bk("warm-up", 100, Array(2000), 3, FUNCS.indices.toArray)
-    Thread.sleep(4321) // give IntelliJ launcher some time to cool down
-    //bk("9999", i"9999", Array(i"567k"), 3, Array(8))
+    Thread.sleep(3210) // give IntelliJ launcher some time to cool down
+    //bk("999999", i"999999", Array(i"333k"), 3, Array(6, 8))
     bk("100", i"100", sizes_100, 5, FUNCS.indices.toArray)
     bk("10k", i"10k", sizes_10k, 3, FUNCS.indices.toArray)
     bk("1M", i"1M", sizes_1M, 3, FUNCS.indices.toArray)

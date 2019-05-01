@@ -7,7 +7,7 @@ object bron_kerbosch2_gp extends bron_kerbosch_algorithm {
     if (candidates.nonEmpty) {
       visit(graph, MaxDegree, MaxDegreeLocal, candidates, Set(), Seq())
     } else {
-      Seq()
+      Iterable()
     }
   }
 }

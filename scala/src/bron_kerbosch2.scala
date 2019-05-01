@@ -7,7 +7,7 @@ object bron_kerbosch2 extends bron_kerbosch_algorithm {
     if (candidates.nonEmpty) {
       visit(graph, Arbitrary, Arbitrary, candidates, Set(), Seq())
     } else {
-      Seq()
+      Iterable()
     }
   }
 }

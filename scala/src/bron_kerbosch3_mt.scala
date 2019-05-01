@@ -7,19 +7,19 @@ import bron_kerbosch_pivot.visit
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.concurrent.duration._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 object bron_kerbosch3_mt extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph): Cliques = {
-    var mut_excluded = Set.empty[Vertex]
+    var excluded = Set.empty[Vertex]
     var futures = new mutable.ListBuffer[Future[Cliques]]()
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)
       assert(neighbours.nonEmpty)
-      val neighbouring_candidates = neighbours &~ mut_excluded
+      val neighbouring_candidates = neighbours &~ excluded
       if (neighbouring_candidates.nonEmpty) {
-        val neighbouring_excluded = util.intersect(neighbours, mut_excluded)
+        val neighbouring_excluded = util.intersect(neighbours, excluded)
         val f = Future {
           visit(
             graph,
@@ -32,9 +32,9 @@ object bron_kerbosch3_mt extends bron_kerbosch_algorithm {
         }
         futures += f
       } else {
-        assert(!util.is_disjoint(neighbours, mut_excluded))
+        assert(!util.is_disjoint(neighbours, excluded))
       }
-      mut_excluded += v
+      excluded += v
     }
     var cliques = new mutable.ArrayBuffer[Clique]()
     for (f <- futures)

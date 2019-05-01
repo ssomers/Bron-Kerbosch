@@ -10,13 +10,13 @@ import scala.collection.mutable
 object bron_kerbosch3 extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph): Cliques = {
     var cliques = new mutable.ArrayBuffer[Clique]()
-    var mut_excluded = Set.empty[Vertex]
+    var excluded = Set.empty[Vertex]
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)
       assert(neighbours.nonEmpty)
-      val neighbouring_candidates = neighbours &~ mut_excluded
+      val neighbouring_candidates = neighbours &~ excluded
       if (neighbouring_candidates.nonEmpty) {
-        val neighbouring_excluded = util.intersect(neighbours, mut_excluded)
+        val neighbouring_excluded = util.intersect(neighbours, excluded)
         cliques ++= visit(
           graph,
           Arbitrary,
@@ -26,9 +26,9 @@ object bron_kerbosch3 extends bron_kerbosch_algorithm {
           Seq(v)
         )
       } else {
-        assert(!util.is_disjoint(neighbours, mut_excluded))
+        assert(!util.is_disjoint(neighbours, excluded))
       }
-      mut_excluded += v
+      excluded += v
     }
     cliques
   }

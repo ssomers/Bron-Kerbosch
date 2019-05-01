@@ -7,13 +7,12 @@ class degeneracy_ordering private (graph: UndirectedGraph,
                                    queue: PriorityQueue,
                                    var num_left_to_pick: Int)
     extends Iterator[Vertex] {
-  // priority_per_vertexL
+  // priority_per_vertex:
   // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
   // otherwise, vertex is still queued and priority = degree + 1 - number of picked neighbours.
 
   override def hasNext: Boolean = { num_left_to_pick > 0 }
   override def next(): Vertex = {
-    assert(hasNext)
     assert(
       priority_per_vertex.zipWithIndex
         .forall { case (p, v) => p == 0 || queue.contains(p, v) }
@@ -48,9 +47,6 @@ object degeneracy_ordering {
     assert(drop <= 0)
     val order = graph.order()
     var max_priority = 0
-    // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
-    // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.
-    // +1 because we want the priority number to be non-zero.
     val priority_per_vertex = Array.fill[Int](order)(0)
     var num_candidates = 0
     for (c <- 0 until order) {
