@@ -1,3 +1,5 @@
+import base.Vertex
+
 import scala.util.Random
 
 object main {
@@ -27,12 +29,12 @@ object main {
 
   type Clique = bron_kerbosch_algorithm#Clique
   type Cliques = bron_kerbosch_algorithm#Cliques
-  def order_cliques(cliques: Cliques): Seq[Clique] = {
+  def order_cliques(cliques: Cliques): Seq[Seq[Vertex]] = {
     require(cliques.forall(_.size > 1))
     cliques
-      .map(clique => clique.sortWith(_.compareTo(_) < 0))
+      .map(clique => clique.toSeq.sortWith(_.compareTo(_) < 0))
       .toSeq
-      .sortWith((a: Clique, b: Clique) => {
+      .sortWith((a: Seq[Vertex], b: Seq[Vertex]) => {
         val diff = a.iterator
           .zip(b.iterator)
           .map { case (va, vb) => va.compareTo(vb) }
@@ -49,7 +51,7 @@ object main {
   def bron_kerbosch_timed(graph: UndirectedGraph,
                           samples: Int,
                           func_indices: Array[Int]): Array[SampleStatistics] = {
-    var firstOrdered: Option[Seq[Clique]] = None
+    var firstOrdered: Option[Seq[Seq[Vertex]]] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
 
     for (sample <- 1 to samples; func_index <- func_indices) {

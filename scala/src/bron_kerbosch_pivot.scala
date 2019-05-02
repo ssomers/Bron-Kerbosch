@@ -1,6 +1,6 @@
 import base.Vertex
 
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 
 object bron_kerbosch_pivot {
   object PivotChoice extends Enumeration {
@@ -9,12 +9,14 @@ object bron_kerbosch_pivot {
   }
   import PivotChoice._
 
-  def visit(graph: UndirectedGraph,
-            initial_pivot_choice: PivotChoice,
-            further_pivot_choice: PivotChoice,
-            candidates: Set[Vertex],
-            excluded: Set[Vertex],
-            clique_prefix: Seq[Vertex]): bron_kerbosch_algorithm#Cliques = {
+  def visit(
+    graph: UndirectedGraph,
+    initial_pivot_choice: PivotChoice,
+    further_pivot_choice: PivotChoice,
+    candidates: Set[Vertex],
+    excluded: Set[Vertex],
+    clique_in_progress: immutable.List[Vertex]
+  ): immutable.List[immutable.List[Vertex]] = {
     assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
@@ -25,13 +27,13 @@ object bron_kerbosch_pivot {
       val v = candidates.head
       val neighbours = graph.neighbours(v)
       if (util.is_disjoint(neighbours, excluded)) {
-        Seq(clique_prefix :+ v)
+        immutable.List(v :: clique_in_progress)
       } else {
-        Seq()
+        immutable.List()
       }
     }
 
-    val cliques = new mutable.ArrayBuffer[Seq[Vertex]]
+    var cliques = immutable.List[immutable.List[Vertex]]()
     val (remaining_candidates, pivot): (Traversable[Vertex], Vertex) =
       initial_pivot_choice match {
         case Arbitrary => (candidates, candidates.head)
@@ -48,7 +50,7 @@ object bron_kerbosch_pivot {
             if (local_degree == 0) {
               // Same logic as below, stripped down
               if (util.is_disjoint(neighbours, excluded)) {
-                cliques += clique_prefix :+ v
+                cliques = (v :: clique_in_progress) :: cliques
               }
             } else {
               if (seen_local_degree < local_degree) {
@@ -83,18 +85,18 @@ object bron_kerbosch_pivot {
         val neighbouring_candidates = util.intersect(neighbours, mut_candidates)
         if (neighbouring_candidates.isEmpty) {
           if (util.is_disjoint(neighbours, mut_excluded)) {
-            cliques += (clique_prefix :+ v)
+            cliques = (v :: clique_in_progress) :: cliques
           }
         } else {
           val neighbouring_excluded = util.intersect(neighbours, mut_excluded)
-          cliques ++= visit(
+          cliques = visit(
             graph,
             further_pivot_choice,
             further_pivot_choice,
             neighbouring_candidates,
             neighbouring_excluded,
-            clique_prefix :+ v
-          )
+            v :: clique_in_progress
+          ) ::: cliques
         }
         mut_excluded += v
       }

@@ -5,11 +5,11 @@ import base.Vertex
 import bron_kerbosch_pivot.PivotChoice.MaxDegreeLocal
 import bron_kerbosch_pivot.visit
 
-import scala.collection.mutable
+import scala.collection.immutable
 
 object bron_kerbosch3_gp extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph): Cliques = {
-    var cliques = new mutable.ArrayBuffer[Clique]()
+    var cliques = immutable.List[Clique]()
     var excluded = Set.empty[Vertex]
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)
@@ -17,14 +17,14 @@ object bron_kerbosch3_gp extends bron_kerbosch_algorithm {
       val neighbouring_candidates = neighbours &~ excluded
       if (neighbouring_candidates.nonEmpty) {
         val neighbouring_excluded = util.intersect(neighbours, excluded)
-        cliques ++= visit(
+        cliques = visit(
           graph,
           MaxDegreeLocal,
           MaxDegreeLocal,
           neighbouring_candidates,
           neighbouring_excluded,
-          Seq(v)
-        )
+          immutable.List(v)
+        ) ::: cliques
       } else {
         assert(!util.is_disjoint(neighbours, excluded))
       }
