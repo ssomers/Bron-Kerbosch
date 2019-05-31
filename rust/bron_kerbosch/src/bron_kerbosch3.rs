@@ -7,9 +7,11 @@ use graph_degeneracy::degeneracy_ordering;
 use pile::Pile;
 use reporter::Reporter;
 
-pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     let mut excluded = VertexSet::with_capacity((graph.order() as usize).saturating_sub(1));
     for v in degeneracy_ordering(graph, -1) {

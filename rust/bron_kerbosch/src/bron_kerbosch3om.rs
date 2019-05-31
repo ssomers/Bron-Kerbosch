@@ -27,9 +27,11 @@ struct VisitJob<'a, VertexSet> {
     clique: Pile<'a, Vertex>,
 }
 
-pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike + Send,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     const NUM_VISITING_THREADS: usize = 3;
 

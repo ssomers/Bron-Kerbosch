@@ -12,7 +12,7 @@ extern crate structopt;
 extern crate strum;
 extern crate strum_macros;
 
-use bron_kerbosch::graph::{NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
 use bron_kerbosch::reporter::SimpleReporter;
 use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
@@ -105,12 +105,12 @@ where
 }
 
 fn bron_kerbosch_timed<VertexSet>(
-    graph: &UndirectedGraph<VertexSet>,
+    graph: &SlimUndirectedGraph<VertexSet>,
     samples: u32,
     func_indices: &Vec<usize>,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
-    VertexSet: VertexSetLike + Send,
+    VertexSet: VertexSetLike + Send + Sync,
 {
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;

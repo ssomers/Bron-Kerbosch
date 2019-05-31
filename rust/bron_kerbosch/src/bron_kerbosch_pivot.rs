@@ -18,9 +18,9 @@ pub enum PivotChoice {
 
 type Clique<'a> = Pile<'a, Vertex>;
 
-pub fn visit<VertexSet>(
-    graph: &UndirectedGraph<VertexSet>,
-    reporter: &mut Reporter,
+pub fn visit<VertexSet, Graph, Rprtr>(
+    graph: &Graph,
+    reporter: &mut Rprtr,
     initial_pivot_selection: PivotChoice,
     further_pivot_selection: PivotChoice,
     mut candidates: VertexSet,
@@ -28,6 +28,8 @@ pub fn visit<VertexSet>(
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
@@ -116,13 +118,14 @@ pub fn visit<VertexSet>(
     }
 }
 
-fn choose<'a, VertexSet>(
+fn choose<'a, VertexSet, Graph>(
     pivot_choice: PivotChoice,
     candidates: &'a [Vertex],
-    graph: &UndirectedGraph<VertexSet>,
+    graph: &Graph,
 ) -> Option<&'a Vertex>
 where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
 {
     match pivot_choice {
         PivotChoice::Arbitrary => candidates.first(),

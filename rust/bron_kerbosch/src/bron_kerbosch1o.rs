@@ -6,9 +6,11 @@ use reporter::Reporter;
 
 type Clique<'a> = Pile<'a, Vertex>;
 
-pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     let candidates = connected_vertices(graph);
     let num_candidates = candidates.len();
@@ -23,14 +25,16 @@ where
     }
 }
 
-fn visit<VertexSet>(
-    graph: &UndirectedGraph<VertexSet>,
-    reporter: &mut Reporter,
+fn visit<VertexSet, Graph, Rprtr>(
+    graph: &Graph,
+    reporter: &mut Rprtr,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));

@@ -1,11 +1,12 @@
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
-pub fn degeneracy_ordering<'a, VertexSet>(
-    graph: &'a UndirectedGraph<VertexSet>,
+pub fn degeneracy_ordering<'a, VertexSet, Graph>(
+    graph: &'a Graph,
     drop: isize,
 ) -> DegeneracyOrderIter<'a, VertexSet>
 where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
 {
     debug_assert!(drop <= 0);
     let order = graph.order();
@@ -76,7 +77,7 @@ where
 }
 
 pub struct DegeneracyOrderIter<'a, VertexSet> {
-    graph: &'a UndirectedGraph<VertexSet>,
+    graph: &'a dyn UndirectedGraph<VertexSet>,
     priority_per_vertex: Vec<Option<Priority>>,
     // If priority is None, vertex was already picked or was always irrelevant (unconnected);
     // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.

@@ -3,9 +3,11 @@
 use graph::{connected_vertices, UndirectedGraph, VertexSetLike};
 use reporter::{Clique, Reporter};
 
-pub fn explore<VertexSet>(graph: &UndirectedGraph<VertexSet>, reporter: &mut Reporter)
+pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     let candidates = connected_vertices(graph);
     if !candidates.is_empty() {
@@ -13,14 +15,16 @@ where
     }
 }
 
-fn visit<VertexSet>(
-    graph: &UndirectedGraph<VertexSet>,
-    reporter: &mut Reporter,
+fn visit<VertexSet, Graph, Rprtr>(
+    graph: &Graph,
+    reporter: &mut Rprtr,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet>,
+    Rprtr: Reporter,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

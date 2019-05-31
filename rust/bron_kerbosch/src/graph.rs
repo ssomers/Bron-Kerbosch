@@ -45,9 +45,10 @@ pub trait UndirectedGraph<VertexSet>: Sync {
     fn neighbours(&self, node: Vertex) -> &VertexSet;
 }
 
-pub fn connected_vertices<VertexSet>(g: &UndirectedGraph<VertexSet>) -> VertexSet
+pub fn connected_vertices<VertexSet, Graph>(g: &Graph) -> VertexSet
 where
     VertexSet: FromIterator<Vertex>,
+    Graph: UndirectedGraph<VertexSet>,
 {
     (0..g.order()).filter(|&v| g.degree(v) > 0).collect()
 }
