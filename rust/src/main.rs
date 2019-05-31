@@ -257,7 +257,7 @@ fn bk(
                     bk_core(order, size, samples, &included_funcs, set_type),
                 );
             }
-            if let Some(mut wtr) = writer.as_mut() {
+            if let Some(wtr) = writer.as_mut() {
                 wtr.write_record([size].iter().map(|&i| i.to_string()).chain(
                     SetType::iter().cartesian_product(0..NUM_FUNCS).flat_map(
                         |(set_type, func_index)| {
