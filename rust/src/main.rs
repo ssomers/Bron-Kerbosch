@@ -323,14 +323,12 @@ fn main() -> Result<(), std::io::Error> {
         bk(
             "999k",
             999_999,
-            (10_000..250_000).step_by(10_000),
+            (10_000..=250_000).step_by(10_000),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
                 if match set_type {
                     SetType::BTreeSet => true,
-                    SetType::HashSet => size <= 50_000,
-                    SetType::Fnv => size <= 50_000,
-                    SetType::Hashbrown => size <= 140_000,
+                    _ => size <= 150_000,
                 } {
                     vec![1]
                 } else {
