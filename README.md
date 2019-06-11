@@ -23,7 +23,7 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (measured on a CPU with 2 cores, 4 logical processors)
+* **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (6 threads on a 6 core CPU)
 
 ## Results
 
@@ -40,7 +40,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 * Random graphs of order 10k:
 
 [![Time spent in Rust on graphs of order 10k](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
-[![Time spent in C# on graphs of order 100](https://plot.ly/~stein.somers/239.png?share_key=SAxyM6pj8iMenK6SfIr9Um "View interactively")](https://plot.ly/~stein.somers/239/?share_key=SAxyM6pj8iMenK6SfIr9Um)
+[![Time spent in C# on graphs of order 10k](https://plot.ly/~stein.somers/239.png?share_key=SAxyM6pj8iMenK6SfIr9Um "View interactively")](https://plot.ly/~stein.somers/239/?share_key=SAxyM6pj8iMenK6SfIr9Um)
 [![Time spent in Go on graphs of order 10k](https://plot.ly/~stein.somers/187.png?share_key=EtNe8FbmD8BwrxBaC7dHBt "View interactively")](https://plot.ly/~stein.somers/187/?share_key=EtNe8FbmD8BwrxBaC7dHBt)
 [![Time spent in Scala on graphs of order 10k](https://plot.ly/~stein.somers/199.png?share_key=ZM9Igh4glwfW0rFVJFzf3s "View interactively")](https://plot.ly/~stein.somers/199/?share_key=ZM9Igh4glwfW0rFVJFzf3s)
 [![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)

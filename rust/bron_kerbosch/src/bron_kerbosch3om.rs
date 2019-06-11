@@ -33,7 +33,7 @@ where
     Graph: UndirectedGraph<VertexSet>,
     Rprtr: Reporter,
 {
-    const NUM_VISITING_THREADS: usize = 3;
+    const NUM_VISITING_THREADS: usize = 5;
 
     crossbeam::thread::scope(|scope| {
         let (start_tx, start_rx) = mpsc::channel();
