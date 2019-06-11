@@ -63,6 +63,9 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 ### Run Python 3
 
     cd python3
+    (once) python -m venv venv
+    venv\Scripts\activate.bat
+    (once) pip install pytest plotly
     python -O test_maximal_cliques.py
 
 ### Test Python 3
@@ -70,7 +73,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once) pip install hypothesis mypy pytest plotly
+    (once) pip install hypothesis mypy
     mypy . --ignore-missing-imports
     pytest
 
@@ -130,7 +133,7 @@ and finally
 
 [More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
 
-Most algorithms variants are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 
