@@ -7,7 +7,7 @@ use reporter::Reporter;
 extern crate rand;
 use self::rand::seq::SliceRandom;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
     Arbitrary,
     Random,
@@ -107,8 +107,8 @@ pub fn visit<VertexSet, Graph, Rprtr>(
             visit(
                 graph,
                 reporter,
-                further_pivot_selection.clone(),
-                further_pivot_selection.clone(),
+                further_pivot_selection,
+                further_pivot_selection,
                 neighbouring_candidates,
                 neighbouring_excluded,
                 clique.place(v),

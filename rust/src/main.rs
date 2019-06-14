@@ -131,21 +131,17 @@ where
             }
             if sample < 2 {
                 let current = order_cliques(reporter.cliques);
-                match first.clone() {
-                    None => {
-                        first = Some(current);
-                    }
-                    Some(first_result) => {
-                        if first_result != current {
-                            eprintln!(
-                                "  {:8}: expected {} cliques, obtained {} different cliques",
-                                FUNC_NAMES[func_index],
-                                first_result.len(),
-                                current.len()
-                            );
-                        }
+                for first_result in first.iter() {
+                    if *first_result != current {
+                        eprintln!(
+                            "  {:8}: expected {} cliques, obtained {} different cliques",
+                            FUNC_NAMES[func_index],
+                            first_result.len(),
+                            current.len()
+                        );
                     }
                 }
+                first = first.or(Some(current))
             }
 
             times[func_index].put(secs).unwrap();
