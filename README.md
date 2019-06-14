@@ -79,7 +79,6 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 
 ### Run Rust
 
-    (once) rustup default beta
     cd rust
     cargo run --release
 
