@@ -52,7 +52,7 @@ where
         } else if self.min == self.max {
             self.min.to_f64().unwrap()
         } else {
-            self.sum / self.samples as f64
+            self.sum / f64::from(self.samples)
         }
     }
     pub fn variance(&self) -> f64 {
@@ -61,7 +61,7 @@ where
         } else if self.min == self.max {
             0.
         } else {
-            let n = self.samples as f64;
+            let n = f64::from(self.samples);
             // may become slightly negative because of rounding:
             (self.sum_of_squares - self.sum.powi(2) / n).max(0.) / (n - 1.)
         }
@@ -73,6 +73,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::float_cmp)]
+
     use super::*;
 
     #[test]
@@ -152,8 +154,8 @@ mod proptests {
         fn put_1_u32(x in proptest::num::u32::ANY) {
             let mut s: SampleStatistics<u32> = Default::default();
             s.put(x).unwrap();
-            assert!(s.mean() >= s.min() as f64);
-            assert!(s.mean() <= s.max() as f64);
+            assert!(s.mean() >= f64::from(s.min()));
+            assert!(s.mean() <= f64::from(s.max()));
         }
 
         #[test]
@@ -169,10 +171,10 @@ mod proptests {
             let mut s: SampleStatistics<u32> = Default::default();
             s.put(x).unwrap();
             s.put(y).unwrap();
-            assert!(s.mean() >= s.min() as f64);
-            assert!(s.mean() <= s.max() as f64);
+            assert!(s.mean() >= f64::from(s.min()));
+            assert!(s.mean() <= f64::from(s.max()));
             assert!(s.variance() >= 0.);
-            assert!(s.deviation() <= (s.max() - s.min()) as f64);
+            assert!(s.deviation() <= f64::from(s.max() - s.min()));
         }
 
         #[test]
@@ -192,10 +194,10 @@ mod proptests {
             for _ in 0..i {
                 s.put(x).unwrap();
             }
-            assert!(s.mean() >= s.min() as f64);
-            assert!(s.mean() <= s.max() as f64);
+            assert!(s.mean() >= f64::from(s.min()));
+            assert!(s.mean() <= f64::from(s.max()));
             assert!(s.variance() >= 0.);
-            assert!(s.deviation() <= (s.max() - s.min()) as f64);
+            assert!(s.deviation() <= f64::from(s.max() - s.min()));
         }
 
         #[test]

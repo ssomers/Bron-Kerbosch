@@ -27,7 +27,7 @@ where
         order,
         fully_meshed_size
     );
-    let mut unsaturated_vertices: Vec<Vertex> = (0..order as Vertex).into_iter().collect();
+    let mut unsaturated_vertices: Vec<Vertex> = (0..order as Vertex).collect();
     let mut adjacency_sets: Vec<VertexSet> = new_adjacencies(order);
     let mut adjacency_complements: Vec<VertexSet> = new_adjacencies(order);
     for _ in 0..size {
@@ -48,7 +48,7 @@ where
         debug_assert_ne!(v, w);
         debug_assert!(!adjacency_sets[v as usize].contains(w));
         debug_assert!(!adjacency_sets[w as usize].contains(v));
-        for (x, y) in vec![(v, w), (w, v)] {
+        for &(x, y) in &[(v, w), (w, v)] {
             adjacency_sets[x as usize].insert(y);
             let neighbours = adjacency_sets[x as usize].len() as u32;
             if neighbours == order - 1 {

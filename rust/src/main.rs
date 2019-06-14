@@ -1,3 +1,5 @@
+#![allow(clippy::assertions_on_constants, clippy::or_fun_call)]
+
 extern crate bron_kerbosch;
 extern crate stats;
 mod random_graph;
@@ -61,10 +63,10 @@ enum SetType {
 fn parse_positive_int(value: &str) -> u32 {
     let numstr: &str;
     let factor: u32;
-    if value.ends_with("M") {
+    if value.ends_with('M') {
         numstr = &value[0..value.len() - 1];
         factor = 1_000_000;
-    } else if value.ends_with("k") {
+    } else if value.ends_with('k') {
         numstr = &value[0..value.len() - 1];
         factor = 1_000;
     } else {
@@ -73,7 +75,7 @@ fn parse_positive_int(value: &str) -> u32 {
     }
     let num: u32 = numstr
         .parse()
-        .expect(&format!("{} is not a positive integer", numstr));
+        .unwrap_or_else(|err| panic!("{} is not a positive integer ({})", numstr, err));
     num * factor
 }
 
@@ -107,7 +109,7 @@ where
 fn bron_kerbosch_timed<VertexSet>(
     graph: &SlimUndirectedGraph<VertexSet>,
     samples: u32,
-    func_indices: &Vec<usize>,
+    func_indices: &[usize],
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
     VertexSet: VertexSetLike + Send + Sync,
@@ -155,7 +157,7 @@ fn bk_core_core<VertexSet>(
     size: u32,
     samples: u32,
     set_type: SetType,
-    func_indices: &Vec<usize>,
+    func_indices: &[usize],
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
 where
     VertexSet: VertexSetLike + Clone + Sync + Send,
