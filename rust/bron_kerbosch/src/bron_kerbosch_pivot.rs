@@ -85,7 +85,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
         }
         _ => {
             candidates.for_each(|v| remaining_candidates.push(v));
-            pivot = choose(initial_pivot_selection, &remaining_candidates, graph).cloned();
+            pivot = choose(initial_pivot_selection, &remaining_candidates, graph).copied();
         }
     }
 

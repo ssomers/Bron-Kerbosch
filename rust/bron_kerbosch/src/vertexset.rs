@@ -50,7 +50,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
         self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        let elt = self.iter().next().cloned()?;
+        let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
@@ -124,7 +124,7 @@ impl VertexSetLike for HashSet<Vertex> {
         self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        let elt = self.iter().next().cloned()?;
+        let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
@@ -198,7 +198,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
         self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        let elt = self.iter().next().cloned()?;
+        let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
@@ -272,7 +272,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
         self.remove(&v);
     }
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
-        let elt = self.iter().next().cloned()?;
+        let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
     fn choose_arbitrary(&self) -> Option<&Vertex> {
