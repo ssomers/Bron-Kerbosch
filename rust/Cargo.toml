@@ -13,7 +13,7 @@ bron_kerbosch = { path = "bron_kerbosch" }
 stats = { path = "stats" }
 csv = "1"
 fnv = "1.0.6"
-hashbrown = "0.2"
+hashbrown = "0.5"
 rand = "0.6"
 itertools = "0.8"
 rand_chacha = "0.1"
