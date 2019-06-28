@@ -325,8 +325,8 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
                 if match set_type {
-                    SetType::BTreeSet => true,
-                    _ => size <= 150_000,
+                    SetType::HashSet | SetType::Fnv => size <= 100_000,
+                    _ => true,
                 } {
                     vec![1]
                 } else {
