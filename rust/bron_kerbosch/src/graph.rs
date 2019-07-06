@@ -55,14 +55,7 @@ where
 
 pub type Adjacencies<VertexSet> = Vec<VertexSet>;
 
-pub fn new_adjacencies<VertexSet>(order: u32) -> Adjacencies<VertexSet>
-where
-    VertexSet: VertexSetLike + Clone,
-{
-    std::vec::from_elem(VertexSet::with_capacity(0), order as usize)
-}
-
-pub fn are_valid_adjacencies<VertexSet>(adjacencies: &Adjacencies<VertexSet>) -> bool
+pub fn are_valid_adjacencies<VertexSet>(adjacencies: &[VertexSet]) -> bool
 where
     VertexSet: VertexSetLike,
 {

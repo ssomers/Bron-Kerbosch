@@ -8,7 +8,7 @@ pub trait Reporter {
     fn record(&mut self, clique: Clique);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SimpleReporter {
     pub cliques: Vec<Clique>,
 }

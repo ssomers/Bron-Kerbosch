@@ -72,6 +72,15 @@ where
     }
 }
 
+impl<'a, T> Default for Pile<'a, T>
+where
+    T: Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

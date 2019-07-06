@@ -1,5 +1,5 @@
 extern crate bron_kerbosch;
-use bron_kerbosch::graph::{new_adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 
 extern crate rand;
 use self::rand::seq::SliceRandom;
@@ -10,6 +10,13 @@ pub enum Order {
 }
 pub enum Size {
     Of(u32),
+}
+
+fn new_adjacencies<VertexSet>(order: u32) -> Adjacencies<VertexSet>
+where
+    VertexSet: VertexSetLike + Clone,
+{
+    std::vec::from_elem(VertexSet::new(), order as usize)
 }
 
 pub fn new_undirected<VertexSet, G>(rng: &mut impl Rng, order: Order, size: Size) -> G

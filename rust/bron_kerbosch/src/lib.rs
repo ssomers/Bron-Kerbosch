@@ -22,7 +22,7 @@ use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
 pub const NUM_FUNCS: usize = 10;
-pub static FUNC_NAMES: &'static [&str; NUM_FUNCS] = &[
+pub static FUNC_NAMES: &[&str; NUM_FUNCS] = &[
     "Ver1", "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver2+RP", "Ver3+", "Ver3+GP", "Ver3+GPX",
     "Ver3+MT",
 ];

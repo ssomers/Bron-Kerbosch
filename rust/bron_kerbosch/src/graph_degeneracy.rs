@@ -1,9 +1,9 @@
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
-pub fn degeneracy_ordering<'a, VertexSet, Graph>(
-    graph: &'a Graph,
+pub fn degeneracy_ordering<VertexSet, Graph>(
+    graph: &Graph,
     drop: isize,
-) -> DegeneracyOrderIter<'a, VertexSet>
+) -> DegeneracyOrderIter<VertexSet>
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet>,
