@@ -6,17 +6,27 @@ import (
 	"time"
 )
 
-const NUM_FUNCS = 7
+const NUM_FUNCS = 10
 
 var FUNCS = [NUM_FUNCS]func(*UndirectedGraph) [][]Vertex{
 	bron_kerbosch1,
 	bron_kerbosch2_g, bron_kerbosch2_gp, bron_kerbosch2_gpx,
-	bron_kerbosch3_gp, bron_kerbosch3_gpx, bron_kerbosch3om}
+	bron_kerbosch3_gp, bron_kerbosch3_gpx,
+	bron_kerbosch3_gp_2,
+	bron_kerbosch3_gp_3,
+	bron_kerbosch3_gp_4,
+	bron_kerbosch3_gp_5,
+}
 
 var FUNC_NAMES = [NUM_FUNCS]string{
 	"Ver1+",
 	"Ver2+G", "Ver2+GP", "Ver2+GPX",
-	"Ver3+GP", "Ver3+GPX", "Ver3+MT"}
+	"Ver3+GP", "Ver3+GPX",
+	"Ver3+GP2",
+	"Ver3+GP3",
+	"Ver3+GP4",
+	"Ver3+GP5",
+}
 
 func sort_cliques(cliques [][]Vertex) {
 	for _, clique := range cliques {

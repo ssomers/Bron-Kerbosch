@@ -2,21 +2,35 @@ package bron_kerbosch
 
 import "sync"
 
-const NUM_VISITORS = 8
+func bron_kerbosch3_gp_2(graph *UndirectedGraph) [][]Vertex {
+	return bron_kerbosch3om(graph, 5)
+}
 
-func bron_kerbosch3om(graph *UndirectedGraph) [][]Vertex {
+func bron_kerbosch3_gp_3(graph *UndirectedGraph) [][]Vertex {
+	return bron_kerbosch3om(graph, 15)
+}
+
+func bron_kerbosch3_gp_4(graph *UndirectedGraph) [][]Vertex {
+	return bron_kerbosch3om(graph, 45)
+}
+
+func bron_kerbosch3_gp_5(graph *UndirectedGraph) [][]Vertex {
+	return bron_kerbosch3om(graph, 135)
+}
+
+func bron_kerbosch3om(graph *UndirectedGraph, num_visitors int) [][]Vertex {
 	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
 
-	starts := make(chan Vertex, NUM_VISITORS)
-	visits := make(chan VisitJob, NUM_VISITORS)
+	starts := make(chan Vertex, num_visitors)
+	visits := make(chan VisitJob, num_visitors)
 	cliques := make(chan []Vertex)
 	go degeneracy_ordering(graph, &ChannelVertexVisitor{starts}, -1)
 	go func() {
 		excluded := make(VertexSet, graph.connected_vertex_count()-1)
 		reporter := ChannelReporter{cliques}
 		var wg sync.WaitGroup
-		wg.Add(NUM_VISITORS)
-		for i := 0; i < NUM_VISITORS; i++ {
+		wg.Add(num_visitors)
+		for i := 0; i < num_visitors; i++ {
 			go func() {
 				for job := range visits {
 					visit(

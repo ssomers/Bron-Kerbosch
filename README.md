@@ -23,7 +23,11 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust and Go only) Ver3+GP with multi-threading (6 threads on a 6 core CPU)
+* **Ver3+MT:** (Rust only) Ver3+GP with multi-threading (2 + 5 threads on a 6 core CPU)
+* **Ver3+GP2:** (Go only) Ver3+GP with multi-threading (2 + 5 goroutines a 6 core CPU)
+* **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutines a 6 core CPU)
+* **Ver3+GP4:** (Go only) Ver3+GP with multi-threading (2 + 45 goroutines a 6 core CPU)
+* **Ver3+GP5:** (Go only) Ver3+GP with multi-threading (2 + 135 goroutines a 6 core CPU)
 
 ## Results
 
@@ -96,7 +100,8 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 ### Test Go
     
     set GOPATH=%CD%\go
-    go test bron_kerbosch
+    go vet bron_kerbosch main
+    go test -race bron_kerbosch
 
 ### Run C#
   - open csharp\BronKerboschStudy.sln with Visual Studio Community 2017

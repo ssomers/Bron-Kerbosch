@@ -20,6 +20,10 @@ def color(case_name: str) -> str:
         "Ver3+GP": "#339900",
         "Ver3+GPX": "#33CC00",
         "Ver3+MT": "#99FF99",
+        "Ver3+GP2": "#99FF99",
+        "Ver3+GP3": "#99FF99",
+        "Ver3+GP4": "#99FF99",
+        "Ver3+GP5": "#99FF99",
     }[func_name]
 
 
