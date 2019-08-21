@@ -70,8 +70,11 @@ where
         None
     }
 
+    #[allow(clippy::nonminimal_bool)]
     fn contains(&self, priority: Priority, element: T) -> bool {
-        assert!(cfg!(debug_assertions));
+        if !(cfg!(debug_assertions)) {
+            panic!("not suitable for use in release code")
+        }
         self.stack_per_priority[priority.get() as usize - 1].contains(&element)
     }
 }

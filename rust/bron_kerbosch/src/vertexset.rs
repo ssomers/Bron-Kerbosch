@@ -80,6 +80,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
     }
 }
 
+#[allow(clippy::implicit_hasher)]
 impl VertexSetLike for HashSet<Vertex> {
     fn new() -> Self {
         HashSet::new()
