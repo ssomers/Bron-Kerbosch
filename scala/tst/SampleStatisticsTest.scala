@@ -9,7 +9,7 @@ class SampleStatisticsTest extends org.scalatest.FunSuite {
   test("1") {
     val s = new SampleStatistics
     s.put(-1)
-    assert(s.mean == -1.0)
+    assert(s.mean() == -1.0)
     assert(s.variance().isNaN)
     assert(s.deviation().isNaN)
   }
