@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 
 public final class util {
     public static <T> ArrayList<T> Append(List<T> head, T tail) {
-        var result = new ArrayList(head.size() + 1);
+        ArrayList<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
         return result;
@@ -19,25 +19,25 @@ public final class util {
         return arbitrary;
     }
 
-    public static Set<Integer> Intersect(Set<Integer> vset1, Set<Integer> vset2) {
-        if (vset1.size() <= vset2.size())
-            return vset1.stream().filter(vset2::contains).collect(Collectors.toSet());
+    public static Set<Integer> Intersect(Set<Integer> set1, Set<Integer> set2) {
+        if (set1.size() <= set2.size())
+            return set1.stream().filter(set2::contains).collect(Collectors.toSet());
         else
-            return vset2.stream().filter(vset1::contains).collect(Collectors.toSet());
+            return set2.stream().filter(set1::contains).collect(Collectors.toSet());
     }
 
-    public static long intersection_size(Set<Integer> vset1, Set<Integer> vset2) {
-        if (vset1.size() <= vset2.size())
-            return vset1.stream().filter(vset2::contains).count();
+    public static long intersection_size(Set<Integer> set1, Set<Integer> set2) {
+        if (set1.size() <= set2.size())
+            return set1.stream().filter(set2::contains).count();
         else
-            return vset2.stream().filter(vset1::contains).count();
+            return set2.stream().filter(set1::contains).count();
     }
 
-    public static boolean AreDisjoint(Set<Integer> vset1, Set<Integer> vset2) {
-        if (vset1.size() <= vset2.size())
-            return vset1.stream().filter(vset2::contains).findFirst().isEmpty();
+    public static boolean AreDisjoint(Set<Integer> set1, Set<Integer> set2) {
+        if (set1.size() <= set2.size())
+            return set1.stream().filter(set2::contains).findFirst().isEmpty();
         else
-            return vset2.stream().filter(vset1::contains).findFirst().isEmpty();
+            return set2.stream().filter(set1::contains).findFirst().isEmpty();
     }
 
     public static List<List<Integer>> OrderCliques(List<List<Integer>> cliques) {
