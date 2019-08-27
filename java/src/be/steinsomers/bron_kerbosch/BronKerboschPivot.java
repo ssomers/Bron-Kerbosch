@@ -1,17 +1,39 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class BronKerboschPivot {
-    public enum PivotChoice {
+public class BronKerboschPivot implements BronKerboschAlgorithm {
+    enum PivotChoice {
         Arbitrary, MaxDegree, MaxDegreeLocal, MaxDegreeLocalX
     }
 
-    public static void visit(
+    private final PivotChoice itsInitialPivotChoice;
+    private final PivotChoice itsFurtherPivotChoice;
+
+    BronKerboschPivot(PivotChoice initial_pivot_choice,
+                      PivotChoice further_pivot_choice) {
+        itsInitialPivotChoice = initial_pivot_choice;
+        itsFurtherPivotChoice = further_pivot_choice;
+    }
+
+    @Override
+    public void explore(UndirectedGraph graph, Reporter reporter) {
+        var candidates = graph.connectedVertices().collect(Collectors.toCollection(HashSet::new));
+        if (!candidates.isEmpty()) {
+            visit(
+                    graph, reporter,
+                    itsInitialPivotChoice,
+                    candidates,
+                    Set.of(),
+                    new ArrayList<>(candidates.size()));
+        }
+    }
+
+    private void visit(
             UndirectedGraph graph,
             Reporter reporter,
             PivotChoice initial_pivot_choice,
-            PivotChoice further_pivot_choice,
             Set<Integer> candidates,
             Set<Integer> excluded,
             List<Integer> clique_in_progress
@@ -89,17 +111,15 @@ public class BronKerboschPivot {
                 var neighbours = graph.neighbours(v);
                 if (!neighbours.contains(pivot)) {
                     mut_candidates.remove(v);
-                    var neighbouring_candidates = util.Intersect(neighbours, mut_candidates);
+                    var neighbouring_candidates = util.Intersect(mut_candidates, neighbours);
                     if (neighbouring_candidates.isEmpty()) {
                         if (util.AreDisjoint(neighbours, mut_excluded)) {
                             reporter.record(util.Append(clique_in_progress, v));
                         }
                     } else {
-                        var neighbouring_excluded = util.Intersect(neighbours, mut_excluded);
-                        visit(
-                                graph, reporter,
-                                further_pivot_choice,
-                                further_pivot_choice,
+                        var neighbouring_excluded = util.Intersect(mut_excluded, neighbours);
+                        visit(graph, reporter,
+                                itsFurtherPivotChoice,
                                 neighbouring_candidates,
                                 neighbouring_excluded,
                                 util.Append(clique_in_progress, v)

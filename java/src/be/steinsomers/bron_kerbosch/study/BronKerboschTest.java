@@ -2,24 +2,23 @@ package be.steinsomers.bron_kerbosch.study;
 
 import be.steinsomers.bron_kerbosch.SimpleReporter;
 import be.steinsomers.bron_kerbosch.UndirectedGraph;
-import be.steinsomers.bron_kerbosch.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class BronKerboschTest {
     private void bk(List<List<Integer>> adjacency_list,
                     List<List<Integer>> expected_cliques) {
-        var adjacencies = adjacency_list.stream().map(HashSet::new).collect(Collectors.toList());
+        var adjacencies = adjacency_list.stream().map(Set::copyOf).collect(Collectors.toList());
         var graph = new UndirectedGraph(adjacencies);
         for (int func_index = 0; func_index < Main.FUNCS.length; ++func_index) {
             var func_name = Main.FUNC_NAMES[func_index];
             var reporter = new SimpleReporter();
             Main.FUNCS[func_index].explore(graph, reporter);
-            var cliques = util.OrderCliques(reporter.cliques);
+            var cliques = Main.OrderCliques(reporter.cliques);
             Assertions.assertEquals(cliques, expected_cliques,
                     String.format("Unexpected result for %s", func_name));
         }

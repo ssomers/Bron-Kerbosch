@@ -2,7 +2,6 @@ package be.steinsomers.bron_kerbosch;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class util {
     public static <T> ArrayList<T> Append(List<T> head, T tail) {
@@ -19,11 +18,11 @@ public final class util {
         return arbitrary;
     }
 
-    public static Set<Integer> Intersect(Set<Integer> set1, Set<Integer> set2) {
+    public static HashSet<Integer> Intersect(HashSet<Integer> set1, Set<Integer> set2) {
         if (set1.size() <= set2.size())
-            return set1.stream().filter(set2::contains).collect(Collectors.toSet());
+            return set1.stream().filter(set2::contains).collect(Collectors.toCollection(HashSet::new));
         else
-            return set2.stream().filter(set1::contains).collect(Collectors.toSet());
+            return set2.stream().filter(set1::contains).collect(Collectors.toCollection(HashSet::new));
     }
 
     public static long intersection_size(Set<Integer> set1, Set<Integer> set2) {
@@ -40,20 +39,20 @@ public final class util {
             return set2.stream().filter(set1::contains).findFirst().isEmpty();
     }
 
-    public static List<List<Integer>> OrderCliques(List<List<Integer>> cliques) {
-        assert cliques.stream().allMatch((List<Integer> clique) -> clique.size() > 1);
-        return cliques.stream()
-                .map((List<Integer> clique) -> clique.stream()
-                        .sorted()
-                        .collect(Collectors.toList()))
-                .sorted((List<Integer> clique1, List<Integer> clique2) ->
-                        IntStream.range(0, Math.min(clique1.size(), clique2.size()))
-                                .map((int i) -> clique1.get(i) - clique2.get(i))
-                                .filter((int diff) -> diff != 0)
-                                .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException(String.format(
-                                        "got overlapping or equal cliques %s <> %s", clique1, clique2
-                                ))))
-                .collect(Collectors.toList());
+    public static int random_choice(Random rng, ArrayList<Integer> list) {
+        var i = rng.nextInt(list.size());
+        return list.get(i);
+    }
+
+    public static int random_sample(Random rng, HashSet<Integer> set) {
+        var i = rng.nextInt(set.size());
+        return set.stream().skip(i).findFirst().orElseThrow();
+    }
+
+    public static void remove_from(ArrayList<Integer> list, int v) {
+        var i = list.indexOf(v);
+        var last = list.size() - 1;
+        list.set(i, list.get(last));
+        list.remove(last);
     }
 }

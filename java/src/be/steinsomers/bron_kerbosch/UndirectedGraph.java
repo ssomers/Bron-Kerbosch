@@ -1,12 +1,14 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.List;
-import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class UndirectedGraph {
-    private List<HashSet<Integer>> itsAdjacencies;
+    private List<Set<Integer>> itsAdjacencies;
 
-    public UndirectedGraph(List<HashSet<Integer>> adjacencies) {
+    public UndirectedGraph(List<Set<Integer>> adjacencies) {
         for (int v = 0; v < adjacencies.size(); ++v) {
             for (int w : adjacencies.get(v)) {
                 assert v != w;
@@ -21,14 +23,12 @@ public final class UndirectedGraph {
     }
 
     public int size() {
-        var total = 0;
-        for (var v = 0; v < order(); ++v)
-            total += degree(v);
+        var total = IntStream.range(0, order()).map(this::degree).sum();
         assert total % 2 == 0;
         return total / 2;
     }
 
-    public HashSet<Integer> neighbours(int node) {
+    public Set<Integer> neighbours(int node) {
         return itsAdjacencies.get(node);
     }
 
@@ -36,11 +36,7 @@ public final class UndirectedGraph {
         return itsAdjacencies.get(node).size();
     }
 
-    public HashSet<Integer> connectedVertices() {
-        var result = new HashSet<Integer>();
-        for (var v = 0; v < order(); ++v)
-            if (degree(v) > 0)
-                result.add(v);
-        return result;
+    public Stream<Integer> connectedVertices() {
+        return IntStream.range(0, order()).filter(v -> degree(v) > 0).boxed();
     }
 }

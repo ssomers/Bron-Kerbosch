@@ -4,20 +4,16 @@ package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
     public void explore(UndirectedGraph graph, Reporter reporter) {
-        var candidates = graph.connectedVertices();
-        visit(
-                graph, reporter,
-                candidates,
-                new HashSet<Integer>(),
-                List.of());
+        var candidates = graph.connectedVertices().collect(Collectors.toCollection(HashSet::new));
+        visit(graph, reporter, candidates, new HashSet<>(), List.of());
     }
 
     private void visit(UndirectedGraph graph, Reporter reporter,
-                       Set<Integer> candidates, Set<Integer> excluded, List<Integer> clique) {
+                       HashSet<Integer> candidates, HashSet<Integer> excluded, List<Integer> clique) {
         while (!candidates.isEmpty()) {
             var v = util.PopArbitrary(candidates);
             var neighbours = graph.neighbours(v);
