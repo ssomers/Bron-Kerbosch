@@ -1,10 +1,15 @@
 package be.steinsomers.bron_kerbosch;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public final class util {
-    public static <T> ArrayList<T> Append(List<T> head, T tail) {
+    public static <T> List<T> Append(List<T> head, T tail) {
         ArrayList<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
@@ -18,25 +23,15 @@ public final class util {
         return arbitrary;
     }
 
-    public static HashSet<Integer> Intersect(HashSet<Integer> set1, Set<Integer> set2) {
+    public static Stream<Integer> Intersect(Set<Integer> set1, Set<Integer> set2) {
         if (set1.size() <= set2.size())
-            return set1.stream().filter(set2::contains).collect(Collectors.toCollection(HashSet::new));
+            return set1.stream().filter(set2::contains);
         else
-            return set2.stream().filter(set1::contains).collect(Collectors.toCollection(HashSet::new));
-    }
-
-    public static long intersection_size(Set<Integer> set1, Set<Integer> set2) {
-        if (set1.size() <= set2.size())
-            return set1.stream().filter(set2::contains).count();
-        else
-            return set2.stream().filter(set1::contains).count();
+            return set2.stream().filter(set1::contains);
     }
 
     public static boolean AreDisjoint(Set<Integer> set1, Set<Integer> set2) {
-        if (set1.size() <= set2.size())
-            return set1.stream().filter(set2::contains).findFirst().isEmpty();
-        else
-            return set2.stream().filter(set1::contains).findFirst().isEmpty();
+        return Intersect(set1, set2).findFirst().isEmpty();
     }
 
     public static int random_choice(Random rng, ArrayList<Integer> list) {
@@ -44,15 +39,15 @@ public final class util {
         return list.get(i);
     }
 
-    public static int random_sample(Random rng, HashSet<Integer> set) {
+    public static int random_sample(Random rng, Set<Integer> set) {
         var i = rng.nextInt(set.size());
         return set.stream().skip(i).findFirst().orElseThrow();
     }
 
-    public static void remove_from(ArrayList<Integer> list, int v) {
-        var i = list.indexOf(v);
+    public static void remove_from(ArrayList<Integer> list, int value) {
+        var index = list.indexOf(value);
         var last = list.size() - 1;
-        list.set(i, list.get(last));
+        list.set(index, list.get(last));
         list.remove(last);
     }
 }

@@ -9,7 +9,6 @@ class RandomGraphGeneratorTest {
     void random_undirected_graph() {
         var rng = new Random(19680516);
         var gen = new RandomGraphGenerator(rng);
-        gen.new_undirected(2, 0);
         gen.new_undirected(3, 0);
         gen.new_undirected(3, 1);
         gen.new_undirected(3, 2);

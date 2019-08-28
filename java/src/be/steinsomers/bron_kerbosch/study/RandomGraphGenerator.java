@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 class RandomGraphGenerator {
-    private static ArrayList<HashSet<Integer>> new_adjacencies(int n) {
-        ArrayList<HashSet<Integer>> adjacencies = new ArrayList<>(n);
-        IntStream.range(0, n).forEach(i -> adjacencies.add(new HashSet<>()));
-        return adjacencies;
+    private static ArrayList<HashSet<Integer>> new_sets(int n) {
+        ArrayList<HashSet<Integer>> result = new ArrayList<>(n);
+        IntStream.range(0, n).forEach(i -> result.add(new HashSet<>()));
+        return result;
     }
 
     private final Random rng;
@@ -26,7 +26,7 @@ class RandomGraphGenerator {
     private int pick_new_neighbour(int v) {
         var ac = adjacency_complements.get(v);
         if (ac.isEmpty()) {
-            // not yet using adjacency complement
+            // not yet using adjacency complement for this vertex
             var neighbours = adjacency_sets.get(v);
             int w = v;
             while (w == v || neighbours.contains(w)) {
@@ -68,17 +68,18 @@ class RandomGraphGenerator {
     private ArrayList<HashSet<Integer>> adjacency_complements;
 
     UndirectedGraph new_undirected(int order, int size) {
-        assert order >= 2;
+        assert order > 2;
         assert size >= 0;
         var fully_meshed_size = ((long) order) * ((long) order - 1) / 2;
         if (size > fully_meshed_size) {
             throw new IllegalArgumentException(String.format("%d nodes accommodate at most %d edges",
                     order, fully_meshed_size));
         }
+
         unsaturated_vertices = new ArrayList<>(order);
         IntStream.range(0, order).forEach(v -> unsaturated_vertices.add(v));
-        adjacency_sets = new_adjacencies(order);
-        adjacency_complements = new_adjacencies(order);
+        adjacency_sets = new_sets(order);
+        adjacency_complements = new_sets(order);
         for (int i = 0; i < size; ++i) {
             assert unsaturated_vertices.stream()
                     .allMatch(v -> adjacency_sets.get(v).size() < order - 1);

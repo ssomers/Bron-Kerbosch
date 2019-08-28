@@ -19,10 +19,16 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
             var v = util.PopArbitrary(candidates);
             var neighbours = graph.neighbours(v);
             assert !neighbours.isEmpty();
-            var neighbouring_candidates = util.Intersect(candidates, neighbours);
+            var neighbouring_candidates = util.Intersect(candidates, neighbours)
+                    .collect(Collectors.toCollection(HashSet::new));
             if (!neighbouring_candidates.isEmpty()) {
-                var neighbouring_excluded = util.Intersect(excluded, neighbours);
-                visit(graph, reporter, neighbouring_candidates, neighbouring_excluded, util.Append(clique, v));
+                var neighbouring_excluded = util.Intersect(excluded, neighbours)
+                        .collect(Collectors.toCollection(HashSet::new));
+                visit(
+                        graph, reporter,
+                        neighbouring_candidates,
+                        neighbouring_excluded,
+                        util.Append(clique, v));
             } else {
                 if (util.AreDisjoint(excluded, neighbours))
                     reporter.record(util.Append(clique, v));
