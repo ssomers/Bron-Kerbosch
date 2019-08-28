@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
+    @Override
     public void explore(UndirectedGraph graph, Reporter reporter) {
         var candidates = graph.connectedVertices().collect(Collectors.toCollection(HashSet::new));
         visit(graph, reporter, candidates, new HashSet<>(), List.of());

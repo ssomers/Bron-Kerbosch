@@ -118,7 +118,8 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
                         }
                     } else {
                         var neighbouring_excluded = util.Intersect(mut_excluded, neighbours);
-                        visit(graph, reporter,
+                        visit(
+                                graph, reporter,
                                 itsFurtherPivotChoice,
                                 neighbouring_candidates,
                                 neighbouring_excluded,

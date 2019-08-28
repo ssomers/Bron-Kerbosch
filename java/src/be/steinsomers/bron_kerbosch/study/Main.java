@@ -55,7 +55,7 @@ class Main {
         times[0].mean();
 
         for (int sample = 1; sample <= samples; ++sample) {
-            for (int func_index = 0; func_index < func_indices.length; ++func_index) {
+            for (int func_index : func_indices) {
                 var reporter = new SimpleReporter();
                 var start = System.currentTimeMillis();
                 FUNCS[func_index].explore(graph, reporter);
@@ -84,7 +84,8 @@ class Main {
         var path = Paths.get("..").resolve(name + ".csv");
         try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.US_ASCII)) {
             fo.write("Size");
-            for (var fn : FUNC_NAMES) {
+            for (var func_index : func_indices) {
+                String fn = FUNC_NAMES[func_index];
                 fo.write(String.format(",%s min,%s mean,%s max", fn, fn, fn));
             }
             fo.write('\n');
@@ -92,7 +93,7 @@ class Main {
             for (var size : sizes) {
                 var start = System.currentTimeMillis();
                 var rng = new Random(19680516L);
-                var graph = new RandomGraphGenerator().new_undirected(rng, order, size);
+                var graph = new RandomGraphGenerator(rng).new_undirected(order, size);
                 var elapsed = System.currentTimeMillis() - start;
                 System.out.printf("order %7s size %7d creation: %5.2f\n", order_str, size, elapsed / 1e3);
                 var times = bron_kerbosch_timed(graph, samples, func_indices);
@@ -119,7 +120,7 @@ class Main {
         assert false : "Omit -ea for meaningful measurements";
 
         int[] all_func_indices = IntStream.range(0, FUNCS.length).toArray();
-        int[] most_func_indices = IntStream.range(1, FUNCS.length - 1).toArray();
+        int[] most_func_indices = IntStream.range(1, FUNCS.length).toArray();
         int[] sizes_warm = {2000};
         int[] sizes_100 = IntStream.rangeClosed(2_000, 3_000).filter(i -> i % 50 == 0).toArray();
         int[] sizes_10k = IntStream.rangeClosed(100_000, 800_000).filter(i -> i % 100_000 == 0).toArray();
