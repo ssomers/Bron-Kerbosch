@@ -130,7 +130,7 @@ class Main {
         int[] sizes_warm = {2000};
         int[] sizes_100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
         int[] sizes_10k = IntStream.iterate(100_000, s -> s <= 800_000, s -> s + 100_000).toArray();
-        int[] sizes_1M = IntStream.iterate(200_000, s -> s <= 3_000_000, s -> s + (s < 1_000_000 ? 200_000 : 1_000_000)).toArray();
+        int[] sizes_1M = IntStream.iterate(200_000, s -> s <= 5_000_000, s -> s + (s < 1_000_000 ? 200_000 : 1_000_000)).toArray();
         bk("warm-up", 100, sizes_warm, 3, all_func_indices);
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes_100, 5, all_func_indices);
