@@ -20,6 +20,9 @@ class Main {
             "Ver2+G",
             "Ver2+GP",
             "Ver2+GPX",
+            "Ver3+",
+            "Ver3+GP",
+            "Ver3+GPX",
     };
     final static BronKerboschAlgorithm[] FUNCS = {
             new BronKerbosch1(),
@@ -27,6 +30,9 @@ class Main {
             new BronKerbosch2_g(),
             new BronKerbosch2_gp(),
             new BronKerbosch2_gpx(),
+            new BronKerbosch3(),
+            new BronKerbosch3_gp(),
+            new BronKerbosch3_gpx(),
     };
 
     public static List<List<Integer>> OrderCliques(List<List<Integer>> cliques) {
@@ -122,9 +128,9 @@ class Main {
         int[] all_func_indices = IntStream.range(0, FUNCS.length).toArray();
         int[] most_func_indices = IntStream.range(1, FUNCS.length).toArray();
         int[] sizes_warm = {2000};
-        int[] sizes_100 = IntStream.rangeClosed(2_000, 3_000).filter(i -> i % 50 == 0).toArray();
-        int[] sizes_10k = IntStream.rangeClosed(100_000, 800_000).filter(i -> i % 100_000 == 0).toArray();
-        int[] sizes_1M = IntStream.rangeClosed(200_000, 3_000_000).filter(i -> i < 1_000_000 ? i % 200_000 == 0 : i % 1_000_000 == 0).toArray();
+        int[] sizes_100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
+        int[] sizes_10k = IntStream.iterate(100_000, s -> s <= 800_000, s -> s + 100_000).toArray();
+        int[] sizes_1M = IntStream.iterate(200_000, s -> s <= 3_000_000, s -> s + (s < 1_000_000 ? 200_000 : 1_000_000)).toArray();
         bk("warm-up", 100, sizes_warm, 3, all_func_indices);
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes_100, 5, all_func_indices);

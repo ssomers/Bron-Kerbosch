@@ -76,8 +76,8 @@ class RandomGraphGenerator {
                     order, fully_meshed_size));
         }
 
-        unsaturated_vertices = new ArrayList<>(order);
-        IntStream.range(0, order).forEach(v -> unsaturated_vertices.add(v));
+        unsaturated_vertices = IntStream.range(0, order).boxed()
+                .collect(Collectors.toCollection(ArrayList::new));
         adjacency_sets = new_sets(order);
         adjacency_complements = new_sets(order);
         for (int i = 0; i < size; ++i) {

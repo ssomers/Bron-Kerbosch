@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 public final class util {
     public static <T> List<T> Append(List<T> head, T tail) {
-        ArrayList<T> result = new ArrayList<>(head.size() + 1);
+        List<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
         return result;
@@ -21,6 +21,10 @@ public final class util {
         T arbitrary = it.next();
         it.remove();
         return arbitrary;
+    }
+
+    public static Stream<Integer> Difference(Set<Integer> set1, Set<Integer> set2) {
+        return set1.stream().filter(v -> !set2.contains(v));
     }
 
     public static Stream<Integer> Intersect(Set<Integer> set1, Set<Integer> set2) {
@@ -34,7 +38,7 @@ public final class util {
         return Intersect(set1, set2).findFirst().isEmpty();
     }
 
-    public static int random_choice(Random rng, ArrayList<Integer> list) {
+    public static int random_choice(Random rng, List<Integer> list) {
         var i = rng.nextInt(list.size());
         return list.get(i);
     }

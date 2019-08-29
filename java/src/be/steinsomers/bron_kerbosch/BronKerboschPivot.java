@@ -11,7 +11,7 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
     }
 
     private final PivotChoice itsInitialPivotChoice;
-    private final PivotChoice itsFurtherPivotChoice;
+    final PivotChoice itsFurtherPivotChoice;
 
     BronKerboschPivot(PivotChoice initial_pivot_choice,
                       PivotChoice further_pivot_choice) {
@@ -32,7 +32,7 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
         }
     }
 
-    private void visit(
+    void visit(
             UndirectedGraph graph,
             Reporter reporter,
             PivotChoice initial_pivot_choice,
