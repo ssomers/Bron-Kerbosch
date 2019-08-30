@@ -34,7 +34,7 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
           v :: clique_in_progress
         ) ::: cliques
       } else {
-        if (util.is_disjoint(neighbours, excluded)) {
+        if (util.are_disjoint(neighbours, excluded)) {
           cliques = (v :: clique_in_progress) :: cliques
         }
       }

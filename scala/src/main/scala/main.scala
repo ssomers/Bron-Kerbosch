@@ -58,7 +58,7 @@ object main {
       val func = FUNCS(func_index)
       val start = System.currentTimeMillis()
       val cliques = func.explore(graph)
-      val elapsed = System.currentTimeMillis() - start
+      val elapsed = (System.currentTimeMillis() - start) / 1e3;
       times(func_index).put(elapsed)
 
       if (samples > 1 && sample <= 2) {
@@ -82,26 +82,30 @@ object main {
 
     val fo = new java.io.PrintWriter(new java.io.File(path))
     fo.print("Size")
-    for (name <- FUNC_NAMES) {
+    for (func_index <- func_indices) {
+      val name = FUNC_NAMES(func_index)
       fo.print(f",$name min,$name mean,$name max")
     }
     fo.println()
 
     for (size <- sizes) {
       val rng = new Random(19680516L)
+      val start = System.currentTimeMillis()
       val graph = RandomGraphGenerator.new_undirected(rng, order, size)
+      val elapsed = (System.currentTimeMillis() - start) / 1e3
+      println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%5.2f")
       val times = bron_kerbosch_timed(graph, samples, func_indices)
 
       fo.print(f"$size")
       for (func_index <- func_indices) {
         val func_name = FUNC_NAMES(func_index)
-        val max = times(func_index).max / 1e3
-        val min = times(func_index).min / 1e3
-        val mean = times(func_index).mean / 1e3
-        val dev = times(func_index).deviation / 1e3
+        val max = times(func_index).max
+        val min = times(func_index).min
+        val mean = times(func_index).mean()
+        val dev = times(func_index).deviation()
         fo.print(f",$min,$mean,$max")
         println(
-          f"order $order_str%7s size $size%7d $func_name%8s: $mean%5.2f ±$dev%5.2f"
+          f"$order_str%7s nodes, $size%7d edges, $func_name%8s: $mean%5.2f ±$dev%5.2f"
         )
       }
       fo.println()
@@ -116,21 +120,23 @@ object main {
     }
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     //noinspection NameBooleanParameters
     assert(false, "Specify -Xdisable-assertions for meaningful measurements")
 
+    val all_func_indices = FUNCS.indices.toArray
+    val most_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
     val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
     val sizes_10k = Array(i"100k" to i"800k" by i"100k": _*)
     val sizes_1M = Array(
       (i"200k" until i"1M" by i"200k")
-        ++ (i"1M" to i"3M" by i"1M"): _*
+        ++ (i"1M" to i"5M" by i"1M"): _*
     )
     bk("warm-up", 100, Array(2000), 3, FUNCS.indices.toArray)
     Thread.sleep(3210) // give IntelliJ launcher some time to cool down
     //bk("999999", i"999999", Array(i"333k"), 3, Array(6, 8))
-    bk("100", i"100", sizes_100, 5, FUNCS.indices.toArray)
-    bk("10k", i"10k", sizes_10k, 3, FUNCS.indices.toArray)
-    bk("1M", i"1M", sizes_1M, 3, FUNCS.indices.toArray)
+    bk("100", i"100", sizes_100, 5, all_func_indices)
+    bk("10k", i"10k", sizes_10k, 3, most_func_indices)
+    bk("1M", i"1M", sizes_1M, 3, most_func_indices)
   }
 }

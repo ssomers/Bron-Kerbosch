@@ -15,7 +15,7 @@ object util {
       vset2.count(v => vset1.contains(v))
   }
 
-  def is_disjoint(vset1: Set[Vertex], vset2: Set[Vertex]): Boolean = {
+  def are_disjoint(vset1: Set[Vertex], vset2: Set[Vertex]): Boolean = {
     if (vset1.size <= vset2.size)
       vset1.forall(v => !vset2.contains(v))
     else

@@ -129,8 +129,8 @@ and finally
     python python3\publish.py java 100 10k 1M
 
 ### Run Scala
-  - open scala\bron-kerbosch.iml with IntelliJ IDEA 2019.1.1 (Community Edition)
-  - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select bron-kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
+  - open scala\build.sbt with IntelliJ IDEA 2019.2.1 (Community Edition)
+  - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
   - Build > Rebuild
   - set run configuration to main
   - Run > Run 'main'

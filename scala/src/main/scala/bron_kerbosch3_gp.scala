@@ -1,13 +1,13 @@
 // Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
-// choosing a pivot arbitrarily
+// choosing a pivot from candidates only (IK_GP)
 
 import base.Vertex
-import bron_kerbosch_pivot.PivotChoice.Arbitrary
+import bron_kerbosch_pivot.PivotChoice.MaxDegreeLocal
 import bron_kerbosch_pivot.visit
 
 import scala.collection.immutable
 
-object bron_kerbosch3 extends bron_kerbosch_algorithm {
+object bron_kerbosch3_gp extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph): Cliques = {
     var cliques = immutable.List[Clique]()
     var excluded = Set.empty[Vertex]
@@ -19,14 +19,14 @@ object bron_kerbosch3 extends bron_kerbosch_algorithm {
         val neighbouring_excluded = util.intersect(neighbours, excluded)
         cliques = visit(
           graph,
-          Arbitrary,
-          Arbitrary,
+          MaxDegreeLocal,
+          MaxDegreeLocal,
           neighbouring_candidates,
           neighbouring_excluded,
           immutable.List(v)
         ) ::: cliques
       } else {
-        assert(!util.is_disjoint(neighbours, excluded))
+        assert(!util.are_disjoint(neighbours, excluded))
       }
       excluded += v
     }

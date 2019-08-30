@@ -101,7 +101,7 @@ class Main {
                 var rng = new Random(19680516L);
                 var graph = new RandomGraphGenerator(rng).new_undirected(order, size);
                 var elapsed = System.currentTimeMillis() - start;
-                System.out.printf("order %7s size %7d creation: %5.2f\n", order_str, size, elapsed / 1e3);
+                System.out.printf("%7s nodes, %7d edges, creation: %5.2f\n", order_str, size, elapsed / 1e3);
                 var times = bron_kerbosch_timed(graph, samples, func_indices);
 
                 fo.write(String.format("%d", size));
@@ -112,7 +112,7 @@ class Main {
                     double mean = times[func_index].mean() / 1e3;
                     double dev = times[func_index].deviation() / 1e3;
                     fo.write(String.format(",%f,%f,%f", min, mean, max));
-                    System.out.printf("order %7s size %7d %8s: %5.2f ±%5.2f\n",
+                    System.out.printf("%7s nodes, %7d edges, %8s: %5.2f ±%5.2f\n",
                             order_str, size, func_name, mean, dev);
                 }
                 fo.write('\n');
@@ -134,7 +134,7 @@ class Main {
         bk("warm-up", 100, sizes_warm, 3, all_func_indices);
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes_100, 5, all_func_indices);
-        bk("10k", 10_000, sizes_10k, 3, all_func_indices);
+        bk("10k", 10_000, sizes_10k, 3, most_func_indices);
         bk("1M", 1_000_000, sizes_1M, 3, most_func_indices);
     }
 }

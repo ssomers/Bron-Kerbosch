@@ -1,4 +1,5 @@
 /.idea
+Project.xml
 .mypy_cache
 __pycache__
 target
@@ -17,8 +18,7 @@ target
 /rust/*.vspx
 /rust/measure/measure.vcxproj.filters
 /rust/measure/x64
-/scala/lib
-/scala/out
+/scala/target
 /scala/bron-kerbosch.iml
 /scala/.idea/.name
 /scala/.idea/codeStyles/codeStyleConfig.xml

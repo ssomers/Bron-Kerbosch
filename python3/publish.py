@@ -81,8 +81,9 @@ def publish_csv(language: str, orderstr: str):
         assert all(color(case_names[f])
                    for f in range(num_cases)), f"Unknown in {case_names}"
         for i, row in enumerate(reader):
-            if len(row) != 1 + num_cases * 3:
-                raise ImportError(f"Row {i+2}: Found {len(row)} columns")
+            expected_cols = 1 + num_cases * 3
+            if len(row) != expected_cols:
+                raise ImportError(f"Row {i+2}: Found {len(row)} columns, expected {expected_cols}")
             size = int(row[0])
             sizes.append(size)
             min_per_size.append([float(cell) for cell in row[1::3]])

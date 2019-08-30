@@ -12,6 +12,10 @@ import scala.concurrent.{Await, Future}
 
 object bron_kerbosch3_mt extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph): Cliques = {
+    Await.result(go_explore(graph), Duration.Inf)
+  }
+
+  def go_explore(graph: UndirectedGraph): Future[Cliques] = {
     var excluded = Set.empty[Vertex]
     var futures = List[Future[immutable.List[immutable.List[Vertex]]]]()
     for (v <- degeneracy_ordering(graph, -1)) {
@@ -32,13 +36,13 @@ object bron_kerbosch3_mt extends bron_kerbosch_algorithm {
         }
         futures = f :: futures
       } else {
-        assert(!util.is_disjoint(neighbours, excluded))
+        assert(!util.are_disjoint(neighbours, excluded))
       }
       excluded += v
     }
-    var cliques = immutable.List[immutable.List[Vertex]]()
-    for (f <- futures)
-      cliques = Await.result(f, Duration.Inf) ::: cliques
-    cliques
+    Future.foldLeft(futures)(immutable.List.empty[immutable.List[Vertex]]) {
+      (collected, more) =>
+        more ::: collected
+    }
   }
 }

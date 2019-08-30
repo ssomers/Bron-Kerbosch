@@ -1,11 +1,11 @@
 class SampleStatistics {
-  var max: Long = 0
-  var min: Long = 0
+  var max: Double = 0
+  var min: Double = 0
   var samples: Int = 0
   var sum: Double = 0
   var sum_of_squares: Double = 0
 
-  def put(v: Long): Unit = {
+  def put(v: Double): Unit = {
     if (samples == 0) {
       min = v
       max = v

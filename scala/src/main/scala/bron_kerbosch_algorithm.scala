@@ -1,4 +1,5 @@
 import base.Vertex
+
 import scala.collection.immutable
 
 trait bron_kerbosch_algorithm {

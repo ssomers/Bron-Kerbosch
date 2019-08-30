@@ -26,7 +26,7 @@ object bron_kerbosch3_gpx extends bron_kerbosch_algorithm {
           immutable.List(v)
         ) ::: cliques
       } else {
-        assert(!util.is_disjoint(neighbours, excluded))
+        assert(!util.are_disjoint(neighbours, excluded))
       }
       excluded += v
     }
