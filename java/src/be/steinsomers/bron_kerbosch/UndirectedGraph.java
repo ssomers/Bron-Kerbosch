@@ -1,5 +1,6 @@
 package be.steinsomers.bron_kerbosch;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -28,12 +29,12 @@ public final class UndirectedGraph {
         return total / 2;
     }
 
-    public Set<Integer> neighbours(int node) {
-        return itsAdjacencies.get(node);
-    }
-
     public int degree(int node) {
         return itsAdjacencies.get(node).size();
+    }
+
+    public Set<Integer> neighbours(int node) {
+        return Collections.unmodifiableSet(itsAdjacencies.get(node));
     }
 
     public Stream<Integer> connectedVertices() {

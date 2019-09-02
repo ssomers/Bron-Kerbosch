@@ -3,6 +3,7 @@ package be.steinsomers.bron_kerbosch;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BronKerboschPivot implements BronKerboschAlgorithm {
@@ -21,14 +22,14 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
 
     @Override
     public void explore(UndirectedGraph graph, Reporter reporter) {
-        var candidates = graph.connectedVertices().collect(Collectors.toCollection(HashSet::new));
+        Set<Integer> candidates = graph.connectedVertices().collect(Collectors.toCollection(HashSet::new));
         if (!candidates.isEmpty()) {
+            Set<Integer> excluded = new HashSet<>();
             visit(
                     graph, reporter,
                     itsInitialPivotChoice,
-                    candidates,
-                    new HashSet<>(),
-                    new ArrayList<>(candidates.size()));
+                    candidates, excluded,
+                    List.of());
         }
     }
 
@@ -36,20 +37,20 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
             UndirectedGraph graph,
             Reporter reporter,
             PivotChoice initial_pivot_choice,
-            HashSet<Integer> candidates,
-            HashSet<Integer> excluded,
+            Set<Integer> mut_candidates,
+            Set<Integer> mut_excluded,
             List<Integer> clique_in_progress
     ) {
-        assert candidates.size() > 0;
-        assert candidates.stream().allMatch(v -> graph.degree(v) > 0);
-        assert excluded.stream().allMatch(v -> graph.degree(v) > 0);
-        assert util.AreDisjoint(candidates, excluded);
+        assert mut_candidates.size() > 0;
+        assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
+        assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);
+        assert util.AreDisjoint(mut_candidates, mut_excluded);
 
-        if (candidates.size() == 1) {
+        if (mut_candidates.size() == 1) {
             // Same logic as below, stripped down for this common case
-            var v = candidates.iterator().next();
+            var v = mut_candidates.iterator().next();
             var neighbours = graph.neighbours(v);
-            if (util.AreDisjoint(neighbours, excluded)) {
+            if (util.AreDisjoint(neighbours, mut_excluded)) {
                 reporter.record(util.Append(clique_in_progress, v));
             }
         } else {
@@ -57,26 +58,26 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
             int pivot = -1;
             switch (initial_pivot_choice) {
                 case Arbitrary:
-                    remaining_candidates = new ArrayList<>(candidates);
-                    pivot = candidates.iterator().next();
+                    remaining_candidates = new ArrayList<>(mut_candidates);
+                    pivot = mut_candidates.iterator().next();
                     break;
                 case MaxDegree:
-                    remaining_candidates = new ArrayList<>(candidates);
-                    pivot = candidates.stream()
+                    remaining_candidates = new ArrayList<>(mut_candidates);
+                    pivot = mut_candidates.stream()
                             .max((v, w) -> graph.degree(v) > graph.degree(w) ? v : w)
                             .orElseThrow();
                     break;
                 case MaxDegreeLocal:
                 case MaxDegreeLocalX: {
                     // Quickly handle locally unconnected candidates while finding pivot
-                    remaining_candidates = new ArrayList<>(candidates.size());
+                    remaining_candidates = new ArrayList<>(mut_candidates.size());
                     long seen_local_degree = 0;
-                    for (var v : candidates) {
+                    for (var v : mut_candidates) {
                         var neighbours = graph.neighbours(v);
-                        long local_degree = util.Intersect(neighbours, candidates).count();
+                        long local_degree = util.Intersect(neighbours, mut_candidates).count();
                         if (local_degree == 0) {
                             // Same logic as below, stripped down
-                            if (util.AreDisjoint(neighbours, excluded)) {
+                            if (util.AreDisjoint(neighbours, mut_excluded)) {
                                 reporter.record(util.Append(clique_in_progress, v));
                             }
                         } else {
@@ -91,9 +92,9 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
                         return;
                     }
                     if (initial_pivot_choice == PivotChoice.MaxDegreeLocalX) {
-                        for (var v : excluded) {
+                        for (var v : mut_excluded) {
                             var neighbours = graph.neighbours(v);
-                            var local_degree = util.Intersect(neighbours, candidates).count();
+                            var local_degree = util.Intersect(neighbours, mut_candidates).count();
                             if (seen_local_degree < local_degree) {
                                 seen_local_degree = local_degree;
                                 pivot = v;
@@ -109,15 +110,15 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
             for (int v : remaining_candidates) {
                 var neighbours = graph.neighbours(v);
                 if (!neighbours.contains(pivot)) {
-                    candidates.remove(v);
-                    var neighbouring_candidates = util.Intersect(candidates, neighbours)
+                    mut_candidates.remove(v);
+                    var neighbouring_candidates = util.Intersect(mut_candidates, neighbours)
                             .collect(Collectors.toCollection(HashSet::new));
                     if (neighbouring_candidates.isEmpty()) {
-                        if (util.AreDisjoint(neighbours, excluded)) {
+                        if (util.AreDisjoint(neighbours, mut_excluded)) {
                             reporter.record(util.Append(clique_in_progress, v));
                         }
                     } else {
-                        var neighbouring_excluded = util.Intersect(excluded, neighbours)
+                        var neighbouring_excluded = util.Intersect(mut_excluded, neighbours)
                                 .collect(Collectors.toCollection(HashSet::new));
                         visit(
                                 graph, reporter,
@@ -127,7 +128,7 @@ public class BronKerboschPivot implements BronKerboschAlgorithm {
                                 util.Append(clique_in_progress, v)
                         );
                     }
-                    excluded.add(v);
+                    mut_excluded.add(v);
                 }
             }
         }

@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 class RandomGraphGenerator {
-    private static ArrayList<HashSet<Integer>> new_sets(int n) {
-        ArrayList<HashSet<Integer>> result = new ArrayList<>(n);
+    private static ArrayList<Set<Integer>> new_sets(int n) {
+        ArrayList<Set<Integer>> result = new ArrayList<>(n);
         IntStream.range(0, n).forEach(i -> result.add(new HashSet<>()));
         return result;
     }
@@ -64,8 +64,8 @@ class RandomGraphGenerator {
     }
 
     private ArrayList<Integer> unsaturated_vertices;
-    private ArrayList<HashSet<Integer>> adjacency_sets;
-    private ArrayList<HashSet<Integer>> adjacency_complements;
+    private ArrayList<Set<Integer>> adjacency_sets;
+    private ArrayList<Set<Integer>> adjacency_complements;
 
     UndirectedGraph new_undirected(int order, int size) {
         assert order > 2;

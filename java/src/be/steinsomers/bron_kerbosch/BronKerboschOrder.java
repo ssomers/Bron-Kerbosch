@@ -4,6 +4,7 @@ package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BronKerboschOrder extends BronKerboschPivot {
@@ -13,14 +14,14 @@ public class BronKerboschOrder extends BronKerboschPivot {
 
     @Override
     public void explore(UndirectedGraph graph, Reporter reporter) {
-        HashSet<Integer> excluded = new HashSet<>();
+        Set<Integer> mut_excluded = new HashSet<>();
         Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
         for (var v : vertices) {
             var neighbours = graph.neighbours(v);
             assert !neighbours.isEmpty();
-            var neighbouring_candidates = util.Difference(neighbours, excluded).collect(Collectors.toCollection(HashSet::new));
+            var neighbouring_candidates = util.Difference(neighbours, mut_excluded).collect(Collectors.toCollection(HashSet::new));
             if (!neighbouring_candidates.isEmpty()) {
-                var neighbouring_excluded = util.Intersect(neighbours, excluded).collect(Collectors.toCollection(HashSet::new));
+                var neighbouring_excluded = util.Intersect(neighbours, mut_excluded).collect(Collectors.toCollection(HashSet::new));
                 visit(
                         graph, reporter,
                         itsFurtherPivotChoice,
@@ -29,9 +30,9 @@ public class BronKerboschOrder extends BronKerboschPivot {
                         List.of(v)
                 );
             } else {
-                assert !util.AreDisjoint(neighbours, excluded);
+                assert !util.AreDisjoint(neighbours, mut_excluded);
             }
-            excluded.add(v);
+            mut_excluded.add(v);
         }
     }
 }
