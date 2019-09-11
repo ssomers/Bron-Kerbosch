@@ -2,8 +2,13 @@ package be.steinsomers.bron_kerbosch;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.OptionalInt;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 final class DegeneracyOrdering implements Iterator<Integer> {
     private final UndirectedGraph graph;
@@ -18,26 +23,26 @@ final class DegeneracyOrdering implements Iterator<Integer> {
         assert drop <= 0;
         this.graph = graph;
         var order = graph.order();
-        var max_priority = 0;
+        var maxPriority = 0;
         priority_per_vertex = new int[order];
-        var num_candidates = 0;
-        for (int c = 0; c < order; ++c) {
-            var degree = graph.degree(c);
+        var numCandidates = 0;
+        for (int candidate = 0; candidate < order; ++candidate) {
+            var degree = graph.degree(candidate);
             if (degree > 0) {
                 var priority = degree + 1;
-                max_priority = Math.max(max_priority, priority);
-                priority_per_vertex[c] = priority;
-                num_candidates += 1;
+                maxPriority = Math.max(maxPriority, priority);
+                priority_per_vertex[candidate] = priority;
+                numCandidates += 1;
             }
         }
-        queue = new SimplePriorityQueue(max_priority);
-        for (int c = 0; c < order; ++c) {
-            var priority = priority_per_vertex[c];
+        queue = new SimplePriorityQueue(maxPriority, numCandidates);
+        for (int candidate = 0; candidate < order; ++candidate) {
+            var priority = priority_per_vertex[candidate];
             if (priority != 0) {
-                queue.put(priority, c);
+                queue.put(priority, candidate);
             }
         }
-        num_left_to_pick = num_candidates + drop;
+        num_left_to_pick = numCandidates + drop;
     }
 
     @Override
@@ -47,8 +52,10 @@ final class DegeneracyOrdering implements Iterator<Integer> {
 
     @Override
     public Integer next() {
-        assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> priority_per_vertex[v] == 0 || queue.contains(priority_per_vertex[v], v));
-        var i = queue.pop().orElseThrow();
+        assert IntStream.range(0, priority_per_vertex.length)
+                .allMatch(v -> priority_per_vertex[v] == 0
+                        || queue.contains(priority_per_vertex[v], v));
+        var i = queue.pop().orElseThrow(() -> new NoSuchElementException("gotcha"));
         while (priority_per_vertex[i] == 0) {
             // v was requeued with a more urgent priority and therefore already picked
             i = queue.pop().orElseThrow();
@@ -56,34 +63,38 @@ final class DegeneracyOrdering implements Iterator<Integer> {
 
         priority_per_vertex[i] = 0;
         for (var v : graph.neighbours(i)) {
-            var old_priority = priority_per_vertex[v];
-            if (old_priority != 0) {
+            var oldPriority = priority_per_vertex[v];
+            if (oldPriority != 0) {
                 // Since this is an unvisited neighbour of a vertex just being picked,
                 // its priority can't be down to the minimum.
-                var new_priority = old_priority - 1;
-                assert new_priority > 0;
+                var newPriority = oldPriority - 1;
+                assert newPriority > 0;
                 // Requeue with a more urgent priority, but don't bother to remove
                 // the original entry - it will be skipped if it's reached at all.
-                priority_per_vertex[v] = new_priority;
-                queue.put(new_priority, v);
+                priority_per_vertex[v] = newPriority;
+                queue.put(newPriority, v);
             }
         }
         num_left_to_pick -= 1;
         return i;
     }
 
-    static final class SimplePriorityQueue {
-        private final ArrayList<ArrayList<Integer>> stack_per_priority;
+    private static final class SimplePriorityQueue {
+        private final List<ArrayList<Integer>> stack_per_priority;
+        private final int sizeHint;
 
-        SimplePriorityQueue(int max_priority) {
-            stack_per_priority = new ArrayList<>(max_priority);
-            IntStream.range(0, max_priority).forEach(i -> stack_per_priority.add(new ArrayList<>()));
+        SimplePriorityQueue(int maxPriority, int sizeHint) {
+            stack_per_priority = Stream
+                    .generate((Supplier<ArrayList<Integer>>) ArrayList::new)
+                    .limit(maxPriority)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            this.sizeHint = sizeHint;
         }
 
         void put(int priority, int elt) {
-            var stack = stack_per_priority.get(priority-1);
+            var stack = stack_per_priority.get(priority - 1);
             if (stack == null) {
-                stack = new ArrayList<>();
+                stack = new ArrayList<>(sizeHint);
             }
             stack.add(elt);
         }

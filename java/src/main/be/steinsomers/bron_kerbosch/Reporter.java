@@ -1,7 +1,8 @@
 package be.steinsomers.bron_kerbosch;
 
-import java.util.List;
+import java.util.Collection;
 
+@FunctionalInterface
 interface Reporter {
-    void record(List<Integer> clique);
+    void record(Collection<Integer> clique);
 }

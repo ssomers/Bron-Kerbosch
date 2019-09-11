@@ -5,22 +5,27 @@ import be.steinsomers.bron_kerbosch.UndirectedGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class BronKerboschTest {
-    private void bk(List<List<Integer>> adjacency_list,
-                    List<List<Integer>> expected_cliques) {
-        var adjacencies = adjacency_list.stream().map(Set::copyOf).collect(Collectors.toList());
+final class BronKerboschTest {
+    private static void bk(Collection<List<Integer>> adjacenciesList,
+                           List<List<Integer>> expectedCliques) {
+        var adjacencies = adjacenciesList.stream().map(Set::copyOf).collect(Collectors.toList());
         var graph = new UndirectedGraph(adjacencies);
-        for (int func_index = 0; func_index < Main.FUNCS.length; ++func_index) {
-            var func_name = Main.FUNC_NAMES[func_index];
+        for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
+            var funcName = Main.FUNC_NAMES[funcIndex];
             var reporter = new SimpleReporter();
-            Main.FUNCS[func_index].explore(graph, reporter);
+            try {
+                Main.FUNCS[funcIndex].explore(graph, reporter);
+            } catch (InterruptedException ex) {
+                throw new AssertionError(ex);
+            }
             var cliques = Main.OrderCliques(reporter.cliques);
-            Assertions.assertEquals(cliques, expected_cliques,
-                    String.format("Unexpected result for %s", func_name));
+            Assertions.assertEquals(cliques, expectedCliques,
+                    String.format("Unexpected result for %s", funcName));
         }
     }
 
@@ -45,8 +50,17 @@ class BronKerboschTest {
     }
 
     @Test
-    void order_3_size_1() {
+    void order_3_size_1_left() {
         bk(List.of(List.of(1), List.of(0), List.of()), List.of(List.of(0, 1)));
+    }
+
+    @Test
+    void order_3_size_1_middle() {
+        bk(List.of(List.of(2), List.of(), List.of(0)), List.of(List.of(0, 2)));
+    }
+
+    @Test
+    void order_3_size_1_right() {
         bk(List.of(List.of(), List.of(2), List.of(1)), List.of(List.of(1, 2)));
     }
 
@@ -62,7 +76,10 @@ class BronKerboschTest {
 
     @Test
     void order_4_size_2() {
-        bk(List.of(List.of(1), List.of(0), List.of(3), List.of(2)), List.of(List.of(0, 1), List.of(2, 3)));
+        bk(
+                List.of(List.of(1), List.of(0), List.of(3), List.of(2)),
+                List.of(List.of(0, 1), List.of(2, 3))
+        );
     }
 
     @Test

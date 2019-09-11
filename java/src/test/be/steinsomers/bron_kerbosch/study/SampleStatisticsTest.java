@@ -1,9 +1,9 @@
-package be.steinsomers.bron_kerbosch;
+package be.steinsomers.bron_kerbosch.study;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class SampleStatisticsTest {
+final class SampleStatisticsTest {
     @Test
     void zero() {
         var s = new SampleStatistics();

@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public final class util {
-    public static <T> List<T> Append(List<T> head, T tail) {
+    public static <T> List<T> Append(List<? extends T> head, T tail) {
         List<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
@@ -38,17 +38,17 @@ public final class util {
         return Intersect(set1, set2).findFirst().isEmpty();
     }
 
-    public static int random_choice(Random rng, List<Integer> list) {
+    public static int RandomChoice(Random rng, List<Integer> list) {
         var i = rng.nextInt(list.size());
         return list.get(i);
     }
 
-    public static int random_sample(Random rng, Set<Integer> set) {
+    public static int RandomSample(Random rng, Set<Integer> set) {
         var i = rng.nextInt(set.size());
         return set.stream().skip(i).findFirst().orElseThrow();
     }
 
-    public static void remove_from(ArrayList<Integer> list, int value) {
+    public static void RemoveFrom(ArrayList<Integer> list, int value) {
         var index = list.indexOf(value);
         var last = list.size() - 1;
         list.set(index, list.get(last));

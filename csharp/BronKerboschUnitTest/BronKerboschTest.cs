@@ -51,12 +51,22 @@ namespace BronKerboschUnitTest
         }
 
         [TestMethod]
-        public void TestOrder3_Size1()
+        public void TestOrder3_Size1_Left()
         {
             bk(new Vertex[][] { new Vertex[] { 1 }, new Vertex[] { 0 }, new Vertex[] { } },
                new Vertex[][] { new Vertex[] { 0, 1 } });
+        }
+
+        [TestMethod]
+        public void TestOrder3_Size1_Long()
+        {
             bk(new Vertex[][] { new Vertex[] { 2 }, new Vertex[] { }, new Vertex[] { 0 } },
                new Vertex[][] { new Vertex[] { 0, 2 } });
+        }
+
+        [TestMethod]
+        public void TestOrder3_Size1_Right()
+        {
             bk(new Vertex[][] { new Vertex[] { }, new Vertex[] { 2 }, new Vertex[] { 1 } },
                new Vertex[][] { new Vertex[] { 1, 2 } });
         }

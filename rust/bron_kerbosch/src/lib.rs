@@ -134,9 +134,17 @@ mod tests {
     }
 
     #[test]
-    fn bk_order_3_size_1() {
+    fn bk_order_3_size_1_left() {
         bk(vec![vec![1], vec![0], vec![]], vec![vec![0, 1]]);
+    }
+
+    #[test]
+    fn bk_order_3_size_1_long() {
         bk(vec![vec![2], vec![], vec![0]], vec![vec![0, 2]]);
+    }
+
+    #[test]
+    fn bk_order_3_size_1_right() {
         bk(vec![vec![], vec![2], vec![1]], vec![vec![1, 2]]);
     }
 

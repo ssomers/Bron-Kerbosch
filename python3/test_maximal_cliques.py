@@ -118,9 +118,17 @@ def test_order_2_connected(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_1(func):
+def test_order_3_size_1_left(func):
     assert bkf(func=func, adjacencies=[{1}, {0}, []]) == [[0, 1]]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_3_size_1_long(func):
     assert bkf(func=func, adjacencies=[{2}, [], {0}]) == [[0, 2]]
+
+
+@pytest.mark.parametrize("func", FUNCS)
+def test_order_3_size_1_right(func):
     assert bkf(func=func, adjacencies=[[], {2}, {1}]) == [[1, 2]]
 
 

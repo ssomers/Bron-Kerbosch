@@ -34,8 +34,15 @@ class BronKerboschTest extends org.scalatest.FunSuite {
     bk(Seq(Seq(1), Seq(0)), Seq(Seq(0, 1)))
   }
 
-  test("order_3_size_1") {
+  test("order_3_size_1_left") {
     bk(Seq(Seq(1), Seq(0), Seq()), Seq(Seq(0, 1)))
+  }
+
+  test("order_3_size_1_long") {
+    bk(Seq(Seq(2), Seq(), Seq(0)), Seq(Seq(0, 2)))
+  }
+
+  test("order_3_size_1_right") {
     bk(Seq(Seq(), Seq(2), Seq(1)), Seq(Seq(1, 2)))
   }
 

@@ -1,11 +1,11 @@
-package be.steinsomers.bron_kerbosch;
+package be.steinsomers.bron_kerbosch.study;
 
-public class SampleStatistics {
-    private long max = 0;
-    private long min = 0;
+final class SampleStatistics {
+    private long max = 0L;
+    private long min = 0L;
     private int samples = 0;
-    private double sum = 0;
-    private double sum_of_squares = 0;
+    private double sum = 0.0;
+    private double sum_of_squares = 0.0;
 
     public void put(long v) {
         if (samples == 0) {
@@ -39,7 +39,7 @@ public class SampleStatistics {
 
     public double variance() {
         if (samples > 1) {
-            var n = samples;
+            double n = samples;
             return Math.max(sum_of_squares - sum * sum / n, 0) / (n - 1.0);
         } else {
             return Double.NaN;

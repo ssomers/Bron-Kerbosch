@@ -1,36 +1,40 @@
 package be.steinsomers.bron_kerbosch;
-// Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
-// choosing a pivot arbitrarily
+// Bron-Kerbosch algorithm with degeneracy ordering
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BronKerboschOrder extends BronKerboschPivot {
-    BronKerboschOrder(PivotChoice further_pivot_choice) {
-        super(further_pivot_choice, further_pivot_choice);
+class BronKerboschOrder implements BronKerboschAlgorithm {
+    private final PivotChoice itsPivotChoice;
+
+    BronKerboschOrder(PivotChoice furtherPivotChoice) {
+        itsPivotChoice = furtherPivotChoice;
     }
 
     @Override
-    public void explore(UndirectedGraph graph, Reporter reporter) {
-        Set<Integer> mut_excluded = new HashSet<>();
+    public final void explore(UndirectedGraph graph, Reporter reporter) {
+        Set<Integer> mut_excluded = new HashSet<>(graph.order());
         Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
         for (var v : vertices) {
             var neighbours = graph.neighbours(v);
             assert !neighbours.isEmpty();
-            var neighbouring_candidates = util.Difference(neighbours, mut_excluded).collect(Collectors.toCollection(HashSet::new));
-            if (!neighbouring_candidates.isEmpty()) {
-                var neighbouring_excluded = util.Intersect(neighbours, mut_excluded).collect(Collectors.toCollection(HashSet::new));
-                visit(
+            var neighbouringCandidates = util.Difference(neighbours, mut_excluded)
+                    .collect(Collectors.toCollection(HashSet::new));
+            if (neighbouringCandidates.isEmpty()) {
+                assert !util.AreDisjoint(neighbours, mut_excluded);
+            } else {
+                var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
+                        .collect(Collectors.toCollection(HashSet::new));
+                BronKerboschPivot.visit(
                         graph, reporter,
-                        itsFurtherPivotChoice,
-                        neighbouring_candidates,
-                        neighbouring_excluded,
+                        itsPivotChoice,
+                        itsPivotChoice,
+                        neighbouringCandidates,
+                        neighbouringExcluded,
                         List.of(v)
                 );
-            } else {
-                assert !util.AreDisjoint(neighbours, mut_excluded);
             }
             mut_excluded.add(v);
         }

@@ -7,7 +7,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="JUnit5.4">
         <CLASSES>
@@ -24,5 +23,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="lombok" level="project" />
   </component>
 </module>

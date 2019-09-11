@@ -68,7 +68,7 @@ func TestOrder2_connected(t *testing.T) {
 			[]Vertex{0, 1}})
 }
 
-func TestOrder3_Size1(t *testing.T) {
+func TestOrder3_Size1_left(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -76,6 +76,9 @@ func TestOrder3_Size1(t *testing.T) {
 			[]Vertex{}},
 		[][]Vertex{
 			[]Vertex{0, 1}})
+}
+
+func TestOrder3_Size1_long(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{2},
@@ -83,6 +86,9 @@ func TestOrder3_Size1(t *testing.T) {
 			[]Vertex{0}},
 		[][]Vertex{
 			[]Vertex{0, 2}})
+}
+
+func TestOrder3_Size1_right(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{},

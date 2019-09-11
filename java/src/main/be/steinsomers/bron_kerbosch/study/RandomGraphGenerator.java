@@ -5,16 +5,16 @@ import be.steinsomers.bron_kerbosch.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-class RandomGraphGenerator {
-    private static ArrayList<Set<Integer>> new_sets(int n) {
-        ArrayList<Set<Integer>> result = new ArrayList<>(n);
-        IntStream.range(0, n).forEach(i -> result.add(new HashSet<>()));
-        return result;
+final class RandomGraphGenerator {
+    private static List<Set<Integer>> new_sets(int n) {
+        return Stream.generate(() -> new HashSet<Integer>()).limit(n).collect(Collectors.toList());
     }
 
     private final Random rng;
@@ -23,32 +23,32 @@ class RandomGraphGenerator {
         this.rng = rng;
     }
 
-    private int pick_new_neighbour(int v) {
-        var ac = adjacency_complements.get(v);
+    private int pickNewNeighbour(int v) {
+        var ac = adjacencyComplements.get(v);
         if (ac.isEmpty()) {
             // not yet using adjacency complement for this vertex
-            var neighbours = adjacency_sets.get(v);
+            var neighbours = adjacencySets.get(v);
             int w = v;
             while (w == v || neighbours.contains(w)) {
-                w = util.random_choice(rng, unsaturated_vertices);
+                w = util.RandomChoice(rng, unsaturatedVertices);
             }
             return w;
         } else {
-            return util.random_sample(rng, ac);
+            return util.RandomSample(rng, ac);
         }
     }
 
-    private void add_edge(int v, int w) {
-        final var order = adjacency_sets.size();
+    private void addEdge(int v, int w) {
+        final var order = adjacencySets.size();
         assert order / 2 < order - 1; // for readability and otherwise nothing to randomize anyways
-        var neighbours = adjacency_sets.get(v);
+        var neighbours = adjacencySets.get(v);
         neighbours.add(w);
         if (neighbours.size() >= order / 2) {
-            var ac = adjacency_complements.get(v);
+            var ac = adjacencyComplements.get(v);
             if (neighbours.size() == order / 2) {
                 // start using adjacency complement
                 assert ac.isEmpty();
-                unsaturated_vertices.stream()
+                unsaturatedVertices.stream()
                         .filter(u -> u != v && !neighbours.contains(u))
                         .forEach(ac::add);
             } else if (neighbours.size() < order - 1) {
@@ -57,44 +57,44 @@ class RandomGraphGenerator {
                 assert ok;
             } else {
                 // stop using vertex entirely
-                util.remove_from(unsaturated_vertices, v);
+                util.RemoveFrom(unsaturatedVertices, v);
                 ac.clear(); // clean up, may help or harm performance
             }
         }
     }
 
-    private ArrayList<Integer> unsaturated_vertices;
-    private ArrayList<Set<Integer>> adjacency_sets;
-    private ArrayList<Set<Integer>> adjacency_complements;
+    private ArrayList<Integer> unsaturatedVertices;
+    private List<Set<Integer>> adjacencySets;
+    private List<Set<Integer>> adjacencyComplements;
 
-    UndirectedGraph new_undirected(int order, int size) {
+    UndirectedGraph newUndirected(int order, int size) {
         assert order > 2;
         assert size >= 0;
-        var fully_meshed_size = ((long) order) * ((long) order - 1) / 2;
-        if (size > fully_meshed_size) {
-            throw new IllegalArgumentException(String.format("%d nodes accommodate at most %d edges",
-                    order, fully_meshed_size));
+        var fullyMeshedSize = ((long) order) * (order - 1) / 2;
+        if (size > fullyMeshedSize) {
+            throw new IllegalArgumentException(String.format(
+                    "%d nodes accommodate at most %d edges", order, fullyMeshedSize));
         }
 
-        unsaturated_vertices = IntStream.range(0, order).boxed()
+        unsaturatedVertices = IntStream.range(0, order).boxed()
                 .collect(Collectors.toCollection(ArrayList::new));
-        adjacency_sets = new_sets(order);
-        adjacency_complements = new_sets(order);
+        adjacencySets = new_sets(order);
+        adjacencyComplements = new_sets(order);
         for (int i = 0; i < size; ++i) {
-            assert unsaturated_vertices.stream()
-                    .allMatch(v -> adjacency_sets.get(v).size() < order - 1);
-            int v = util.random_choice(rng, unsaturated_vertices);
-            int w = pick_new_neighbour(v);
+            assert unsaturatedVertices.stream()
+                    .allMatch(v -> adjacencySets.get(v).size() < order - 1);
+            int v = util.RandomChoice(rng, unsaturatedVertices);
+            int w = pickNewNeighbour(v);
             assert v != w;
-            assert !adjacency_sets.get(v).contains(w);
-            assert !adjacency_sets.get(w).contains(v);
-            add_edge(v, w);
-            add_edge(w, v);
+            assert !adjacencySets.get(v).contains(w);
+            assert !adjacencySets.get(w).contains(v);
+            addEdge(v, w);
+            addEdge(w, v);
         }
-        var adjacencies = adjacency_sets.stream().map(Set::copyOf).collect(Collectors.toList());
+        var adjacencies = adjacencySets.stream().map(Set::copyOf).collect(Collectors.toList());
         var g = new UndirectedGraph(adjacencies);
-        if (g.order() != order) throw new RuntimeException("order mishap");
-        if (g.size() != size) throw new RuntimeException("size mishap");
+        if (g.order() != order) throw new AssertionError("order mishap");
+        if (g.size() != size) throw new AssertionError("size mishap");
         return g;
     }
 }

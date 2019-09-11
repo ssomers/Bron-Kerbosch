@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class UndirectedGraph {
-    private List<Set<Integer>> itsAdjacencies;
+    private final List<? extends Set<Integer>> itsAdjacencies;
 
     public UndirectedGraph(List<Set<Integer>> adjacencies) {
         for (int v = 0; v < adjacencies.size(); ++v) {
@@ -16,7 +16,7 @@ public final class UndirectedGraph {
                 assert adjacencies.get(w).contains(v);
             }
         }
-        itsAdjacencies = adjacencies;
+        itsAdjacencies = List.copyOf(adjacencies);
     }
 
     public int order() {

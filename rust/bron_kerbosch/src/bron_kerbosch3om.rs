@@ -21,10 +21,10 @@ impl Reporter for SendingReporter {
     }
 }
 
-struct VisitJob<'a, VertexSet> {
+struct VisitJob<VertexSet> {
+    start: Vertex,
     candidates: VertexSet,
     excluded: VertexSet,
-    clique: Pile<'a, Vertex>,
 }
 
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
@@ -58,9 +58,9 @@ where
                     let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
                     visit_tx
                         .send(VisitJob {
+                            start: v,
                             candidates: neighbouring_candidates,
                             excluded: neighbouring_excluded,
-                            clique: Pile::from(v),
                         })
                         .unwrap();
                 }
@@ -83,7 +83,7 @@ where
                         PivotChoice::MaxDegree,
                         job.candidates,
                         job.excluded,
-                        job.clique,
+                        Pile::from(job.start),
                     );
                 }
             });
