@@ -205,7 +205,7 @@ fn bk_core(
             let mean = stats[func_index].mean();
             let dev = stats[func_index].deviation();
             if !mean.is_nan() {
-                println!("{:8}: {:5.2}s ±{:.0}%", name, mean, 100.0 * dev / mean);
+                println!("{:8}: {:5.2}s ± {:.0}%", name, mean, 100.0 * dev / mean);
             }
         }
         stats
@@ -306,12 +306,16 @@ fn main() -> Result<(), std::io::Error> {
                         (5, _) => false, // Ver2+RP not interesting on random graph
                         (3, SetType::BTreeSet)
                         | (3, SetType::HashSet)
+                        | (3, SetType::Hashbrown)
                         | (4, SetType::BTreeSet)
                         | (4, SetType::HashSet)
+                        | (4, SetType::Hashbrown)
                         | (7, SetType::BTreeSet)
                         | (7, SetType::HashSet)
+                        | (7, SetType::Hashbrown)
                         | (8, SetType::BTreeSet)
-                        | (8, SetType::HashSet) => size <= 500_000,
+                        | (8, SetType::HashSet)
+                        | (8, SetType::Hashbrown) => size <= 500_000,
                         (_, _) => true,
                     })
                     .collect()
@@ -325,8 +329,8 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
                 if match set_type {
-                    SetType::HashSet | SetType::Fnv => size <= 100_000,
-                    _ => true,
+                    SetType::BTreeSet => true,
+                    _ => size <= 100_000,
                 } {
                     vec![1]
                 } else {
