@@ -1,5 +1,6 @@
 package be.steinsomers.bron_kerbosch;
 
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +21,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private BlockingQueue<VisitJob> visitQueue;
     private BlockingQueue<Collection<Integer>> cliqueQueue;
 
+    @Data
     @RequiredArgsConstructor
     private static final class VisitJob {
         private final int startVertex;
