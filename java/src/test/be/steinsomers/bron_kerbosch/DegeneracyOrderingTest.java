@@ -1,45 +1,94 @@
 package be.steinsomers.bron_kerbosch;
 
-import org.junit.jupiter.api.Assertions;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 final class DegeneracyOrderingTest {
-    private static SortedSet<Integer> degeneracy_ordering(UndirectedGraph g, int drop) {
+    private static SortedSet<Integer> degeneracyOrdering(UndirectedGraph g, int drop) {
         SortedSet<Integer> vertices = new TreeSet<>();
         new DegeneracyOrdering(g, drop).forEachRemaining(v -> {
             boolean added = vertices.add(v);
-            Assertions.assertTrue(added);
+            assertTrue(added);
         });
         return vertices;
     }
 
     @Test
-    void degeneracy_ordering_empty() {
-        List<Set<Integer>> adjacencies = List.of();
-        var g = new UndirectedGraph(adjacencies);
-        Assertions.assertTrue(degeneracy_ordering(g, 0).isEmpty());
-        Assertions.assertTrue(degeneracy_ordering(g, -1).isEmpty());
+    void empty() {
+        var g = new UndirectedGraph(List.of());
+        assertTrue(degeneracyOrdering(g, 0).isEmpty());
+        assertTrue(degeneracyOrdering(g, -1).isEmpty());
     }
 
     @Test
-    void degeneracy_ordering_pair_unconnected() {
-        List<Set<Integer>> adjacencies = List.of(Set.of(), Set.of());
-        var g = new UndirectedGraph(adjacencies);
-        Assertions.assertTrue(degeneracy_ordering(g, 0).isEmpty());
-        Assertions.assertTrue(degeneracy_ordering(g, -1).isEmpty());
+    void pair() {
+        var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0)));
+        assertEquals(Set.of(0, 1), degeneracyOrdering(g, 0));
+        assertEquals(1, degeneracyOrdering(g, -1).size());
+        assertEquals(0, degeneracyOrdering(g, -2).size());
     }
 
     @Test
-    void degeneracy_ordering_pair_connected() {
-        List<Set<Integer>> adjacencies = List.of(Set.of(1), Set.of(0));
+    void split() {
+        var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0, 2), Set.of(1)));
+        assertNotEquals(1, new DegeneracyOrdering(g, 0).next());
+        assertEquals(Set.of(0, 1, 2), degeneracyOrdering(g, 0));
+    }
+
+    private List<Set<Integer>> makeSymmetricAdjacencies(List<Set<Integer>> adjac) {
+        final var order = adjac.size();
+        final List<Set<Integer>> adjacencies = Stream
+                .generate(() -> new HashSet<Integer>())
+                .limit(order)
+                .collect(Collectors.toList());
+        for (int v = 0; v < order; ++v) {
+            var neighbours = adjac.get(v);
+            for (int w : neighbours) {
+                if (v != w) {
+                    adjacencies.get(v).add(w);
+                    adjacencies.get(w).add(v);
+                }
+            }
+        }
+        return adjacencies;
+    }
+
+    @Property
+    boolean degeneracyOrderingCoversConnectedVertices(@ForAll("asymmetricAdjacencies") List<Set<Integer>> adjac) {
+        var adjacencies = makeSymmetricAdjacencies(adjac);
         var g = new UndirectedGraph(adjacencies);
-        Assertions.assertEquals(Set.of(0, 1), degeneracy_ordering(g, 0));
-        Assertions.assertEquals(1, degeneracy_ordering(g, -1).size());
-        Assertions.assertEquals(0, degeneracy_ordering(g, -2).size());
+        SortedSet<Integer> connectedVertices = g.connectedVertices().collect(Collectors.toCollection(TreeSet::new));
+        return degeneracyOrdering(g, 0).equals(connectedVertices);
+    }
+
+    @Property
+    boolean degeneracyOrderingDrops1(@ForAll("asymmetricAdjacencies") List<Set<Integer>> adjac) {
+        var adjacencies = makeSymmetricAdjacencies(adjac);
+        var g = new UndirectedGraph(adjacencies);
+        return degeneracyOrdering(g, -1).size() == Math.max(0, g.connectedVertices().count() - 1);
+    }
+
+    private Arbitrary<Set<Integer>> neighbours(int order) {
+        return Arbitraries.integers().between(0, order - 1).set();
+    }
+
+    @Provide
+    Arbitrary<List<Set<Integer>>> asymmetricAdjacencies() {
+        Arbitrary<Integer> orders = Arbitraries.integers().between(1, 99);
+        return orders.flatMap(order -> neighbours(order).list().ofSize(order));
     }
 }

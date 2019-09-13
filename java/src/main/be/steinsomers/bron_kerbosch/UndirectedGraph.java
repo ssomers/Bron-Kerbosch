@@ -24,7 +24,7 @@ public final class UndirectedGraph {
     }
 
     public int size() {
-        var total = IntStream.range(0, order()).map(this::degree).sum();
+        int total = IntStream.range(0, order()).map(this::degree).sum();
         assert total % 2 == 0;
         return total / 2;
     }

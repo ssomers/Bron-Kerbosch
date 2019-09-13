@@ -9,8 +9,15 @@ target
 /csharp/*/obj
 /csharp/*/*.user
 /csharp/packages
+/java/.idea/libraries
+/java/.gradle
+/java/gradle
+/java/gradlew
+/java/gradlew.bat
+/java/lombok.config
+/java/.jqwik-database
+/java/build
 /java/lib
-/java/out
 /python3/.hypothesis
 /python3/activate.bat
 /python3/venv
