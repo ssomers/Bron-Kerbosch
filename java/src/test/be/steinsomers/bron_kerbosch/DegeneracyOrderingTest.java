@@ -49,14 +49,14 @@ final class DegeneracyOrderingTest {
         assertEquals(Set.of(0, 1, 2), degeneracyOrdering(g, 0));
     }
 
-    private List<Set<Integer>> makeSymmetricAdjacencies(List<Set<Integer>> adjac) {
-        final var order = adjac.size();
+    private static List<Set<Integer>> makeSymmetricAdjacencies(List<Set<Integer>> adjacencyLikes) {
+        final var order = adjacencyLikes.size();
         final List<Set<Integer>> adjacencies = Stream
                 .generate(() -> new HashSet<Integer>())
                 .limit(order)
                 .collect(Collectors.toList());
         for (int v = 0; v < order; ++v) {
-            var neighbours = adjac.get(v);
+            var neighbours = adjacencyLikes.get(v);
             for (int w : neighbours) {
                 if (v != w) {
                     adjacencies.get(v).add(w);
@@ -68,27 +68,30 @@ final class DegeneracyOrderingTest {
     }
 
     @Property
-    boolean degeneracyOrderingCoversConnectedVertices(@ForAll("asymmetricAdjacencies") List<Set<Integer>> adjac) {
-        var adjacencies = makeSymmetricAdjacencies(adjac);
+    boolean degeneracyOrderingCoversConnectedVertices(
+            @ForAll("arbitraryAdjacencyLikes") List<Set<Integer>> adjacencyLikes) {
+        var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         var g = new UndirectedGraph(adjacencies);
-        SortedSet<Integer> connectedVertices = g.connectedVertices().collect(Collectors.toCollection(TreeSet::new));
+        SortedSet<Integer> connectedVertices =
+                g.connectedVertices().collect(Collectors.toCollection(TreeSet::new));
         return degeneracyOrdering(g, 0).equals(connectedVertices);
     }
 
     @Property
-    boolean degeneracyOrderingDrops1(@ForAll("asymmetricAdjacencies") List<Set<Integer>> adjac) {
-        var adjacencies = makeSymmetricAdjacencies(adjac);
+    boolean degeneracyOrderingDrops1(
+            @ForAll("arbitraryAdjacencyLikes") List<Set<Integer>> adjacencyLikes) {
+        var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         var g = new UndirectedGraph(adjacencies);
         return degeneracyOrdering(g, -1).size() == Math.max(0, g.connectedVertices().count() - 1);
     }
 
-    private Arbitrary<Set<Integer>> neighbours(int order) {
+    private static Arbitrary<Set<Integer>> arbitraryNeighbours(int order) {
         return Arbitraries.integers().between(0, order - 1).set();
     }
 
     @Provide
-    Arbitrary<List<Set<Integer>>> asymmetricAdjacencies() {
+    private static Arbitrary<List<Set<Integer>>> arbitraryAdjacencyLikes() {
         Arbitrary<Integer> orders = Arbitraries.integers().between(1, 99);
-        return orders.flatMap(order -> neighbours(order).list().ofSize(order));
+        return orders.flatMap(order -> arbitraryNeighbours(order).list().ofSize(order));
     }
 }

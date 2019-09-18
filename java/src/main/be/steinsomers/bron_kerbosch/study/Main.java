@@ -38,7 +38,7 @@ final class Main {
             new BronKerbosch3_MT(),
     };
 
-    static List<List<Integer>> OrderCliques(Collection<Collection<Integer>> cliques) {
+    static List<List<Integer>> OrderCliques(Collection<? extends Collection<Integer>> cliques) {
         assert cliques.stream().allMatch(clique -> clique.size() > 1);
         return cliques.stream()
                 .map(clique -> clique.stream()
