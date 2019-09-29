@@ -28,8 +28,7 @@ class SampleStatistics(object):
             return nan
 
     def variance(self):
-        if self.samples > 1 and isfinite(self.sum) and isfinite(
-                self.sum_of_squares):
+        if self.samples > 1 and isfinite(self.sum_of_squares):
             n = self.samples
             return max(self.sum_of_squares - self.sum * self.sum / n,
                        0) / (n - 1.)
