@@ -1,6 +1,8 @@
 extern crate fnv;
 extern crate hashbrown;
 extern crate rand;
+extern crate setops;
+use self::setops::{difference_future, intersection_future};
 use self::fnv::{FnvBuildHasher, FnvHashSet};
 use self::rand::prelude::IteratorRandom;
 use self::rand::Rng;
@@ -28,19 +30,19 @@ impl VertexSetLike for BTreeSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.difference(other).cloned().collect()
+        difference_future(self, other).copied().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
-        self.is_disjoint(other)
+        intersection_future(self, other).next().is_none()
     }
     fn intersection_size(&self, other: &Self) -> usize {
-        self.intersection(other).count()
+        intersection_future(self, other).count()
     }
     fn intersection<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
-        self.intersection(other).cloned().collect()
+        intersection_future(self, other).copied().collect()
     }
     fn reserve(&mut self, _additional: usize) {}
     fn insert(&mut self, v: Vertex) {
@@ -101,7 +103,7 @@ impl VertexSetLike for HashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.difference(other).cloned().collect()
+        self.difference(other).copied().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
@@ -113,7 +115,7 @@ impl VertexSetLike for HashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.intersection(other).cloned().collect()
+        self.intersection(other).copied().collect()
     }
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
@@ -175,7 +177,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.difference(other).cloned().collect()
+        self.difference(other).copied().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
@@ -187,7 +189,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.intersection(other).cloned().collect()
+        self.intersection(other).copied().collect()
     }
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
@@ -249,7 +251,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.difference(other).cloned().collect()
+        self.difference(other).copied().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
@@ -261,7 +263,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        self.intersection(other).cloned().collect()
+        self.intersection(other).copied().collect()
     }
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
@@ -309,7 +311,7 @@ mod tests {
 
     #[test]
     fn test_btreeset_pop_arbitrary() {
-        let mut s: BTreeSet<u32> = [4, 2].iter().cloned().collect();
+        let mut s: BTreeSet<u32> = [4, 2].iter().copied().collect();
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());
@@ -320,7 +322,7 @@ mod tests {
 
     #[test]
     fn test_hashset_pop_arbitrary() {
-        let mut s: HashSet<u32> = [4, 2].iter().cloned().collect();
+        let mut s: HashSet<u32> = [4, 2].iter().copied().collect();
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());
@@ -331,7 +333,7 @@ mod tests {
 
     #[test]
     fn test_fnvhashset_pop_arbitrary() {
-        let mut s: FnvHashSet<u32> = [4, 2].iter().cloned().collect();
+        let mut s: FnvHashSet<u32> = [4, 2].iter().copied().collect();
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());
@@ -342,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_hashbrownhashset_pop_arbitrary() {
-        let mut s: hashbrown::HashSet<u32> = [4, 2].iter().cloned().collect();
+        let mut s: hashbrown::HashSet<u32> = [4, 2].iter().copied().collect();
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());

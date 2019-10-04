@@ -343,24 +343,16 @@ fn main() -> Result<(), std::io::Error> {
             "1M",
             1_000_000,
             std::iter::empty()
-                .chain((200_000..1_000_000).step_by(200_000))
-                .chain((1_000_000..=5_000_000).step_by(1_000_000)),
+                .chain((200_000..2_000_000).step_by(200_000))
+                .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |set_type: SetType, size: u32| -> Vec<usize> {
+            |_set_type: SetType, size: u32| -> Vec<usize> {
                 (2..NUM_FUNCS)
                     .filter(|func_index| {
-                        match (func_index, set_type) {
-                            (5, _) => false, // Ver2+RP not interesting on random graph
-                            (7, SetType::BTreeSet) => size <= 2_000_000,
-                            (7, SetType::HashSet) => size <= 3_000_000,
-                            (7, SetType::Fnv) => true,
-                            (7, SetType::Hashbrown) => size <= 4_000_000,
-                            (8, SetType::BTreeSet) => size <= 2_000_000,
-                            (8, SetType::HashSet) => size <= 3_000_000,
-                            (8, SetType::Fnv) => true,
-                            (8, SetType::Hashbrown) => size <= 4_000_000,
-                            (9, _) => true,
-                            (_, _) => size <= 2_000_000,
+                        match func_index {
+                            5 => false, // Ver2+RP not interesting on random graph
+                            9 => true,
+                            _ => size <= 2_000_000,
                         }
                     })
                     .collect()
