@@ -103,8 +103,8 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 ### Test Go
     
     set GOPATH=%CD%\go
-    go vet bron_kerbosch main
-    go test -race bron_kerbosch
+    go vet BronKerbosch main
+    go test -race BronKerbosch
 
 ### Run C#
   - open csharp\BronKerboschStudy.sln with Visual Studio Community 2017

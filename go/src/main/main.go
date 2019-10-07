@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bron_kerbosch"
+	"BronKerbosch"
 	"fmt"
 	"os"
 	"strconv"
