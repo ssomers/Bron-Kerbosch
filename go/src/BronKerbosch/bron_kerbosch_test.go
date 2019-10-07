@@ -1,15 +1,15 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"fmt"
 	"testing"
 )
 
-func check_degeneracy_order(graph *UndirectedGraph) {
+func checkDegeneracyOrder(graph *UndirectedGraph) {
 	var ordering SimpleVertexVisitor
-	degeneracy_ordering(graph, &ordering, 0)
+	degeneracyOrdering(graph, &ordering, 0)
 	ordered := ordering.vertices
-	unordered := graph.connected_vertices()
+	unordered := graph.connectedVertices()
 	for _, v := range ordered {
 		if _, ok := unordered[v]; !ok {
 			panic(fmt.Sprintf("degeneracy ordering %v invented vertex %d", ordered, v))
@@ -25,7 +25,7 @@ func check_degeneracy_order(graph *UndirectedGraph) {
 	}
 }
 
-func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
+func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 	adjacencies := make([]VertexSet, len(adjacencylist))
 	for i, neighbours := range adjacencylist {
 		adjacencies[i] = NewVertexSet(neighbours)
@@ -34,12 +34,12 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expected_cliques [][]Vertex) {
 		}
 	}
 	graph := newUndirectedGraph(adjacencies)
-	check_degeneracy_order(&graph)
-	for func_index, bron_kerbosch_func := range FUNCS {
-		obtained_cliques := bron_kerbosch_func(&graph)
-		sort_cliques(obtained_cliques)
-		compare_cliques(obtained_cliques, expected_cliques,
-			func(e string) { t.Errorf("%s: %s", FUNC_NAMES[func_index], e) })
+	checkDegeneracyOrder(&graph)
+	for funcIndex, bronKerboschFunc := range funcs {
+		obtainedCliques := bronKerboschFunc(&graph)
+		sortCliques(obtainedCliques)
+		compareCliques(obtainedCliques, expectedCliques,
+			func(e string) { t.Errorf("%s: %s", FuncNames[funcIndex], e) })
 	}
 }
 
@@ -51,7 +51,7 @@ func TestOrder1(t *testing.T) {
 	bk(t, [][]Vertex{[]Vertex{}}, [][]Vertex{})
 }
 
-func TestOrder2_isolated(t *testing.T) {
+func TestOrder2isolated(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{},
@@ -59,7 +59,7 @@ func TestOrder2_isolated(t *testing.T) {
 		[][]Vertex{})
 }
 
-func TestOrder2_connected(t *testing.T) {
+func TestOrder2connected(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -68,7 +68,7 @@ func TestOrder2_connected(t *testing.T) {
 			[]Vertex{0, 1}})
 }
 
-func TestOrder3_Size1_left(t *testing.T) {
+func TestOrder3Size1left(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -78,7 +78,7 @@ func TestOrder3_Size1_left(t *testing.T) {
 			[]Vertex{0, 1}})
 }
 
-func TestOrder3_Size1_long(t *testing.T) {
+func TestOrder3Size1long(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{2},
@@ -88,7 +88,7 @@ func TestOrder3_Size1_long(t *testing.T) {
 			[]Vertex{0, 2}})
 }
 
-func TestOrder3_Size1_right(t *testing.T) {
+func TestOrder3Size1right(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{},
@@ -98,7 +98,7 @@ func TestOrder3_Size1_right(t *testing.T) {
 			[]Vertex{1, 2}})
 }
 
-func TestOrder3_Size2(t *testing.T) {
+func TestOrder3Size2(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -109,7 +109,7 @@ func TestOrder3_Size2(t *testing.T) {
 			[]Vertex{1, 2}})
 }
 
-func TestOrder3_Size3(t *testing.T) {
+func TestOrder3Size3(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 2},
@@ -119,7 +119,7 @@ func TestOrder3_Size3(t *testing.T) {
 			[]Vertex{0, 1, 2}})
 }
 
-func TestOrder4_Size2(t *testing.T) {
+func TestOrder4Size2(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -131,7 +131,7 @@ func TestOrder4_Size2(t *testing.T) {
 			[]Vertex{2, 3}})
 }
 
-func TestOrder4_Size3_bus(t *testing.T) {
+func TestOrder4Size3bus(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -144,7 +144,7 @@ func TestOrder4_Size3_bus(t *testing.T) {
 			[]Vertex{2, 3}})
 }
 
-func TestOrder4_Size3_star(t *testing.T) {
+func TestOrder4Size3star(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 2, 3},
@@ -157,7 +157,7 @@ func TestOrder4_Size3_star(t *testing.T) {
 			[]Vertex{0, 3}})
 }
 
-func TestOrder4_Size4_p(t *testing.T) {
+func TestOrder4Size4p(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1},
@@ -169,7 +169,7 @@ func TestOrder4_Size4_p(t *testing.T) {
 			[]Vertex{1, 2, 3}})
 }
 
-func TestOrder4_Size4_square(t *testing.T) {
+func TestOrder4Size4square(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 3},
@@ -184,7 +184,7 @@ func TestOrder4_Size4_square(t *testing.T) {
 		})
 }
 
-func TestOrder4_Size5(t *testing.T) {
+func TestOrder4Size5(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 2, 3},
@@ -196,7 +196,7 @@ func TestOrder4_Size5(t *testing.T) {
 			[]Vertex{0, 2, 3}})
 }
 
-func TestOrder4_Size6(t *testing.T) {
+func TestOrder4Size6(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 2, 3},
@@ -207,7 +207,7 @@ func TestOrder4_Size6(t *testing.T) {
 			[]Vertex{0, 1, 2, 3}})
 }
 
-func TestOrder5_Size9_penultimate(t *testing.T) {
+func TestOrder5Size9penultimate(t *testing.T) {
 	bk(t,
 		[][]Vertex{
 			[]Vertex{1, 2, 3, 4},

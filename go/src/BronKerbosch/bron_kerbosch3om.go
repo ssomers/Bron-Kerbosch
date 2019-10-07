@@ -1,36 +1,36 @@
-package bron_kerbosch
+package BronKerbosch
 
 import "sync"
 
-func bron_kerbosch3_gp_2(graph *UndirectedGraph) [][]Vertex {
-	return bron_kerbosch3om(graph, 5)
+func bronKerbosch3gp2(graph *UndirectedGraph) [][]Vertex {
+	return bronKerbosch3om(graph, 5)
 }
 
-func bron_kerbosch3_gp_3(graph *UndirectedGraph) [][]Vertex {
-	return bron_kerbosch3om(graph, 15)
+func bronKerbosch3gp3(graph *UndirectedGraph) [][]Vertex {
+	return bronKerbosch3om(graph, 15)
 }
 
-func bron_kerbosch3_gp_4(graph *UndirectedGraph) [][]Vertex {
-	return bron_kerbosch3om(graph, 45)
+func bronKerbosch3gp4(graph *UndirectedGraph) [][]Vertex {
+	return bronKerbosch3om(graph, 45)
 }
 
-func bron_kerbosch3_gp_5(graph *UndirectedGraph) [][]Vertex {
-	return bron_kerbosch3om(graph, 135)
+func bronKerbosch3gp5(graph *UndirectedGraph) [][]Vertex {
+	return bronKerbosch3om(graph, 135)
 }
 
-func bron_kerbosch3om(graph *UndirectedGraph, num_visitors int) [][]Vertex {
+func bronKerbosch3om(graph *UndirectedGraph, numVisitors int) [][]Vertex {
 	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
 
-	starts := make(chan Vertex, num_visitors)
-	visits := make(chan VisitJob, num_visitors)
+	starts := make(chan Vertex, numVisitors)
+	visits := make(chan VisitJob, numVisitors)
 	cliques := make(chan []Vertex)
-	go degeneracy_ordering(graph, &ChannelVertexVisitor{starts}, -1)
+	go degeneracyOrdering(graph, &ChannelVertexVisitor{starts}, -1)
 	go func() {
-		excluded := make(VertexSet, graph.connected_vertex_count()-1)
+		excluded := make(VertexSet, graph.connectedVertexCount()-1)
 		reporter := ChannelReporter{cliques}
 		var wg sync.WaitGroup
-		wg.Add(num_visitors)
-		for i := 0; i < num_visitors; i++ {
+		wg.Add(numVisitors)
+		for i := 0; i < numVisitors; i++ {
 			go func() {
 				for job := range visits {
 					visit(
@@ -45,10 +45,10 @@ func bron_kerbosch3om(graph *UndirectedGraph, num_visitors int) [][]Vertex {
 		}
 		for v := range starts {
 			neighbours := graph.adjacencies[v]
-			neighbouring_candidates := neighbours.Difference(excluded)
-			if !neighbouring_candidates.IsEmpty() {
-				neighbouring_excluded := neighbours.Intersection(excluded)
-				visits <- VisitJob{v, neighbouring_candidates, neighbouring_excluded}
+			neighbouringCandidates := neighbours.Difference(excluded)
+			if !neighbouringCandidates.IsEmpty() {
+				neighbouringExcluded := neighbours.Intersection(excluded)
+				visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
 			}
 			excluded.Add(v)
 		}
@@ -56,7 +56,7 @@ func bron_kerbosch3om(graph *UndirectedGraph, num_visitors int) [][]Vertex {
 		wg.Wait()
 		close(reporter.cliques)
 	}()
-	return gather_cliques(cliques)
+	return gatherCliques(cliques)
 }
 
 type VisitJob struct {

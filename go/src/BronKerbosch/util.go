@@ -1,26 +1,26 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"math/rand"
 )
 
-func random_choice(vlist *[]Vertex) Vertex {
+func randomChoice(vlist *[]Vertex) Vertex {
 	i := rand.Intn(len(*vlist))
 	return (*vlist)[i]
 }
 
-func random_sample(vset *VertexSet) Vertex {
+func randomSample(vset *VertexSet) Vertex {
 	i := rand.Intn(len(*vset))
-	for v, _ := range *vset {
+	for v := range *vset {
 		if i == 0 {
 			return v
 		}
-		i -= 1
+		i--
 	}
 	panic("should have returned")
 }
 
-func array_remove(vlist []Vertex, doomed Vertex) []Vertex {
+func removeFromArray(vlist []Vertex, doomed Vertex) []Vertex {
 	for i, v := range vlist {
 		if v == doomed {
 			l := len(vlist)

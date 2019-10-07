@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 type Vertex int
 type VertexSet map[Vertex]struct{}
@@ -24,48 +24,51 @@ func (vset VertexSet) Contains(v Vertex) bool {
 	return ok
 }
 
-func (vset1 VertexSet) Difference(vset2 VertexSet) VertexSet {
-	result := make(VertexSet, len(vset1))
-	for v, _ := range vset1 {
-		if !vset2.Contains(v) {
+func (vset VertexSet) Difference(term VertexSet) VertexSet {
+	result := make(VertexSet, len(vset))
+	for v := range vset {
+		if !term.Contains(v) {
 			result.Add(v)
 		}
 	}
 	return result
 }
 
-func (vset1 VertexSet) Intersection(vset2 VertexSet) VertexSet {
-	if len(vset1) > len(vset2) {
-		vset1, vset2 = vset2, vset1
+func (vset VertexSet) Intersection(other VertexSet) VertexSet {
+	small, large := vset, other
+	if len(small) > len(large) {
+		small, large = other, vset
 	}
-	result := make(VertexSet, len(vset1))
-	for v, _ := range vset1 {
-		if vset2.Contains(v) {
+	result := make(VertexSet, len(small))
+	for v := range small {
+		if large.Contains(v) {
 			result.Add(v)
 		}
 	}
 	return result
 }
 
-func (vset1 VertexSet) IntersectionLen(vset2 VertexSet) int {
-	if len(vset1) > len(vset2) {
-		vset1, vset2 = vset2, vset1
+func (vset VertexSet) IntersectionLen(other VertexSet) int {
+	small, large := vset, other
+	if len(small) > len(large) {
+		small, large = other, vset
 	}
 	result := 0
-	for v, _ := range vset1 {
-		if vset2.Contains(v) {
+	for v := range small {
+		if large.Contains(v) {
 			result++
 		}
 	}
 	return result
 }
 
-func (vset1 VertexSet) IsDisjoint(vset2 VertexSet) bool {
-	if len(vset1) > len(vset2) {
-		vset1, vset2 = vset2, vset1
+func (vset VertexSet) IsDisjoint(other VertexSet) bool {
+	small, large := vset, other
+	if len(small) > len(large) {
+		small, large = other, vset
 	}
-	for v, _ := range vset1 {
-		if vset2.Contains(v) {
+	for v := range small {
+		if large.Contains(v) {
 			return false
 		}
 	}
@@ -81,14 +84,14 @@ func (vset VertexSet) Remove(v Vertex) {
 }
 
 func (vset VertexSet) PickArbitrary() Vertex {
-	for v, _ := range vset {
+	for v := range vset {
 		return v
 	}
 	panic("attempt to pick from empty set")
 }
 
 func (vset VertexSet) PopArbitrary() Vertex {
-	for v, _ := range vset {
+	for v := range vset {
 		vset.Remove(v)
 		return v
 	}

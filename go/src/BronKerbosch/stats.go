@@ -1,15 +1,15 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"math"
 )
 
 type SampleStatistics struct {
-	max            float64
-	min            float64
-	samples        int
-	sum            float64
-	sum_of_squares float64
+	max          float64
+	min          float64
+	samples      int
+	sum          float64
+	sumOfSquares float64
 }
 
 func (s *SampleStatistics) Put(v float64) {
@@ -21,9 +21,9 @@ func (s *SampleStatistics) Put(v float64) {
 	} else if s.max < v {
 		s.max = v
 	}
-	s.samples += 1
+	s.samples++
 	s.sum += v
-	s.sum_of_squares += v * v
+	s.sumOfSquares += v * v
 }
 
 func (s *SampleStatistics) Max() float64 {
@@ -40,7 +40,7 @@ func (s *SampleStatistics) Mean() float64 {
 
 func (s *SampleStatistics) Variance() float64 {
 	n := float64(s.samples)
-	numerator := s.sum_of_squares - s.sum*s.sum/n
+	numerator := s.sumOfSquares - s.sum*s.sum/n
 	if numerator < 0 {
 		return 0
 	}

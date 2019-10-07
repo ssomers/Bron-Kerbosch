@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"fmt"
@@ -9,9 +9,9 @@ type UndirectedGraph struct {
 }
 
 func newUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
-	for i, adjacent_to_v := range adjacencies {
+	for i, adjacentToV := range adjacencies {
 		v := Vertex(i)
-		for w, _ := range adjacent_to_v {
+		for w := range adjacentToV {
 			if v == w {
 				panic(fmt.Sprintf("%d is adjacent to itself", v))
 			}
@@ -44,7 +44,7 @@ func (g *UndirectedGraph) degree(v Vertex) int {
 	return g.adjacencies[v].Cardinality()
 }
 
-func (g *UndirectedGraph) connected_vertices() VertexSet {
+func (g *UndirectedGraph) connectedVertices() VertexSet {
 	result := make(VertexSet)
 	for v, neighbours := range g.adjacencies {
 		if !neighbours.IsEmpty() {
@@ -54,7 +54,7 @@ func (g *UndirectedGraph) connected_vertices() VertexSet {
 	return result
 }
 
-func (g *UndirectedGraph) connected_vertex_count() int {
+func (g *UndirectedGraph) connectedVertexCount() int {
 	var count int
 	for _, neighbours := range g.adjacencies {
 		if !neighbours.IsEmpty() {
@@ -64,40 +64,40 @@ func (g *UndirectedGraph) connected_vertex_count() int {
 	return count
 }
 
-func random_undirected_graph(order int, size int) UndirectedGraph {
-	fully_meshed_size := order * (order - 1) / 2
-	if size > fully_meshed_size {
+func randomUndirectedGraph(order int, size int) UndirectedGraph {
+	fullyMeshedSize := order * (order - 1) / 2
+	if size > fullyMeshedSize {
 		panic(
-			fmt.Sprintf("%d nodes accommodate at most %d edges", order, fully_meshed_size))
+			fmt.Sprintf("%d nodes accommodate at most %d edges", order, fullyMeshedSize))
 	}
-	unsaturated_vertices := make([]Vertex, order)
-	adjacency_sets := make([]VertexSet, order)
+	unsaturatedVertices := make([]Vertex, order)
+	adjacencySets := make([]VertexSet, order)
 	for v := 0; v < order; v++ {
-		unsaturated_vertices[v] = Vertex(v)
-		adjacency_sets[v] = make(VertexSet)
+		unsaturatedVertices[v] = Vertex(v)
+		adjacencySets[v] = make(VertexSet)
 	}
-	adjacency_complements := make([]VertexSet, order)
+	adjacencyComplements := make([]VertexSet, order)
 	for i := 0; i < size; i++ {
-		v := random_choice(&unsaturated_vertices)
-		if adjacency_sets[v].Cardinality() >= order-1 {
+		v := randomChoice(&unsaturatedVertices)
+		if adjacencySets[v].Cardinality() >= order-1 {
 			panic("too many adjacencies")
 		}
 		var w Vertex
-		if !adjacency_complements[v].IsEmpty() {
-			w = random_sample(&adjacency_complements[v])
+		if !adjacencyComplements[v].IsEmpty() {
+			w = randomSample(&adjacencyComplements[v])
 		} else {
 			w = v
-			for w == v || adjacency_sets[v].Contains(w) {
-				w = random_choice(&unsaturated_vertices)
+			for w == v || adjacencySets[v].Contains(w) {
+				w = randomChoice(&unsaturatedVertices)
 			}
 		}
 		if v == w {
 			panic("defecation has hit oscillation")
 		}
-		if adjacency_sets[v].Contains(w) {
+		if adjacencySets[v].Contains(w) {
 			panic("defecation has hit oscillation")
 		}
-		if adjacency_sets[w].Contains(v) {
+		if adjacencySets[w].Contains(v) {
 			panic("defecation has hit oscillation")
 		}
 		pairs := [...]struct {
@@ -107,30 +107,30 @@ func random_undirected_graph(order int, size int) UndirectedGraph {
 		for _, pair := range pairs {
 			x := pair.x
 			y := pair.y
-			adjacency_sets[x].Add(y)
-			neighbours := adjacency_sets[x].Cardinality()
+			adjacencySets[x].Add(y)
+			neighbours := adjacencySets[x].Cardinality()
 			if neighbours == order-1 {
-				unsaturated_vertices = array_remove(unsaturated_vertices, x)
+				unsaturatedVertices = removeFromArray(unsaturatedVertices, x)
 			} else if neighbours == order/2 {
 				// start using adjacency complement
-				if !adjacency_complements[x].IsEmpty() {
-					panic("unexpected adjacency_complements")
+				if !adjacencyComplements[x].IsEmpty() {
+					panic("unexpected adjacencyComplements")
 				}
-				adjacency_complements[x] = make(VertexSet)
-				for _, v := range unsaturated_vertices {
+				adjacencyComplements[x] = make(VertexSet)
+				for _, v := range unsaturatedVertices {
 					if v != x {
-						if !adjacency_sets[x].Contains(v) {
-							adjacency_complements[x].Add(v)
+						if !adjacencySets[x].Contains(v) {
+							adjacencyComplements[x].Add(v)
 						}
 					}
 				}
 			} else if neighbours > order/2 {
-				adjacency_complements[x].Remove(y)
+				adjacencyComplements[x].Remove(y)
 			}
 		}
 	}
 	var g UndirectedGraph
-	g.adjacencies = adjacency_sets
+	g.adjacencies = adjacencySets
 	if g.order() != order {
 		panic("botched order")
 	}

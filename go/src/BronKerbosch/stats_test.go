@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"Assert"

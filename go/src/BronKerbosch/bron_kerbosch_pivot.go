@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 type PivotSelection int
 
@@ -9,7 +9,7 @@ const (
 )
 
 func visit(graph *UndirectedGraph, reporter Reporter,
-	initial_pivot_selection PivotSelection, further_pivot_selection PivotSelection,
+	initialPivotSelection PivotSelection, furtherPivotSelection PivotSelection,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	if len(candidates) == 1 {
 		for v := range candidates {
@@ -23,61 +23,61 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	}
 
 	var pivot Vertex
-	remaining_candidates := make([]Vertex, 0, len(candidates))
-	switch initial_pivot_selection {
+	remainingCandidates := make([]Vertex, 0, len(candidates))
+	switch initialPivotSelection {
 	case MaxDegree:
-		pivot = pick_max_degree(graph, candidates)
+		pivot = pickMaxDegree(graph, candidates)
 		for v := range candidates {
-			remaining_candidates = append(remaining_candidates, v)
+			remainingCandidates = append(remainingCandidates, v)
 		}
 	case MaxDegreeLocal, MaxDegreeLocalX:
 		// Quickly handle locally unconnected candidates while finding pivot
-		seen_local_degree := 0
+		seenLocalDegree := 0
 		for v := range candidates {
 			neighbours := graph.adjacencies[v]
-			local_degree := neighbours.IntersectionLen(candidates)
-			if local_degree == 0 {
+			localDegree := neighbours.IntersectionLen(candidates)
+			if localDegree == 0 {
 				// Same logic as below, stripped down
 				if neighbours.IsDisjoint(excluded) {
 					reporter.Record(append(clique, v))
 				}
 			} else {
-				if seen_local_degree < local_degree {
-					seen_local_degree = local_degree
+				if seenLocalDegree < localDegree {
+					seenLocalDegree = localDegree
 					pivot = v
 				}
-				remaining_candidates = append(remaining_candidates, v)
+				remainingCandidates = append(remainingCandidates, v)
 			}
 		}
-		if seen_local_degree == 0 {
+		if seenLocalDegree == 0 {
 			return
 		}
-		if initial_pivot_selection == MaxDegreeLocalX {
+		if initialPivotSelection == MaxDegreeLocalX {
 			for v := range excluded {
 				neighbours := graph.adjacencies[v]
-				local_degree := neighbours.IntersectionLen(candidates)
-				if seen_local_degree < local_degree {
-					seen_local_degree = local_degree
+				localDegree := neighbours.IntersectionLen(candidates)
+				if seenLocalDegree < localDegree {
+					seenLocalDegree = localDegree
 					pivot = v
 				}
 			}
 		}
 	}
 
-	for _, v := range remaining_candidates {
+	for _, v := range remainingCandidates {
 		neighbours := graph.adjacencies[v]
 		if neighbours.Contains(pivot) {
 			continue
 		}
 		candidates.Remove(v)
-		neighbouring_candidates := neighbours.Intersection(candidates)
-		if !neighbouring_candidates.IsEmpty() {
-			neighbouring_excluded := neighbours.Intersection(excluded)
+		neighbouringCandidates := neighbours.Intersection(candidates)
+		if !neighbouringCandidates.IsEmpty() {
+			neighbouringExcluded := neighbours.Intersection(excluded)
 			visit(
 				graph, reporter,
-				further_pivot_selection, further_pivot_selection,
-				neighbouring_candidates,
-				neighbouring_excluded,
+				furtherPivotSelection, furtherPivotSelection,
+				neighbouringCandidates,
+				neighbouringExcluded,
 				append(clique, v))
 		} else {
 			if neighbours.IsDisjoint(excluded) {
@@ -88,15 +88,15 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	}
 }
 
-func pick_max_degree(graph *UndirectedGraph, candidates VertexSet) Vertex {
-	max_degree := 0
-	var max_vertex Vertex
+func pickMaxDegree(graph *UndirectedGraph, candidates VertexSet) Vertex {
+	maxDegree := 0
+	var maxVertex Vertex
 	for v := range candidates {
 		degree := graph.degree(v)
-		if max_degree < degree {
-			max_degree = degree
-			max_vertex = v
+		if maxDegree < degree {
+			maxDegree = degree
+			maxVertex = v
 		}
 	}
-	return max_vertex
+	return maxVertex
 }

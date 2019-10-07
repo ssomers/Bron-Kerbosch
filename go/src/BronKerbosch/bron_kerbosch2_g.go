@@ -1,8 +1,8 @@
-package bron_kerbosch
+package BronKerbosch
 
-func bron_kerbosch2_g(graph *UndirectedGraph) [][]Vertex {
+func bronKerbosch2g(graph *UndirectedGraph) [][]Vertex {
 	// Bron-Kerbosch algorithm with pivot of highest degree within the whole graph
-	candidates := graph.connected_vertices()
+	candidates := graph.connectedVertices()
 	if candidates.IsEmpty() {
 		return nil
 	}

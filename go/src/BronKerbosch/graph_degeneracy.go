@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 type VertexVisitor interface {
 	visit(Vertex)
@@ -28,36 +28,36 @@ func (g *ChannelVertexVisitor) Close() {
 	close(g.vertices)
 }
 
-func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor, drop int) {
+func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int) {
 	if drop > 0 {
 		panic("expecting negative drop value")
 	}
 	defer func() { visitor.Close() }()
 	order := graph.order()
-	// Possible values of priority_per_node:
+	// Possible values of priorityPerNode:
 	//   -1: when yielded
-	//   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
-	priority_per_node := make([]int, order)
-	max_degree := 0
-	num_left_to_visit := 0
+	//   0..maxDegree: candidates still queued with priority (degree - #of yielded neighbours)
+	priorityPerNode := make([]int, order)
+	maxDegree := 0
+	numLeftToVisit := 0
 	for c := 0; c < order; c++ {
 		degree := graph.degree(Vertex(c))
 		if degree > 0 {
-			priority_per_node[Vertex(c)] = degree
-			if max_degree < degree {
-				max_degree = degree
+			priorityPerNode[Vertex(c)] = degree
+			if maxDegree < degree {
+				maxDegree = degree
 			}
-			num_left_to_visit += 1
+			numLeftToVisit++
 		}
 	}
-	num_left_to_visit += drop
-	if num_left_to_visit <= 0 {
+	numLeftToVisit += drop
+	if numLeftToVisit <= 0 {
 		return
 	}
 
-	var q priority_queue
-	q.init(max_degree)
-	for c, p := range priority_per_node {
+	var q priorityQueue
+	q.init(maxDegree)
+	for c, p := range priorityPerNode {
 		if p > 0 {
 			q.put(p, Vertex(c))
 		}
@@ -65,48 +65,48 @@ func degeneracy_ordering(graph *UndirectedGraph, visitor VertexVisitor, drop int
 
 	for {
 		i := q.pop()
-		for priority_per_node[i] == -1 {
+		for priorityPerNode[i] == -1 {
 			// was requeued with a more urgent priority and therefore already visited
 			i = q.pop()
 		}
 
 		visitor.visit(i)
-		num_left_to_visit--
-		if num_left_to_visit == 0 {
+		numLeftToVisit--
+		if numLeftToVisit == 0 {
 			return
 		}
 
-		priority_per_node[i] = -1
+		priorityPerNode[i] = -1
 		for v := range graph.adjacencies[i] {
-			p := priority_per_node[v]
+			p := priorityPerNode[v]
 			if p != -1 {
 				// Requeue with a more urgent priority, but don't bother to remove
 				// the original entry - it will be skipped if it's reached at all.
-				priority_per_node[v] = p - 1
+				priorityPerNode[v] = p - 1
 				q.put(p-1, v)
 			}
 		}
 	}
 }
 
-type priority_queue struct {
-	stack_per_priority [][]Vertex
+type priorityQueue struct {
+	stackPerPriority [][]Vertex
 }
 
-func (q *priority_queue) init(max_priority int) {
-	q.stack_per_priority = make([][]Vertex, max_priority+1)
+func (q *priorityQueue) init(maxPriority int) {
+	q.stackPerPriority = make([][]Vertex, maxPriority+1)
 }
 
-func (q *priority_queue) put(priority int, element Vertex) {
-	q.stack_per_priority[priority] = append(q.stack_per_priority[priority], element)
+func (q *priorityQueue) put(priority int, element Vertex) {
+	q.stackPerPriority[priority] = append(q.stackPerPriority[priority], element)
 }
 
-func (q *priority_queue) pop() Vertex {
+func (q *priorityQueue) pop() Vertex {
 	for p := 0; ; p++ {
-		l := len(q.stack_per_priority[p])
+		l := len(q.stackPerPriority[p])
 		if l > 0 {
-			last := q.stack_per_priority[p][l-1]
-			q.stack_per_priority[p] = q.stack_per_priority[p][:l-1]
+			last := q.stackPerPriority[p][l-1]
+			q.stackPerPriority[p] = q.stackPerPriority[p][:l-1]
 			return last
 		}
 	}

@@ -1,9 +1,9 @@
-package bron_kerbosch
+package BronKerbosch
 
-func bron_kerbosch2_gpx(graph *UndirectedGraph) [][]Vertex {
+func bronKerbosch2gpx(graph *UndirectedGraph) [][]Vertex {
 	// Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
 	// chosen from both candidates and excluded vertices (IK_GPX).
-	candidates := graph.connected_vertices()
+	candidates := graph.connectedVertices()
 	if candidates.IsEmpty() {
 		return nil
 	}

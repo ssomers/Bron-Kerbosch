@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 type Reporter interface {
 	Record(clique []Vertex)
@@ -24,7 +24,7 @@ func (r *ChannelReporter) Record(clique []Vertex) {
 	r.cliques <- cc
 }
 
-func gather_cliques(cliques <-chan []Vertex) [][]Vertex {
+func gatherCliques(cliques <-chan []Vertex) [][]Vertex {
 	var result [][]Vertex
 	for clique := range cliques {
 		result = append(result, clique)

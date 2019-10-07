@@ -1,18 +1,18 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"testing"
 )
 
 func TestRandomGraph1(t *testing.T) {
-	random_undirected_graph(2, 0)
-	random_undirected_graph(3, 0)
-	random_undirected_graph(3, 1)
-	random_undirected_graph(3, 2)
-	random_undirected_graph(4, 0)
-	random_undirected_graph(4, 1)
-	random_undirected_graph(4, 2)
-	random_undirected_graph(4, 3)
-	random_undirected_graph(4, 4)
-	random_undirected_graph(4, 5)
+	randomUndirectedGraph(2, 0)
+	randomUndirectedGraph(3, 0)
+	randomUndirectedGraph(3, 1)
+	randomUndirectedGraph(3, 2)
+	randomUndirectedGraph(4, 0)
+	randomUndirectedGraph(4, 1)
+	randomUndirectedGraph(4, 2)
+	randomUndirectedGraph(4, 3)
+	randomUndirectedGraph(4, 4)
+	randomUndirectedGraph(4, 5)
 }

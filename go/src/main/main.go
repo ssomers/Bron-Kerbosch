@@ -22,14 +22,14 @@ func bk(orderstr string, order int, sizes []int, samples int) {
 	}()
 
 	fo.WriteString("Size")
-	for _, name := range bron_kerbosch.FUNC_NAMES {
+	for _, name := range BronKerbosch.FuncNames {
 		fo.WriteString(fmt.Sprintf(",%s min,%s mean,%s max", name, name, name))
 	}
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := bron_kerbosch.Timed(order, size, samples)
-		for func_index, func_name := range bron_kerbosch.FUNC_NAMES {
+		stats := BronKerbosch.Timed(order, size, samples)
+		for func_index, func_name := range BronKerbosch.FuncNames {
 			max := stats[func_index].Max()
 			min := stats[func_index].Min()
 			mean := stats[func_index].Mean()

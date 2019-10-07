@@ -1,4 +1,4 @@
-package bron_kerbosch
+package BronKerbosch
 
 import (
 	"fmt"
@@ -6,19 +6,19 @@ import (
 	"time"
 )
 
-const NUM_FUNCS = 10
+const numFuncs = 10
 
-var FUNCS = [NUM_FUNCS]func(*UndirectedGraph) [][]Vertex{
-	bron_kerbosch1,
-	bron_kerbosch2_g, bron_kerbosch2_gp, bron_kerbosch2_gpx,
-	bron_kerbosch3_gp, bron_kerbosch3_gpx,
-	bron_kerbosch3_gp_2,
-	bron_kerbosch3_gp_3,
-	bron_kerbosch3_gp_4,
-	bron_kerbosch3_gp_5,
+var funcs = [numFuncs]func(*UndirectedGraph) [][]Vertex{
+	bronKerbosch1,
+	bronKerbosch2g, bronKerbosch2gp, bronKerbosch2gpx,
+	bronKerbosch3gp, bronKerbosch3gpx,
+	bronKerbosch3gp2,
+	bronKerbosch3gp3,
+	bronKerbosch3gp4,
+	bronKerbosch3gp5,
 }
 
-var FUNC_NAMES = [NUM_FUNCS]string{
+var FuncNames = [numFuncs]string{
 	"Ver1+",
 	"Ver2+G", "Ver2+GP", "Ver2+GPX",
 	"Ver3+GP", "Ver3+GPX",
@@ -28,7 +28,7 @@ var FUNC_NAMES = [NUM_FUNCS]string{
 	"Ver3+GP5",
 }
 
-func sort_cliques(cliques [][]Vertex) {
+func sortCliques(cliques [][]Vertex) {
 	for _, clique := range cliques {
 		sort.Slice(clique, func(l int, r int) bool {
 			return clique[l] < clique[r]
@@ -50,12 +50,12 @@ func sort_cliques(cliques [][]Vertex) {
 	})
 }
 
-func compare_cliques(left_cliques [][]Vertex, right_cliques [][]Vertex, errors func(string)) {
-	if len(left_cliques) != len(right_cliques) {
-		errors(fmt.Sprintf("%d <> %d cliques", len(left_cliques), len(right_cliques)))
+func compareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func(string)) {
+	if len(leftCliques) != len(rightCliques) {
+		errors(fmt.Sprintf("%d <> %d cliques", len(leftCliques), len(rightCliques)))
 	} else {
-		for j, left := range left_cliques {
-			right := right_cliques[j]
+		for j, left := range leftCliques {
+			right := rightCliques[j]
 			if len(left) != len(right) {
 				errors(fmt.Sprintf("clique #%d: %d <> %d vertices", j+1, len(left), len(right)))
 			} else {
@@ -70,29 +70,29 @@ func compare_cliques(left_cliques [][]Vertex, right_cliques [][]Vertex, errors f
 	}
 }
 
-func Timed(order int, size int, samples int) [NUM_FUNCS]SampleStatistics {
-	var times [NUM_FUNCS]SampleStatistics
-	graph := random_undirected_graph(order, size)
+func Timed(order int, size int, samples int) [numFuncs]SampleStatistics {
+	var times [numFuncs]SampleStatistics
+	graph := randomUndirectedGraph(order, size)
 	var first [][]Vertex
 	for sample := 0; sample < samples; sample++ {
-		for func_index, bron_kerbosch_func := range FUNCS {
+		for funcIndex, bronKerboschFunc := range funcs {
 			begin := time.Now()
-			current := bron_kerbosch_func(&graph)
+			current := bronKerboschFunc(&graph)
 			secs := time.Since(begin).Seconds()
 			if secs >= 3.0 {
-				fmt.Printf("  %-8s: %5.2fs\n", FUNC_NAMES[func_index], secs)
+				fmt.Printf("  %-8s: %5.2fs\n", FuncNames[funcIndex], secs)
 			}
 			if sample < 2 {
-				sort_cliques(current)
+				sortCliques(current)
 				if len(first) == 0 {
 					first = current
 				} else {
-					compare_cliques(current, first, func(e string) {
-						fmt.Printf("  %s: %s\n", FUNC_NAMES[func_index], e)
+					compareCliques(current, first, func(e string) {
+						fmt.Printf("  %s: %s\n", FuncNames[funcIndex], e)
 					})
 				}
 			}
-			times[func_index].Put(secs)
+			times[funcIndex].Put(secs)
 		}
 	}
 	return times

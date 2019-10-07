@@ -1,28 +1,28 @@
-package bron_kerbosch
+package BronKerbosch
 
-func bron_kerbosch1(graph *UndirectedGraph) [][]Vertex {
+func bronKerbosch1(graph *UndirectedGraph) [][]Vertex {
 	// Naive Bron-Kerbosch algorithm
-	candidates := graph.connected_vertices()
+	candidates := graph.connectedVertices()
 	if candidates.IsEmpty() {
 		return nil
 	}
 	excluded := make(VertexSet, len(candidates))
 	var reporter SimpleReporter
-	bron_kerbosch1_visit(graph, &reporter, candidates, excluded, nil)
+	bronKerbosch1visit(graph, &reporter, candidates, excluded, nil)
 	return reporter.cliques
 }
 
-func bron_kerbosch1_visit(graph *UndirectedGraph, reporter Reporter,
+func bronKerbosch1visit(graph *UndirectedGraph, reporter Reporter,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	for {
 		v := candidates.PopArbitrary()
 		neighbours := graph.adjacencies[v]
-		neighbouring_candidates := candidates.Intersection(neighbours)
-		if !neighbouring_candidates.IsEmpty() {
-			neighbouring_excluded := excluded.Intersection(neighbours)
-			bron_kerbosch1_visit(graph, reporter,
-				neighbouring_candidates,
-				neighbouring_excluded,
+		neighbouringCandidates := candidates.Intersection(neighbours)
+		if !neighbouringCandidates.IsEmpty() {
+			neighbouringExcluded := excluded.Intersection(neighbours)
+			bronKerbosch1visit(graph, reporter,
+				neighbouringCandidates,
+				neighbouringExcluded,
 				append(clique, v))
 		} else {
 			if excluded.IsDisjoint(neighbours) {
