@@ -4,8 +4,7 @@ use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
 
-extern crate rand;
-use self::rand::seq::SliceRandom;
+use graph::rand::seq::SliceRandom;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {

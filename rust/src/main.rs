@@ -1,18 +1,6 @@
 #![allow(clippy::assertions_on_constants, clippy::or_fun_call)]
 
-extern crate bron_kerbosch;
-extern crate stats;
 mod random_graph;
-
-extern crate csv;
-extern crate fnv;
-extern crate hashbrown;
-extern crate itertools;
-extern crate rand;
-extern crate rand_chacha;
-extern crate structopt;
-extern crate strum;
-extern crate strum_macros;
 
 use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
 use bron_kerbosch::reporter::SimpleReporter;
@@ -21,7 +9,9 @@ use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNC
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
+use csv;
 use fnv::FnvHashSet;
+use hashbrown;
 use itertools::Itertools;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaChaRng;

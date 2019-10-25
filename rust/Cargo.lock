@@ -66,7 +66,6 @@ dependencies = [
  "proptest 0.9.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand_chacha 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "setops 0.1.0",
 ]
 
 [[package]]
@@ -613,10 +612,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "serde"
 version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "setops"
-version = "0.1.0"
 
 [[package]]
 name = "stats"

@@ -14,6 +14,7 @@ pub mod graph_degeneracy;
 pub mod mpmc;
 pub mod pile;
 pub mod reporter;
+mod set_new;
 pub mod slimgraph;
 mod vertexset;
 

@@ -1,6 +1,4 @@
-extern crate fnv;
-extern crate hashbrown;
-extern crate rand;
+pub extern crate rand;
 use self::rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;

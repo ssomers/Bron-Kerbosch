@@ -1,12 +1,9 @@
 extern crate fnv;
 extern crate hashbrown;
-extern crate rand;
-extern crate setops;
-use self::setops::{difference_future, intersection_future};
 use self::fnv::{FnvBuildHasher, FnvHashSet};
-use self::rand::prelude::IteratorRandom;
-use self::rand::Rng;
+use graph::rand::{seq::IteratorRandom, Rng};
 use graph::{Vertex, VertexSetLike};
+use set_new;
 use std::collections::{BTreeSet, HashSet};
 use std::iter::FromIterator;
 
@@ -30,19 +27,19 @@ impl VertexSetLike for BTreeSet<Vertex> {
     where
         C: FromIterator<Vertex>,
     {
-        difference_future(self, other).copied().collect()
+        set_new::difference(self, other).copied().collect()
     }
     fn is_disjoint(&self, other: &Self) -> bool {
-        intersection_future(self, other).next().is_none()
+        set_new::intersection(self, other).next().is_none()
     }
     fn intersection_size(&self, other: &Self) -> usize {
-        intersection_future(self, other).count()
+        set_new::intersection(self, other).count()
     }
     fn intersection<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
-        intersection_future(self, other).copied().collect()
+        set_new::intersection(self, other).copied().collect()
     }
     fn reserve(&mut self, _additional: usize) {}
     fn insert(&mut self, v: Vertex) {

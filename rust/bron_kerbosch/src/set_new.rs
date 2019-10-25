@@ -1,17 +1,17 @@
 // file comparable to rust/src/liballoc/collections/btree/set.rs
-use core::cmp::min;
-use core::cmp::Ordering::{Equal, Greater, Less};
-use core::fmt::{self};
-use core::iter::Peekable;
-use std::collections::btree_set::{Iter, Range};
+use std::cmp::Ordering::{Equal, Greater, Less};
+use std::cmp::{max, min};
+use std::collections::btree_set::Iter;
 use std::collections::BTreeSet;
+use std::fmt::{self, Debug};
+use std::iter::{FusedIterator, Peekable};
 
 /*
 // This is pretty much entirely stolen from TreeSet, since BTreeMap has an identical interface
 // to TreeMap
 
 use core::borrow::Borrow;
-use core::cmp::Ordering::{self, Less, Greater, Equal};
+use core::cmp::Ordering::{Less, Greater, Equal};
 use core::cmp::{max, min};
 use core::fmt::{self, Debug};
 use core::iter::{Peekable, FromIterator, FusedIterator};
@@ -117,6 +117,81 @@ pub struct IntoIter<T> {
 pub struct Range<'a, T: 'a> {
     iter: btree_map::Range<'a, T, ()>,
 }
+*/
+
+/// Core of SymmetricDifference and Union.
+/// More efficient than btree.map.MergeIter,
+/// and crucially for SymmetricDifference, nexts() reports on both sides.
+#[derive(Clone)]
+struct MergeIterInner<I>
+where
+    I: Iterator,
+    I::Item: Copy,
+{
+    a: I,
+    b: I,
+    peeked: Option<MergeIterPeeked<I>>,
+}
+
+#[derive(Copy, Clone, Debug)]
+enum MergeIterPeeked<I: Iterator> {
+    A(I::Item),
+    B(I::Item),
+}
+
+impl<I> MergeIterInner<I>
+where
+    I: ExactSizeIterator + FusedIterator,
+    I::Item: Copy + Ord,
+{
+    fn new(a: I, b: I) -> Self {
+        MergeIterInner { a, b, peeked: None }
+    }
+
+    fn nexts(&mut self) -> (Option<I::Item>, Option<I::Item>) {
+        let mut a_next = match self.peeked {
+            Some(MergeIterPeeked::A(next)) => Some(next),
+            _ => self.a.next(),
+        };
+        let mut b_next = match self.peeked {
+            Some(MergeIterPeeked::B(next)) => Some(next),
+            _ => self.b.next(),
+        };
+        let ord = match (a_next, b_next) {
+            (None, None) => Equal,
+            (_, None) => Less,
+            (None, _) => Greater,
+            (Some(a1), Some(b1)) => a1.cmp(&b1),
+        };
+        self.peeked = match ord {
+            Less => b_next.take().map(MergeIterPeeked::B),
+            Equal => None,
+            Greater => a_next.take().map(MergeIterPeeked::A),
+        };
+        (a_next, b_next)
+    }
+
+    fn lens(&self) -> (usize, usize) {
+        match self.peeked {
+            Some(MergeIterPeeked::A(_)) => (1 + self.a.len(), self.b.len()),
+            Some(MergeIterPeeked::B(_)) => (self.a.len(), 1 + self.b.len()),
+            _ => (self.a.len(), self.b.len()),
+        }
+    }
+}
+
+impl<I> Debug for MergeIterInner<I>
+where
+    I: Iterator + Debug,
+    I::Item: Copy + Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("MergeIterInner")
+            .field(&self.a)
+            .field(&self.b)
+            .finish()
+    }
+}
 
 /// A lazy iterator producing elements in the difference of `BTreeSet`s.
 ///
@@ -125,11 +200,10 @@ pub struct Range<'a, T: 'a> {
 ///
 /// [`BTreeSet`]: struct.BTreeSet.html
 /// [`difference`]: struct.BTreeSet.html#method.difference
-#[stable(feature = "rust1", since = "1.0.0")]
-*/
 pub struct Difference<'a, T: 'a> {
     inner: DifferenceInner<'a, T>,
 }
+#[derive(Debug)]
 enum DifferenceInner<'a, T: 'a> {
     Stitch {
         // iterate all of self and some of other, spotting matches along the way
@@ -144,26 +218,9 @@ enum DifferenceInner<'a, T: 'a> {
     Iterate(Iter<'a, T>), // simply stream self's elements
 }
 
-/*
-#[stable(feature = "collection_debug", since = "1.17.0")]
-*/
 impl<T: fmt::Debug> fmt::Debug for Difference<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.inner {
-            DifferenceInner::Stitch {
-                self_iter,
-                other_iter,
-            } => f
-                .debug_tuple("Difference")
-                .field(&self_iter)
-                .field(&other_iter)
-                .finish(),
-            DifferenceInner::Search {
-                self_iter,
-                other_set: _,
-            } => f.debug_tuple("Difference").field(&self_iter).finish(),
-            DifferenceInner::Iterate(iter) => f.debug_tuple("Difference").field(&iter).finish(),
-        }
+        f.debug_tuple("Difference").field(&self.inner).finish()
     }
 }
 
@@ -174,20 +231,11 @@ impl<T: fmt::Debug> fmt::Debug for Difference<'_, T> {
 ///
 /// [`BTreeSet`]: struct.BTreeSet.html
 /// [`symmetric_difference`]: struct.BTreeSet.html#method.symmetric_difference
-/*
-#[stable(feature = "rust1", since = "1.0.0")]
-pub struct SymmetricDifference<'a, T: 'a> {
-    a: Peekable<Iter<'a, T>>,
-    b: Peekable<Iter<'a, T>>,
-}
+pub struct SymmetricDifference<'a, T: 'a>(MergeIterInner<Iter<'a, T>>);
 
-#[stable(feature = "collection_debug", since = "1.17.0")]
 impl<T: fmt::Debug> fmt::Debug for SymmetricDifference<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("SymmetricDifference")
-         .field(&self.a)
-         .field(&self.b)
-         .finish()
+        f.debug_tuple("SymmetricDifference").field(&self.0).finish()
     }
 }
 
@@ -198,11 +246,10 @@ impl<T: fmt::Debug> fmt::Debug for SymmetricDifference<'_, T> {
 ///
 /// [`BTreeSet`]: struct.BTreeSet.html
 /// [`intersection`]: struct.BTreeSet.html#method.intersection
-#[stable(feature = "rust1", since = "1.0.0")]
-*/
 pub struct Intersection<'a, T: 'a> {
     inner: IntersectionInner<'a, T>,
 }
+#[derive(Debug)]
 enum IntersectionInner<'a, T: 'a> {
     Stitch {
         // iterate similarly sized sets jointly, spotting matches along the way
@@ -217,32 +264,12 @@ enum IntersectionInner<'a, T: 'a> {
     Answer(Option<&'a T>), // return a specific value or emptiness
 }
 
-/*
-#[stable(feature = "collection_debug", since = "1.17.0")]
-*/
 impl<T: fmt::Debug> fmt::Debug for Intersection<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.inner {
-            IntersectionInner::Stitch {
-                a,
-                b,
-            } => f
-                .debug_tuple("Intersection")
-                .field(&a)
-                .field(&b)
-                .finish(),
-            IntersectionInner::Search {
-                small_iter,
-                large_set: _,
-            } => f.debug_tuple("Intersection").field(&small_iter).finish(),
-            IntersectionInner::Answer(answer) => {
-                f.debug_tuple("Intersection").field(&answer).finish()
-            }
-        }
+        f.debug_tuple("Intersection").field(&self.inner).finish()
     }
 }
 
-/*
 /// A lazy iterator producing elements in the union of `BTreeSet`s.
 ///
 /// This `struct` is created by the [`union`] method on [`BTreeSet`].
@@ -250,22 +277,13 @@ impl<T: fmt::Debug> fmt::Debug for Intersection<'_, T> {
 ///
 /// [`BTreeSet`]: struct.BTreeSet.html
 /// [`union`]: struct.BTreeSet.html#method.union
-#[stable(feature = "rust1", since = "1.0.0")]
-pub struct Union<'a, T: 'a> {
-    a: Peekable<Iter<'a, T>>,
-    b: Peekable<Iter<'a, T>>,
-}
+pub struct Union<'a, T: 'a>(MergeIterInner<Iter<'a, T>>);
 
-#[stable(feature = "collection_debug", since = "1.17.0")]
 impl<T: fmt::Debug> fmt::Debug for Union<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("Union")
-         .field(&self.a)
-         .field(&self.b)
-         .finish()
+        f.debug_tuple("Union").field(&self.0).finish()
     }
 }
-*/
 
 // This constant is used by functions that compare two sets.
 // It estimates the relative size at which searching performs better
@@ -346,7 +364,9 @@ impl<T: Ord> BTreeSet<T> {
     */
 trait JustToIndentAsMuch<T> {
     fn difference<'a>(&'a self, other: &'a BTreeSet<T>) -> Difference<'a, T>;
+    fn symmetric_difference<'a>(&'a self, other: &'a BTreeSet<T>) -> SymmetricDifference<'a, T>;
     fn intersection<'a>(&'a self, other: &'a BTreeSet<T>) -> Intersection<'a, T>;
+    fn union<'a>(&'a self, other: &'a BTreeSet<T>) -> Union<'a, T>;
     fn is_subset(&self, other: &BTreeSet<T>) -> bool;
 }
 impl<T: Ord> JustToIndentAsMuch<T> for BTreeSet<T> {
@@ -421,12 +441,12 @@ impl<T: Ord> JustToIndentAsMuch<T> for BTreeSet<T> {
     pub fn symmetric_difference<'a>(&'a self,
                                     other: &'a BTreeSet<T>)
                                     -> SymmetricDifference<'a, T> {
-        SymmetricDifference {
-            a: self.iter().peekable(),
-            b: other.iter().peekable(),
-        }
+    */
+    fn symmetric_difference<'a>(&'a self, other: &'a BTreeSet<T>) -> SymmetricDifference<'a, T> {
+        SymmetricDifference(MergeIterInner::new(self.iter(), other.iter()))
     }
 
+    /*
     /// Visits the values representing the intersection,
     /// i.e., the values that are both in `self` and `other`,
     /// in ascending order.
@@ -515,12 +535,12 @@ impl<T: Ord> JustToIndentAsMuch<T> for BTreeSet<T> {
     /// ```
     #[stable(feature = "rust1", since = "1.0.0")]
     pub fn union<'a>(&'a self, other: &'a BTreeSet<T>) -> Union<'a, T> {
-        Union {
-            a: self.iter().peekable(),
-            b: other.iter().peekable(),
-        }
+    */
+    fn union<'a>(&'a self, other: &'a BTreeSet<T>) -> Union<'a, T> {
+        Union(MergeIterInner::new(self.iter(), other.iter()))
     }
 
+    /*
     /// Clears the set, removing all values.
     ///
     /// # Examples
@@ -1197,15 +1217,6 @@ impl<'a, T> DoubleEndedIterator for Range<'a, T> {
 #[stable(feature = "fused", since = "1.26.0")]
 impl<T> FusedIterator for Range<'_, T> {}
 
-/// Compares `x` and `y`, but return `short` if x is None and `long` if y is None
-fn cmp_opt<T: Ord>(x: Option<&T>, y: Option<&T>, short: Ordering, long: Ordering) -> Ordering {
-    match (x, y) {
-        (None, _) => short,
-        (_, None) => long,
-        (Some(x1), Some(y1)) => x1.cmp(y1),
-    }
-}
-
 #[stable(feature = "rust1", since = "1.0.0")]
 */
 impl<T> Clone for Difference<'_, T> {
@@ -1231,9 +1242,6 @@ impl<T> Clone for Difference<'_, T> {
         }
     }
 }
-/*
-#[stable(feature = "rust1", since = "1.0.0")]
-*/
 impl<'a, T: Ord> Iterator for Difference<'a, T> {
     type Item = &'a T;
 
@@ -1289,54 +1297,41 @@ impl<'a, T: Ord> Iterator for Difference<'a, T> {
     }
 }
 
-/*
-#[stable(feature = "fused", since = "1.26.0")]
 impl<T: Ord> FusedIterator for Difference<'_, T> {}
 
-#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> Clone for SymmetricDifference<'_, T> {
     fn clone(&self) -> Self {
-        SymmetricDifference {
-            a: self.a.clone(),
-            b: self.b.clone(),
-        }
+        SymmetricDifference(self.0.clone())
     }
 }
-#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: Ord> Iterator for SymmetricDifference<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<&'a T> {
         loop {
-            match cmp_opt(self.a.peek(), self.b.peek(), Greater, Less) {
-                Less => return self.a.next(),
-                Equal => {
-                    self.a.next();
-                    self.b.next();
-                }
-                Greater => return self.b.next(),
+            let (a_next, b_next) = self.0.nexts();
+            if a_next.and(b_next).is_none() {
+                return a_next.or(b_next);
             }
         }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, Some(self.a.len() + self.b.len()))
+        let (a_len, b_len) = self.0.lens();
+        // No checked_add, because even if a and b refer to the same set,
+        // and T is an empty type, the storage overhead of sets limits
+        // the number of elements to less than half the range of usize.
+        (0, Some(a_len + b_len))
     }
 }
 
-#[stable(feature = "fused", since = "1.26.0")]
 impl<T: Ord> FusedIterator for SymmetricDifference<'_, T> {}
 
-#[stable(feature = "rust1", since = "1.0.0")]
-*/
 impl<T> Clone for Intersection<'_, T> {
     fn clone(&self) -> Self {
         Intersection {
             inner: match &self.inner {
-                IntersectionInner::Stitch {
-                    a,
-                    b,
-                } => IntersectionInner::Stitch {
+                IntersectionInner::Stitch { a, b } => IntersectionInner::Stitch {
                     a: a.clone(),
                     b: b.clone(),
                 },
@@ -1347,23 +1342,17 @@ impl<T> Clone for Intersection<'_, T> {
                     small_iter: small_iter.clone(),
                     large_set,
                 },
-                IntersectionInner::Answer(answer) => IntersectionInner::Answer(answer.clone()),
+                IntersectionInner::Answer(answer) => IntersectionInner::Answer(*answer),
             },
         }
     }
 }
-/*
-#[stable(feature = "rust1", since = "1.0.0")]
-*/
 impl<'a, T: Ord> Iterator for Intersection<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<&'a T> {
         match &mut self.inner {
-            IntersectionInner::Stitch {
-                a,
-                b,
-            } => {
+            IntersectionInner::Stitch { a, b } => {
                 let mut a_next = a.next()?;
                 let mut b_next = b.next()?;
                 loop {
@@ -1397,309 +1386,37 @@ impl<'a, T: Ord> Iterator for Intersection<'a, T> {
     }
 }
 
-/*
-#[stable(feature = "fused", since = "1.26.0")]
 impl<T: Ord> FusedIterator for Intersection<'_, T> {}
 
-#[stable(feature = "rust1", since = "1.0.0")]
 impl<T> Clone for Union<'_, T> {
     fn clone(&self) -> Self {
-        Union {
-            a: self.a.clone(),
-            b: self.b.clone(),
-        }
+        Union(self.0.clone())
     }
 }
-#[stable(feature = "rust1", since = "1.0.0")]
 impl<'a, T: Ord> Iterator for Union<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<&'a T> {
-        match cmp_opt(self.a.peek(), self.b.peek(), Greater, Less) {
-            Less => self.a.next(),
-            Equal => {
-                self.b.next();
-                self.a.next()
-            }
-            Greater => self.b.next(),
-        }
+        let (a_next, b_next) = self.0.nexts();
+        a_next.or(b_next)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let a_len = self.a.len();
-        let b_len = self.b.len();
+        let (a_len, b_len) = self.0.lens();
+        // No checked_add - see SymmetricDifference::size_hint.
         (max(a_len, b_len), Some(a_len + b_len))
     }
 }
 
-#[stable(feature = "fused", since = "1.26.0")]
 impl<T: Ord> FusedIterator for Union<'_, T> {}
-*/
 
-pub struct IntersectionSwitch<'a, T: 'a> {
-    inner: IntersectionSwitchInner<'a, T>,
-}
-enum IntersectionSwitchInner<'a, T: 'a> {
-    Stitch {
-        // iterate both sets jointly, or iterate one and look up in the other
-        a_iter: Iter<'a, T>,
-        a_set: &'a BTreeSet<T>,
-        b_iter: Iter<'a, T>,
-        b_set: &'a BTreeSet<T>,
-    },
-    Answer(Option<&'a T>), // return a specific value or emptiness
-}
-
-impl<T: fmt::Debug> fmt::Debug for IntersectionSwitch<'_, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.inner {
-            IntersectionSwitchInner::Stitch {
-                a_iter,
-                a_set,
-                b_iter,
-                b_set,
-            } => f
-                .debug_tuple("Intersection")
-                .field(&a_iter)
-                .field(&a_set)
-                .field(&b_iter)
-                .field(&b_set)
-                .finish(),
-            IntersectionSwitchInner::Answer(answer) => {
-                f.debug_tuple("Intersection").field(&answer).finish()
-            }
-        }
-    }
-}
-
-impl<'a, T: Ord> Iterator for IntersectionSwitch<'a, T> {
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<&'a T> {
-        fn search_remainder<'b, S: Ord>(
-            small_iter: &mut Iter<'b, S>,
-            large_iter: &Iter<'b, S>,
-            large_set: &BTreeSet<S>,
-        ) -> Option<Option<&'b S>> {
-            if small_iter.len() > large_iter.len() / ITER_PERFORMANCE_TIPPING_SIZE_DIFF {
-                None
-            } else {
-                // At this point, large_iter's position may be one iteration
-                // beyond what you'd assume, and remains stuck, but it won't
-                // be used anymore. large_iter's length remains large, so we
-                // will keep coming back here, and it won't spoil size_hint.
-                while let Some(next) = small_iter.next() {
-                    if large_set.contains(&next) {
-                        return Some(Some(next));
-                    }
-                }
-                Some(None)
-            }
-        }
-
-        match &mut self.inner {
-            IntersectionSwitchInner::Stitch {
-                a_set,
-                b_set,
-                a_iter,
-                b_iter,
-            } => {
-                if let Some(result) = search_remainder(a_iter, b_iter, b_set) {
-                    return result;
-                }
-                if let Some(result) = search_remainder(b_iter, a_iter, a_set) {
-                    return result;
-                }
-                let mut a_next = a_iter.next()?;
-                let mut b_next = b_iter.next()?;
-                loop {
-                    match a_next.cmp(b_next) {
-                        Less => {
-                            if let Some(result) = search_remainder(a_iter, b_iter, b_set) {
-                                return result;
-                            }
-                            a_next = a_iter.next()?
-                        }
-                        Greater => {
-                            if let Some(result) = search_remainder(b_iter, a_iter, a_set) {
-                                return result;
-                            }
-                            b_next = b_iter.next()?
-                        }
-                        Equal => return Some(a_next),
-                    }
-                }
-            }
-            IntersectionSwitchInner::Answer(answer) => answer.take(),
-        }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        match &self.inner {
-            IntersectionSwitchInner::Stitch { a_iter, b_iter, .. } => {
-                (0, Some(min(a_iter.len(), b_iter.len())))
-            }
-            IntersectionSwitchInner::Answer(None) => (0, Some(0)),
-            IntersectionSwitchInner::Answer(Some(_)) => (1, Some(1)),
-        }
-    }
-}
-
-impl<T> Clone for IntersectionSwitch<'_, T> {
-    fn clone(&self) -> Self {
-        IntersectionSwitch {
-            inner: match &self.inner {
-                IntersectionSwitchInner::Stitch {
-                    a_set,
-                    b_set,
-                    a_iter,
-                    b_iter,
-                } => IntersectionSwitchInner::Stitch {
-                    a_set: a_set,
-                    b_set: b_set,
-                    a_iter: a_iter.clone(),
-                    b_iter: b_iter.clone(),
-                },
-                IntersectionSwitchInner::Answer(answer) => {
-                    IntersectionSwitchInner::Answer(answer.clone())
-                }
-            },
-        }
-    }
-}
-
-pub struct IntersectionSwivel<'a, T: 'a> {
-    a_range: Range<'a, T>,
-    b_range: Range<'a, T>,
-    a_set: &'a BTreeSet<T>,
-    b_set: &'a BTreeSet<T>,
-}
-
-impl<'a, T: Ord> Iterator for IntersectionSwivel<'a, T> {
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<&'a T> {
-        const NEXT_COUNT_MAX: usize = ITER_PERFORMANCE_TIPPING_SIZE_DIFF;
-        let mut next_count: usize = 0;
-        let mut a_next = self.a_range.next()?;
-        let mut b_next = self.b_range.next()?;
-        loop {
-            match a_next.cmp(b_next) {
-                Less => {
-                    next_count += 1;
-                    if next_count > NEXT_COUNT_MAX {
-                        next_count = 0;
-                        self.a_range = self.a_set.range(b_next..);
-                    }
-                    a_next = self.a_range.next()?
-                }
-                Greater => {
-                    next_count += 1;
-                    if next_count > NEXT_COUNT_MAX {
-                        next_count = 0;
-                        self.b_range = self.b_set.range(a_next..);
-                    }
-                    b_next = self.b_range.next()?
-                }
-                Equal => return Some(a_next),
-            }
-        }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let a_len = self.a_set.len();
-        let b_len = self.b_set.len();
-        (0, Some(min(a_len, b_len)))
-    }
-}
-
-pub fn is_subset_future<'a, T: Ord>(selve: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> bool {
-    (selve as &dyn JustToIndentAsMuch<T>).is_subset(other)
-}
-
-pub fn difference_future<'a, T: Ord>(
-    selve: &'a BTreeSet<T>,
-    other: &'a BTreeSet<T>,
-) -> Difference<'a, T> {
+pub fn difference<'a, T: Ord>(selve: &'a BTreeSet<T>, other: &'a BTreeSet<T>) -> Difference<'a, T> {
     (selve as &dyn JustToIndentAsMuch<T>).difference(other)
 }
 
-pub fn intersection_future<'a, T: Ord>(
+pub fn intersection<'a, T: Ord>(
     selve: &'a BTreeSet<T>,
     other: &'a BTreeSet<T>,
 ) -> Intersection<'a, T> {
     (selve as &dyn JustToIndentAsMuch<T>).intersection(other)
-}
-
-pub fn intersection_search<'a, T: Ord>(
-    small: &'a BTreeSet<T>,
-    large: &'a BTreeSet<T>,
-) -> Intersection<'a, T> {
-    debug_assert!(small.len() <= large.len());
-    Intersection {
-        inner: IntersectionInner::Search {
-            small_iter: small.iter(),
-            large_set: &large,
-        },
-    }
-}
-
-pub fn intersection_stitch<'a, T: Ord>(
-    a: &'a BTreeSet<T>,
-    b: &'a BTreeSet<T>,
-) -> Intersection<'a, T> {
-    Intersection {
-        inner: IntersectionInner::Stitch {
-            a: a.iter(),
-            b: b.iter(),
-        },
-    }
-}
-
-pub fn intersection_switch<'a, T: Ord>(
-    selve: &'a BTreeSet<T>,
-    other: &'a BTreeSet<T>,
-) -> IntersectionSwitch<'a, T> {
-    let (self_min, self_max) =
-        if let (Some(self_min), Some(self_max)) = (selve.iter().next(), selve.iter().next_back()) {
-            (self_min, self_max)
-        } else {
-            return IntersectionSwitch {
-                inner: IntersectionSwitchInner::Answer(None),
-            };
-        };
-    let (other_min, other_max) = if let (Some(other_min), Some(other_max)) =
-        (other.iter().next(), other.iter().next_back())
-    {
-        (other_min, other_max)
-    } else {
-        return IntersectionSwitch {
-            inner: IntersectionSwitchInner::Answer(None),
-        };
-    };
-    IntersectionSwitch {
-        inner: match (self_min.cmp(other_max), self_max.cmp(other_min)) {
-            (Greater, _) | (_, Less) => IntersectionSwitchInner::Answer(None),
-            (Equal, _) => IntersectionSwitchInner::Answer(Some(self_min)),
-            (_, Equal) => IntersectionSwitchInner::Answer(Some(self_max)),
-            _ => IntersectionSwitchInner::Stitch {
-                a_iter: selve.iter(),
-                a_set: selve,
-                b_iter: other.iter(),
-                b_set: other,
-            },
-        },
-    }
-}
-
-pub fn intersection_swivel<'a, T: Ord>(
-    a: &'a BTreeSet<T>,
-    b: &'a BTreeSet<T>,
-) -> IntersectionSwivel<'a, T> {
-    IntersectionSwivel {
-        a_range: a.range(..),
-        a_set: &a,
-        b_range: b.range(..),
-        b_set: &b,
-    }
 }

@@ -1,9 +1,8 @@
-extern crate bron_kerbosch;
+use bron_kerbosch;
 use bron_kerbosch::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 
-extern crate rand;
-use self::rand::seq::SliceRandom;
-use self::rand::Rng;
+use rand::seq::SliceRandom;
+use rand::Rng;
 
 pub enum Order {
     Of(u32),
@@ -88,9 +87,9 @@ mod tests {
     use super::*;
     use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 
-    extern crate rand_chacha;
     use self::rand_chacha::ChaChaRng;
     use rand::SeedableRng;
+    use rand_chacha;
     use std::collections::BTreeSet;
 
     #[test]
