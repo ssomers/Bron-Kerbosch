@@ -3,13 +3,13 @@
 ## What is this?
 
 Performance comparison of various implementations of three Bron-Kerbosch algorithms to find all maximal cliques in a graph.
-The purpose is not only to compare the algorithms, but also programming lanuages, and the effect of optimization within a programming language.
+The purpose is not only to compare the algorithms, but also programming languages, and the effect of optimization within a programming language.
 Compared to the original forked from, the code is:
 * converted from python 2 to python 3.7
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* all that mirrored in Rust, Go, and partly in C#, Java and Scala
+* all that mirrored in Rust, Java, Scala, Go, and partly in C#
 
 ## Implementations
 
@@ -31,7 +31,7 @@ Compared to the original forked from, the code is:
 
 ## Results
 
-Average seconds spent on a particular machine, in particular random graphs (but results seem consistent accross the random seed):
+Average seconds spent on a particular machine, in particular random graphs (but results seem consistent across the random seed):
 
 * Dense random graphs of order 100: Ver1 indeed can't cope.
 
@@ -109,7 +109,7 @@ Average seconds spent on a particular machine, in particular random graphs (but 
 ### Run C#
   - open csharp\BronKerboschStudy.sln with Visual Studio Community 2017
   - set configuration to Release
-  - Debug > Start Without Debuggging
+  - Debug > Start Without Debugging
 
 and finally
 
@@ -120,7 +120,7 @@ and finally
   - Test > Run > All Tests
 
 ### Run Java
-  - open java\bron-kerbosch.iml with IntelliJ IDEA 2019.2.1 (Community Edition)
+  - open java\bron-kerbosch.iml with IntelliJ IDEA 2019.2 (Community Edition)
   - set run configuration to Main
   - Run > Run 'main'
 
@@ -129,7 +129,7 @@ and finally
     python python3\publish.py java 100 10k 1M
 
 ### Run Scala
-  - open scala\build.sbt with IntelliJ IDEA 2019.2.1 (Community Edition)
+  - open scala\build.sbt with IntelliJ IDEA 2019.2 (Community Edition)
   - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
   - Build > Rebuild
   - set run configuration to main
