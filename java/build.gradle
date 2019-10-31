@@ -7,20 +7,6 @@ repositories {
     mavenCentral()
 }
 
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main']
-        }
-    }
-
-    test {
-        java {
-            srcDirs = ['src/test']
-        }
-    }
-}
-
 test {
     useJUnitPlatform()
 }

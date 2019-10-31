@@ -89,6 +89,7 @@ final class DegeneracyOrderingTest {
         return Arbitraries.integers().between(0, order - 1).set();
     }
 
+    @SuppressWarnings({"WeakerAccess", "unused"})
     @Provide
     private static Arbitrary<List<Set<Integer>>> arbitraryAdjacencyLikes() {
         Arbitrary<Integer> orders = Arbitraries.integers().between(1, 99);

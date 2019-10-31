@@ -86,10 +86,7 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                             remainingCandidates.add(v);
                         }
                     }
-                    if (seenLocalDegree == 0) {
-                        return;
-                    }
-                    if (initialPivotChoice == PivotChoice.MaxDegreeLocalX) {
+                    if (initialPivotChoice == PivotChoice.MaxDegreeLocalX && !remainingCandidates.isEmpty()) {
                         for (var v : mut_excluded) {
                             var neighbours = graph.neighbours(v);
                             var localDegree = util.Intersect(neighbours, mut_candidates).count();
@@ -104,7 +101,6 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                 default:
                     throw new IndexOutOfBoundsException(initialPivotChoice.toString());
             }
-            assert !remainingCandidates.isEmpty();
             for (int v : remainingCandidates) {
                 var neighbours = graph.neighbours(v);
                 if (!neighbours.contains(pivot)) {

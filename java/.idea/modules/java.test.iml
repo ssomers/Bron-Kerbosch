@@ -7,7 +7,8 @@
       <sourceFolder url="file://$MODULE_DIR$/../../build/generated/sources/annotationProcessor/java/test" isTestSource="true" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -16,8 +17,8 @@
     <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.5.1" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.5.1" level="project" />
     <orderEntry type="library" name="Gradle: net.jqwik:jqwik-api:1.2.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-engine:1.5.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: net.jqwik:jqwik-engine:1.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-engine:1.5.1" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.5.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.18.10" level="project" />
     <orderEntry type="library" name="Gradle: org.apiguardian:apiguardian-api:1.1.0" level="project" />
