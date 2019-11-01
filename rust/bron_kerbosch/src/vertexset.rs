@@ -23,7 +23,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
-    fn difference<C>(&self, other: &Self) -> C
+    fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -35,7 +35,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn intersection_size(&self, other: &Self) -> usize {
         set_new::intersection(self, other).count()
     }
-    fn intersection<C>(&self, other: &Self) -> C
+    fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -96,7 +96,7 @@ impl VertexSetLike for HashSet<Vertex> {
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
-    fn difference<C>(&self, other: &Self) -> C
+    fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -108,7 +108,7 @@ impl VertexSetLike for HashSet<Vertex> {
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
-    fn intersection<C>(&self, other: &Self) -> C
+    fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -170,7 +170,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
-    fn difference<C>(&self, other: &Self) -> C
+    fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -182,7 +182,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
-    fn intersection<C>(&self, other: &Self) -> C
+    fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -244,7 +244,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
-    fn difference<C>(&self, other: &Self) -> C
+    fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
@@ -256,7 +256,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
-    fn intersection<C>(&self, other: &Self) -> C
+    fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {

@@ -44,9 +44,9 @@ fn visit<VertexSet, Graph, Rprtr>(
     loop {
         let v = candidates.pop_arbitrary().unwrap();
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
         if !neighbouring_candidates.is_empty() {
-            let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+            let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
             visit(
                 graph,
                 reporter,

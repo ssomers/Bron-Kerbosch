@@ -11,12 +11,12 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
     fn contains(&self, v: Vertex) -> bool;
-    fn difference<C>(&self, other: &Self) -> C
+    fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>;
     fn is_disjoint(&self, other: &Self) -> bool;
     fn intersection_size(&self, other: &Self) -> usize;
-    fn intersection<C>(&self, other: &Self) -> C
+    fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>;
     fn reserve(&mut self, additional: usize);

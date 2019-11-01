@@ -96,13 +96,13 @@ pub fn visit<VertexSet, Graph, Rprtr>(
             continue;
         }
         candidates.remove(v);
-        let neighbouring_candidates: VertexSet = neighbours.intersection(&candidates);
+        let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
         if neighbouring_candidates.is_empty() {
             if neighbours.is_disjoint(&excluded) {
                 reporter.record(clique.place(v).collect());
             }
         } else {
-            let neighbouring_excluded: VertexSet = neighbours.intersection(&excluded);
+            let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
             visit(
                 graph,
                 reporter,
