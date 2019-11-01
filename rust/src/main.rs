@@ -1,4 +1,4 @@
-#![allow(clippy::assertions_on_constants, clippy::or_fun_call)]
+#![allow(clippy::assertions_on_constants, clippy::or_fun_call, clippy::manual_mul_add)]
 
 mod random_graph;
 
