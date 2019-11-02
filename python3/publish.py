@@ -6,8 +6,11 @@ import sys
 from typing import List, Mapping
 
 
+def func_name(case_name: str) -> str:
+    return case_name.split('@')[0]
+
+
 def color(case_name: str) -> str:
-    func_name = case_name.split('@')[0]
     return {
         "Ver1": "#000099",
         "Ver1+": "#3333CC",
@@ -19,13 +22,13 @@ def color(case_name: str) -> str:
         "Ver3+": "#006600",
         "Ver3+GP": "#339900",
         "Ver3+GPX": "#33CC00",
-        "Ver3+MT": "#99FF99",
-        "Ver3+ST": "#99FF66",
-        "Ver3+GP2": "#99FF99",
-        "Ver3+GP3": "#99FF66",
-        "Ver3+GP4": "#99FF33",
-        "Ver3+GP5": "#99FF00",
-    }[func_name]
+        "Ver3+MT": "#669999",
+        "Ver3+ST": "#669966",
+        "Ver3+GP2": "#669999",
+        "Ver3+GP3": "#669966",
+        "Ver3+GP4": "#669933",
+        "Ver3+GP5": "#669900",
+    }[func_name(case_name)]
 
 
 def dash(case_name: str) -> str:
@@ -94,12 +97,23 @@ def publish_csv(language: str, orderstr: str):
             max_per_size.append([float(cell) for cell in row[3::3]])
 
     try:
-        from plotly import graph_objs, plotly
+        from chart_studio import plotly
     except ImportError as e:
-        print(f"{e} (maybe you want to pip install plotly?)")
+        print(f"{e} (maybe you want to pip install chart-studio?)")
     else:
+        indices = [
+            f for f in range(num_cases) if any(
+                not math.isnan(mean_per_size[s][f]) for s in range(len(sizes)))
+        ]
+        # Group traces in legend, unless every func_name is either unique or the same
+        unique_func_names = len({func_name(case_names[f]) for f in indices})
+        legendgroups = unique_func_names in range(2, len(indices))
+
+        import plotly.io as pio
+        pio.templates.default = "none"  # disable default 4.0 theme
+        from plotly import graph_objects
         traces = [
-            graph_objs.Scatter(
+            graph_objects.Scatter(
                 x=sizes,
                 y=[mean_per_size[s][f] for s in range(len(sizes))],
                 error_y=dict(
@@ -119,8 +133,8 @@ def publish_csv(language: str, orderstr: str):
                 marker=dict(color=color(case_names[f])),
                 mode="lines+markers",
                 name=case_names[f],
-            ) for f in range(num_cases) if any(
-                not math.isnan(mean_per_size[s][f]) for s in range(len(sizes)))
+                legendgroup=func_name(case_names[f]) if legendgroups else None,
+            ) for f in indices
         ]
         layout = dict(
             title=('<a href="https://github.com/ssomers/Bron-Kerbosch">' +
