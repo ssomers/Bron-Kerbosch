@@ -1,16 +1,19 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
+import java.util.PrimitiveIterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-final class DegeneracyOrdering implements Iterator<Integer> {
+final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
     private final UndirectedGraph graph;
     // priority_per_vertex:
     // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
@@ -51,7 +54,7 @@ final class DegeneracyOrdering implements Iterator<Integer> {
     }
 
     @Override
-    public Integer next() {
+    public int nextInt() {
         assert IntStream.range(0, priority_per_vertex.length)
                 .allMatch(v -> priority_per_vertex[v] == 0
                         || queue.contains(priority_per_vertex[v], v));
@@ -114,5 +117,14 @@ final class DegeneracyOrdering implements Iterator<Integer> {
         boolean contains(int priority, int elt) {
             return stack_per_priority.get(priority - 1).contains(elt);
         }
+    }
+
+    IntStream stream() {
+        var characteristics = Spliterator.ORDERED
+                | Spliterator.DISTINCT
+                | Spliterator.NONNULL
+                | Spliterator.IMMUTABLE;
+        var spliterator = Spliterators.spliterator(this, num_left_to_pick, characteristics);
+        return StreamSupport.intStream(spliterator, false);
     }
 }

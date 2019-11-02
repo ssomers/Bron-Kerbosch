@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 final class DegeneracyOrderingTest {
     private static SortedSet<Integer> degeneracyOrdering(UndirectedGraph g, int drop) {
         SortedSet<Integer> vertices = new TreeSet<>();
-        new DegeneracyOrdering(g, drop).forEachRemaining(v -> {
+        new DegeneracyOrdering(g, drop).forEachRemaining((int v) -> {
             boolean added = vertices.add(v);
             assertTrue(added);
         });

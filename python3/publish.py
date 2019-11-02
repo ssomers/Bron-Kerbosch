@@ -20,10 +20,11 @@ def color(case_name: str) -> str:
         "Ver3+GP": "#339900",
         "Ver3+GPX": "#33CC00",
         "Ver3+MT": "#99FF99",
+        "Ver3+ST": "#99FF66",
         "Ver3+GP2": "#99FF99",
-        "Ver3+GP3": "#99FF99",
-        "Ver3+GP4": "#99FF99",
-        "Ver3+GP5": "#99FF99",
+        "Ver3+GP3": "#99FF66",
+        "Ver3+GP4": "#99FF33",
+        "Ver3+GP5": "#99FF00",
     }[func_name]
 
 
@@ -83,7 +84,9 @@ def publish_csv(language: str, orderstr: str):
         for i, row in enumerate(reader):
             expected_cols = 1 + num_cases * 3
             if len(row) != expected_cols:
-                raise ImportError(f"Row {i+2}: Found {len(row)} columns, expected {expected_cols}")
+                raise ImportError(
+                    f"Row {i+2}: Found {len(row)} columns, expected {expected_cols}"
+                )
             size = int(row[0])
             sizes.append(size)
             min_per_size.append([float(cell) for cell in row[1::3]])

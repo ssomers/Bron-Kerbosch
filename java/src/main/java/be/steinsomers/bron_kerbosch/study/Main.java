@@ -7,6 +7,7 @@ import be.steinsomers.bron_kerbosch.BronKerbosch2_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
 import be.steinsomers.bron_kerbosch.BronKerbosch3;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_MT;
+import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
 import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
@@ -36,6 +37,7 @@ final class Main {
             "Ver3+GP",
             "Ver3+GPX",
             "Ver3+MT",
+            "Ver3+ST",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
             new BronKerbosch1(),
@@ -47,6 +49,7 @@ final class Main {
             new BronKerbosch3_gp(),
             new BronKerbosch3_gpx(),
             new BronKerbosch3_MT(),
+            new BronKerbosch3_ST(),
     };
 
     static List<List<Integer>> OrderCliques(Collection<? extends Collection<Integer>> cliques) {
@@ -152,7 +155,7 @@ final class Main {
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes100, 5, allFuncIndices);
         bk("10k", 10_000, sizes10K, 3, mostFuncIndices);
-        bk("1M", 1_000_000, sizes1M, 3, new int[]{6, 8});
+        bk("1M", 1_000_000, sizes1M, 3, new int[]{6, 8, 9});
         /*
         int[] sizesT = {500_000};
         int[] funcIndices = {8};
