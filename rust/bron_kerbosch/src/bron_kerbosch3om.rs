@@ -80,8 +80,8 @@ where
                     visit(
                         graph,
                         &mut thread_reporter,
-                        PivotChoice::MaxDegree,
-                        PivotChoice::MaxDegree,
+                        PivotChoice::MaxDegreeLocal,
+                        PivotChoice::MaxDegreeLocal,
                         job.candidates,
                         job.excluded,
                         Pile::from(job.start),
