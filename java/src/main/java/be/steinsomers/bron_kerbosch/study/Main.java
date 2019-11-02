@@ -1,6 +1,17 @@
 package be.steinsomers.bron_kerbosch.study;
 
-import be.steinsomers.bron_kerbosch.*;
+import be.steinsomers.bron_kerbosch.BronKerbosch1;
+import be.steinsomers.bron_kerbosch.BronKerbosch2;
+import be.steinsomers.bron_kerbosch.BronKerbosch2_g;
+import be.steinsomers.bron_kerbosch.BronKerbosch2_gp;
+import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
+import be.steinsomers.bron_kerbosch.BronKerbosch3;
+import be.steinsomers.bron_kerbosch.BronKerbosch3_MT;
+import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
+import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
+import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
+import be.steinsomers.bron_kerbosch.SimpleReporter;
+import be.steinsomers.bron_kerbosch.UndirectedGraph;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -133,16 +144,15 @@ final class Main {
 
         int[] allFuncIndices = IntStream.range(0, FUNCS.length).toArray();
         int[] mostFuncIndices = IntStream.range(1, FUNCS.length).toArray();
-        int[] sizesWarm = {2000};
         int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
         int[] sizes10K = IntStream.iterate(100_000, s -> s <= 800_000, s -> s + 100_000).toArray();
         int[] sizes1M = IntStream.iterate(200_000, s -> s <= 5_000_000,
                 s -> s + (s < 2_000_000 ? 200_000 : 1_000_000)).toArray();
-        bk("warm-up", 100, sizesWarm, 3, allFuncIndices);
+        bk("warm-up", 100, new int[]{2000}, 3, allFuncIndices);
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes100, 5, allFuncIndices);
         bk("10k", 10_000, sizes10K, 3, mostFuncIndices);
-        bk("1M", 1_000_000, sizes1M, 3, mostFuncIndices);
+        bk("1M", 1_000_000, sizes1M, 3, new int[]{6, 8});
         /*
         int[] sizesT = {500_000};
         int[] funcIndices = {8};
