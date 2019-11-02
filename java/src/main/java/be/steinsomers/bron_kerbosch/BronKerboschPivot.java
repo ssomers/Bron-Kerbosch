@@ -1,6 +1,7 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +39,7 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
             PivotChoice furtherPivotChoice,
             Set<Integer> mut_candidates,
             Set<Integer> mut_excluded,
-            List<Integer> cliqueInProgress
+            Collection<Integer> cliqueInProgress
     ) {
         assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
         assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);
@@ -52,7 +53,7 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                 reporter.record(util.Append(cliqueInProgress, v));
             }
         } else {
-            List<Integer> remainingCandidates;
+            Collection<Integer> remainingCandidates;
             int pivot = -1;
             switch (initialPivotChoice) {
                 case Arbitrary:
@@ -86,7 +87,8 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                             remainingCandidates.add(v);
                         }
                     }
-                    if (initialPivotChoice == PivotChoice.MaxDegreeLocalX && !remainingCandidates.isEmpty()) {
+                    if (initialPivotChoice == PivotChoice.MaxDegreeLocalX
+                            && !remainingCandidates.isEmpty()) {
                         for (var v : mut_excluded) {
                             var neighbours = graph.neighbours(v);
                             var localDegree = util.Intersect(neighbours, mut_candidates).count();

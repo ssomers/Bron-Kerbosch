@@ -2,6 +2,7 @@
 
 package be.steinsomers.bron_kerbosch;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
 
     private static void visit(UndirectedGraph graph, Reporter reporter,
                               Set<Integer> mut_candidates, Set<Integer> mut_excluded,
-                              List<Integer> clique) {
+                              Collection<Integer> cliqueInProgress) {
         while (!mut_candidates.isEmpty()) {
             var v = util.PopArbitrary(mut_candidates);
             var neighbours = graph.neighbours(v);
@@ -27,7 +28,7 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
                     .collect(Collectors.toCollection(HashSet::new));
             if (neighbouringCandidates.isEmpty()) {
                 if (util.AreDisjoint(mut_excluded, neighbours))
-                    reporter.record(util.Append(clique, v));
+                    reporter.record(util.Append(cliqueInProgress, v));
             } else {
                 var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
                         .collect(Collectors.toCollection(HashSet::new));
@@ -35,7 +36,7 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
                         graph, reporter,
                         neighbouringCandidates,
                         neighbouringExcluded,
-                        util.Append(clique, v));
+                        util.Append(cliqueInProgress, v));
             }
             mut_excluded.add(v);
         }

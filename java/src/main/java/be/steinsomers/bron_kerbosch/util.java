@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public final class util {
-    public static <T> List<T> Append(List<? extends T> head, T tail) {
+    public static <T> Collection<T> Append(Collection<? extends T> head, T tail) {
         List<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
