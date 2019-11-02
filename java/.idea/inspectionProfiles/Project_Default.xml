@@ -387,7 +387,7 @@
     <inspection_tool class="LocalVariableNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_ignoreForLoopParameters" value="false" />
       <option name="m_ignoreCatchParameters" value="false" />
-      <option name="m_regex" value="[a-z][A-Za-z\d]*" />
+      <option name="m_regex" value="(mut_)?[a-z][A-Za-z\d]*" />
       <option name="m_minLength" value="1" />
       <option name="m_maxLength" value="24" />
     </inspection_tool>
@@ -547,7 +547,7 @@
       <option name="m_ignoreOverridesOfLibraryMethods" value="false" />
     </inspection_tool>
     <inspection_tool class="ParameterNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="m_regex" value="[a-z][A-Za-z\d]*" />
+      <option name="m_regex" value="(mut_)?[a-z][A-Za-z\d]*" />
       <option name="m_minLength" value="1" />
       <option name="m_maxLength" value="20" />
     </inspection_tool>
@@ -665,7 +665,7 @@
     <inspection_tool class="StringTokenizer" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="SubtractionInCompareTo" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="SuperTearDownInFinally" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="SuppressionAnnotation" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="SuppressionAnnotation" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="SuspiciousArrayCast" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="SuspiciousIndentAfterControlStatement" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="SuspiciousLiteralUnderscore" enabled="true" level="WARNING" enabled_by_default="true" />

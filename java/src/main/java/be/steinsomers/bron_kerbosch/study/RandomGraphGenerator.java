@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@SuppressWarnings("CollectionWithoutInitialCapacity")
 final class RandomGraphGenerator {
     private static List<Set<Integer>> new_sets(int n) {
         return Stream.generate(() -> new HashSet<Integer>()).limit(n).collect(Collectors.toList());
