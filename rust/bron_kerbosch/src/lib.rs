@@ -28,10 +28,10 @@ pub static FUNC_NAMES: &[&str; NUM_FUNCS] = &[
     "Ver3+MT",
 ];
 
-pub fn explore<VertexSet, Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
+pub fn explore<Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
 where
-    VertexSet: VertexSetLike + Send,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
+    Graph::VertexSet: VertexSetLike + Send,
     Rprtr: Reporter,
 {
     match func_index {
@@ -58,10 +58,10 @@ pub fn order_cliques(cliques: Vec<Clique>) -> OrderedCliques {
         .collect()
 }
 
-pub fn bron_kerbosch<VertexSet, Graph>(graph: &Graph) -> OrderedCliques
+pub fn bron_kerbosch<Graph>(graph: &Graph) -> OrderedCliques
 where
-    VertexSet: VertexSetLike + Send,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
+    Graph::VertexSet: VertexSetLike + Send,
 {
     let mut first: Option<OrderedCliques> = None;
     for func_index in 0..NUM_FUNCS {

@@ -36,17 +36,18 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
         F: FnMut(Vertex);
 }
 
-pub trait UndirectedGraph<VertexSet>: Sync {
+pub trait UndirectedGraph: Sync {
+    type VertexSet: VertexSetLike;
+
     fn order(&self) -> u32;
     fn size(&self) -> u32;
     fn degree(&self, node: Vertex) -> u32;
-    fn neighbours(&self, node: Vertex) -> &VertexSet;
+    fn neighbours(&self, node: Vertex) -> &Self::VertexSet;
 }
 
-pub fn connected_vertices<VertexSet, Graph>(g: &Graph) -> VertexSet
+pub fn connected_vertices<Graph>(g: &Graph) -> Graph::VertexSet
 where
-    VertexSet: FromIterator<Vertex>,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
 {
     (0..g.order()).filter(|&v| g.degree(v) > 0).collect()
 }
@@ -67,6 +68,6 @@ where
         })
 }
 
-pub trait NewableUndirectedGraph<VertexSet>: UndirectedGraph<VertexSet> {
+pub trait NewableUndirectedGraph<VertexSet>: UndirectedGraph {
     fn new(adjacencies: Adjacencies<VertexSet>) -> Self;
 }

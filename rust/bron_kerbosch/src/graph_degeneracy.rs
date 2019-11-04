@@ -1,12 +1,8 @@
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 
-pub fn degeneracy_ordering<VertexSet, Graph>(
-    graph: &Graph,
-    drop: isize,
-) -> DegeneracyOrderIter<VertexSet>
+pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<Graph>
 where
-    VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
 {
     debug_assert!(drop <= 0);
     let order = graph.order();
@@ -79,8 +75,8 @@ where
     }
 }
 
-pub struct DegeneracyOrderIter<'a, VertexSet> {
-    graph: &'a dyn UndirectedGraph<VertexSet>,
+pub struct DegeneracyOrderIter<'a, Graph> {
+    graph: &'a Graph,
     priority_per_vertex: Vec<Option<Priority>>,
     // If priority is None, vertex was already picked or was always irrelevant (unconnected);
     // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.
@@ -89,7 +85,7 @@ pub struct DegeneracyOrderIter<'a, VertexSet> {
     num_left_to_pick: isize,
 }
 
-impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
+impl<'a, Graph> DegeneracyOrderIter<'a, Graph> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
         debug_assert!(self
             .priority_per_vertex
@@ -110,11 +106,12 @@ impl<'a, VertexSet> DegeneracyOrderIter<'a, VertexSet> {
     }
 }
 
-impl<'a, VertexSet> Iterator for DegeneracyOrderIter<'a, VertexSet>
+impl<'a, Graph> Iterator for DegeneracyOrderIter<'a, Graph>
 where
-    VertexSet: VertexSetLike,
+    Graph: UndirectedGraph,
 {
     type Item = Vertex;
+
     fn next(&mut self) -> Option<Vertex> {
         if self.num_left_to_pick > 0 {
             self.num_left_to_pick -= 1;

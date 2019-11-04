@@ -10,7 +10,7 @@ use reporter::Reporter;
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
     Rprtr: Reporter,
 {
     let mut excluded = VertexSet::with_capacity((graph.order() as usize).saturating_sub(1));

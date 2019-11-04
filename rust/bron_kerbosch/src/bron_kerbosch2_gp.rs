@@ -5,10 +5,9 @@ use graph::{connected_vertices, UndirectedGraph, VertexSetLike};
 use pile::Pile;
 use reporter::Reporter;
 
-pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
+pub fn explore<Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
-    VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
     Rprtr: Reporter,
 {
     let candidates = connected_vertices(graph);
@@ -19,7 +18,7 @@ where
             PivotChoice::MaxDegree,
             PivotChoice::MaxDegreeLocal,
             candidates,
-            VertexSet::new(),
+            Graph::VertexSet::new(),
             Pile::new(),
         );
     }

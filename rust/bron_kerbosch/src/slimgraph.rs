@@ -11,10 +11,12 @@ where
     adjacencies: Adjacencies<VertexSet>,
 }
 
-impl<VertexSet> UndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
+impl<VertexSet> UndirectedGraph for SlimUndirectedGraph<VertexSet>
 where
     VertexSet: VertexSetLike + Sync,
 {
+    type VertexSet = VertexSet;
+
     fn order(&self) -> u32 {
         self.adjacencies.len() as u32
     }

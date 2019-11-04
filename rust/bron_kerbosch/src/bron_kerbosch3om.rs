@@ -30,7 +30,7 @@ struct VisitJob<VertexSet> {
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
     VertexSet: VertexSetLike + Send,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
     Rprtr: Reporter,
 {
     const NUM_VISITING_THREADS: usize = 5;

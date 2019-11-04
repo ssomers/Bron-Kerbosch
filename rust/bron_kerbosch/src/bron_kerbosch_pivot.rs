@@ -27,7 +27,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
     Rprtr: Reporter,
 {
     debug_assert!(!candidates.is_empty());
@@ -117,14 +117,13 @@ pub fn visit<VertexSet, Graph, Rprtr>(
     }
 }
 
-fn choose<'a, VertexSet, Graph>(
+fn choose<'a, Graph>(
     pivot_choice: PivotChoice,
     candidates: &'a [Vertex],
     graph: &Graph,
 ) -> Option<&'a Vertex>
 where
-    VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet>,
+    Graph: UndirectedGraph,
 {
     match pivot_choice {
         PivotChoice::Arbitrary => candidates.first(),
