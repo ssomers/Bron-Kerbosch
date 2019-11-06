@@ -10,9 +10,10 @@ pub fn channel<T>() -> (mpsc::Sender<T>, Receiver<T>) {
     (tx, Receiver(Arc::new(Mutex::new(rx))))
 }
 
+// Explicit definition due to https://github.com/rust-lang/rust/issues/26925
 impl<T> Clone for Receiver<T> {
     fn clone(&self) -> Self {
-        Receiver(self.0.clone())
+        Self(self.0.clone())
     }
 }
 impl<T> Receiver<T> {
