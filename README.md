@@ -17,29 +17,30 @@ Compared to the original forked from, the code is:
 * **Ver1+:** Ver1 optimized, including language-specific tweaks
 * **Ver2+:** Ver1+ excluding neighbours of a pivot that is chosen arbitrarily
 * **Ver2+G:** Similar but with pivot of highest degree in the whole graph, chosen from candidates only
-* **Ver2+GP:** Similar but with pivot of highest degree within the remaining candidates, chosen from candidates only (IK\_GP)
-* **Ver2+GPX:** Similar but with pivot of highest degree within the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
+* **Ver2+GP:** Similar but with pivot of highest degree towards the remaining candidates, chosen from candidates only (IK\_GP)
+* **Ver2+GPX:** Similar but with pivot of highest degree towards the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
 * **Ver2+RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP)
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust, Java only) Ver3+GP with multi-threading through channels (2 + 5 threads on a 6 core CPU)
-* **Ver3+ST:** (Java only) Ver3+GP with simple multi-threading through streams (2 + 5 threads on a 6 core CPU)
-* **Ver3+GP2:** (Go only) Ver3+GP with multi-threading (2 + 5 goroutines on a 6 core CPU)
-* **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutines on a 6 core CPU)
-* **Ver3+GP4:** (Go only) Ver3+GP with multi-threading (2 + 45 goroutines on a 6 core CPU)
-* **Ver3+GP5:** (Go only) Ver3+GP with multi-threading (2 + 135 goroutines on a 6 core CPU)
+* **Ver3+MT:** (Rust, Java only) Ver3+GP with multi-threading through channels (2 + 5 threads
+* **Ver3+ST:** (Java only) Ver3+GP with simple multi-threading using streams
+* **Ver3+GP2:** (Go only) Ver3+GP with multi-threading (2 + 5 goroutines)
+* **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutine)
+* **Ver3+GP4:** (Go only) Ver3+GP with multi-threading (2 + 45 goroutines)
+* **Ver3+GP5:** (Go only) Ver3+GP with multi-threading (2 + 135 goroutines)
 
 ## Results
 
-Average seconds spent on a particular machine, in particular random graphs (but results seem consistent across the random seed):
+Graphs of the amount of time spent on a particular machine with 6 core CPU,
+all on random graphs (generated with typical pseudo-random generators for each language, but results seem consistent hen varying the random seed):
 
 * [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
 * [Graphs of order 10k](results_10k.md): probably the most realistic case.
 * [Very sparse large graphs](results_sparse.md): Ver1 doesn't scale in particular implementations.
 * [Graphs of order 1M](results_1M.md): who scales best?
 
- Order of a graph = number of vertices, size = number of edges.
+Order of a graph = number of vertices.
 
 ## Run & Test
 
@@ -97,12 +98,16 @@ and finally
 
 ### Run Java
   - open java\bron-kerbosch.iml with IntelliJ IDEA 2019.2 (Community Edition)
-  - set run configuration to Main
-  - Run > Run 'main'
+  - set run configuration to "Main"
+  - Run > Run 'Main'
 
 and finally
 
     python python3\publish.py java 100 10k 1M
+
+### Test Java
+  - set run configuration to "All in bron-kerbosch"
+  - Run > Run 'All in bron-kerbosch'
 
 ### Run Scala
   - open scala\build.sbt with IntelliJ IDEA 2019.2 (Community Edition)
@@ -114,10 +119,6 @@ and finally
 and finally
 
     python python3\publish.py scala 100 10k 1M
-
-### Test Java
-  - set run configuration to All in java
-  - Run > Run 'test'
 
 ### Test Scala
   - set compiler configuration to debug
