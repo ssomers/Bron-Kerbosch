@@ -45,7 +45,7 @@ func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int)
 
 func main() {
 	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	mtFuncIndices := []int{6, 7, 8, 9}
+	mtFuncIndices := []int{4, 6, 7, 8, 9}
 	if len(os.Args) == 1 {
 		var sizes_100 []int
 		var sizes_10k []int
@@ -58,7 +58,7 @@ func main() {
 		}
 		for s := int(200e3); s <= 5e6; {
 			sizes_1M = append(sizes_1M, s)
-			if s < 1e6 {
+			if s < 2e6 {
 				s += 200e3
 			} else {
 				s += 1e6

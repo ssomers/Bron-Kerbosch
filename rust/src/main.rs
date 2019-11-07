@@ -340,7 +340,12 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((200_000..2_000_000).step_by(200_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |_set_type: SetType, _size: u32| -> Vec<usize> { vec![9] },
+            |set_type: SetType, _size: u32| -> Vec<usize> {
+                match set_type {
+                    SetType::Fnv => vec![7, 9],
+                    _ => vec![9],
+                }
+            },
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
         let order = parse_positive_int(&opt.order);
