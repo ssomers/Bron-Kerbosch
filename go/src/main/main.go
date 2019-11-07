@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func bk(orderstr string, order int, sizes []int, samples int) {
+func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
 	path := name + ".csv"
 	fo, err := os.Create(path)
@@ -22,26 +22,30 @@ func bk(orderstr string, order int, sizes []int, samples int) {
 	}()
 
 	fo.WriteString("Size")
-	for _, name := range BronKerbosch.FuncNames {
+	for _, funcIndex := range funcIndices {
+		name := BronKerbosch.FuncNames[funcIndex]
 		fo.WriteString(fmt.Sprintf(",%s min,%s mean,%s max", name, name, name))
 	}
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := BronKerbosch.Timed(order, size, samples)
-		for func_index, func_name := range BronKerbosch.FuncNames {
-			max := stats[func_index].Max()
-			min := stats[func_index].Min()
-			mean := stats[func_index].Mean()
-			dev := stats[func_index].Deviation()
+		stats := BronKerbosch.Timed(order, size, funcIndices, samples)
+		for _, funcIndex := range funcIndices {
+			name := BronKerbosch.FuncNames[funcIndex]
+			max := stats[funcIndex].Max()
+			min := stats[funcIndex].Min()
+			mean := stats[funcIndex].Mean()
+			dev := stats[funcIndex].Deviation()
 			fo.WriteString(fmt.Sprintf(",%f,%f,%f", min, mean, max))
-			fmt.Printf("order %7d size %7d %-8s: %5.2fs %c%5.2fs\n", order, size, func_name, mean, 177, dev)
+			fmt.Printf("order %7d size %7d %-8s: %5.2fs %c%5.2fs\n", order, size, name, mean, 177, dev)
 		}
 		fo.WriteString("\n")
 	}
 }
 
 func main() {
+	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+	mtFuncIndices := []int{6, 7, 8, 9}
 	if len(os.Args) == 1 {
 		var sizes_100 []int
 		var sizes_10k []int
@@ -60,9 +64,9 @@ func main() {
 				s += 1e6
 			}
 		}
-		bk("100", 1e2, sizes_100, 5)
-		bk("10k", 1e4, sizes_10k, 3)
-		bk("1M", 1e6, sizes_1M, 3)
+		bk("100", 1e2, sizes_100, allFuncIndices, 5)
+		bk("10k", 1e4, sizes_10k, allFuncIndices, 3)
+		bk("1M", 1e6, sizes_1M, mtFuncIndices, 3)
 	} else if len(os.Args) > 2 {
 		orderstr := os.Args[1]
 		order, err := strconv.Atoi(orderstr)
@@ -77,7 +81,7 @@ func main() {
 				panic(err)
 			}
 		}
-		bk(orderstr, order, sizes, 3)
+		bk(orderstr, order, sizes, allFuncIndices, 3)
 	} else {
 		print("give me one or more sizes too")
 	}

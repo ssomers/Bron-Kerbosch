@@ -70,12 +70,13 @@ func compareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func
 	}
 }
 
-func Timed(order int, size int, samples int) [numFuncs]SampleStatistics {
+func Timed(order int, size int, funcIndices []int, samples int) [numFuncs]SampleStatistics {
 	var times [numFuncs]SampleStatistics
 	graph := randomUndirectedGraph(order, size)
 	var first [][]Vertex
 	for sample := 0; sample < samples; sample++ {
-		for funcIndex, bronKerboschFunc := range funcs {
+		for _, funcIndex := range funcIndices {
+			bronKerboschFunc := funcs[funcIndex]
 			begin := time.Now()
 			current := bronKerboschFunc(&graph)
 			secs := time.Since(begin).Seconds()
