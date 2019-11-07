@@ -2,17 +2,16 @@
 //! recursing with pivot of highest degree (IK_GP)
 //! implemented by multiple threads
 
-use super::mpmc;
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use graph_degeneracy::degeneracy_ordering;
 use pile::Pile;
 use reporter::{Clique, Reporter};
 
-use std::sync::mpsc;
+extern crate crossbeam_channel;
 
 struct SendingReporter {
-    tx: mpsc::Sender<Clique>,
+    tx: crossbeam_channel::Sender<Clique>,
 }
 
 impl Reporter for SendingReporter {
@@ -36,9 +35,9 @@ where
     const NUM_VISITING_THREADS: usize = 5;
 
     crossbeam::thread::scope(|scope| {
-        let (start_tx, start_rx) = mpsc::channel();
-        let (visit_tx, visit_rx) = mpmc::channel::<VisitJob<VertexSet>>();
-        let (reporter_tx, reporter_rx) = mpsc::channel();
+        let (start_tx, start_rx) = crossbeam_channel::bounded(64);
+        let (visit_tx, visit_rx) = crossbeam_channel::bounded(64);
+        let (reporter_tx, reporter_rx) = crossbeam_channel::bounded(64);
 
         scope.spawn(move |_| {
             for vertex in degeneracy_ordering(graph, -1) {

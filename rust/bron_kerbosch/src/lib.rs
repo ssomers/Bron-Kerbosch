@@ -7,11 +7,10 @@ mod bron_kerbosch2_rp;
 mod bron_kerbosch3;
 mod bron_kerbosch3_gp;
 mod bron_kerbosch3_gpx;
-mod bron_kerbosch3om;
+mod bron_kerbosch3_mt;
 mod bron_kerbosch_pivot;
 pub mod graph;
 pub mod graph_degeneracy;
-pub mod mpmc;
 pub mod pile;
 pub mod reporter;
 mod set_new;
@@ -44,7 +43,7 @@ where
         6 => bron_kerbosch3::explore(graph, reporter),
         7 => bron_kerbosch3_gp::explore(graph, reporter),
         8 => bron_kerbosch3_gpx::explore(graph, reporter),
-        9 => bron_kerbosch3om::explore(graph, reporter),
+        9 => bron_kerbosch3_mt::explore(graph, reporter),
         _ => panic!(),
     }
 }
