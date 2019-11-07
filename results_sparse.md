@@ -1,0 +1,2 @@
+[![Time spent in Rust on graphs of order 1M](https://plot.ly/~stein.somers/265.png?share_key=pr6lBghz9gi7b16rFrFS6n "View interactively")](https://plot.ly/~stein.somers/265/?share_key=pr6lBghz9gi7b16rFrFS6n)
+[![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/267.png?share_key=Q6X4A2vOdBvCKcsEkVKoI3 "View interactively")](https://plot.ly/~stein.somers/267/?share_key=Q6X4A2vOdBvCKcsEkVKoI3)

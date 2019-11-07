@@ -34,37 +34,12 @@ Compared to the original forked from, the code is:
 
 Average seconds spent on a particular machine, in particular random graphs (but results seem consistent across the random seed):
 
-* Dense random graphs of order 100: Ver1 indeed can't cope.
+* [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
+* [Graphs of order 10k](results_10k.md): probably the most realistic case.
+* [Very sparse large graphs](results_sparse.md): Ver1 doesn't scale in particular implementations.
+* [Graphs of order 1M](results_1M.md): who scales best?
 
-[![Time spent in Rust on graphs of order 100](https://plot.ly/~stein.somers/153.png?share_key=AvQmqLCv53BIi1Hj30a8Dd "View interactively")](https://plot.ly/~stein.somers/153/?share_key=AvQmqLCv53BIi1Hj30a8Dd)
-[![Time spent in Go on graphs of order 100](https://plot.ly/~stein.somers/183.png?share_key=WseMiu6UJZgAKyQvTF2bJp "View interactively")](https://plot.ly/~stein.somers/183/?share_key=WseMiu6UJZgAKyQvTF2bJp)
-[![Time spent in Java on graphs of order 100](https://plot.ly/~stein.somers/275.png?share_key=6RR8zlwdQSnvV7T6AAGu2x "View interactively")](https://plot.ly/~stein.somers/275/?share_key=6RR8zlwdQSnvV7T6AAGu2x)
-[![Time spent in Scala on graphs of order 100](https://plot.ly/~stein.somers/197.png?share_key=F33K579eKLzY0A7fSherUI "View interactively")](https://plot.ly/~stein.somers/197/?share_key=F33K579eKLzY0A7fSherUI)
-[![Time spent in C# on graphs of order 100](https://plot.ly/~stein.somers/237.png?share_key=DqinsfUmGJVNhW9jPg5r4S "View interactively")](https://plot.ly/~stein.somers/237/?share_key=DqinsfUmGJVNhW9jPg5r4S)
-[![Time spent in Python3 on graphs of order 100](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
-
-* Random graphs of order 10k:
-
-[![Time spent in Rust on graphs of order 10k](https://plot.ly/~stein.somers/124.png?share_key=IFDVpkT7WiFl8n2Cc8Tjnj "View interactively")](https://plot.ly/~stein.somers/124/?share_key=IFDVpkT7WiFl8n2Cc8Tjnj)
-[![Time spent in Go on graphs of order 10k](https://plot.ly/~stein.somers/187.png?share_key=EtNe8FbmD8BwrxBaC7dHBt "View interactively")](https://plot.ly/~stein.somers/187/?share_key=EtNe8FbmD8BwrxBaC7dHBt)
-[![Time spent in Java on graphs of order 10k](https://plot.ly/~stein.somers/277.png?share_key=36zZ9joB55lvyYICQ7QL3B "View interactively")](https://plot.ly/~stein.somers/277/?share_key=36zZ9joB55lvyYICQ7QL3B)
-[![Time spent in Scala on graphs of order 10k](https://plot.ly/~stein.somers/199.png?share_key=ZM9Igh4glwfW0rFVJFzf3s "View interactively")](https://plot.ly/~stein.somers/199/?share_key=ZM9Igh4glwfW0rFVJFzf3s)
-[![Time spent in C# on graphs of order 10k](https://plot.ly/~stein.somers/239.png?share_key=SAxyM6pj8iMenK6SfIr9Um "View interactively")](https://plot.ly/~stein.somers/239/?share_key=SAxyM6pj8iMenK6SfIr9Um)
-[![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)
-
-* Very sparse large graphs: Ver1 doesn't scale in some implementations
-
-[![Time spent in Rust on graphs of order 1M](https://plot.ly/~stein.somers/265.png?share_key=pr6lBghz9gi7b16rFrFS6n "View interactively")](https://plot.ly/~stein.somers/265/?share_key=pr6lBghz9gi7b16rFrFS6n)
-[![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/267.png?share_key=Q6X4A2vOdBvCKcsEkVKoI3 "View interactively")](https://plot.ly/~stein.somers/267/?share_key=Q6X4A2vOdBvCKcsEkVKoI3)
-
-* Random graphs of order 1M: who scales best?
-
-[![Time spent in Rust on graphs of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
-[![Time spent in Go on graphs of order 1M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
-[![Time spent in Java on graphs of order 1M](https://plot.ly/~stein.somers/279.png?share_key=xHLiUmyFGHPAKf028I79Gd "View interactively")](https://plot.ly/~stein.somers/279/?share_key=xHLiUmyFGHPAKf028I79Gd)
-[![Time spent in Scala on graphs of order 1M](https://plot.ly/~stein.somers/201.png?share_key=pAZbwXAIC0C96nD9WP38yl "View interactively")](https://plot.ly/~stein.somers/201/?share_key=pAZbwXAIC0C96nD9WP38yl)
-[![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/261.png?share_key=DSsVRnQJEqbKPxQn8RyaSX "View interactively")](https://plot.ly/~stein.somers/261/?share_key=DSsVRnQJEqbKPxQn8RyaSX)
-[![Time spent in Python3 on graphs of order 1M](https://plot.ly/~stein.somers/213.png?share_key=FNQg1eSkoQaxjuw5yoEwNJ "View interactively")](https://plot.ly/~stein.somers/213/?share_key=FNQg1eSkoQaxjuw5yoEwNJ")
+ Order of a graph = number of vertices, size = number of edges.
 
 ## Run & Test
 
