@@ -106,8 +106,8 @@ and finally
     python python3\publish.py java 100 10k 1M
 
 ### Test Java
-  - set run configuration to "All in bron-kerbosch"
-  - Run > Run 'All in bron-kerbosch'
+  - set run configuration to "Test"
+  - Run > Run 'Test'
 
 ### Run Scala
   - open scala\build.sbt with IntelliJ IDEA 2019.2 (Community Edition)
