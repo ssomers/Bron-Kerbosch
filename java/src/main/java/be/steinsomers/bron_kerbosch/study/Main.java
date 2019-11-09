@@ -11,7 +11,6 @@ import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
 import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
-import be.steinsomers.bron_kerbosch.SimpleReporter;
 import be.steinsomers.bron_kerbosch.UndirectedGraph;
 
 import java.io.IOException;
@@ -77,14 +76,13 @@ final class Main {
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
         for (int sample = 1; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
-                var reporter = new SimpleReporter();
                 var start = System.currentTimeMillis();
-                FUNCS[funcIndex].explore(graph, reporter);
+                var cliques = FUNCS[funcIndex].explore(graph);
                 var elapsed = System.currentTimeMillis() - start;
                 times[funcIndex].put(elapsed);
 
                 if (samples > 1 && sample <= 2) {
-                    var ordered = OrderCliques(reporter.cliques);
+                    var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
                         firstOrdered = Optional.of(ordered);
                     } else {

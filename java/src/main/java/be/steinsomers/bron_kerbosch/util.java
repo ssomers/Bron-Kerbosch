@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 public final class util {
     public static <T> Collection<T> Append(Collection<? extends T> head, T tail) {
-        List<T> result = new ArrayList<>(head.size() + 1);
+        Collection<T> result = new ArrayList<>(head.size() + 1);
         result.addAll(head);
         result.add(tail);
         return result;

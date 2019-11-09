@@ -1,5 +1,6 @@
 package be.steinsomers.bron_kerbosch;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,23 +19,25 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
     }
 
     @Override
-    public final void explore(UndirectedGraph graph, Reporter reporter) {
+    public final Collection<Collection<Integer>> explore(UndirectedGraph graph) {
         Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
+        Collection<Collection<Integer>> cliques = new ArrayDeque<>();
         if (!candidates.isEmpty()) {
             Set<Integer> excluded = new HashSet<>(candidates.size());
             visit(
-                    graph, reporter,
+                    graph, cliques,
                     itsInitialPivotChoice,
                     itsFurtherPivotChoice,
                     candidates, excluded,
                     List.of());
         }
+        return cliques;
     }
 
     public static void visit(
             UndirectedGraph graph,
-            Reporter reporter,
+            Collection<Collection<Integer>> mut_cliques,
             PivotChoice initialPivotChoice,
             PivotChoice furtherPivotChoice,
             Set<Integer> mut_candidates,
@@ -50,7 +53,7 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
             var v = mut_candidates.iterator().next();
             var neighbours = graph.neighbours(v);
             if (util.AreDisjoint(neighbours, mut_excluded)) {
-                reporter.record(util.Append(cliqueInProgress, v));
+                mut_cliques.add(util.Append(cliqueInProgress, v));
             }
         } else {
             Collection<Integer> remainingCandidates;
@@ -77,7 +80,7 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                         if (localDegree == 0) {
                             // Same logic as below, stripped down
                             if (util.AreDisjoint(neighbours, mut_excluded)) {
-                                reporter.record(util.Append(cliqueInProgress, v));
+                                mut_cliques.add(util.Append(cliqueInProgress, v));
                             }
                         } else {
                             if (seenLocalDegree < localDegree) {
@@ -111,13 +114,13 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                             .collect(Collectors.toCollection(HashSet::new));
                     if (neighbouringCandidates.isEmpty()) {
                         if (util.AreDisjoint(neighbours, mut_excluded)) {
-                            reporter.record(util.Append(cliqueInProgress, v));
+                            mut_cliques.add(util.Append(cliqueInProgress, v));
                         }
                     } else {
                         var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
                                 .collect(Collectors.toCollection(HashSet::new));
                         visit(
-                                graph, reporter,
+                                graph, mut_cliques,
                                 furtherPivotChoice,
                                 furtherPivotChoice,
                                 neighbouringCandidates,

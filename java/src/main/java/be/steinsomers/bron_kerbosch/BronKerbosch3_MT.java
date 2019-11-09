@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -84,23 +85,19 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private final class Visitor extends Thread {
         @Override
         public void run() {
-            Reporter reporter = clique -> {
-                try {
-                    cliqueQueue.put(clique);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-            };
-
             try {
                 VisitJob job;
                 while ((job = visitQueue.take()).startVertex >= 0) {
-                    BronKerboschPivot.visit(graph, reporter,
+                    Collection<Collection<Integer>> cliques = new ArrayDeque<>();
+                    BronKerboschPivot.visit(graph, cliques,
                             PivotChoice.MaxDegreeLocal,
                             PivotChoice.MaxDegreeLocal,
                             job.mut_candidates,
                             job.mut_excluded,
                             List.of(job.startVertex));
+                    for (var clique : cliques) {
+                        cliqueQueue.put(clique);
+                    }
                 }
                 cliqueQueue.put(List.of(job.startVertex));
             } catch (InterruptedException consumed) {
@@ -111,7 +108,8 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @Override
-    public void explore(UndirectedGraph graph, Reporter reporter) throws InterruptedException {
+    public Collection<Collection<Integer>> explore(UndirectedGraph graph)
+            throws InterruptedException {
         this.graph = graph;
         startQueue = new ArrayBlockingQueue<>(64);
         visitQueue = new ArrayBlockingQueue<>(64);
@@ -122,10 +120,11 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             new Visitor().start();
         }
         int finished = 0;
+        Collection<Collection<Integer>> cliques = new ArrayDeque<>();
         while (finished < NUM_VISITING_THREADS) {
             var clique = cliqueQueue.take();
             if (clique.size() >= 2) {
-                reporter.record(clique);
+                cliques.add(clique);
             } else {
                 if (clique.iterator().next() == DIRTY_END_VERTEX) {
                     throw new InterruptedException("Worker threads were attacked");
@@ -133,5 +132,6 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
                 finished += 1;
             }
         }
+        return cliques;
     }
 }

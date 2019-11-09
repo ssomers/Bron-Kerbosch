@@ -1,6 +1,8 @@
 package be.steinsomers.bron_kerbosch;
 
+import java.util.Collection;
+
 @FunctionalInterface
 public interface BronKerboschAlgorithm {
-    void explore(UndirectedGraph graph, Reporter reporter) throws InterruptedException;
+    Collection<Collection<Integer>> explore(UndirectedGraph graph) throws InterruptedException;
 }

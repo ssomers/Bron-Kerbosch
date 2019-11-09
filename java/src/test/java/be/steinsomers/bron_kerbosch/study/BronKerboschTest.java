@@ -1,6 +1,5 @@
 package be.steinsomers.bron_kerbosch.study;
 
-import be.steinsomers.bron_kerbosch.SimpleReporter;
 import be.steinsomers.bron_kerbosch.UndirectedGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,13 +16,13 @@ final class BronKerboschTest {
         var graph = new UndirectedGraph(adjacencies);
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
             var funcName = Main.FUNC_NAMES[funcIndex];
-            var reporter = new SimpleReporter();
+            Collection<? extends Collection<Integer>> cliques;
             try {
-                Main.FUNCS[funcIndex].explore(graph, reporter);
+                cliques = Main.FUNCS[funcIndex].explore(graph);
             } catch (InterruptedException ex) {
                 throw new AssertionError(ex);
             }
-            var cliques = Main.OrderCliques(reporter.cliques);
+            cliques = Main.OrderCliques(cliques);
             Assertions.assertEquals(cliques, expectedCliques,
                     String.format("Unexpected result for %s", funcName));
         }
