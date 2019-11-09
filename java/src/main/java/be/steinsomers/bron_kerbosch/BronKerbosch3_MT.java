@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private UndirectedGraph graph;
     private BlockingQueue<VisitJob> startQueue;
     private BlockingQueue<VisitJob> visitQueue;
-    private BlockingQueue<Collection<Integer>> cliqueQueue;
+    private Collection<Collection<Integer>> cliques;
 
     @Data
     @RequiredArgsConstructor
@@ -88,21 +89,18 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             try {
                 VisitJob job;
                 while ((job = visitQueue.take()).startVertex >= 0) {
-                    Collection<Collection<Integer>> cliques = new ArrayDeque<>();
                     BronKerboschPivot.visit(graph, cliques,
                             PivotChoice.MaxDegreeLocal,
                             PivotChoice.MaxDegreeLocal,
                             job.mut_candidates,
                             job.mut_excluded,
                             List.of(job.startVertex));
-                    for (var clique : cliques) {
-                        cliqueQueue.put(clique);
-                    }
                 }
-                cliqueQueue.put(List.of(job.startVertex));
+                if (job.startVertex == DIRTY_END_VERTEX) {
+                    cliques.clear();
+                }
             } catch (InterruptedException consumed) {
-                cliqueQueue.clear();
-                cliqueQueue.add(List.of(DIRTY_END_VERTEX));
+                cliques.clear();
             }
         }
     }
@@ -111,26 +109,18 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     public Collection<Collection<Integer>> explore(UndirectedGraph graph)
             throws InterruptedException {
         this.graph = graph;
+        cliques = Collections.synchronizedCollection(new ArrayDeque<>());
         startQueue = new ArrayBlockingQueue<>(64);
         visitQueue = new ArrayBlockingQueue<>(64);
-        cliqueQueue = new ArrayBlockingQueue<>(64);
         new StartProducer().start();
         new VisitProducer().start();
+        var visitors = new Visitor[NUM_VISITING_THREADS];
         for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
-            new Visitor().start();
+            visitors[i] = new Visitor();
+            visitors[i].start();
         }
-        int finished = 0;
-        Collection<Collection<Integer>> cliques = new ArrayDeque<>();
-        while (finished < NUM_VISITING_THREADS) {
-            var clique = cliqueQueue.take();
-            if (clique.size() >= 2) {
-                cliques.add(clique);
-            } else {
-                if (clique.iterator().next() == DIRTY_END_VERTEX) {
-                    throw new InterruptedException("Worker threads were attacked");
-                }
-                finished += 1;
-            }
+        for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
+            visitors[i].join();
         }
         return cliques;
     }
