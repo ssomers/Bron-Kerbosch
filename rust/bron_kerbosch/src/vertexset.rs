@@ -8,56 +8,71 @@ use std::collections::{BTreeSet, HashSet};
 use std::iter::FromIterator;
 
 impl VertexSetLike for BTreeSet<Vertex> {
-    fn new() -> BTreeSet<Vertex> {
-        BTreeSet::new()
+    fn new() -> Self {
+        Self::new()
     }
-    fn with_capacity(_capacity: usize) -> BTreeSet<Vertex> {
-        BTreeSet::new()
+
+    fn with_capacity(_capacity: usize) -> Self {
+        Self::new()
     }
+
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
+
     fn len(&self) -> usize {
         self.len()
     }
+
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
+
     fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         set_new::difference(self, other).copied().collect()
     }
+
     fn is_disjoint(&self, other: &Self) -> bool {
         set_new::intersection(self, other).next().is_none()
     }
+
     fn intersection_size(&self, other: &Self) -> usize {
         set_new::intersection(self, other).count()
     }
+
     fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         set_new::intersection(self, other).copied().collect()
     }
+
     fn reserve(&mut self, _additional: usize) {}
+
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
+
     fn remove(&mut self, v: Vertex) {
         self.remove(&v);
     }
+
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
+
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
     }
+
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
     }
+
     fn clear(&mut self) {
         self.clear();
     }
@@ -82,57 +97,72 @@ impl VertexSetLike for BTreeSet<Vertex> {
 #[allow(clippy::implicit_hasher)]
 impl VertexSetLike for HashSet<Vertex> {
     fn new() -> Self {
-        HashSet::new()
+        Self::new()
     }
+
     fn with_capacity(capacity: usize) -> Self {
-        HashSet::with_capacity(capacity)
+        Self::with_capacity(capacity)
     }
+
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
+
     fn len(&self) -> usize {
         self.len()
     }
+
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
+
     fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.difference(other).copied().collect()
     }
+
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
     }
+
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
+
     fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.intersection(other).copied().collect()
     }
+
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
     }
+
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
+
     fn remove(&mut self, v: Vertex) {
         self.remove(&v);
     }
+
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
+
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
     }
+
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
     }
+
     fn clear(&mut self) {
         self.clear();
     }
@@ -156,57 +186,72 @@ impl VertexSetLike for HashSet<Vertex> {
 
 impl VertexSetLike for FnvHashSet<Vertex> {
     fn new() -> Self {
-        FnvHashSet::default()
+        Self::default()
     }
+
     fn with_capacity(capacity: usize) -> Self {
-        FnvHashSet::with_capacity_and_hasher(capacity, FnvBuildHasher::default())
+        Self::with_capacity_and_hasher(capacity, FnvBuildHasher::default())
     }
+
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
+
     fn len(&self) -> usize {
         self.len()
     }
+
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
+
     fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.difference(other).copied().collect()
     }
+
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
     }
+
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
+
     fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.intersection(other).copied().collect()
     }
+
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
     }
+
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
+
     fn remove(&mut self, v: Vertex) {
         self.remove(&v);
     }
+
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
+
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
     }
+
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
     }
+
     fn clear(&mut self) {
         self.clear();
     }
@@ -232,55 +277,70 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn new() -> Self {
         Self::new()
     }
+
     fn with_capacity(capacity: usize) -> Self {
         Self::with_capacity(capacity)
     }
+
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
+
     fn len(&self) -> usize {
         self.len()
     }
+
     fn contains(&self, v: Vertex) -> bool {
         self.contains(&v)
     }
+
     fn difference_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.difference(other).copied().collect()
     }
+
     fn is_disjoint(&self, other: &Self) -> bool {
         self.is_disjoint(other)
     }
+
     fn intersection_size(&self, other: &Self) -> usize {
         self.intersection(other).count()
     }
+
     fn intersection_collect<C>(&self, other: &Self) -> C
     where
         C: FromIterator<Vertex>,
     {
         self.intersection(other).copied().collect()
     }
+
     fn reserve(&mut self, additional: usize) {
         self.reserve(additional);
     }
+
     fn insert(&mut self, v: Vertex) {
         self.insert(v);
     }
+
     fn remove(&mut self, v: Vertex) {
         self.remove(&v);
     }
+
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
         let elt = self.iter().next().copied()?;
         self.take(&elt)
     }
+
     fn choose_arbitrary(&self) -> Option<&Vertex> {
         self.iter().next()
     }
+
     fn choose(&self, rng: &mut impl Rng) -> Option<&Vertex> {
         self.iter().choose(rng)
     }
+
     fn clear(&mut self) {
         self.clear();
     }
