@@ -69,7 +69,9 @@ Order of a graph = number of vertices.
 ### Test Rust
 
     cd rust
-    cargo test --all
+    cargo check --workspace
+    cargo clippy --workspace
+    cargo test --workspace
 
 ### Run Go
 
