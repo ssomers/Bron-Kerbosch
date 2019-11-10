@@ -366,47 +366,33 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_btreeset_pop_arbitrary() {
-        let mut s: BTreeSet<u32> = [4, 2].iter().copied().collect();
+    fn test_pop_arbitrary<VertexSet: VertexSetLike>() {
+        let mut s: VertexSet = [4, 2].iter().copied().collect();
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 0);
         assert!(s.pop_arbitrary().is_none());
         assert_eq!(s.len(), 0);
+    }
+
+    #[test]
+    fn test_btreeset_pop_arbitrary() {
+        test_pop_arbitrary::<BTreeSet<Vertex>>()
     }
 
     #[test]
     fn test_hashset_pop_arbitrary() {
-        let mut s: HashSet<u32> = [4, 2].iter().copied().collect();
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 1);
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 0);
-        assert!(s.pop_arbitrary().is_none());
-        assert_eq!(s.len(), 0);
+        test_pop_arbitrary::<HashSet<Vertex>>()
     }
 
     #[test]
     fn test_fnvhashset_pop_arbitrary() {
-        let mut s: FnvHashSet<u32> = [4, 2].iter().copied().collect();
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 1);
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 0);
-        assert!(s.pop_arbitrary().is_none());
-        assert_eq!(s.len(), 0);
+        test_pop_arbitrary::<FnvHashSet<Vertex>>()
     }
 
     #[test]
     fn test_hashbrownhashset_pop_arbitrary() {
-        let mut s: hashbrown::HashSet<u32> = [4, 2].iter().copied().collect();
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 1);
-        assert!(s.pop_arbitrary().is_some());
-        assert_eq!(s.len(), 0);
-        assert!(s.pop_arbitrary().is_none());
-        assert_eq!(s.len(), 0);
+        test_pop_arbitrary::<HashSet<Vertex>>()
     }
 }
