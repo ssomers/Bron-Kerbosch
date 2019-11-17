@@ -340,9 +340,9 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((200_000..2_000_000).step_by(200_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |set_type: SetType, _size: u32| -> Vec<usize> {
-                match set_type {
-                    SetType::Fnv => vec![7, 9],
+            |_set_type: SetType, size: u32| -> Vec<usize> {
+                match size {
+                    0..=2_000_000 => vec![7, 9],
                     _ => vec![9],
                 }
             },
