@@ -21,8 +21,11 @@ use graph::{UndirectedGraph, Vertex, VertexSetLike};
 use reporter::{Clique, Reporter, SimpleReporter};
 use std::collections::BTreeSet;
 
+#[cfg(not(miri))]
 pub const NUM_FUNCS: usize = 10;
-pub static FUNC_NAMES: &[&str; NUM_FUNCS] = &[
+#[cfg(miri)]
+pub const NUM_FUNCS: usize = 9;
+pub static FUNC_NAMES: &[&str; 10] = &[
     "Ver1", "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver2+RP", "Ver3+", "Ver3+GP", "Ver3+GPX",
     "Ver3+MT",
 ];
