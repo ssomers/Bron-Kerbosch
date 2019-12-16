@@ -29,8 +29,7 @@ def degeneracy_ordering(graph: UndirectedGraph, drop=0):
     max_degree = 0
     num_candidates = 0
     for c in range(graph.order):
-        degree = graph.degree(c)
-        if degree > 0:
+        if degree := graph.degree(c):
             priority_per_node[c] = degree
             max_degree = max(max_degree, degree)
             num_candidates += 1
@@ -52,8 +51,7 @@ def degeneracy_ordering(graph: UndirectedGraph, drop=0):
         priority_per_node[i] = -1
         yield i
         for v in graph.adjacencies[i]:
-            p = priority_per_node[v]
-            if p != -1:
+            if (p := priority_per_node[v]) != -1:
                 assert p > 0
                 # Requeue with a more urgent priority, but don't bother to remove
                 # the original entry - it will be skipped if it's reached at all.

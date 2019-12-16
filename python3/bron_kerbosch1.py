@@ -7,8 +7,7 @@ from typing import List, Set
 
 def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter):
     '''Naive Bron-Kerbosch algorithm'''
-    candidates = graph.connected_vertices()
-    if candidates:
+    if candidates := graph.connected_vertices():
         visit(
             graph=graph,
             reporter=reporter,

@@ -14,8 +14,7 @@ def bron_kerbosch3(graph: UndirectedGraph, reporter: Reporter):
     for v in degeneracy_ordering(graph=graph, drop=1):
         neighbours = graph.adjacencies[v]
         assert neighbours
-        neighbouring_candidates = neighbours.difference(excluded)
-        if neighbouring_candidates:
+        if neighbouring_candidates := neighbours.difference(excluded):
             neighbouring_excluded = neighbours.intersection(excluded)
             visit(
                 graph=graph,

@@ -107,7 +107,7 @@ def publish_csv(language: str, orderstr: str):
         ]
         # Group traces in legend, unless every func_name is either unique or the same
         unique_func_names = len({func_name(case_names[f]) for f in indices})
-        legendgroups = unique_func_names in range(2, len(indices))
+        legendgroups = len(indices) > 5 and unique_func_names in range(2, len(indices))
 
         import plotly.io as pio
         pio.templates.default = "none"  # disable default 4.0 theme

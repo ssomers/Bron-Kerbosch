@@ -32,8 +32,7 @@ class UndirectedGraph(object):
 
 
 def random_undirected_graph(order: int, size: int) -> UndirectedGraph:
-    fully_meshed_size = order * (order - 1) // 2
-    if size > fully_meshed_size:
+    if size > (fully_meshed_size := order * (order - 1) // 2):
         raise ValueError(
             f"{order} nodes accommodate at most {fully_meshed_size} edges")
     vertices = range(order)

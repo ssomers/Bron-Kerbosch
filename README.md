@@ -5,7 +5,7 @@
 Performance comparison of various implementations of three Bron-Kerbosch algorithms to find all maximal cliques in a graph.
 The purpose is not only to compare the algorithms, but also programming languages, and the effect of optimization within a programming language.
 Compared to the original forked from, the code is:
-* converted from python 2 to python 3.7
+* converted from python 2 to python 3.8
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs

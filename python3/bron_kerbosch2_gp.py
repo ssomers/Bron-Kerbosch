@@ -8,8 +8,7 @@ from reporter import Reporter
 def bron_kerbosch2_gp(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
        chosen from candidates only (IK_GP)'''
-    candidates = graph.connected_vertices()
-    if candidates:
+    if candidates := graph.connected_vertices():
         visit(
             graph=graph,
             reporter=reporter,

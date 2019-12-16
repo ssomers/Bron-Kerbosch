@@ -63,8 +63,7 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
         if pivot in neighbours:
             continue
         candidates.remove(v)
-        neighbouring_candidates = candidates.intersection(neighbours)
-        if neighbouring_candidates:
+        if neighbouring_candidates := candidates.intersection(neighbours):
             neighbouring_excluded = excluded.intersection(neighbours)
             visit(
                 graph=graph,
