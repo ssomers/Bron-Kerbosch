@@ -9,7 +9,7 @@ environment:
     - python: "C:\\Python37-x64"
 install: 
   - nuget restore csharp\BronKerboschStudy.sln
-  - PATH C:\python37-x64;C:\python38-x64\Scripts;%PATH%
+  - PATH C:\python38-x64;C:\python38-x64\Scripts;%PATH%
   - python -V
   - pip install hypothesis mypy pytest --disable-pip-version-check
   - set GOPATH=%CD%\go
