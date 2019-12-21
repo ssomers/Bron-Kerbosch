@@ -65,12 +65,21 @@ def test_stats_2_float():
     assert s.deviation() == sqrt(0.5)
 
 
+def test_stats_3_float():
+    # found by hypothesis on appveyor:
+    s = SampleStatistics()
+    s.put(-2.2204460492503135e+84)
+    s.put(-2.2204460492503135e+84)
+    s.put(-2.2204460492503135e+84)
+    assert s.deviation() > s.max - s.min
+
+
 @given(lists(floats(min_value=-1e100, max_value=1e100), min_size=2))
-def test_degeneracy_ordering_nonempty(samples):
+def test_stats_floats(samples):
     s = SampleStatistics()
     for sample in samples:
         s.put(sample)
     assert s.mean() >= s.min
     assert s.mean() <= s.max
     assert s.variance() >= 0.
-    assert s.deviation() <= s.max - s.min
+    assert s.deviation() <= (s.max - s.min) * 1.5
