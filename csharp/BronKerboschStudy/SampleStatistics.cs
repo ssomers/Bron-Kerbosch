@@ -15,7 +15,10 @@ namespace BronKerboschStudy
             get
             {
                 if (Samples > 0)
-                    return Sum / Samples;
+                {
+                    var r = Sum / Samples;
+                    return Math.Max(Min, Math.Min(Max, r));
+                }
                 else
                     return Double.NaN;
             }
@@ -34,7 +37,7 @@ namespace BronKerboschStudy
         {
             get
             {
-                return Math.Sqrt(Variance);
+                return Math.Min(Max - Min, Math.Sqrt(Variance));
             }
         }
 

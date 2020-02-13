@@ -21,7 +21,7 @@ class SampleStatistics {
 
   def mean(): Double = {
     if (samples > 0) {
-      sum / samples
+      math.max(min, math.min(max, sum / samples))
     } else {
       Double.NaN
     }
@@ -35,6 +35,6 @@ class SampleStatistics {
     }
   }
   def deviation(): Double = {
-    math.sqrt(variance())
+    math.min(max - min, math.sqrt(variance()))
   }
 }

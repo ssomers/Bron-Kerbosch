@@ -35,18 +35,31 @@ func (s *SampleStatistics) Min() float64 {
 }
 
 func (s *SampleStatistics) Mean() float64 {
-	return s.sum / float64(s.samples)
+	r := s.sum / float64(s.samples)
+	if r < s.min {
+		return s.min
+	}
+	if r > s.max {
+		return s.max
+	}
+	return r
 }
 
 func (s *SampleStatistics) Variance() float64 {
 	n := float64(s.samples)
-	numerator := s.sumOfSquares - s.sum*s.sum/n
-	if numerator < 0 {
+	r := (s.sumOfSquares - s.sum*s.sum/n) / (n - 1)
+	if r < 0 {
 		return 0
 	}
-	return numerator / (n - 1)
+	return r
 }
 
 func (s *SampleStatistics) Deviation() float64 {
-	return math.Sqrt(s.Variance())
+	r := math.Sqrt(s.Variance())
+	m := s.max - s.min
+	if r > m {
+		return m
+	}
+	return r
+
 }

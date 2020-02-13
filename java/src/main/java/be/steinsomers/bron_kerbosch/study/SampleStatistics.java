@@ -31,7 +31,7 @@ final class SampleStatistics {
 
     public double mean() {
         if (samples > 0) {
-            return sum / samples;
+            return Math.max(min, Math.min(max, sum / samples));
         } else {
             return Double.NaN;
         }
@@ -47,6 +47,6 @@ final class SampleStatistics {
     }
 
     public double deviation() {
-        return Math.sqrt(variance());
+        return Math.min(max - min, Math.sqrt(variance()));
     }
 }

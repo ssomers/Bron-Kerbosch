@@ -99,7 +99,7 @@ and finally
   - Test > Run > All Tests
 
 ### Run Java
-  - open java\bron-kerbosch.iml with IntelliJ IDEA 2019.2 (Community Edition)
+  - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)
   - set run configuration to "Main"
   - Run > Run 'Main'
 
@@ -112,7 +112,7 @@ and finally
   - Run > Run 'Test'
 
 ### Run Scala
-  - open scala\build.sbt with IntelliJ IDEA 2019.2 (Community Edition)
+  - open folder scala with IntelliJ IDEA 2019.3.3 (Community Edition)
   - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
   - Build > Rebuild
   - set run configuration to main
