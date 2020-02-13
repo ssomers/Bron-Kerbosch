@@ -1,4 +1,4 @@
-from math import isfinite, nan, sqrt
+from math import isfinite, isnan, nan, sqrt
 
 
 class SampleStatistics(object):
@@ -23,17 +23,22 @@ class SampleStatistics(object):
 
     def mean(self):
         if self.samples > 0 and isfinite(self.sum):
-            return self.sum / self.samples
+            r = self.sum / self.samples
+            return max(self.min, min(self.max, r))
         else:
             return nan
 
     def variance(self):
         if self.samples > 1 and isfinite(self.sum_of_squares):
             n = self.samples
-            return max(self.sum_of_squares - self.sum * self.sum / n,
-                       0) / (n - 1.)
+            r = (self.sum_of_squares - self.sum * self.sum / n) / (n - 1)
+            return max(0, r)
         else:
             return nan
 
     def deviation(self):
-        return sqrt(self.variance())
+        r = sqrt(self.variance())
+        if isnan(r):
+            return nan
+        else:
+            return min(self.max - self.min, r)

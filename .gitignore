@@ -18,7 +18,7 @@ target
 /java/lib
 /python3/.hypothesis
 /python3/activate.bat
-/python3/venv
+/python3/venv*
 /rust/.vs
 /rust/*.psess
 /rust/*.vspx

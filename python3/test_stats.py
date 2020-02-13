@@ -65,14 +65,32 @@ def test_stats_2_float():
     assert s.deviation() == sqrt(0.5)
 
 
-def test_stats_3_float():
-    # found by hypothesis on appveyor:
+def test_stats_3_float_deviation_big():
+    # found by hypothesis
     s = SampleStatistics()
-    s.put(-2.2204460492503135e+84)
-    s.put(-2.2204460492503135e+84)
-    s.put(-2.2204460492503135e+84)
-    assert s.deviation() > s.max - s.min
+    s.put(688338275.2675972)
+    s.put(688338275.2675972)
+    s.put(688338275.2675972)
+    assert s.max == s.min
+    assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
 
+def test_stats_3_float_deviation_small():
+    # found by hypothesis
+    s = SampleStatistics()
+    s.put(1.5765166949677225e-06)
+    s.put(1.5765166949677225e-06)
+    s.put(1.5765166949677225e-06)
+    assert s.max == s.min
+    assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
+
+def test_stats_3_float_mean_small():
+    # found by hypothesis
+    s = SampleStatistics()
+    s.put(-9.020465019382587e+92)
+    s.put(-9.020465019382587e+92)
+    s.put(-9.020465019382587e+92)
+    assert s.sum / s.samples < s.min
+    assert s.mean() == s.min
 
 @given(lists(floats(min_value=-1e100, max_value=1e100), min_size=2))
 def test_stats_floats(samples):
@@ -82,4 +100,5 @@ def test_stats_floats(samples):
     assert s.mean() >= s.min
     assert s.mean() <= s.max
     assert s.variance() >= 0.
-    assert s.deviation() <= (s.max - s.min) * 1.5
+    if s.min < s.max:
+        assert s.deviation() <= s.max - s.min

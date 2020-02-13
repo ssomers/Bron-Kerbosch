@@ -138,7 +138,7 @@ where
                 first = first.or(Some(current))
             }
 
-            times[func_index].put(secs).unwrap();
+            times[func_index].put(secs);
         }
     }
     times
