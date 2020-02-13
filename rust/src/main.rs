@@ -13,9 +13,7 @@ use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNC
 use random_graph::{new_undirected, Order, Size};
 use stats::SampleStatistics;
 
-use csv;
 use fnv::FnvHashSet;
-use hashbrown;
 use itertools::Itertools;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaChaRng;

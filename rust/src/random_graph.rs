@@ -1,4 +1,3 @@
-use bron_kerbosch;
 use bron_kerbosch::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 
 use rand::seq::SliceRandom;
