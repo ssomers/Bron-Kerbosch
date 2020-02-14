@@ -4,6 +4,11 @@ Project.xml
 __pycache__
 target
 /*.csv
+/cpp17/*/*.user
+/cpp17/*/*.vcxproj.filters
+/cpp17/.vs
+/cpp17/x64
+/cpp17/*/x64
 /csharp/.vs
 /csharp/*/bin
 /csharp/*/obj
