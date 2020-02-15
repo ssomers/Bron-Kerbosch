@@ -11,7 +11,8 @@ from bron_kerbosch3 import bron_kerbosch3
 from bron_kerbosch3_gp import bron_kerbosch3_gp
 from bron_kerbosch3_gpx import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
-from graph import UndirectedGraph as Graph, random_undirected_graph, Vertex
+from graph import UndirectedGraph as Graph, Vertex
+from random_graph import to_int, read_random_graph
 from reporter import SimpleReporter
 from stats import SampleStatistics
 from publish import publish
@@ -19,7 +20,6 @@ from publish import publish
 import argparse
 import itertools
 import pytest
-import random
 import sys
 import time
 from typing import Iterable, List, Set
@@ -149,163 +149,150 @@ def test_order_4_size_2(func):
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_3_bus(func):
-    assert bkf(
-        func=func, adjacencies=[{1}, {0, 2}, {1, 3}, {2}]) == [
-            [0, 1],
-            [1, 2],
-            [2, 3],
-        ]
+    assert bkf(func=func, adjacencies=[{1}, {0, 2}, {1, 3}, {2}]) == [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_3_star(func):
-    assert bkf(
-        func=func, adjacencies=[{1, 2, 3}, {0}, {0}, {0}]) == [
-            [0, 1],
-            [0, 2],
-            [0, 3],
-        ]
+    assert bkf(func=func, adjacencies=[{1, 2, 3}, {0}, {0}, {0}]) == [
+        [0, 1],
+        [0, 2],
+        [0, 3],
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_4_p(func):
-    assert bkf(
-        func=func, adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}]) == [
-            [0, 1],
-            [1, 2, 3],
-        ]
+    assert bkf(func=func, adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}]) == [
+        [0, 1],
+        [1, 2, 3],
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_4_square(func):
-    assert bkf(
-        func=func, adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}]) == [
-            [0, 1],
-            [0, 3],
-            [1, 2],
-            [2, 3],
-        ]
+    assert bkf(func=func, adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}]) == [
+        [0, 1],
+        [0, 3],
+        [1, 2],
+        [2, 3],
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_5(func):
-    assert bkf(
-        func=func, adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}]) == [
-            [0, 1, 2],
-            [0, 2, 3],
-        ]
+    assert bkf(func=func, adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3},
+                                       {0, 2}]) == [
+                                           [0, 1, 2],
+                                           [0, 2, 3],
+                                       ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_4_size_6(func):
-    assert bkf(
-        func=func, adjacencies=[
-            {1, 2, 3},
-            {0, 2, 3},
-            {0, 1, 3},
-            {0, 1, 2},
-        ]) == [
-            [0, 1, 2, 3],
-        ]
+    assert bkf(func=func,
+               adjacencies=[
+                   {1, 2, 3},
+                   {0, 2, 3},
+                   {0, 1, 3},
+                   {0, 1, 2},
+               ]) == [
+                   [0, 1, 2, 3],
+               ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_order_5_penultimate(func):
-    assert bkf(
-        func=func,
-        adjacencies=[
-            {1, 2, 3, 4},
-            {0, 2, 3, 4},
-            {0, 1, 3, 4},
-            {0, 1, 2},
-            {0, 1, 2},
-        ]) == [
-            [0, 1, 2, 3],
-            [0, 1, 2, 4],
-        ]
+    assert bkf(func=func,
+               adjacencies=[
+                   {1, 2, 3, 4},
+                   {0, 2, 3, 4},
+                   {0, 1, 3, 4},
+                   {0, 1, 2},
+                   {0, 1, 2},
+               ]) == [
+                   [0, 1, 2, 3],
+                   [0, 1, 2, 4],
+               ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_sample(func):
-    assert bkf(
-        func=func, adjacencies=SAMPLE_ADJACENCY_LIST) == [
-            [1, 2, 3, 4],
-            [2, 3, 5],
-            [5, 6, 7],
-        ]
+    assert bkf(func=func, adjacencies=SAMPLE_ADJACENCY_LIST) == [
+        [1, 2, 3, 4],
+        [2, 3, 5],
+        [5, 6, 7],
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
 def test_bigger(func):
-    assert bkf(
-        func=func,
-        adjacencies=[
-            {1, 2, 3, 4, 6, 7},
-            {0, 3, 6, 7, 8, 9},
-            {0, 3, 5, 7, 8, 9},
-            {0, 1, 2, 4, 9},
-            {0, 3, 6, 7, 9},
-            {2, 6},
-            {0, 1, 4, 5, 9},
-            {0, 1, 2, 4, 9},
-            {1, 2},
-            {1, 2, 3, 4, 6, 7},
-        ]) == [
-            [0, 1, 3],
-            [0, 1, 6],
-            [0, 1, 7],
-            [0, 2, 3],
-            [0, 2, 7],
-            [0, 3, 4],
-            [0, 4, 6],
-            [0, 4, 7],
-            [1, 3, 9],
-            [1, 6, 9],
-            [1, 7, 9],
-            [1, 8],
-            [2, 3, 9],
-            [2, 5],
-            [2, 7, 9],
-            [2, 8],
-            [3, 4, 9],
-            [4, 6, 9],
-            [4, 7, 9],
-            [5, 6],
-        ]
+    assert bkf(func=func,
+               adjacencies=[
+                   {1, 2, 3, 4, 6, 7},
+                   {0, 3, 6, 7, 8, 9},
+                   {0, 3, 5, 7, 8, 9},
+                   {0, 1, 2, 4, 9},
+                   {0, 3, 6, 7, 9},
+                   {2, 6},
+                   {0, 1, 4, 5, 9},
+                   {0, 1, 2, 4, 9},
+                   {1, 2},
+                   {1, 2, 3, 4, 6, 7},
+               ]) == [
+                   [0, 1, 3],
+                   [0, 1, 6],
+                   [0, 1, 7],
+                   [0, 2, 3],
+                   [0, 2, 7],
+                   [0, 3, 4],
+                   [0, 4, 6],
+                   [0, 4, 7],
+                   [1, 3, 9],
+                   [1, 6, 9],
+                   [1, 7, 9],
+                   [1, 8],
+                   [2, 3, 9],
+                   [2, 5],
+                   [2, 7, 9],
+                   [2, 8],
+                   [3, 4, 9],
+                   [4, 6, 9],
+                   [4, 7, 9],
+                   [5, 6],
+               ]
 
 
 def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
        samples: int):
-    if orderstr.endswith('M'):
-        order = int(orderstr[:-1]) * 1_000_000
-    elif orderstr.endswith('k'):
-        order = int(orderstr[:-1]) * 1_000
-    else:
-        order = int(orderstr)
+    order = to_int(orderstr)
     stats_per_func_by_size = {}
     for size in sizes:
-        random.seed(seed)
         begin = time.process_time()
-        g = random_undirected_graph(order=order, size=size)
+        g = read_random_graph(orderstr=orderstr, size=size)
         secs = time.process_time() - begin
         name = f"random of order {order}, size {size}"
         if order < 10:
             print(f"{name}: {g.adjacencies}")
         else:
             print(f"{name} (generating took {secs:.2f}s)")
-        stats = bron_kerbosch_timed(
-            g, func_indices=func_indices, samples=samples)
+        stats = bron_kerbosch_timed(g,
+                                    func_indices=func_indices,
+                                    samples=samples)
         for func_index, func_name in enumerate(FUNC_NAMES):
             mean = stats[func_index].mean()
             dev = stats[func_index].deviation()
             print(f"  {func_name:<8}: {mean:5.2f}s ±{dev:5.2f}s")
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
-        publish(
-            language="python3",
-            orderstr=orderstr,
-            case_names=FUNC_NAMES,
-            stats_per_func_by_size=stats_per_func_by_size)
+        publish(language="python3",
+                orderstr=orderstr,
+                case_names=FUNC_NAMES,
+                stats_per_func_by_size=stats_per_func_by_size)
 
 
 if __name__ == '__main__':
@@ -341,9 +328,7 @@ if __name__ == '__main__':
             samples=3)
         time.sleep(7)
         bk(orderstr="1M",
-           sizes=itertools.chain(
-               range(200_000, 1_000_000, 200_000),
-               range(1_000_000, 5_000_001, 1_000_000)),
+           sizes=itertools.chain(range(200_000, 1_000_000, 200_000),
+                                 range(1_000_000, 5_000_001, 1_000_000)),
            func_indices=list(range(1, len(FUNCS))),
            samples=3)
-    print(f"random seed was {seed}")

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from graph import random_undirected_graph
+from random_graph import random_undirected_graph
 import random
 
 
