@@ -14,7 +14,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	if len(candidates) == 1 {
 		for v := range candidates {
 			// Same logic as below, stripped down
-			neighbours := graph.adjacencies[v]
+			neighbours := graph.neighbours(v)
 			if excluded.IsDisjoint(neighbours) {
 				reporter.Record(append(clique, v))
 			}
@@ -34,7 +34,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		// Quickly handle locally unconnected candidates while finding pivot
 		seenLocalDegree := 0
 		for v := range candidates {
-			neighbours := graph.adjacencies[v]
+			neighbours := graph.neighbours(v)
 			localDegree := neighbours.IntersectionLen(candidates)
 			if localDegree == 0 {
 				// Same logic as below, stripped down
@@ -54,7 +54,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		}
 		if initialPivotSelection == MaxDegreeLocalX {
 			for v := range excluded {
-				neighbours := graph.adjacencies[v]
+				neighbours := graph.neighbours(v)
 				localDegree := neighbours.IntersectionLen(candidates)
 				if seenLocalDegree < localDegree {
 					seenLocalDegree = localDegree
@@ -65,7 +65,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 	}
 
 	for _, v := range remainingCandidates {
-		neighbours := graph.adjacencies[v]
+		neighbours := graph.neighbours(v)
 		if neighbours.Contains(pivot) {
 			continue
 		}

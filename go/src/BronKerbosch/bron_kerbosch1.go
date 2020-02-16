@@ -16,7 +16,7 @@ func bronKerbosch1visit(graph *UndirectedGraph, reporter Reporter,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
 	for {
 		v := candidates.PopArbitrary()
-		neighbours := graph.adjacencies[v]
+		neighbours := graph.neighbours(v)
 		neighbouringCandidates := candidates.Intersection(neighbours)
 		if !neighbouringCandidates.IsEmpty() {
 			neighbouringExcluded := excluded.Intersection(neighbours)

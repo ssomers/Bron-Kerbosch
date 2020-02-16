@@ -10,13 +10,11 @@ use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
 use bron_kerbosch::reporter::SimpleReporter;
 use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
-use random_graph::{new_undirected, Order, Size};
+use random_graph::{parse_positive_int, read_undirected, Size};
 use stats::SampleStatistics;
 
 use fnv::FnvHashSet;
 use itertools::Itertools;
-use rand::{Rng, SeedableRng};
-use rand_chacha::ChaChaRng;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
 use std::path::Path;
@@ -52,48 +50,23 @@ enum SetType {
     Hashbrown,
 }
 
-fn parse_positive_int(value: &str) -> u32 {
-    let numstr: &str;
-    let factor: u32;
-    if value.ends_with('M') {
-        numstr = &value[0..value.len() - 1];
-        factor = 1_000_000;
-    } else if value.ends_with('k') {
-        numstr = &value[0..value.len() - 1];
-        factor = 1_000;
-    } else {
-        numstr = value;
-        factor = 1;
-    }
-    let num: u32 = numstr
-        .parse()
-        .unwrap_or_else(|err| panic!("{} is not a positive integer ({})", numstr, err));
-    num * factor
-}
-
 type Seconds = f32;
 fn to_seconds(duration: Duration) -> Seconds {
     duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
 }
 
-fn generate_random_graph<VertexSet, G>(
-    rng: &mut impl Rng,
-    set_type: SetType,
-    order: Order,
-    size: Size,
-) -> G
+fn read_random_graph<VertexSet, G>(set_type: SetType, orderstr: &str, size: Size) -> G
 where
     VertexSet: VertexSetLike + Clone,
     G: NewableUndirectedGraph<VertexSet>,
 {
-    let Order::Of(order) = order;
     let Size::Of(size) = size;
     let sys_time = SystemTime::now();
-    let graph: G = new_undirected(rng, Order::Of(order), Size::Of(size));
+    let graph: G = read_undirected(orderstr, Size::Of(size)).unwrap();
     let seconds = to_seconds(sys_time.elapsed().unwrap());
     println!(
         "{}-based random graph of order {}, size {}: (generating took {:.2}s)",
-        set_type, order, size, seconds
+        set_type, orderstr, size, seconds
     );
     graph
 }
@@ -145,7 +118,7 @@ where
 }
 
 fn bk_core_core<VertexSet>(
-    order: u32,
+    orderstr: &str,
     size: u32,
     samples: u32,
     set_type: SetType,
@@ -154,16 +127,13 @@ fn bk_core_core<VertexSet>(
 where
     VertexSet: VertexSetLike + Clone + Sync + Send,
 {
-    const SEED: [u8; 32] = [68u8; 32];
-
-    let mut rng = ChaChaRng::from_seed(SEED);
     let graph: SlimUndirectedGraph<VertexSet> =
-        generate_random_graph(&mut rng, set_type, Order::Of(order), Size::Of(size));
+        read_random_graph(set_type, orderstr, Size::Of(size));
     bron_kerbosch_timed(&graph, samples, func_indices)
 }
 
 fn bk_core(
-    order: u32,
+    orderstr: &str,
     size: u32,
     samples: u32,
     included_funcs: &impl Fn(SetType, u32) -> Vec<usize>,
@@ -176,16 +146,16 @@ fn bk_core(
     } else {
         let stats = match set_type {
             SetType::BTreeSet => {
-                bk_core_core::<BTreeSet<Vertex>>(order, size, samples, set_type, &func_indices)
+                bk_core_core::<BTreeSet<Vertex>>(orderstr, size, samples, set_type, &func_indices)
             }
             SetType::HashSet => {
-                bk_core_core::<HashSet<Vertex>>(order, size, samples, set_type, &func_indices)
+                bk_core_core::<HashSet<Vertex>>(orderstr, size, samples, set_type, &func_indices)
             }
             SetType::Fnv => {
-                bk_core_core::<FnvHashSet<Vertex>>(order, size, samples, set_type, &func_indices)
+                bk_core_core::<FnvHashSet<Vertex>>(orderstr, size, samples, set_type, &func_indices)
             }
             SetType::Hashbrown => bk_core_core::<hashbrown::HashSet<Vertex>>(
-                order,
+                orderstr,
                 size,
                 samples,
                 set_type,
@@ -206,7 +176,6 @@ fn bk_core(
 
 fn bk(
     orderstr: &str,
-    order: u32,
     sizes: impl Iterator<Item = u32>,
     samples: u32,
     included_funcs: impl Fn(SetType, u32) -> Vec<usize>,
@@ -244,7 +213,7 @@ fn bk(
             for set_type in SetType::iter() {
                 stats.insert(
                     set_type,
-                    bk_core(order, size, samples, &included_funcs, set_type),
+                    bk_core(orderstr, size, samples, &included_funcs, set_type),
                 );
             }
             if let Some(wtr) = writer.as_mut() {
@@ -285,11 +254,10 @@ fn main() -> Result<(), std::io::Error> {
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         let all_funcs = |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
-        bk("100", 100, (2_000..=3_000).step_by(50), 5, all_funcs)?; // max 4_950
+        bk("100", (2_000..=3_000).step_by(50), 5, all_funcs)?; // max 4_950
         thread::sleep(Duration::from_secs(7));
         bk(
             "10k",
-            10_000,
             (100_000..=800_000).step_by(100_000),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
@@ -315,38 +283,26 @@ fn main() -> Result<(), std::io::Error> {
         )?;
         thread::sleep(Duration::from_secs(7));
         bk(
-            "999k",
-            999_999,
-            (10_000..=250_000).step_by(10_000),
-            3,
-            |set_type: SetType, size: u32| -> Vec<usize> {
-                if match set_type {
-                    SetType::BTreeSet => true,
-                    _ => size <= 100_000,
-                } {
-                    vec![1]
-                } else {
-                    vec![]
-                }
-            },
-        )?;
-        thread::sleep(Duration::from_secs(7));
-        bk(
             "1M",
-            1_000_000,
             std::iter::empty()
-                .chain((200_000..2_000_000).step_by(200_000))
+                .chain((10_000..100_000).step_by(10_000))
+                .chain((100_000..250_000).step_by(50_000))
+                .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |_set_type: SetType, size: u32| -> Vec<usize> {
+            |set_type: SetType, size: u32| -> Vec<usize> {
                 match size {
-                    0..=2_000_000 => vec![7, 9],
+                    0..=99_999 => vec![1],
+                    100_000..=249_999 => match set_type {
+                        SetType::BTreeSet => vec![1, 7, 9],
+                        _ => vec![7, 9],
+                    },
+                    250_000..=1_500_000 => vec![7, 9],
                     _ => vec![9],
                 }
             },
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
-        let order = parse_positive_int(&opt.order);
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
         let included_funcs = |set_type: SetType, _size: u32| -> Vec<usize> {
             if opt.set.filter(|&s| s != set_type).is_some() {
@@ -357,7 +313,7 @@ fn main() -> Result<(), std::io::Error> {
                 (0..NUM_FUNCS).collect()
             }
         };
-        bk(&opt.order, order, sizes, 1, included_funcs)?;
+        bk(&opt.order, sizes, 1, included_funcs)?;
     } else {
         eprintln!("Specify order and size(s)")
     }

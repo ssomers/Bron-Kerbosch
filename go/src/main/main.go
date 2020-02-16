@@ -5,7 +5,40 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 )
+
+func timed(orderstr string, order int, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]SampleStatistics {
+	var times [BronKerbosch.NumFuncs]SampleStatistics
+	graph, err := readRandomUndirectedGraph(orderstr, order, size)
+	if err != nil {
+		panic(err)
+	}
+	var first [][]BronKerbosch.Vertex
+	for sample := 0; sample < samples; sample++ {
+		for _, funcIndex := range funcIndices {
+			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
+			begin := time.Now()
+			current := bronKerboschFunc(&graph)
+			secs := time.Since(begin).Seconds()
+			if secs >= 3.0 {
+				fmt.Printf("  %-8s: %5.2fs\n", BronKerbosch.FuncNames[funcIndex], secs)
+			}
+			if sample < 2 {
+				BronKerbosch.SortCliques(current)
+				if len(first) == 0 {
+					first = current
+				} else {
+					BronKerbosch.CompareCliques(current, first, func(e string) {
+						fmt.Printf("  %s: %s\n", BronKerbosch.FuncNames[funcIndex], e)
+					})
+				}
+			}
+			times[funcIndex].Put(secs)
+		}
+	}
+	return times
+}
 
 func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
@@ -29,7 +62,7 @@ func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int)
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := BronKerbosch.Timed(order, size, funcIndices, samples)
+		stats := timed(orderstr, order, size, funcIndices, samples)
 		for _, funcIndex := range funcIndices {
 			name := BronKerbosch.FuncNames[funcIndex]
 			max := stats[funcIndex].Max()

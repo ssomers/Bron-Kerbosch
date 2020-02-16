@@ -39,14 +39,6 @@ namespace BronKerboschStudy
 
         private static void bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs, int samples)
         {
-            int order;
-            if (orderstr.EndsWith("M"))
-                order = Int32.Parse(orderstr.Substring(0, orderstr.Length - 1)) * 1_000_000;
-            else if (orderstr.EndsWith("k"))
-                order = Int32.Parse(orderstr.Substring(0, orderstr.Length - 1)) * 1_000;
-            else
-                order = Int32.Parse(orderstr);
-
             var tmpfname = "tmp.csv";
             using (StreamWriter fo = new StreamWriter(tmpfname))
             {
@@ -59,8 +51,7 @@ namespace BronKerboschStudy
                 foreach (int size in sizes)
                 {
                     var func_indices = includedFuncs(size).ToArray();
-                    var random = new Random(19680516);
-                    var g = RandomUndirectedGraph.Generate(random, order, size);
+                    var g = RandomUndirectedGraph.Read(orderstr, size);
                     var stats = BronKerboschTimed(g, func_indices, samples);
                     fo.Write($"{size}");
                     foreach ((int func_index, string func_name) in Portfolio.FUNC_NAMES.Select((n, i) => (i, n)))
@@ -70,12 +61,12 @@ namespace BronKerboschStudy
                         var mean = stats[func_index].Mean;
                         var dev = stats[func_index].Deviation;
                         fo.Write($",{min},{mean},{max}");
-                        Console.WriteLine($"order {order,7:D} size {size,7:D} {func_name,-8}: {mean,5:N2}s ±{dev,5:N2}s");
+                        Console.WriteLine($"order {orderstr,4:D} size {size,7:D} {func_name,-8}: {mean,5:N2}s ±{dev,5:N2}s");
                     }
                     fo.WriteLine();
                 }
             }
-            var path = "..\\..\\..\\..\\bron_kerbosch_c#_order_" + orderstr + ".csv";
+            var path = @"..\bron_kerbosch_c#_order_" + orderstr + ".csv";
             if (File.Exists(path))
                 File.Delete(path);
             File.Move(tmpfname, path);
@@ -97,9 +88,8 @@ namespace BronKerboschStudy
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(100_000, 800_001, 100_000), (size) => all_func_indices, 3);
-            bk("999k", Range(2_000, 20_001, 2_000), (size) => new[] { 0, 1 }, 3);
-            bk("1M", Range(200_000, 1_000_000, 200_000).Concat(Range(1_000_000, 3_000_001, 1_000_000)),
-               (size) => new[] { 1, 2, 3, 4, 5 }, 3);
+            bk("1M", Range(2_000, 20_001, 2_000).Concat(Range(200_000, 1_000_000, 200_000)).Concat(Range(1_000_000, 3_000_001, 1_000_000)),
+               (size) => size <= 20_000 ? new[] { 0, 1 } : new[] { 1, 2, 3, 4, 5 }, 3);
         }
     }
 }

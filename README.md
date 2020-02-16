@@ -37,7 +37,6 @@ all on random graphs (generated with typical pseudo-random generators for each l
 
 * [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
 * [Graphs of order 10k](results_10k.md): probably the most realistic case.
-* [Very sparse large graphs](results_sparse.md): Ver1 doesn't scale in particular implementations.
 * [Graphs of order 1M](results_1M.md): who scales best?
 
 Order of a graph = number of vertices.
@@ -86,7 +85,7 @@ Order of a graph = number of vertices.
     go test -race BronKerbosch
 
 ### Run C#
-  - open csharp\BronKerboschStudy.sln with Visual Studio Community 2017
+  - open csharp\BronKerboschStudy.sln with Visual Studio 2017 or 2019
   - set configuration to Release
   - Debug > Start Without Debugging
 

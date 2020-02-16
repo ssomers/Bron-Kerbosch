@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,8 +112,7 @@ final class Main {
 
             for (var size : sizes) {
                 var start = System.currentTimeMillis();
-                var rng = new Random(19680516L);
-                var graph = new RandomGraphGenerator(rng).newUndirected(order, size);
+                var graph = new RandomGraph().readUndirected(orderStr, order, size);
                 var elapsed = System.currentTimeMillis() - start;
                 System.out.printf("%7s nodes, %7d edges, creation: %5.2f%n",
                         orderStr, size, elapsed / 1e3);
@@ -149,7 +147,7 @@ final class Main {
         int[] sizes10K = IntStream.iterate(100_000, s -> s <= 800_000, s -> s + 100_000).toArray();
         int[] sizes1M = IntStream.iterate(200_000, s -> s <= 5_000_000,
                 s -> s + (s < 2_000_000 ? 200_000 : 1_000_000)).toArray();
-        bk("warm-up", 100, new int[]{2000}, 3, allFuncIndices);
+        bk("100", 100, new int[]{2000}, 3, allFuncIndices); // warm up
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk("100", 100, sizes100, 5, allFuncIndices);
         bk("10k", 10_000, sizes10K, 3, mostFuncIndices);

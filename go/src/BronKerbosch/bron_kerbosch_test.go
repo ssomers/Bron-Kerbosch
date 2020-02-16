@@ -35,10 +35,10 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 	}
 	graph := newUndirectedGraph(adjacencies)
 	checkDegeneracyOrder(&graph)
-	for funcIndex, bronKerboschFunc := range funcs {
+	for funcIndex, bronKerboschFunc := range Funcs {
 		obtainedCliques := bronKerboschFunc(&graph)
-		sortCliques(obtainedCliques)
-		compareCliques(obtainedCliques, expectedCliques,
+		SortCliques(obtainedCliques)
+		CompareCliques(obtainedCliques, expectedCliques,
 			func(e string) { t.Errorf("%s: %s", FuncNames[funcIndex], e) })
 	}
 }

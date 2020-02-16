@@ -33,7 +33,7 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 		panic("expecting negative drop value")
 	}
 	defer func() { visitor.Close() }()
-	order := graph.order()
+	order := graph.Order()
 	// Possible values of priorityPerNode:
 	//   -1: when yielded
 	//   0..maxDegree: candidates still queued with priority (degree - #of yielded neighbours)
@@ -77,7 +77,7 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 		}
 
 		priorityPerNode[i] = -1
-		for v := range graph.adjacencies[i] {
+		for v := range graph.neighbours(i) {
 			p := priorityPerNode[v]
 			if p != -1 {
 				// Requeue with a more urgent priority, but don't bother to remove

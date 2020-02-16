@@ -44,7 +44,7 @@ func bronKerbosch3om(graph *UndirectedGraph, numVisitors int) [][]Vertex {
 			}()
 		}
 		for v := range starts {
-			neighbours := graph.adjacencies[v]
+			neighbours := graph.neighbours(v)
 			neighbouringCandidates := neighbours.Difference(excluded)
 			if !neighbouringCandidates.IsEmpty() {
 				neighbouringExcluded := neighbours.Intersection(excluded)

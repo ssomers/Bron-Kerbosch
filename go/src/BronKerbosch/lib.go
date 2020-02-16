@@ -3,12 +3,11 @@ package BronKerbosch
 import (
 	"fmt"
 	"sort"
-	"time"
 )
 
-const numFuncs = 10
+const NumFuncs = 10
 
-var funcs = [numFuncs]func(*UndirectedGraph) [][]Vertex{
+var Funcs = [NumFuncs]func(*UndirectedGraph) [][]Vertex{
 	bronKerbosch1,
 	bronKerbosch2g, bronKerbosch2gp, bronKerbosch2gpx,
 	bronKerbosch3gp, bronKerbosch3gpx,
@@ -18,7 +17,7 @@ var funcs = [numFuncs]func(*UndirectedGraph) [][]Vertex{
 	bronKerbosch3gp5,
 }
 
-var FuncNames = [numFuncs]string{
+var FuncNames = [NumFuncs]string{
 	"Ver1+",
 	"Ver2+G", "Ver2+GP", "Ver2+GPX",
 	"Ver3+GP", "Ver3+GPX",
@@ -28,7 +27,7 @@ var FuncNames = [numFuncs]string{
 	"Ver3+GP5",
 }
 
-func sortCliques(cliques [][]Vertex) {
+func SortCliques(cliques [][]Vertex) {
 	for _, clique := range cliques {
 		sort.Slice(clique, func(l int, r int) bool {
 			return clique[l] < clique[r]
@@ -50,7 +49,7 @@ func sortCliques(cliques [][]Vertex) {
 	})
 }
 
-func compareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func(string)) {
+func CompareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func(string)) {
 	if len(leftCliques) != len(rightCliques) {
 		errors(fmt.Sprintf("%d <> %d cliques", len(leftCliques), len(rightCliques)))
 	} else {
@@ -68,33 +67,4 @@ func compareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func
 			}
 		}
 	}
-}
-
-func Timed(order int, size int, funcIndices []int, samples int) [numFuncs]SampleStatistics {
-	var times [numFuncs]SampleStatistics
-	graph := randomUndirectedGraph(order, size)
-	var first [][]Vertex
-	for sample := 0; sample < samples; sample++ {
-		for _, funcIndex := range funcIndices {
-			bronKerboschFunc := funcs[funcIndex]
-			begin := time.Now()
-			current := bronKerboschFunc(&graph)
-			secs := time.Since(begin).Seconds()
-			if secs >= 3.0 {
-				fmt.Printf("  %-8s: %5.2fs\n", FuncNames[funcIndex], secs)
-			}
-			if sample < 2 {
-				sortCliques(current)
-				if len(first) == 0 {
-					first = current
-				} else {
-					compareCliques(current, first, func(e string) {
-						fmt.Printf("  %s: %s\n", FuncNames[funcIndex], e)
-					})
-				}
-			}
-			times[funcIndex].Put(secs)
-		}
-	}
-	return times
 }

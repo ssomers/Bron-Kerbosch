@@ -8,7 +8,7 @@ func bronKerbosch3gp(graph *UndirectedGraph) [][]Vertex {
 	degeneracyOrdering(graph, &ordering, -1)
 	excluded := make(VertexSet, len(ordering.vertices))
 	for _, v := range ordering.vertices {
-		neighbours := graph.adjacencies[v]
+		neighbours := graph.neighbours(v)
 		neighbouringCandidates := neighbours.Difference(excluded)
 		if !neighbouringCandidates.IsEmpty() {
 			neighbouringExcluded := neighbours.Intersection(excluded)
