@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="debug" modules="Bron-Kerbosch">
+    <profile name="debug" modules="">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />
     </profile>
-    <profile name="release" modules="bron-kerbosch">
+    <profile name="release" modules="Bron-Kerbosch,bron-kerbosch">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />

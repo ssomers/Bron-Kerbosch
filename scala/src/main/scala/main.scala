@@ -91,7 +91,7 @@ object main {
     for (size <- sizes) {
       val rng = new Random(19680516L)
       val start = System.currentTimeMillis()
-      val graph = RandomGraphGenerator.new_undirected(rng, order, size)
+      val graph = RandomGraph.read_undirected(order_str, order, size)
       val elapsed = (System.currentTimeMillis() - start) / 1e3
       println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%5.2f")
       val times = bron_kerbosch_timed(graph, samples, func_indices)
@@ -132,7 +132,7 @@ object main {
       (i"200k" until i"1M" by i"200k")
         ++ (i"1M" to i"5M" by i"1M"): _*
     )
-    bk("warm-up", 100, Array(2000), 3, FUNCS.indices.toArray)
+    bk("100", 100, Array(2000), 3, FUNCS.indices.toArray) // warm up
     Thread.sleep(3210) // give IntelliJ launcher some time to cool down
     //bk("999999", i"999999", Array(i"333k"), 3, Array(6, 8))
     bk("100", i"100", sizes_100, 5, all_func_indices)

@@ -9,7 +9,7 @@ Compared to the original forked from, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* all that mirrored in Rust, Java, Scala, Go, and partly in C#
+* all that mirrored in Rust, Java, Go, and partly in C# and Scala
 
 ## Implementations
 
@@ -33,7 +33,7 @@ Compared to the original forked from, the code is:
 ## Results
 
 Graphs of the amount of time spent on a particular machine with 6 core CPU,
-all on random graphs (generated with typical pseudo-random generators for each language, but results seem consistent hen varying the random seed):
+all on predetermined random graphs (generated with typical pseudo-random generators in python):
 
 * [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
 * [Graphs of order 10k](results_10k.md): probably the most realistic case.
@@ -43,49 +43,36 @@ Order of a graph = number of vertices.
 
 ## Run & Test
 
-### Run Python 3
+### Python 3
 
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once) pip install pytest chart-studio
-    python -O test_maximal_cliques.py
-
-### Test Python 3
-
-    cd python3
-    (once) python -m venv venv
-    venv\Scripts\activate.bat
-    (once) pip install hypothesis mypy
+    (once) pip install pytest chart-studio hypothesis mypy
     mypy . --ignore-missing-imports
     pytest
+    python -O test_maximal_cliques.py
 
-### Run Rust
-
-    cd rust
-    cargo run --release
-
-### Test Rust
+### Rust
 
     cd rust
     cargo check --workspace
     cargo clippy --workspace
     cargo test --workspace
+    cargo run --release
 
-### Run Go
+### Go
 
-    set GOPATH=%CD%\go
-    go run main
-    python python3\publish.py go 100 10k 1M
-
-### Test Go
-    
     set GOPATH=%CD%\go
     go vet BronKerbosch main
     go test -race BronKerbosch
+    go run main
+    python python3\publish.py go 100 10k 1M
 
-### Run C#
+### C#
   - open csharp\BronKerboschStudy.sln with Visual Studio 2017 or 2019
+  - set configuration to Debug
+  - Test > Run > All Tests
   - set configuration to Release
   - Debug > Start Without Debugging
 
@@ -93,12 +80,10 @@ and finally
 
     python python3\publish.py c# 100 10k 999k 1M
 
-### Test C#
-  - set configuration to Debug
-  - Test > Run > All Tests
-
-### Run Java
+### Java
   - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)
+  - set run configuration to "Test"
+  - Run > Run 'Test'
   - set run configuration to "Main"
   - Run > Run 'Main'
 
@@ -106,13 +91,13 @@ and finally
 
     python python3\publish.py java 100 10k 1M
 
-### Test Java
-  - set run configuration to "Test"
-  - Run > Run 'Test'
-
-### Run Scala
+### Scala
   - open folder scala with IntelliJ IDEA 2019.3.3 (Community Edition)
-  - set compiler configuration to release: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
+  - set compiler configuration to debug: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
+  - Build > Rebuild
+  - set run configuration to test
+  - Run > Run 'test'
+  - set compiler configuration to release (as above)
   - Build > Rebuild
   - set run configuration to main
   - Run > Run 'main'
@@ -120,12 +105,6 @@ and finally
 and finally
 
     python python3\publish.py scala 100 10k 1M
-
-### Test Scala
-  - set compiler configuration to debug
-  - Build > Rebuild
-  - set run configuration to test
-  - Run > Run 'test'
 
 ## Context
 
