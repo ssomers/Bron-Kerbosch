@@ -33,7 +33,7 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 			panic(fmt.Sprintf("Invalid adjacencylist %v", neighbours))
 		}
 	}
-	graph := newUndirectedGraph(adjacencies)
+	graph := NewUndirectedGraph(adjacencies)
 	checkDegeneracyOrder(&graph)
 	for funcIndex, bronKerboschFunc := range Funcs {
 		obtainedCliques := bronKerboschFunc(&graph)

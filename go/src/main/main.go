@@ -4,13 +4,12 @@ import (
 	"BronKerbosch"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
-func timed(orderstr string, order int, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]SampleStatistics {
+func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]SampleStatistics {
 	var times [BronKerbosch.NumFuncs]SampleStatistics
-	graph, err := readRandomUndirectedGraph(orderstr, order, size)
+	graph, err := readRandomUndirectedGraph(orderstr, size)
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +39,7 @@ func timed(orderstr string, order int, size int, funcIndices []int, samples int)
 	return times
 }
 
-func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int) {
+func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
 	path := name + ".csv"
 	fo, err := os.Create(path)
@@ -62,7 +61,7 @@ func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int)
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := timed(orderstr, order, size, funcIndices, samples)
+		stats := timed(orderstr, size, funcIndices, samples)
 		for _, funcIndex := range funcIndices {
 			name := BronKerbosch.FuncNames[funcIndex]
 			max := stats[funcIndex].Max()
@@ -70,7 +69,7 @@ func bk(orderstr string, order int, sizes []int, funcIndices []int, samples int)
 			mean := stats[funcIndex].Mean()
 			dev := stats[funcIndex].Deviation()
 			fo.WriteString(fmt.Sprintf(",%f,%f,%f", min, mean, max))
-			fmt.Printf("order %7d size %7d %-8s: %5.2fs %c%5.2fs\n", order, size, name, mean, 177, dev)
+			fmt.Printf("order %4s size %7d %-8s: %5.2fs %c%5.2fs\n", orderstr, size, name, mean, 177, dev)
 		}
 		fo.WriteString("\n")
 	}
@@ -97,24 +96,20 @@ func main() {
 				s += 1e6
 			}
 		}
-		bk("100", 1e2, sizes_100, allFuncIndices, 5)
-		bk("10k", 1e4, sizes_10k, allFuncIndices, 3)
-		bk("1M", 1e6, sizes_1M, mtFuncIndices, 3)
+		bk("100", sizes_100, allFuncIndices, 5)
+		bk("10k", sizes_10k, allFuncIndices, 3)
+		bk("1M", sizes_1M, mtFuncIndices, 3)
 	} else if len(os.Args) > 2 {
 		orderstr := os.Args[1]
-		order, err := strconv.Atoi(orderstr)
-		if err != nil {
-			panic(err)
-		}
 		var sizes []int
-		for _, s := range os.Args[2:] {
-			size, err := strconv.Atoi(s)
-			sizes = append(sizes, size)
+		for _, sizestr := range os.Args[2:] {
+			size, err := parsePositiveInt(sizestr)
 			if err != nil {
 				panic(err)
 			}
+			sizes = append(sizes, size)
 		}
-		bk(orderstr, order, sizes, allFuncIndices, 3)
+		bk(orderstr, sizes, allFuncIndices, 3)
 	} else {
 		print("give me one or more sizes too")
 	}

@@ -5,10 +5,10 @@ import (
 )
 
 type UndirectedGraph struct {
-	Adjacencies []VertexSet
+	adjacencies []VertexSet
 }
 
-func newUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
+func NewUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 	for i, adjacentToV := range adjacencies {
 		v := Vertex(i)
 		for w := range adjacentToV {
@@ -21,17 +21,17 @@ func newUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 		}
 	}
 	g := UndirectedGraph{}
-	g.Adjacencies = adjacencies
+	g.adjacencies = adjacencies
 	return g
 }
 
 func (g *UndirectedGraph) Order() int {
-	return len(g.Adjacencies)
+	return len(g.adjacencies)
 }
 
 func (g *UndirectedGraph) Size() int {
 	var total int
-	for _, neighbours := range g.Adjacencies {
+	for _, neighbours := range g.adjacencies {
 		total += neighbours.Cardinality()
 	}
 	if total%2 != 0 {
@@ -41,16 +41,16 @@ func (g *UndirectedGraph) Size() int {
 }
 
 func (g *UndirectedGraph) neighbours(v Vertex) VertexSet {
-	return g.Adjacencies[v]
+	return g.adjacencies[v]
 }
 
 func (g *UndirectedGraph) degree(v Vertex) int {
-	return g.Adjacencies[v].Cardinality()
+	return g.adjacencies[v].Cardinality()
 }
 
 func (g *UndirectedGraph) connectedVertices() VertexSet {
 	result := make(VertexSet)
-	for v, neighbours := range g.Adjacencies {
+	for v, neighbours := range g.adjacencies {
 		if !neighbours.IsEmpty() {
 			result.Add(Vertex(v))
 		}
@@ -60,7 +60,7 @@ func (g *UndirectedGraph) connectedVertices() VertexSet {
 
 func (g *UndirectedGraph) connectedVertexCount() int {
 	var count int
-	for _, neighbours := range g.Adjacencies {
+	for _, neighbours := range g.adjacencies {
 		if !neighbours.IsEmpty() {
 			count++
 		}

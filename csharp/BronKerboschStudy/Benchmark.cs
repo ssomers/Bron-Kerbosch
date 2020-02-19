@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BronKerboschStudy
 {
-    class Program
+    class Benchmark
     {
         private static SampleStatistics[] BronKerboschTimed(UndirectedGraph graph, int[] func_indices, int samples)
         {

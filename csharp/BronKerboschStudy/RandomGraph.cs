@@ -11,14 +11,12 @@ namespace BronKerboschStudy
     {
         public static int ParsePositiveInt(string orderstr)
         {
-            int order;
             if (orderstr.EndsWith("M"))
-                order = Int32.Parse(orderstr.Substring(0, orderstr.Length - 1)) * 1_000_000;
+                return Int32.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000_000;
             else if (orderstr.EndsWith("k"))
-                order = Int32.Parse(orderstr.Substring(0, orderstr.Length - 1)) * 1_000;
+                return Int32.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000;
             else
-                order = Int32.Parse(orderstr);
-            return order;
+                return Int32.Parse(orderstr);
         }
 
         public static UndirectedGraph Read(string orderstr, int size)

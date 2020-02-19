@@ -6,13 +6,32 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
 
-func readRandomUndirectedGraph(orderstr string, order int, size int) (BronKerbosch.UndirectedGraph, error) {
-	var g BronKerbosch.UndirectedGraph
+func parsePositiveInt(str string) (int, error) {
+	var val int
+	var suffix rune
+	n, err := fmt.Sscanf(str, "%d%c", &val, &suffix)
+	if n == 1 {
+		return val, nil // ignore EOF error
+	}
+	if err == nil {
+		if suffix == 'k' {
+			return val * 1e3, nil
+		}
+		if suffix == 'M' {
+			return val * 1e6, nil
+		}
+		err = fmt.Errorf("Unknown suffix \"%c\"", suffix)
+	}
+	return val, err
+}
 
+func readRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.UndirectedGraph, error) {
+	order, err := parsePositiveInt(orderstr)
+	if err != nil {
+		return BronKerbosch.UndirectedGraph{}, err
+	}
 	fullyMeshedSize := order * (order - 1) / 2
 	if size > fullyMeshedSize {
 		panic(
@@ -23,12 +42,13 @@ func readRandomUndirectedGraph(orderstr string, order int, size int) (BronKerbos
 	path := filepath.Join(".", name)
 	file, err := os.Open(path)
 	if err != nil {
-		return g, err
+		err = fmt.Errorf("%s\nPerhaps generate it with `python -m ..\\python3\\random_graph %s <max_size?>`", err, orderstr)
+		return BronKerbosch.UndirectedGraph{}, err
 	}
 	defer file.Close()
-	g.Adjacencies = make([]BronKerbosch.VertexSet, order)
+	adjacencies := make([]BronKerbosch.VertexSet, order)
 	for v := 0; v < order; v++ {
-		g.Adjacencies[v] = make(BronKerbosch.VertexSet)
+		adjacencies[v] = make(BronKerbosch.VertexSet)
 	}
 	scanner := bufio.NewScanner(file)
 	linenum := 0
@@ -38,25 +58,25 @@ func readRandomUndirectedGraph(orderstr string, order int, size int) (BronKerbos
 		}
 		linenum += 1
 		line := scanner.Text()
-		fields := strings.SplitN(line, " ", 2)
-		v, err := strconv.Atoi(fields[0])
+		var v int
+		var w int
+		_, err := fmt.Sscanf(line, "%d %d", &v, &w)
 		if err != nil {
-			return g, err
+			err = fmt.Errorf("%s in file %s at line %d", err, path, linenum)
+			return BronKerbosch.UndirectedGraph{}, err
 		}
-		w, err := strconv.Atoi(fields[1])
-		if err != nil {
-			return g, err
-		}
-		g.Adjacencies[v].Add(BronKerbosch.Vertex(w))
-		g.Adjacencies[w].Add(BronKerbosch.Vertex(v))
+		adjacencies[v].Add(BronKerbosch.Vertex(w))
+		adjacencies[w].Add(BronKerbosch.Vertex(v))
 	}
 	if err := scanner.Err(); err != nil {
-		return g, err
+		return BronKerbosch.UndirectedGraph{}, err
 	}
 
 	if linenum < size {
-		return g, fmt.Errorf("Exhausted generated list of %d edges in %s", linenum, path)
+		err = fmt.Errorf("Exhausted generated list of %d edges in %s", linenum, path)
+		return BronKerbosch.UndirectedGraph{}, err
 	}
+	g := BronKerbosch.NewUndirectedGraph(adjacencies)
 	if g.Order() != order {
 		panic("botched order")
 	}
