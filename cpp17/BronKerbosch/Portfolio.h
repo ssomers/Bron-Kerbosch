@@ -7,8 +7,8 @@
 namespace BronKerbosch {
     class Portfolio {
     public:
-        static int const FUNCS = 1;
-        static const char* const FUNC_NAMES[FUNCS];
+        static int const NUM_FUNCS = 1;
+        static const char* const FUNC_NAMES[NUM_FUNCS];
 
         template <typename VertexSet, typename Reporter>
         static void explore(int func_index, UndirectedGraph<VertexSet> const& graph, Reporter& reporter) {
@@ -27,12 +27,12 @@ namespace BronKerbosch {
         static void sort_cliques(std::vector<VertexList>& cliques) {
             for (VertexList& clique : cliques)
                 std::sort(clique.begin(), clique.end());
-            std::sort(cliques.begin(), cliques.end(), &comparer);
+            std::sort(cliques.begin(), cliques.end(), &clique_less);
         }
 
     private:
-        static bool comparer(VertexList const& lhs, VertexList const& rhs) {
-            for (auto i = 0; i < lhs.size() && i < rhs.size(); ++i) {
+        static bool clique_less(VertexList const& lhs, VertexList const& rhs) {
+            for (size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
                 auto d = lhs[i] - rhs[i];
                 if (d != 0)
                     return d < 0;

@@ -5,13 +5,13 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace BronKerbosch {
     TEST_CLASS(BronKerboschUnitTest) {
 public:
-    static void bk(std::vector<VertexList> adjacencies_in, std::vector<VertexList> expected_cliques) {
+    static void bk(std::vector<VertexList> &&adjacencies_in, std::vector<VertexList> expected_cliques) {
         typedef std::set<Vertex> VertexSet;
         auto adjacencies = std::vector<VertexSet>{};
         adjacencies.resize(adjacencies_in.size());
         std::transform(adjacencies_in.begin(), adjacencies_in.end(), adjacencies.begin(), [](VertexList const& v) { return VertexSet(v.begin(), v.end()); });
         auto graph = UndirectedGraph<VertexSet>{ std::move(adjacencies) };
-        for (int func_index = 0; func_index < Portfolio::FUNCS; ++func_index) {
+        for (int func_index = 0; func_index < Portfolio::NUM_FUNCS; ++func_index) {
             auto reporter = SimpleReporter();
             Portfolio::explore(func_index, graph, reporter);
             Assert::AreEqual(expected_cliques.size(), reporter.cliques.size());
