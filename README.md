@@ -9,7 +9,7 @@ Compared to the original forked from, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* all that mirrored in Rust, Java, Go, and partly in C# and Scala
+* all that mirrored in Rust, Java, Go, and partly in C#, C++ and Scala
 
 ## Implementations
 
@@ -78,7 +78,18 @@ Order of a graph = number of vertices.
 
 and finally
 
-    python python3\publish.py c# 100 10k 999k 1M
+    python python3\publish.py c# 100 10k 1M
+
+### C++ 17
+  - open cpp17\BronKerboschStudy.sln with Visual Studio 2019
+  - set configuration to Debug
+  - Test > Run > All Tests
+  - set configuration to Release
+  - Debug > Start Without Debugging
+
+and finally
+
+    python python3\publish.py c# 100 10k
 
 ### Java
   - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)

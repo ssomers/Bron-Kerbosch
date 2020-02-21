@@ -22,16 +22,6 @@ class Benchmark {
 
     using Times = std::array<SampleStatistics<double>, Portfolio::NUM_FUNCS>;
 
-    static void assert_same_cliques(std::vector<VertexList> const& lhs, std::vector<VertexList> const& rhs) {
-        assert(lhs.size() == rhs.size());
-        for (size_t i = 0; i < lhs.size(); ++i) {
-            assert(lhs[i].size() == rhs[i].size());
-            for (size_t j = 0; j < lhs[i].size(); ++j) {
-                assert(lhs[i][j] == rhs[i][j]);
-            }
-        }
-    }
-
     template <typename VertexSet>
     static Times timed(UndirectedGraph<VertexSet> const& graph, std::vector<int> const& func_indices, int samples) {
         std::unique_ptr<std::vector<VertexList>> first;
@@ -52,10 +42,13 @@ class Benchmark {
                 }
                 if (sample < 2) {
                     Portfolio::sort_cliques(reporter.cliques);
-                    if (first)
-                        assert_same_cliques(*first, reporter.cliques);
-                    else
+                    if (first) {
+                        if (*first != reporter.cliques) {
+                            throw std::logic_error("got different cliques");
+                        }
+                    } else {
                         first = std::make_unique<std::vector<VertexList>>(reporter.cliques);
+                    }
                 }
                 times[func_index].put(secs);
             }
@@ -103,14 +96,16 @@ public:
                         fo << "," << max;
                         auto p = std::cout.precision(2);
                         auto f = std::cout.setf(std::ios_base::fixed);
-                        std::cout
-                            << "order " << std::setw(4) << orderstr
-                            << " size " << std::setw(7) << size
-                            << " " << std::setw(8) << func_name
-                            << "@" << std::setw(10) << SET_TYPE_NAMES[set_type_index]
-                            << ": " << std::setw(5) << mean << "s ±" << std::setw(5) << dev << "s\n";
-                        std::cout.precision(p);
-                        std::cout.setf(f);
+                        if (!std::isnan(mean)) {
+                            std::cout
+                                << "order " << std::setw(4) << orderstr
+                                << " size " << std::setw(7) << size
+                                << " " << std::setw(8) << func_name
+                                << "@" << std::setw(10) << SET_TYPE_NAMES[set_type_index]
+                                << ": " << std::setw(5) << mean << "s ±" << std::setw(5) << dev << "s\n";
+                            std::cout.precision(p);
+                            std::cout.setf(f);
+                        }
                     }
                 }
                 fo << "\n";
@@ -166,7 +161,11 @@ int main() {
         return all_func_indices; };
     Benchmark::bk<std::set<Vertex>>("100", range(2'000u, 3'000u, 50u), all_func_indices, 5); // max 4'950
     Benchmark::bk<std::set<Vertex>>("10k", range(100'000u, 800'000u, 100'000u), all_func_indices, 3);
-    Benchmark::bk<std::set<Vertex>>("1M", concat(range(2'000u, 20'000u, 2'000u), range(200'000u, 1'000'000u, 200'000u), range(1'000'000u, 3'000'000u, 1'000'000u)),
+/*
+    Benchmark::bk<std::set<Vertex>>("1M", concat(range(2'000u, 20'000u, 2'000u),
+                                                 range(200'000u, 1'000'000u, 200'000u),
+                                                 range(1'000'000u, 3'000'000u, 1'000'000u)),
                                     [](unsigned size) { return size <= 20'000 ? std::vector<int> { 0, 1 } : std::vector<int>{ 1, 2, 3, 4, 5 }; }, 3);
+*/
     return EXIT_SUCCESS;
 }

@@ -30,8 +30,8 @@ namespace BronKerbosch {
         }
 
         VertexSet connected_vertices() const {
-            VertexSet result;
             auto order = this->order();
+            auto result = Util::with_capacity<VertexSet>(order);
             for (Vertex v = 0; v < order; ++v) {
                 if (degree(v) > 0) {
                     result.insert(v);

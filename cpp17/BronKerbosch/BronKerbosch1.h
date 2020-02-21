@@ -14,12 +14,13 @@ namespace BronKerbosch {
         template <typename VertexSet, typename Reporter>
         static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter) {
             auto candidates = graph.connected_vertices();
-            if (!candidates.empty()) {
+            auto num_candidates = candidates.size();
+            if (num_candidates) {
                 visit(
                     graph,
                     reporter,
                     std::move(candidates),
-                    VertexSet{},
+                    Util::with_capacity<VertexSet>(num_candidates),
                     VertexList{});
             }
         }

@@ -20,6 +20,7 @@ namespace BronKerbosch {
         template <typename VertexSet>
         static VertexSet difference(VertexSet const& lhs, VertexSet const& rhs) {
             VertexSet result;
+            result.reserve(lhs.size());
             for (auto elt : lhs) {
                 if (rhs.count(elt) == 0) {
                     result.insert(elt);
@@ -69,6 +70,7 @@ namespace BronKerbosch {
                 return intersection(rhs, lhs);
             }
             VertexSet result;
+            result.reserve(lhs.size());
             for (auto elt : lhs) {
                 if (rhs.count(elt)) {
                     result.insert(elt);
@@ -83,5 +85,15 @@ namespace BronKerbosch {
             return result;
         }
 
+        template <typename VertexSet>
+        static VertexSet with_capacity(size_t capacity) {
+            VertexSet result;
+            result.reserve(capacity);
+            return result;
+        }
+        template <>
+        static std::set<Vertex> with_capacity(size_t) {
+            return std::set<Vertex>{};
+        }
     };
 }

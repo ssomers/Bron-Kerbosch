@@ -10,6 +10,9 @@ namespace BronKerbosch {
     public:
         std::vector<VertexList> cliques;
 
-        void record(VertexList&& clique);
+        void record(VertexList&& clique) {
+            assert(clique.size() > 1);
+            cliques.push_back(clique);
+        }
     };
 }
