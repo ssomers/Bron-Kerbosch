@@ -8,7 +8,6 @@
 #include "Util.h"
 
 namespace BronKerbosch {
-
     class BronKerbosch1 {
     public:
         template <typename VertexSet, typename Reporter>

@@ -96,6 +96,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BronKerbosch1.h" />
+    <ClInclude Include="BronKerbosch2.h" />
+    <ClInclude Include="BronKerbosch2GP.h" />
+    <ClInclude Include="BronKerbosch2GPX.h" />
+    <ClInclude Include="BronKerboschPivot.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Portfolio.h" />
     <ClInclude Include="Reporter.h" />

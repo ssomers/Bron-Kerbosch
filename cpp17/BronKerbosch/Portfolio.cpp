@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Portfolio.h"
 
-const char* const BronKerbosch::Portfolio::FUNC_NAMES[1] = { "Ver1+" };
+const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = { "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX" };
 
 void BronKerbosch::Portfolio::sort_cliques(std::vector<VertexList>& cliques) {
     for (VertexList& clique : cliques)
