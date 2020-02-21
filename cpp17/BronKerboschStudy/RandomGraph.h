@@ -6,26 +6,31 @@ namespace BronKerboschStudy {
     using BronKerbosch::UndirectedGraph;
 
     struct RandomGraph {
-        static int parsePositiveInt(std::string const& orderstr) {
-            int factor = 1;
+        static unsigned parseInt(std::string const& orderstr) {
+            unsigned factor = 1;
             if (*orderstr.rbegin() == 'M')
                 factor = 1'000'000;
             if (*orderstr.rbegin() == 'k')
                 factor = 1'000;
-            return std::stoi(orderstr) * factor;
+            auto i = std::stoi(orderstr);
+            if (i < 0) {
+                std::cerr << orderstr << " is negative\n";
+                std::exit(EXIT_FAILURE);
+            }
+            return unsigned(i) * factor;
         }
 
         template <typename VertexSet>
-        static UndirectedGraph<VertexSet> readUndirected(std::string const& orderstr, int size) {
-            int order = parsePositiveInt(orderstr);
-            long fully_meshed_size = (long) order * (order - 1) / 2;
+        static UndirectedGraph<VertexSet> readUndirected(std::string const& orderstr, unsigned size) {
+            unsigned order = parseInt(orderstr);
+            unsigned long fully_meshed_size = (long) order * (order - 1) / 2;
             if (size > fully_meshed_size) {
                 std::cerr << order << " nodes accommodate at most " << fully_meshed_size << " edges\n";
                 std::exit(EXIT_FAILURE);
             }
 
             auto path = "..\\..\\random_edges_order_" + orderstr + ".txt";
-            int linenum = 0;
+            unsigned linenum = 0;
             std::vector<VertexSet> adjacencies(order);
             {
                 std::ifstream file(path.c_str());

@@ -37,7 +37,9 @@ namespace BronKerbosch {
                 auto neighbouring_candidates = Util::intersection(candidates, neighbours);
                 if (!neighbouring_candidates.empty()) {
                     auto neighbouring_excluded = Util::intersection(excluded, neighbours);
-                    visit(graph, reporter, std::move(neighbouring_candidates), std::move(neighbouring_excluded),
+                    visit(graph, reporter,
+                          std::move(neighbouring_candidates),
+                          std::move(neighbouring_excluded),
                           Util::append(clique, v));
                 } else {
                     if (Util::are_disjoint(excluded, neighbours))

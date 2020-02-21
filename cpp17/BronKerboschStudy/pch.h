@@ -1,10 +1,12 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#include "BronKerbosch/pch.h"
 
-#include <algorithm>
+#ifdef _MSC_VER
+#pragma execution_character_set( "utf-8" )
+#endif
+
 #include <array>
-#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <fstream>
@@ -14,4 +16,5 @@
 #include <numeric>
 #include <set>
 #include <string>
-#include <vector>
+#include <string_view>
+#include <unordered_set>
