@@ -261,24 +261,11 @@ fn main() -> Result<(), std::io::Error> {
             (100_000..=800_000).step_by(100_000),
             3,
             |set_type: SetType, size: u32| -> Vec<usize> {
-                (2..NUM_FUNCS)
-                    .filter(|func_index| match (func_index, set_type) {
-                        (5, _) => false, // Ver2+RP not interesting on random graph
-                        (3, SetType::BTreeSet)
-                        | (3, SetType::HashSet)
-                        | (3, SetType::Hashbrown)
-                        | (4, SetType::BTreeSet)
-                        | (4, SetType::HashSet)
-                        | (4, SetType::Hashbrown)
-                        | (7, SetType::BTreeSet)
-                        | (7, SetType::HashSet)
-                        | (7, SetType::Hashbrown)
-                        | (8, SetType::BTreeSet)
-                        | (8, SetType::HashSet)
-                        | (8, SetType::Hashbrown) => size <= 500_000,
-                        (_, _) => true,
-                    })
-                    .collect()
+                // Skip Ver1 (already rejected) and Ver2+RP (not interesting in random graph)
+                match (set_type, size) {
+                    (SetType::Fnv, _) | (_, 0..=500_000) => vec![2, 3, 4, 6, 7, 8, 9],
+                    _ => vec![9],
+                }
             },
         )?;
         thread::sleep(Duration::from_secs(7));
