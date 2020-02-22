@@ -29,7 +29,7 @@ namespace BronKerboschStudy {
                 std::exit(EXIT_FAILURE);
             }
 
-            auto path = "..\\..\\random_edges_order_" + orderstr + ".txt";
+            auto path = "..\\random_edges_order_" + orderstr + ".txt";
             unsigned linenum = 0;
             std::vector<VertexSet> adjacencies(order);
             {

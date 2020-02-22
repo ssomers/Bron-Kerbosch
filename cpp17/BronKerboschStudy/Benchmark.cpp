@@ -36,7 +36,7 @@ class Benchmark {
                 if (duration >= std::chrono::seconds(3)) {
                     auto p = std::cout.precision(2);
                     auto f = std::cout.setf(std::ios_base::fixed);
-                    std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(5) << secs << "s\n";
+                    std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(5) << secs << "s" << std::endl;
                     std::cout.precision(p);
                     std::cout.setf(f);
                 }
@@ -64,7 +64,6 @@ class Benchmark {
     };
 
 public:
-    template <typename VertexSet>
     static void bk(std::string const& orderstr, std::vector<unsigned> const& sizes, std::function<std::vector<int>(unsigned size)> includedFuncs, int samples) {
         auto tmpfname = "tmp.csv";
         {
@@ -102,7 +101,8 @@ public:
                                 << " size " << std::setw(7) << size
                                 << " " << std::setw(8) << func_name
                                 << "@" << std::setw(10) << SET_TYPE_NAMES[set_type_index]
-                                << ": " << std::setw(5) << mean << "s ±" << std::setw(5) << dev << "s\n";
+                                << ": " << std::setw(5) << mean << "s ±" << std::setw(5) << dev << "s"
+                                << std::endl;
                             std::cout.precision(p);
                             std::cout.setf(f);
                         }
@@ -111,7 +111,7 @@ public:
                 fo << "\n";
             }
         }
-        auto path = "..\\..\\bron_kerbosch_c++_order_" + orderstr + ".csv";
+        auto path = "..\\bron_kerbosch_c++_order_" + orderstr + ".csv";
         std::remove(path.c_str());
         auto rc = std::rename(tmpfname, path.c_str());
         if (rc != 0) {
@@ -148,7 +148,7 @@ template<typename... Args> std::vector<unsigned> concat(Args... args) {
     return result;
 }
 
-int main() {
+int main(int argc, char** argv) {
     console_init();
 #ifndef NDEBUG
     std::cerr << "Run Release build for meaningful measurements\n";
@@ -159,13 +159,23 @@ int main() {
         std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
         std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
         return all_func_indices; };
-    Benchmark::bk<std::set<Vertex>>("100", range(2'000u, 3'000u, 50u), all_func_indices, 5); // max 4'950
-    Benchmark::bk<std::set<Vertex>>("10k", range(100'000u, 800'000u, 100'000u), all_func_indices, 3);
-/*
-    Benchmark::bk<std::set<Vertex>>("1M", concat(range(2'000u, 20'000u, 2'000u),
-                                                 range(200'000u, 1'000'000u, 200'000u),
-                                                 range(1'000'000u, 3'000'000u, 1'000'000u)),
-                                    [](unsigned size) { return size <= 20'000 ? std::vector<int> { 0, 1 } : std::vector<int>{ 1, 2, 3, 4, 5 }; }, 3);
-*/
-    return EXIT_SUCCESS;
+    if (argc == 1) {
+        Benchmark::bk("100", range(2'000u, 3'000u, 50u), all_func_indices, 5); // max 4'950
+        Benchmark::bk("10k", range(100'000u, 800'000u, 100'000u), all_func_indices, 3);
+        /*
+        Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
+                                   range(200'000u, 1'000'000u, 200'000u),
+                                   range(1'000'000u, 3'000'000u, 1'000'000u)),
+                      [](unsigned size) { return size <= 20'000 ? std::vector<int> { 0, 1 } : std::vector<int>{ 1, 2, 3, 4, 5 }; }, 3);
+        */
+        return EXIT_SUCCESS;
+    } else if (argc == 3) {
+        auto orderstr = argv[1];
+        unsigned size = BronKerboschStudy::RandomGraph::parseInt(argv[2]);
+        Benchmark::bk(orderstr, range(size, size, 1u), all_func_indices, 1);
+        return EXIT_SUCCESS;
+    } else {
+        std::cerr << "Specify order and size\n";
+        return EXIT_FAILURE;
+    }
 }

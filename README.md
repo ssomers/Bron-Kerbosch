@@ -81,11 +81,18 @@ and finally
     python python3\publish.py c# 100 10k 1M
 
 ### C++ 17
+Either:
   - open cpp17\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
   - Debug > Start Without Debugging
+
+or in Mingw-64:
+    pacman -S mingw-w64-x86_64-gcc
+    PATH="/mingw64/bin:$PATH"
+    g++ -I. -DNDEBUG -O BronKerbosch/*.cpp BronKerboschStudy/*.cpp
+    ./a
 
 and finally
 

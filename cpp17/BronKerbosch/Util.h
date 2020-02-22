@@ -1,25 +1,33 @@
 #pragma once
 
-#include "pch.h"
-#include "BronKerbosch/UndirectedGraph.h"
+#include <set>
+#include <unordered_set>
+#include <vector>
 
 namespace BronKerbosch {
     struct Util {
-        static VertexList append(VertexList const& clique, Vertex v) {
-            auto result = VertexList(clique.size() + 1);
-            std::copy(clique.begin(), clique.end(), result.begin());
-            *result.rbegin() = v;
+        template <typename T>
+        static std::vector<T> append(std::vector<T> const& vec, T val) {
+            auto result = std::vector<T>(vec.size() + 1);
+            std::copy(vec.begin(), vec.end(), result.begin());
+            *result.rbegin() = val;
             return result;
         }
 
-        template <typename VertexSet>
-        static bool are_disjoint(VertexSet const& lhs, VertexSet const& rhs) {
+        template <typename Set>
+        static bool are_disjoint(Set const& lhs, Set const& rhs) {
             return intersectSize(lhs, rhs) == 0;
         }
 
-        template <typename VertexSet>
-        static VertexSet difference(VertexSet const& lhs, VertexSet const& rhs) {
-            VertexSet result;
+        template <typename T>
+        static std::set<T> difference(std::set<T> const& lhs, std::set<T> const& rhs) {
+            std::set<T> result;
+            std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(result, result.end()));
+            return result;
+        }
+        template <typename T>
+        static std::unordered_set<T> difference(std::unordered_set<T> const& lhs, std::unordered_set<T> const& rhs) {
+            std::unordered_set<T> result;
             result.reserve(lhs.size());
             for (auto elt : lhs) {
                 if (rhs.count(elt) == 0) {
@@ -28,15 +36,26 @@ namespace BronKerbosch {
             }
             return result;
         }
-        template <>
-        static std::set<Vertex> difference(std::set<Vertex> const& lhs, std::set<Vertex> const& rhs) {
-            std::set<Vertex> result;
-            std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(result, result.end()));
-            return result;
-        }
 
-        template <typename VertexSet>
-        static size_t intersectSize(VertexSet const& lhs, VertexSet const& rhs) {
+        template <typename T>
+        static size_t intersectSize(std::set<T> const& lhs, std::set<T> const& rhs) {
+            struct output_counter {
+                typedef T value_type;
+                typedef size_t iterator;
+
+                size_t count = 0;
+
+                iterator insert(iterator, T) {
+                    return ++count;
+                }
+            };
+
+            output_counter counter;
+            std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(counter, 0));
+            return counter.count;
+        }
+        template <typename T>
+        static size_t intersectSize(std::unordered_set<T> const& lhs, std::unordered_set<T> const& rhs) {
             if (lhs.size() > rhs.size()) {
                 return intersectSize(rhs, lhs);
             }
@@ -46,30 +65,19 @@ namespace BronKerbosch {
             }
             return count;
         }
-        template <>
-        static size_t intersectSize(std::set<Vertex> const& lhs, std::set<Vertex> const& rhs) {
-            struct output_counter {
-                typedef Vertex value_type;
-                typedef size_t iterator;
 
-                size_t count = 0;
-
-                iterator insert(iterator, Vertex) {
-                    return ++count;
-                }
-            };
-
-            output_counter counter;
-            std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(counter, 0));
-            return counter.count;
+        template <typename T>
+        static std::set<T> intersection(std::set<T> const& lhs, std::set<T> const& rhs) {
+            std::set<T> result;
+            std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(result, result.end()));
+            return result;
         }
-
-        template <typename VertexSet>
-        static VertexSet intersection(VertexSet const& lhs, VertexSet const& rhs) {
+        template <typename T>
+        static std::unordered_set<T> intersection(std::unordered_set<T> const& lhs, std::unordered_set<T> const& rhs) {
             if (lhs.size() > rhs.size()) {
                 return intersection(rhs, lhs);
             }
-            VertexSet result;
+            std::unordered_set<T> result;
             result.reserve(lhs.size());
             for (auto elt : lhs) {
                 if (rhs.count(elt)) {
@@ -78,22 +86,20 @@ namespace BronKerbosch {
             }
             return result;
         }
-        template <>
-        static std::set<Vertex> intersection(std::set<Vertex> const& lhs, std::set<Vertex> const& rhs) {
-            std::set<Vertex> result;
-            std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::inserter(result, result.end()));
+
+        template <typename Set>
+        static Set with_capacity(size_t capacity) {
+            Set result;
+            Util::reserve(result, capacity);
             return result;
         }
 
-        template <typename VertexSet>
-        static VertexSet with_capacity(size_t capacity) {
-            VertexSet result;
-            result.reserve(capacity);
-            return result;
+        template <typename T>
+        static void reserve(std::set<T>&, size_t) {
         }
-        template <>
-        static std::set<Vertex> with_capacity(size_t) {
-            return std::set<Vertex>{};
+        template <typename T>
+        static void reserve(std::unordered_set<T>& set, size_t capacity) {
+            set.reserve(capacity);
         }
     };
 }

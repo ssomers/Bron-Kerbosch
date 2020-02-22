@@ -37,10 +37,10 @@ public:
 
     TEST_METHOD(Util_append) {
         auto const empty = VertexList{};
-        auto const one = Util::append(empty, 11);
+        auto const one = Util::append(empty, 11u);
         Assert::AreEqual(std::size_t{ 1 }, one.size());
         Assert::AreEqual(11u, one[0]);
-        auto const two = Util::append(one, 22);
+        auto const two = Util::append(one, 22u);
         Assert::AreEqual(std::size_t{ 2 }, two.size());
         Assert::AreEqual(11u, two[0]);
         Assert::AreEqual(22u, two[1]);

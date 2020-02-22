@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pch.h"
 #include "BronKerbosch/UndirectedGraph.h"
+#include <vector>
 
 namespace BronKerbosch {
     using VertexList = std::vector<Vertex>;

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Util.h"
+#include <vector>
+
 namespace BronKerbosch {
     using Vertex = unsigned;
 
@@ -8,12 +11,13 @@ namespace BronKerbosch {
     public:
         using Adjacencies = std::vector<VertexSet>;
 
-        UndirectedGraph(Adjacencies&& adjacencies)
-            : itsAdjacencies(adjacencies) {
+        UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
         }
+
         unsigned order() const {
             return unsigned(itsAdjacencies.size());
         }
+
         unsigned size() const {
             size_t total = 0;
             for (auto neighbours : itsAdjacencies) {
@@ -22,9 +26,11 @@ namespace BronKerbosch {
             assert(total % 2 == 0);
             return unsigned(total / 2);
         }
+
         unsigned degree(Vertex v) const {
             return unsigned(itsAdjacencies[v].size());
         }
+
         VertexSet const& neighbours(Vertex v) const {
             return itsAdjacencies[v];
         }
