@@ -29,7 +29,7 @@ where
                 PivotChoice::Arbitrary,
                 neighbouring_candidates,
                 neighbouring_excluded,
-                Pile::from(v),
+                Some(&Pile::from(v)),
             );
         }
         excluded.insert(v);

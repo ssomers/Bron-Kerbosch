@@ -83,7 +83,7 @@ where
                         PivotChoice::MaxDegreeLocal,
                         job.candidates,
                         job.excluded,
-                        Pile::from(job.start),
+                        Some(&Pile::from(job.start)),
                     );
                 }
             });

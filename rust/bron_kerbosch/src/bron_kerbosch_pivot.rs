@@ -24,7 +24,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
     further_pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
-    clique: Clique,
+    clique: Option<&Clique>,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -40,7 +40,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
             if neighbours.is_disjoint(&excluded) {
-                reporter.record(clique.place(v).collect());
+                reporter.record(Pile::on(clique, v).collect());
             }
         });
         return;
@@ -58,7 +58,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
                     if neighbours.is_disjoint(&excluded) {
-                        reporter.record(clique.place(v).collect());
+                        reporter.record(Pile::on(clique, v).collect());
                     }
                 } else {
                     if seen_local_degree < local_degree {
@@ -99,7 +99,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
         let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
         if neighbouring_candidates.is_empty() {
             if neighbours.is_disjoint(&excluded) {
-                reporter.record(clique.place(v).collect());
+                reporter.record(Pile::on(clique, v).collect());
             }
         } else {
             let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
@@ -110,7 +110,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
                 further_pivot_selection,
                 neighbouring_candidates,
                 neighbouring_excluded,
-                clique.place(v),
+                Some(&Pile::on(clique, v)),
             );
         }
         excluded.insert(v);

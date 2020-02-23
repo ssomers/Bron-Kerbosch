@@ -2,7 +2,6 @@
 
 use bron_kerbosch_pivot::{visit, PivotChoice};
 use graph::{connected_vertices, UndirectedGraph, VertexSetLike};
-use pile::Pile;
 use reporter::Reporter;
 
 pub fn explore<Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
@@ -19,7 +18,7 @@ where
             PivotChoice::Random,
             candidates,
             Graph::VertexSet::new(),
-            Pile::new(),
+            None,
         );
     }
 }

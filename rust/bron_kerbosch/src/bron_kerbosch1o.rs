@@ -20,7 +20,7 @@ where
             reporter,
             candidates,
             VertexSet::with_capacity(num_candidates),
-            Pile::new(),
+            None,
         );
     }
 }
@@ -30,7 +30,7 @@ fn visit<VertexSet, Graph, Rprtr>(
     reporter: &mut Rprtr,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
-    clique: Clique,
+    clique: Option<&Clique>,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -52,11 +52,11 @@ fn visit<VertexSet, Graph, Rprtr>(
                 reporter,
                 neighbouring_candidates,
                 neighbouring_excluded,
-                clique.place(v),
+                Some(&Clique::on(clique, v)),
             );
         } else {
             if neighbours.is_disjoint(&excluded) {
-                reporter.record(clique.place(v).collect());
+                reporter.record(Clique::on(clique, v).collect());
             }
             if candidates.is_empty() {
                 break;
