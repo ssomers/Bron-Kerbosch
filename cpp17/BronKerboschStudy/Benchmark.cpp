@@ -2,7 +2,7 @@
 
 #include "BronKerbosch/BronKerbosch1.h"
 #include "BronKerbosch/Portfolio.h"
-#include "BronKerbosch/Reporter.h"
+#include "BronKerbosch/SimpleReporter.h"
 #include "BronKerbosch/UndirectedGraph.h"
 #include "Console.h"
 #include "RandomGraph.h"
@@ -161,8 +161,9 @@ int main(int argc, char** argv) {
         return all_func_indices; };
     if (argc == 1) {
         Benchmark::bk("100", range(2'000u, 3'000u, 50u), all_func_indices, 5); // max 4'950
-        Benchmark::bk("10k", range(100'000u, 800'000u, 100'000u), all_func_indices, 3);
+        Benchmark::bk("10k", range(100'000u, 400'000u, 100'000u), all_func_indices, 3);
         /*
+        Benchmark::bk("10k", range(100'000u, 800'000u, 100'000u), all_func_indices, 3);
         Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
                                    range(200'000u, 1'000'000u, 200'000u),
                                    range(1'000'000u, 3'000'000u, 1'000'000u)),

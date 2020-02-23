@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "pch.h"
 #include "BronKerboschPivot.h"
 #include "UndirectedGraph.h"
 #include "Util.h"
@@ -22,7 +21,7 @@ namespace BronKerbosch {
                     PivotChoice::Arbitrary,
                     std::move(candidates),
                     Util::with_capacity<VertexSet>(num_candidates),
-                    VertexList{});
+                    NULL);
             }
         }
     };

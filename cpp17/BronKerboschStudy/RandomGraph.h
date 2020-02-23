@@ -45,8 +45,10 @@ namespace BronKerboschStudy {
                     }
                     auto added1 = adjacencies[v].insert(w).second;
                     auto added2 = adjacencies[w].insert(v).second;
-                    assert(added1);
-                    assert(added2);
+                    if (!added1 || !added2) {
+                        std::cerr << "Corrupt " << path << "\n";
+                        std::exit(EXIT_FAILURE);
+                    }
                 }
             }
             if (linenum < size) {
@@ -54,8 +56,10 @@ namespace BronKerboschStudy {
                 std::exit(EXIT_FAILURE);
             }
             auto g = UndirectedGraph<VertexSet>{ std::move(adjacencies) };
-            assert(g.order() == order);
-            assert(g.size() == size);
+            if (g.order() != order || g.size() != size) {
+                std::cerr << "Messed up while reading " << path << "\n";
+                std::exit(EXIT_FAILURE);
+            }
             return g;
         }
     };

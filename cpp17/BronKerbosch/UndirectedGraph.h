@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Vertex.h"
 #include "Util.h"
 #include <vector>
 
 namespace BronKerbosch {
-    using Vertex = unsigned;
-
     template <typename VertexSet>
     class UndirectedGraph {
     public:

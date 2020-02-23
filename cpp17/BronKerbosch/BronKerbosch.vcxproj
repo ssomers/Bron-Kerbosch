@@ -86,13 +86,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BronKerbosch1.cpp" />
+    <ClCompile Include="BronKerboschPivot.cpp" />
     <ClCompile Include="Portfolio.cpp" />
-    <ClCompile Include="Reporter.cpp" />
+    <ClCompile Include="SimpleReporter.cpp" />
     <ClCompile Include="UndirectedGraph.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="VertexPile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BronKerbosch1.h" />
@@ -102,9 +106,11 @@
     <ClInclude Include="BronKerboschPivot.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Portfolio.h" />
-    <ClInclude Include="Reporter.h" />
+    <ClInclude Include="SimpleReporter.h" />
     <ClInclude Include="UndirectedGraph.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VertexPile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

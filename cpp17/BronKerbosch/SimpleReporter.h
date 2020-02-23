@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BronKerbosch/UndirectedGraph.h"
+#include "VertexPile.h"
 #include <vector>
 
 namespace BronKerbosch {
@@ -8,9 +8,10 @@ namespace BronKerbosch {
 
     class SimpleReporter {
     public:
-        std::vector<VertexList> cliques;
+        std::vector<std::vector<Vertex>> cliques;
 
-        void record(VertexList&& clique) {
+        void record(VertexPile &&pile) {
+            std::vector<Vertex> clique = pile.collect();
             assert(clique.size() > 1);
             cliques.push_back(clique);
         }

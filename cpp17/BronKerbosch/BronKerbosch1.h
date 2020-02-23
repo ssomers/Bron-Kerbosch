@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "pch.h"
 #include "UndirectedGraph.h"
-#include "Reporter.h"
+#include "VertexPile.h"
 #include "Util.h"
 
 namespace BronKerbosch {
@@ -20,15 +19,15 @@ namespace BronKerbosch {
                     reporter,
                     std::move(candidates),
                     Util::with_capacity<VertexSet>(num_candidates),
-                    VertexList{});
+                    NULL);
             }
         }
 
         template <typename VertexSet, typename Reporter>
         static void visit(UndirectedGraph<VertexSet> const& graph, Reporter& reporter,
-                          VertexSet candidates, VertexSet excluded, VertexList clique) {
-            assert(!candidates.empty());
+                          VertexSet candidates, VertexSet excluded, const VertexPile* clique) {
             for (;;) {
+                assert(!candidates.empty());
                 auto choice = candidates.begin();
                 Vertex v = *choice;
                 candidates.erase(choice);
@@ -37,13 +36,14 @@ namespace BronKerbosch {
                 auto neighbouring_candidates = Util::intersection(candidates, neighbours);
                 if (!neighbouring_candidates.empty()) {
                     auto neighbouring_excluded = Util::intersection(excluded, neighbours);
+                    auto newclique = VertexPile{ v, clique };
                     visit(graph, reporter,
                           std::move(neighbouring_candidates),
                           std::move(neighbouring_excluded),
-                          Util::append(clique, v));
+                          &newclique);
                 } else {
                     if (Util::are_disjoint(excluded, neighbours))
-                        reporter.record(Util::append(clique, v));
+                        reporter.record(VertexPile(v, clique));
                     if (candidates.empty())
                         break;
                 }

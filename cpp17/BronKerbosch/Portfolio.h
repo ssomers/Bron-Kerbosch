@@ -5,6 +5,7 @@
 #include "BronKerbosch/BronKerbosch2GP.h"
 #include "BronKerbosch/BronKerbosch2GPX.h"
 #include "BronKerbosch/UndirectedGraph.h"
+#include <vector>
 
 namespace BronKerbosch {
     class Portfolio {
@@ -22,10 +23,10 @@ namespace BronKerbosch {
             }
         }
 
-        static void sort_cliques(std::vector<VertexList>& cliques);
+        static void sort_cliques(std::vector<std::vector<Vertex>>& cliques);
 
     private:
-        static bool clique_less(VertexList const&, VertexList const&);
+        static bool clique_less(std::vector<Vertex> const&, std::vector<Vertex> const&);
     };
 }
 
