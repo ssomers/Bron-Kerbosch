@@ -220,6 +220,7 @@ namespace BronKerbosch {
         template <typename T>
         static ordered_vector<T> intersection(ordered_vector<T> const& lhs, ordered_vector<T> const& rhs) {
             ordered_vector<T> result;
+            result.reserve(std::min(lhs.size(), rhs.size()));
             std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
                                   std::inserter(result, result.end()));
             return result;
@@ -250,6 +251,7 @@ namespace BronKerbosch {
         template <typename T>
         static ordered_vector<T> difference(ordered_vector<T> const& lhs, ordered_vector<T> const& rhs) {
             ordered_vector<T> result;
+            result.reserve(lhs.size());
             std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
                                 std::inserter(result, result.end()));
             return result;
