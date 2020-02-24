@@ -97,7 +97,7 @@ or in Mingw-64:
 
 and finally
 
-    python python3\publish.py c# 100 10k
+    python python3\publish.py c++ 100 10k
 
 ### Java
   - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)
