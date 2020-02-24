@@ -27,10 +27,7 @@ namespace BronKerbosch {
         static void visit(UndirectedGraph<VertexSet> const& graph, Reporter& reporter,
                           VertexSet candidates, VertexSet excluded, const VertexPile* clique) {
             for (;;) {
-                assert(!candidates.empty());
-                auto choice = candidates.begin();
-                Vertex v = *choice;
-                candidates.erase(choice);
+                Vertex v = Util::pop_arbitrary(candidates);
                 auto neighbours = graph.neighbours(v);
                 assert(!neighbours.empty());
                 auto neighbouring_candidates = Util::intersection(candidates, neighbours);

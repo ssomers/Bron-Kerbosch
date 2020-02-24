@@ -11,6 +11,7 @@ namespace BronKerbosch {
         using Adjacencies = std::vector<VertexSet>;
 
         UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
+            assert(UndirectedGraph::are_valid_adjacencies(itsAdjacencies));
         }
 
         unsigned order() const {

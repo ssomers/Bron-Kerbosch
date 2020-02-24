@@ -28,15 +28,16 @@ public:
     static void bk(std::vector<std::vector<Vertex>>&& adjacencies_in,
                    std::vector<std::vector<Vertex>>&& expected_cliques) {
         bk_core<std::set<Vertex>>(adjacencies_in, expected_cliques);
+        bk_core<ordered_vector<Vertex>>(adjacencies_in, expected_cliques);
         bk_core<std::unordered_set<Vertex>>(adjacencies_in, expected_cliques);
     }
 
     static void assert_same_cliques(std::vector<std::vector<Vertex>> const& lhs,
                                     std::vector<std::vector<Vertex>> const& rhs) {
         Assert::AreEqual(lhs.size(), rhs.size());
-        for (auto i = 0; i < lhs.size(); ++i) {
+        for (size_t i = 0; i < lhs.size(); ++i) {
             Assert::AreEqual(lhs[i].size(), rhs[i].size());
-            for (auto j = 0; j < lhs[i].size(); ++j) {
+            for (size_t j = 0; j < lhs[i].size(); ++j) {
                 Assert::AreEqual(lhs[i][j], rhs[i][j]);
             }
         }

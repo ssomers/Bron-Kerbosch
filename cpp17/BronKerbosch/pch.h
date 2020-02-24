@@ -1,7 +1,17 @@
 #pragma once
 
-#if defined(NDEBUG) && defined(_MSC_VER)
-#  pragma warning(disable:4189)
+#ifdef _MSC_VER
+#  pragma warning(disable:4365) // conversion from ... to ..., signed/unsigned mismatch
+#  pragma warning(disable:4514) // unreferenced inline function has been removed
+#  pragma warning(disable:4710) // function not inlined
+#  pragma warning(disable:4820) // bytes padding added after data member
+#  pragma warning(disable:4626) // assignment operator was implicitly defined as deleted
+#  pragma warning(disable:5027) // move assignment operator was implicitly defined as deleted
+#  pragma warning(disable:5039) // pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc.
+#  pragma warning(disable:5045) // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+#  ifdef NDEBUG
+#    pragma warning(disable:4189)
+#  endif
 #endif
 
 #include <algorithm>

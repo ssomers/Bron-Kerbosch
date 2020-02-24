@@ -23,7 +23,7 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust, Java only) Ver3+GP with multi-threading through channels (2 + 5 threads
+* **Ver3+MT:** (Rust, Java only) Ver3+GP with multi-threading using channels (2 + 5 threads)
 * **Ver3+ST:** (Java only) Ver3+GP with simple multi-threading using streams
 * **Ver3+GP2:** (Go only) Ver3+GP with multi-threading (2 + 5 goroutines)
 * **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutine)
@@ -97,7 +97,7 @@ or in Mingw-64:
 
 and finally
 
-    python python3\publish.py c++ 100 10k
+    python python3\publish.py c++ 100 10k 1M
 
 ### Java
   - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)

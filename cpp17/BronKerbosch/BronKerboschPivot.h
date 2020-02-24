@@ -73,7 +73,8 @@ namespace BronKerbosch {
                     }
                     break;
                 }
-                default: {
+                case PivotChoice::Arbitrary:
+                case PivotChoice::MaxDegree: {
                     std::copy(candidates.begin(), candidates.end(), std::back_inserter(remaining_candidates));
                     pivot = choose(initial_pivot_choice, remaining_candidates, graph);
                 }
@@ -116,9 +117,15 @@ namespace BronKerbosch {
             UndirectedGraph<VertexSet> const& graph) {
             switch (pivot_choice) {
                 case PivotChoice::Arbitrary: return *candidates.begin();
-                case PivotChoice::MaxDegree: return *std::max_element(candidates.begin(), candidates.end(), [&graph](Vertex v, Vertex w) { return graph.degree(v) < graph.degree(w); });
-                default: throw std::logic_error("Implemented separately");
+                case PivotChoice::MaxDegree: return *std::max_element(candidates.begin(),
+                                                                      candidates.end(),
+                                                                      [&graph](Vertex v, Vertex w) {
+                                                                          return graph.degree(v) < graph.degree(w);
+                                                                      });
+                case PivotChoice::MaxDegreeLocal:
+                case PivotChoice::MaxDegreeLocalX: break;
             }
+            throw std::logic_error("unreachable");
         }
     };
 }

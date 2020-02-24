@@ -8,6 +8,18 @@ namespace BronKerbosch {
     TEST_CLASS(UtilUnitTest) {
 public:
     template <typename VertexSet>
+    void Util_pop_arbitray() {
+        auto one = VertexSet{ 1 };
+        auto two = VertexSet{ 1, 2 };
+        Assert::AreEqual(1, Util::pop_arbitrary(one));
+        Assert::IsTrue(one.empty());
+        auto x = Util::pop_arbitrary(two);
+        auto y = Util::pop_arbitrary(two);
+        Assert::AreEqual(1, std::min(x, y));
+        Assert::AreEqual(2, std::max(x, y));
+    }
+
+    template <typename VertexSet>
     void Util_are_disjoint() {
         auto const empty = VertexSet{};
         auto const one = VertexSet{ 1 };
@@ -99,10 +111,22 @@ public:
         Assert::IsTrue(Util::difference(six, two) == VertexSet{ 0, 3, 4, 5 });
     }
 
+    TEST_METHOD(Util_pop_arbitray_set) {
+        Util_pop_arbitray<std::set<int>>();
+    }
+    TEST_METHOD(Util_pop_arbitray_ordered_vector) {
+        Util_pop_arbitray<ordered_vector<int>>();
+    }
+    TEST_METHOD(Util_pop_arbitray_unordered_set) {
+        Util_pop_arbitray<std::unordered_set<int>>();
+    }
+
     TEST_METHOD(Util_are_disjoint_set) {
         Util_are_disjoint<std::set<int>>();
     }
-
+    TEST_METHOD(Util_are_disjoint_ordered_vector) {
+        Util_are_disjoint<ordered_vector<int>>();
+    }
     TEST_METHOD(Util_are_disjoint_unordered_set) {
         Util_are_disjoint<std::unordered_set<int>>();
     }
@@ -110,7 +134,9 @@ public:
     TEST_METHOD(Util_intersection_size_set) {
         Util_intersection_size<std::set<int>>();
     }
-
+    TEST_METHOD(Util_intersection_size_ordered_vector) {
+        Util_intersection_size<ordered_vector<int>>();
+    }
     TEST_METHOD(Util_intersection_size_unordered_set) {
         Util_intersection_size<std::unordered_set<int>>();
     }
@@ -118,7 +144,9 @@ public:
     TEST_METHOD(Util_intersection_set) {
         Util_intersection<std::set<int>>();
     }
-
+    TEST_METHOD(Util_intersection_ordered_vector) {
+        Util_intersection<ordered_vector<int>>();
+    }
     TEST_METHOD(Util_intersection_unordered_set) {
         Util_intersection<std::unordered_set<int>>();
     }
@@ -126,7 +154,9 @@ public:
     TEST_METHOD(Util_difference_set) {
         Util_difference<std::set<int>>();
     }
-
+    TEST_METHOD(Util_difference_ordered_vector) {
+        Util_difference<ordered_vector<int>>();
+    }
     TEST_METHOD(Util_difference_unordered_set) {
         Util_difference<std::unordered_set<int>>();
     }
