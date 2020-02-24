@@ -4,23 +4,17 @@
 /// convert to a vector.
 pub struct Pile<'a, T> {
     top: T,
-    earlier: Option<&'a Pile<'a, T>>,
+    height: u32,
+    lower: Option<&'a Pile<'a, T>>,
 }
 
 impl<'a, T> Pile<'a, T>
 where
     T: Clone,
 {
-    fn height(&self) -> usize {
-        match self.earlier {
-            Some(earlier) => earlier.height() + 1,
-            None => 1,
-        }
-    }
-
     fn push_to(&self, result: &mut Vec<T>) {
-        if let Some(earlier) = self.earlier {
-            earlier.push_to(result);
+        if let Some(lower) = self.lower {
+            lower.push_to(result);
         }
         result.push(self.top.clone());
     }
@@ -31,14 +25,16 @@ where
     }
 
     /// Create a pile optionally on top of an existing pile
-    pub fn on(earlier: Option<&'a Pile<'a, T>>, top: T) -> Self {
-        Self { earlier, top }
+    pub fn on(lower: Option<&'a Pile<'a, T>>, top: T) -> Self {
+        let height = 1 + lower.map_or(0, |pile| pile.height);
+        Self { top, height, lower }
     }
 
     /// Clone contained elements into a vector, in the order they were placed
     pub fn collect(self) -> Vec<T> {
-        let mut result: Vec<T> = Vec::with_capacity(self.height());
+        let mut result: Vec<T> = Vec::with_capacity(self.height as usize);
         self.push_to(&mut result);
+        debug_assert_eq!(result.len(), self.height as usize);
         result
     }
 }
