@@ -48,6 +48,8 @@ enum SetType {
     Fnv,
     #[strum(to_string = "hashbrown")]
     Hashbrown,
+    #[strum(to_string = "ord_vec")]
+    OrdVec,
 }
 
 type Seconds = f32;
@@ -161,6 +163,9 @@ fn bk_core(
                 set_type,
                 &func_indices,
             ),
+            SetType::OrdVec => {
+                bk_core_core::<Vec<Vertex>>(orderstr, size, samples, set_type, &func_indices)
+            }
         };
         for func_index in func_indices {
             let name = FUNC_NAMES[func_index];
@@ -253,8 +258,12 @@ fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
         debug_assert!(false, "Run with --release for meaningful measurements");
-        let all_funcs = |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() };
-        bk("100", (2_000..=3_000).step_by(50), 5, all_funcs)?; // max 4_950
+        bk(
+            "100",
+            (2_000..=3_000).step_by(50), // max 4_950
+            5,
+            |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() },
+        )?;
         thread::sleep(Duration::from_secs(7));
         bk(
             "10k",
@@ -263,7 +272,7 @@ fn main() -> Result<(), std::io::Error> {
             |set_type: SetType, size: u32| -> Vec<usize> {
                 // Skip Ver1 (already rejected) and Ver2+RP (not interesting in random graph)
                 match (set_type, size) {
-                    (SetType::Fnv, _) | (_, 0..=500_000) => vec![2, 3, 4, 6, 7, 8, 9],
+                    (SetType::Fnv, _) | (_, 0..=400_000) => vec![2, 3, 4, 6, 7, 8, 9],
                     _ => vec![9],
                 }
             },
@@ -281,11 +290,18 @@ fn main() -> Result<(), std::io::Error> {
                 match size {
                     0..=99_999 => vec![1],
                     100_000..=249_999 => match set_type {
+                        SetType::OrdVec => vec![],
                         SetType::BTreeSet => vec![1, 7, 9],
                         _ => vec![7, 9],
                     },
-                    250_000..=1_500_000 => vec![7, 9],
-                    _ => vec![9],
+                    250_000..=1_500_000 => match set_type {
+                        SetType::OrdVec => vec![],
+                        _ => vec![7, 9],
+                    },
+                    _ => match set_type {
+                        SetType::OrdVec => vec![],
+                        _ => vec![9],
+                    },
                 }
             },
         )?;

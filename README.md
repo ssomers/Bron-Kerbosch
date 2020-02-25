@@ -11,7 +11,7 @@ Compared to the original forked from, the code is:
 * extended with unit tests and a performance test on random graphs
 * all that mirrored in Rust, Java, Go, and partly in C#, C++ and Scala
 
-## Implementations
+## Algorithms
 
 * **Ver1:** Naive Bron-Kerbosch algorithm
 * **Ver1+:** Ver1 optimized, including language-specific tweaks
@@ -29,6 +29,20 @@ Compared to the original forked from, the code is:
 * **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutine)
 * **Ver3+GP4:** (Go only) Ver3+GP with multi-threading (2 + 45 goroutines)
 * **Ver3+GP5:** (Go only) Ver3+GP with multi-threading (2 + 135 goroutines)
+
+## Set data structures
+
+### Rust
+* **BTreeSet:** std::collections::BTreeSet
+* **HashSet:** std::collections::HashSet, a wrapper around hashbrown
+* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.7
+* **fnv:** FnvHashSet from [crate fnv](https://crates.io/crates/fnv) 1.0
+* **ord_vec:** ordered std::collections::Vec
+
+### C++
+* **std_set:** std::set
+* **hashset:** std::unordered_set
+* **ord_vec:** ordered std::vector
 
 ## Results
 

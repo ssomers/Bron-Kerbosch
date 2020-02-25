@@ -13,7 +13,6 @@ pub mod graph;
 pub mod graph_degeneracy;
 pub mod pile;
 pub mod reporter;
-mod set_new;
 pub mod slimgraph;
 mod vertexset;
 
@@ -114,6 +113,7 @@ mod tests {
             bk_core::<hashbrown::HashSet<Vertex>>(&adjacencies),
             expected_cliques
         );
+        assert_eq!(bk_core::<Vec<Vertex>>(&adjacencies), expected_cliques);
     }
 
     #[test]

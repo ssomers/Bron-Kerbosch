@@ -32,10 +32,12 @@ def color(case_name: str) -> str:
 
 
 def dash(case_name: str) -> str:
-    if case_name.endswith("@HashSet"):
+    if case_name.endswith("@BTreeSet") or case_name.endswith("@std_set"):
+        return "dot"
+    if case_name.endswith("@ord_vec"):
         return "dash"
     if case_name.endswith("@fnv"):
-        return "dot"
+        return "dashdot"
     if case_name.endswith("@hashbrown"):
         return "longdash"
     return "solid"
@@ -107,7 +109,8 @@ def publish_csv(language: str, orderstr: str):
         ]
         # Group traces in legend, unless every func_name is either unique or the same
         unique_func_names = len({func_name(case_names[f]) for f in indices})
-        legendgroups = len(indices) > 5 and unique_func_names in range(2, len(indices))
+        legendgroups = len(indices) > 5 and unique_func_names in range(
+            2, len(indices))
 
         import plotly.io as pio
         pio.templates.default = "none"  # disable default 4.0 theme
@@ -128,8 +131,8 @@ def publish_csv(language: str, orderstr: str):
                     ],
                 ),
                 hoverinfo="name",
-                line=dict(
-                    color=color(case_names[f]), dash=dash(case_names[f])),
+                line=dict(color=color(case_names[f]),
+                          dash=dash(case_names[f])),
                 marker=dict(color=color(case_names[f])),
                 mode="lines+markers",
                 name=case_names[f],
@@ -137,18 +140,18 @@ def publish_csv(language: str, orderstr: str):
             ) for f in indices
         ]
         layout = dict(
-            title=('<a href="https://github.com/ssomers/Bron-Kerbosch">' +
-                   f"{language.capitalize()} implementations of Bron-Kerbosch"
-                   + "</a>" + f" on random graphs of order {orderstr}"),
+            title=(
+                '<a href="https://github.com/ssomers/Bron-Kerbosch">' +
+                f"{language.capitalize()} implementations of Bron-Kerbosch" +
+                "</a>" + f" on random graphs of order {orderstr}"),
             xaxis=dict(title="Size (#edges)"),
             yaxis=dict(title="Seconds spent"),
         )
-        plotly.plot(
-            figure_or_data=dict(
-                data=traces,
-                layout=layout,
-            ),
-            filename=filename)
+        plotly.plot(figure_or_data=dict(
+            data=traces,
+            layout=layout,
+        ),
+                    filename=filename)
 
 
 if __name__ == '__main__':
