@@ -190,11 +190,11 @@ int main(int argc, char** argv) {
                                   case SetType::ord_vec: return all_func_indices;
                               }; throw std::logic_error("unreachable"); }, 5);
             Benchmark::bk("10k", range(100'000u, 800'000u, 100'000u),
-                          [&](SetType set_type, unsigned) {
+                          [&](SetType set_type, unsigned size) {
                               switch (set_type) {
-                                  case SetType::std_set:
-                                  case SetType::hashset: return std::vector<int>{};
-                                  case SetType::ord_vec: return all_func_indices;
+                                  case SetType::std_set: return std::vector<int>{};
+                                  case SetType::hashset: if (size > 400'000) return std::vector<int>{};
+                                  case SetType::ord_vec: return std::vector<int>{1, 2, 3};
                               }; throw std::logic_error("unreachable"); }, 3);
             Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
                                        range(40'000u, 100'000u, 20'000u),
