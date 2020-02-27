@@ -18,11 +18,12 @@ namespace BronKerboschStudy
                 foreach (int func_index in func_indices)
                 {
                     var reporter = new SimpleReporter();
-                    DateTime begin = DateTime.Now;
+                    var sw = Stopwatch.StartNew();
                     Portfolio.Explore(func_index, graph, reporter);
-                    var secs = new TimeSpan(DateTime.Now.Ticks - begin.Ticks).TotalSeconds;
+                    sw.Stop();
+                    var secs = sw.ElapsedMilliseconds / 1e3;
                     if (secs >= 3.0)
-                        Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,5:N2}s");
+                        Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,6:N2}s");
                     if (sample < 2)
                     {
                         Portfolio.SortCliques(reporter.Cliques);
@@ -59,9 +60,12 @@ namespace BronKerboschStudy
                         var max = stats[func_index].Max;
                         var min = stats[func_index].Min;
                         var mean = stats[func_index].Mean;
-                        var dev = stats[func_index].Deviation;
                         fo.Write($",{min},{mean},{max}");
-                        Console.WriteLine($"order {orderstr,4:D} size {size,7:D} {func_name,-8}: {mean,5:N2}s ±{dev,5:N2}s");
+                        if (!Double.IsNaN(mean))
+                        {
+                            var reldev = stats[func_index].Deviation / mean;
+                            Console.WriteLine($"order {orderstr,4:D} size {size,7:D} {func_name,-8}: {mean,6:N3}s ± {reldev:P0}");
+                        }
                     }
                     fo.WriteLine();
                 }
@@ -85,11 +89,11 @@ namespace BronKerboschStudy
         static void Main(string[] args)
         {
             var all_func_indices = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length);
+            var most_func_indices = Enumerable.Range(1, Portfolio.FUNC_NAMES.Length - 1);
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
-            bk("10k", Range(100_000, 800_001, 100_000), (size) => all_func_indices, 3);
-            bk("1M", Range(2_000, 20_001, 2_000).Concat(Range(200_000, 1_000_000, 200_000)).Concat(Range(1_000_000, 3_000_001, 1_000_000)),
-               (size) => size <= 20_000 ? new[] { 0, 1 } : new[] { 1, 2, 3, 4, 5 }, 3);
+            bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)), (size) => most_func_indices, 3);
+            bk("1M", Range(20_000, 200_000, 20_000).Concat(Range(200_000, 1_000_001, 200_000)), (size) => most_func_indices, 3);
         }
     }
 }

@@ -19,6 +19,7 @@ from publish import publish
 
 import argparse
 import itertools
+from math import isnan
 import pytest
 import sys
 import time
@@ -69,14 +70,14 @@ def bron_kerbosch_timed(graph: Graph, func_indices: List[int], samples: int):
         for func_index in func_indices:
             func = FUNCS[func_index]
             reporter = SimpleReporter()
-            begin = time.process_time()
+            begin = time.perf_counter()
             try:
                 func(graph=graph, reporter=reporter)
             except RecursionError:
                 print(f"  {FUNC_NAMES[func_index]} recursed out")
-            secs = time.process_time() - begin
+            secs = time.perf_counter() - begin
             if secs >= 3.0:
-                print(f"  {FUNC_NAMES[func_index]:8}: {secs:5.2f}s")
+                print(f"  {FUNC_NAMES[func_index]:8}: {secs:.3f}s")
             if sample < 2:
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
@@ -279,14 +280,15 @@ def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
         if order < 10:
             print(f"{name}: {g.adjacencies}")
         else:
-            print(f"{name} (generating took {secs:.2f}s)")
+            print(f"{name} (generating took {secs:.3f}s)")
         stats = bron_kerbosch_timed(g,
                                     func_indices=func_indices,
                                     samples=samples)
         for func_index, func_name in enumerate(FUNC_NAMES):
             mean = stats[func_index].mean()
-            dev = stats[func_index].deviation()
-            print(f"  {func_name:<8}: {mean:5.2f}s ±{dev:5.2f}s")
+            if not isnan(mean):
+                reldev = stats[func_index].deviation() / mean
+                print(f"  {func_name:<8}: {mean:6.3f}s ± {reldev:.0%}")
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
         publish(language="python3",
@@ -308,6 +310,8 @@ if __name__ == '__main__':
     else:
         seed = 19680516
     all_func_indices = list(range(len(FUNCS)))
+    most_func_indices = list(range(2, len(FUNCS)))
+    mt_func_indices = [4, 5, 8, 9]
     if args.order is not None and args.size is not None:
         bk(orderstr=args.order,
            sizes=[int(size) for size in args.size],
@@ -321,14 +325,13 @@ if __name__ == '__main__':
             func_indices=all_func_indices,
             samples=5)
         time.sleep(7)
-        bk(
-            orderstr="10k",
-            sizes=range(100_000, 800_001, 100_000),  # max 49_995_000
-            func_indices=all_func_indices,
-            samples=3)
+        bk(orderstr="10k",
+           sizes=itertools.chain(range(10_000, 100_000, 10_000),
+                                 range(100_000, 200_001, 25_000)),
+           func_indices=most_func_indices,
+           samples=3)
         time.sleep(7)
         bk(orderstr="1M",
-           sizes=itertools.chain(range(200_000, 1_000_000, 200_000),
-                                 range(1_000_000, 5_000_001, 1_000_000)),
-           func_indices=list(range(1, len(FUNCS))),
+           sizes=range(200_000, 1_000_000, 200_000),
+           func_indices=mt_func_indices,
            samples=3)

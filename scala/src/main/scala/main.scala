@@ -1,7 +1,5 @@
 import base.Vertex
 
-import scala.util.Random
-
 object main {
   val FUNC_NAMES: IndexedSeq[String] =
     IndexedSeq(
@@ -56,9 +54,9 @@ object main {
 
     for (sample <- 1 to samples; func_index <- func_indices) {
       val func = FUNCS(func_index)
-      val start = System.currentTimeMillis()
+      val start = System.nanoTime()
       val cliques = func.explore(graph)
-      val elapsed = (System.currentTimeMillis() - start) / 1e3;
+      val elapsed = (System.nanoTime() - start) / 1e9
       times(func_index).put(elapsed)
 
       if (samples > 1 && sample <= 2) {
@@ -89,11 +87,10 @@ object main {
     fo.println()
 
     for (size <- sizes) {
-      val rng = new Random(19680516L)
-      val start = System.currentTimeMillis()
+      val start = System.nanoTime()
       val graph = RandomGraph.read_undirected(order_str, order, size)
-      val elapsed = (System.currentTimeMillis() - start) / 1e3
-      println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%5.2f")
+      val elapsed = (System.nanoTime() - start) / 1e9
+      println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%6.3f")
       val times = bron_kerbosch_timed(graph, samples, func_indices)
 
       fo.print(f"$size")
@@ -102,10 +99,10 @@ object main {
         val max = times(func_index).max
         val min = times(func_index).min
         val mean = times(func_index).mean()
-        val dev = times(func_index).deviation()
+        val reldev = times(func_index).deviation() / mean * 100
         fo.print(f",$min,$mean,$max")
         println(
-          f"$order_str%7s nodes, $size%7d edges, $func_name%8s: $mean%5.2f ±$dev%5.2f"
+          f"$order_str%7s nodes, $size%7d edges, $func_name%8s: $mean%6.3f ± $reldev%.0f%%"
         )
       }
       fo.println()
@@ -126,17 +123,20 @@ object main {
 
     val all_func_indices = FUNCS.indices.toArray
     val most_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
+    val mt_func_indices = Array(6, 8)
     val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
-    val sizes_10k = Array(i"100k" to i"800k" by i"100k": _*)
+    val sizes_10k = Array(
+      (i"10k" until i"100k" by i"10k")
+        ++ (i"100k" to i"200k" by i"25k"): _*
+    )
     val sizes_1M = Array(
       (i"200k" until i"1M" by i"200k")
         ++ (i"1M" to i"5M" by i"1M"): _*
     )
     bk("100", 100, Array(2000), 3, FUNCS.indices.toArray) // warm up
     Thread.sleep(3210) // give IntelliJ launcher some time to cool down
-    //bk("999999", i"999999", Array(i"333k"), 3, Array(6, 8))
     bk("100", i"100", sizes_100, 5, all_func_indices)
     bk("10k", i"10k", sizes_10k, 3, most_func_indices)
-    bk("1M", i"1M", sizes_1M, 3, most_func_indices)
+    bk("1M", i"1M", sizes_1M, 3, mt_func_indices)
   }
 }

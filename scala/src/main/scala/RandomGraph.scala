@@ -37,16 +37,16 @@ object RandomGraph {
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
     val path = f"..\\random_edges_order_$order_str.txt"
-    var linenum = 0;
     val adjacency_sets = new_adjacencies(order)
-    for (line <- Source.fromFile(path).getLines.take(size)) {
-      linenum += 1
+    val file = Source.fromFile(path)
+    for (line <- file.getLines.take(size)) {
       val fields = line.split(" ", 2)
       val v = Integer.parseInt(fields(0))
       val w = Integer.parseInt(fields(1))
       adjacency_sets(v) += w
       adjacency_sets(w) += v
     }
+    file.close()
     val adjacencies = IndexedSeq.empty[Set[Vertex]] ++ adjacency_sets
       .map(neighbours => new HashSet[Vertex] ++ neighbours)
     val g = new SlimUndirectedGraph(adjacencies)

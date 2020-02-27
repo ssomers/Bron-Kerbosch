@@ -19,7 +19,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
 use std::path::Path;
 use std::thread;
-use std::time::{Duration, SystemTime};
+use std::time::{Duration, Instant};
 use structopt::StructOpt;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
@@ -42,20 +42,17 @@ struct Opt {
 
 #[derive(Copy, Clone, Debug, Display, EnumIter, EnumString, Eq, PartialEq, Ord, PartialOrd)]
 enum SetType {
-    BTreeSet,
     HashSet,
-    #[strum(to_string = "fnv")]
-    Fnv,
     #[strum(to_string = "hashbrown")]
     Hashbrown,
+    #[strum(to_string = "fnv")]
+    Fnv,
+    BTreeSet,
     #[strum(to_string = "ord_vec")]
     OrdVec,
 }
 
 type Seconds = f32;
-fn to_seconds(duration: Duration) -> Seconds {
-    duration.as_secs() as Seconds + duration.subsec_nanos() as Seconds * 1e-9
-}
 
 fn read_random_graph<VertexSet, G>(set_type: SetType, orderstr: &str, size: Size) -> G
 where
@@ -63,11 +60,11 @@ where
     G: NewableUndirectedGraph<VertexSet>,
 {
     let Size::Of(size) = size;
-    let sys_time = SystemTime::now();
+    let instant = Instant::now();
     let graph: G = read_undirected(orderstr, Size::Of(size)).unwrap();
-    let seconds = to_seconds(sys_time.elapsed().unwrap());
+    let seconds = instant.elapsed().as_secs_f32();
     println!(
-        "{}-based random graph of order {}, size {}: (generating took {:.2}s)",
+        "{}-based random graph of order {}, size {}: (generating took {:.3}s)",
         set_type, orderstr, size, seconds
     );
     graph
@@ -86,17 +83,11 @@ where
     for sample in 0..samples {
         for &func_index in func_indices {
             let mut reporter = SimpleReporter::new();
-            let sys_time = SystemTime::now();
+            let instant = Instant::now();
             explore(func_index, graph, &mut reporter);
-            let secs: Seconds = match sys_time.elapsed() {
-                Ok(duration) => to_seconds(duration),
-                Err(err) => {
-                    eprintln!("Could not get time ({})", err);
-                    -99.9
-                }
-            };
+            let secs: Seconds = instant.elapsed().as_secs_f32();
             if samples > 1 && secs >= 3.0 {
-                println!("  {:8}: {:5.2}s", FUNC_NAMES[func_index], secs);
+                println!("  {:8}: {}s", FUNC_NAMES[func_index], secs);
             }
             if sample < 2 {
                 let current = order_cliques(reporter.cliques);
@@ -170,9 +161,9 @@ fn bk_core(
         for func_index in func_indices {
             let name = FUNC_NAMES[func_index];
             let mean = stats[func_index].mean();
-            let dev = stats[func_index].deviation();
             if !mean.is_nan() {
-                println!("{:8}: {:5.2}s ± {:.0}%", name, mean, 100.0 * dev / mean);
+                let reldev = stats[func_index].deviation() / mean;
+                println!("{:8}: {:6.3}s ± {:.0}%", name, mean, 100.0 * reldev);
             }
         }
         stats
@@ -267,14 +258,13 @@ fn main() -> Result<(), std::io::Error> {
         thread::sleep(Duration::from_secs(7));
         bk(
             "10k",
-            (100_000..=800_000).step_by(100_000),
+            std::iter::empty()
+                .chain((10_000..100_000).step_by(10_000))
+                .chain((100_000..=200_000).step_by(25_000)),
             3,
-            |set_type: SetType, size: u32| -> Vec<usize> {
+            |_set_type: SetType, _size: u32| -> Vec<usize> {
                 // Skip Ver1 (already rejected) and Ver2+RP (not interesting in random graph)
-                match (set_type, size) {
-                    (SetType::Fnv, _) | (_, 0..=400_000) => vec![2, 3, 4, 6, 7, 8, 9],
-                    _ => vec![9],
-                }
+                vec![2, 3, 4, 6, 7, 8, 9]
             },
         )?;
         thread::sleep(Duration::from_secs(7));

@@ -18,7 +18,7 @@ using BronKerboschStudy::RandomGraph;
 using BronKerboschStudy::SampleStatistics;
 
 enum class SetType {
-    std_set, ord_vec, hashset
+    hashset, std_set, ord_vec
 };
 static int const SET_TYPES = 3;
 
@@ -37,11 +37,7 @@ class Benchmark {
                 auto duration = std::chrono::steady_clock::now() - begin;
                 auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                 if (duration >= std::chrono::seconds(3)) {
-                    auto p = std::cout.precision(2);
-                    auto f = std::cout.setf(std::ios_base::fixed);
-                    std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(5) << secs << "s" << std::endl;
-                    std::cout.precision(p);
-                    std::cout.setf(f);
+                    std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(6) << secs << "s" << std::endl;
                 }
                 if (sample < 2) {
                     Portfolio::sort_cliques(reporter.cliques);
@@ -114,26 +110,26 @@ public:
                         auto max = stats[func_index].max();
                         auto min = stats[func_index].min();
                         auto mean = stats[func_index].mean();
-                        auto dev = stats[func_index].deviation();
                         fo << "," << min;
                         fo << "," << mean;
                         fo << "," << max;
-                        auto p = std::cout.precision(2);
-                        auto f = std::cout.setf(std::ios_base::fixed);
                         if (!std::isnan(mean)) {
+                            auto reldev = int(100 * stats[func_index].deviation() / mean + .5);
+                            auto p = std::cout.precision(3);
+                            auto f = std::cout.setf(std::ios_base::fixed);
                             std::cout
                                 << "order " << std::setw(4) << orderstr
                                 << " size " << std::setw(7) << size
                                 << " " << std::setw(8) << func_name
                                 << "@" << set_type_name(set_type)
-                                << ": " << std::setw(5) << mean << "s ±" << std::setw(5) << dev << "s"
+                                << ": " << std::setw(6) << mean << "s ± " << reldev << "%"
                                 << std::endl;
                             std::cout.precision(p);
                             std::cout.setf(f);
                         }
                     }
                 }
-                fo << "\n";
+                fo << std::endl;
             }
         }
         auto path = "..\\bron_kerbosch_c++_order_" + orderstr + ".csv";
@@ -189,7 +185,8 @@ int main(int argc, char** argv) {
                                                        else return std::vector<int>{};
                                   case SetType::ord_vec: return all_func_indices;
                               }; throw std::logic_error("unreachable"); }, 5);
-            Benchmark::bk("10k", range(100'000u, 800'000u, 100'000u),
+            Benchmark::bk("10k", concat(range(10'000u, 90'000u, 10'000u),
+                                        range(100'000u, 200'000u, 25'000u)),
                           [&](SetType set_type, unsigned size) {
                               switch (set_type) {
                                   case SetType::std_set: return std::vector<int>{};
@@ -198,13 +195,14 @@ int main(int argc, char** argv) {
                               }; throw std::logic_error("unreachable"); }, 3);
             Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
                                        range(40'000u, 100'000u, 20'000u),
-                                       range(200'000u, 1'000'000u, 200'000u),
-                                       range(1'000'000u, 5'000'000u, 1'000'000u)),
+                                       range(200'000u, 1'000'000u, 200'000u)),
                           [&](SetType set_type, unsigned size) {
-                              switch (set_type) {
-                                  case SetType::std_set: if (size > 15'000) return std::vector<int>{};
-                                  case SetType::ord_vec: if (size > 100'000) return std::vector<int>{};
-                                  case SetType::hashset: return std::vector<int>{1, 2, 3};
+                              if (size < 15'000) {
+                                  return std::vector<int>{0};
+                              } else switch (set_type) {
+                                  case SetType::std_set: return std::vector<int>{};
+                                  case SetType::ord_vec: if (size > 50'000) return std::vector<int>{};
+                                  case SetType::hashset: return all_func_indices;
                               }; throw std::logic_error("unreachable"); }, 3);
             return EXIT_SUCCESS;
         } else if (argc == 3) {

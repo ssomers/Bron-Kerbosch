@@ -69,7 +69,7 @@ func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 			mean := stats[funcIndex].Mean()
 			dev := stats[funcIndex].Deviation()
 			fo.WriteString(fmt.Sprintf(",%f,%f,%f", min, mean, max))
-			fmt.Printf("order %4s size %7d %-8s: %5.2fs %c%5.2fs\n", orderstr, size, name, mean, 177, dev)
+			fmt.Printf("order %4s size %7d %-8s: %5.3fs ± %.0f%%\n", orderstr, size, name, mean, 100*dev/mean)
 		}
 		fo.WriteString("\n")
 	}
@@ -77,6 +77,7 @@ func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 
 func main() {
 	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+	mostFuncIndices := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	mtFuncIndices := []int{4, 6, 7, 8, 9}
 	if len(os.Args) == 1 {
 		var sizes_100 []int
@@ -85,8 +86,13 @@ func main() {
 		for s := int(2e3); s <= 3e3; s += 50 {
 			sizes_100 = append(sizes_100, s)
 		}
-		for s := int(100e3); s <= 800e3; s += 100e3 {
+		for s := int(10e3); s <= 200e3; {
 			sizes_10k = append(sizes_10k, s)
+			if s < 100e3 {
+				s += 10e3
+			} else {
+				s += 25e3
+			}
 		}
 		for s := int(200e3); s <= 5e6; {
 			sizes_1M = append(sizes_1M, s)
@@ -97,7 +103,7 @@ func main() {
 			}
 		}
 		bk("100", sizes_100, allFuncIndices, 5)
-		bk("10k", sizes_10k, allFuncIndices, 3)
+		bk("10k", sizes_10k, mostFuncIndices, 3)
 		bk("1M", sizes_1M, mtFuncIndices, 3)
 	} else if len(os.Args) > 2 {
 		orderstr := os.Args[1]
