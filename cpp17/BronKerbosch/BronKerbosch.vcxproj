@@ -59,6 +59,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,6 +79,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>true</ConformanceMode>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -103,7 +107,12 @@
     <ClInclude Include="BronKerbosch2.h" />
     <ClInclude Include="BronKerbosch2GP.h" />
     <ClInclude Include="BronKerbosch2GPX.h" />
+    <ClInclude Include="BronKerbosch3GP.h" />
+    <ClInclude Include="BronKerbosch3GPX.h" />
+    <ClInclude Include="BronKerboschDegeneracy.h" />
     <ClInclude Include="BronKerboschPivot.h" />
+    <ClInclude Include="BronKerbosch3.h" />
+    <ClInclude Include="GraphDegeneracy.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Portfolio.h" />
     <ClInclude Include="SimpleReporter.h" />

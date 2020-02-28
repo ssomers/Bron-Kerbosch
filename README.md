@@ -106,7 +106,7 @@ or in Mingw-64:
 
     pacman -S mingw-w64-x86_64-gcc
     PATH="/mingw64/bin:$PATH"
-    g++ -DNDEBUG -I. -O -Wall BronKerbosch/*.cpp BronKerboschStudy/*.cpp
+    g++ -DNDEBUG -I. -O -std=c++17 -Wall -Wno-maybe-uninitialized BronKerbosch/*.cpp BronKerboschStudy/*.cpp
     ./a
 
 and finally

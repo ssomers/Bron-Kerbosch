@@ -4,6 +4,7 @@
 #  pragma warning(disable:4365) // conversion from ... to ..., signed/unsigned mismatch
 #  pragma warning(disable:4514) // unreferenced inline function has been removed
 #  pragma warning(disable:4710) // function not inlined
+#  pragma warning(disable:4711) // function ...  selected for automatic inline expansion
 #  pragma warning(disable:4820) // bytes padding added after data member
 #  pragma warning(disable:4626) // assignment operator was implicitly defined as deleted
 #  pragma warning(disable:5027) // move assignment operator was implicitly defined as deleted
@@ -17,5 +18,6 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <optional>
 #include <set>
 #include <vector>

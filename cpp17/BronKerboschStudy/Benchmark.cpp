@@ -171,47 +171,47 @@ int main(int argc, char** argv) {
     //return EXIT_FAILURE;
 #endif
 
-    auto const all_func_indices = []() {
-        std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
-        std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
-        return all_func_indices; }();
-        if (argc == 1) {
-            Benchmark::bk("100", range(2'000u, 3'000u, 50u), // max 4'950
-                          [&](SetType set_type, unsigned size) {
-                              switch (set_type) {
-                                  case SetType::std_set:
-                                  case SetType::hashset: if (size <= 2500) return all_func_indices;
-                                                       else if (size <= 2600) return std::vector<int>{1, 2, 3};
-                                                       else return std::vector<int>{};
-                                  case SetType::ord_vec: return all_func_indices;
-                              }; throw std::logic_error("unreachable"); }, 5);
-            Benchmark::bk("10k", concat(range(10'000u, 90'000u, 10'000u),
-                                        range(100'000u, 200'000u, 25'000u)),
-                          [&](SetType set_type, unsigned size) {
-                              switch (set_type) {
-                                  case SetType::std_set: return std::vector<int>{};
-                                  case SetType::hashset: if (size > 400'000) return std::vector<int>{};
-                                  case SetType::ord_vec: return std::vector<int>{1, 2, 3};
-                              }; throw std::logic_error("unreachable"); }, 3);
-            Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
-                                       range(40'000u, 100'000u, 20'000u),
-                                       range(200'000u, 1'000'000u, 200'000u)),
-                          [&](SetType set_type, unsigned size) {
-                              if (size < 15'000) {
-                                  return std::vector<int>{0};
-                              } else switch (set_type) {
-                                  case SetType::std_set: return std::vector<int>{};
-                                  case SetType::ord_vec: if (size > 50'000) return std::vector<int>{};
-                                  case SetType::hashset: return all_func_indices;
-                              }; throw std::logic_error("unreachable"); }, 3);
-            return EXIT_SUCCESS;
-        } else if (argc == 3) {
-            auto orderstr = argv[1];
-            unsigned size = BronKerboschStudy::RandomGraph::parseInt(argv[2]);
-            Benchmark::bk(orderstr, range(size, size, 1u), [&](SetType, unsigned) { return all_func_indices; }, 1);
-            return EXIT_SUCCESS;
-        } else {
-            std::cerr << "Specify order and size\n";
-            return EXIT_FAILURE;
-        }
+    std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
+    std::vector<int> most_func_indices(Portfolio::NUM_FUNCS - 1);
+    std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
+    std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
+    if (argc == 1) {
+        Benchmark::bk("100", range(2'000u, 3'000u, 50u), // max 4'950
+                      [&](SetType set_type, unsigned size) {
+                          switch (set_type) {
+                              case SetType::std_set:
+                              case SetType::hashset: if (size <= 2500) return all_func_indices;
+                                                   else if (size <= 2600) return std::vector<int>{1, 2, 3};
+                                                   else return std::vector<int>{};
+                              case SetType::ord_vec: return all_func_indices;
+                          }; throw std::logic_error("unreachable"); }, 5);
+        Benchmark::bk("10k", concat(range(10'000u, 90'000u, 10'000u),
+                                    range(100'000u, 200'000u, 25'000u)),
+                      [&](SetType set_type, unsigned size) {
+                          switch (set_type) {
+                              case SetType::std_set: return std::vector<int>{};
+                              case SetType::hashset: if (size > 400'000) return std::vector<int>{};
+                              case SetType::ord_vec: return most_func_indices;
+                          }; throw std::logic_error("unreachable"); }, 3);
+        Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
+                                   range(40'000u, 100'000u, 20'000u),
+                                   range(200'000u, 1'000'000u, 200'000u)),
+                      [&](SetType set_type, unsigned size) {
+                          if (size < 15'000) {
+                              return std::vector<int>{0};
+                          } else switch (set_type) {
+                              case SetType::std_set: return std::vector<int>{};
+                              case SetType::ord_vec: if (size > 50'000) return std::vector<int>{};
+                              case SetType::hashset: return all_func_indices;
+                          }; throw std::logic_error("unreachable"); }, 3);
+        return EXIT_SUCCESS;
+    } else if (argc == 3) {
+        auto orderstr = argv[1];
+        unsigned size = BronKerboschStudy::RandomGraph::parseInt(argv[2]);
+        Benchmark::bk(orderstr, range(size, size, 1u), [&](SetType, unsigned) { return all_func_indices; }, 1);
+        return EXIT_SUCCESS;
+    } else {
+        std::cerr << "Specify order and size\n";
+        return EXIT_FAILURE;
+    }
 }
