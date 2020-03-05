@@ -14,7 +14,7 @@ where
         if degree > 0 {
             let priority = Priority::new(degree + 1);
             priority_per_vertex[c as usize] = priority;
-            max_priority = max_priority.iter().cloned().chain(priority).max();
+            max_priority = max_priority.iter().copied().chain(priority).max();
             debug_assert!(max_priority.is_some());
             num_candidates += 1;
         }
@@ -175,8 +175,8 @@ mod tests {
                     let g = SlimUndirectedGraph::new(adjacencies);
                     let ordering: Vec<Vertex> = degeneracy_ordering(&g, 0).collect();
                     let orderin: Vec<Vertex> = degeneracy_ordering(&g, -1).collect();
-                    let ordering_set: BTreeSet<Vertex> = ordering.iter().cloned().collect();
-                    let orderin_set: BTreeSet<Vertex> = orderin.iter().cloned().collect();
+                    let ordering_set: BTreeSet<Vertex> = ordering.iter().copied().collect();
+                    let orderin_set: BTreeSet<Vertex> = orderin.iter().copied().collect();
                     assert_eq!(ordering.len(), ordering_set.len());
                     assert_eq!(orderin.len(), orderin_set.len());
                     assert_eq!(orderin.len(), ordering.len().saturating_sub(1));

@@ -96,7 +96,7 @@ mod tests {
     {
         let adjacencies: Adjacencies<VertexSet> = adjacencies
             .iter()
-            .map(|neighbours| neighbours.into_iter().cloned().collect())
+            .map(|neighbours| neighbours.into_iter().copied().collect())
             .collect();
         let graph = SlimUndirectedGraph::new(adjacencies);
         bron_kerbosch(&graph)

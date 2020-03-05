@@ -23,7 +23,7 @@ impl Reporter for SimpleReporter {
     fn record(&mut self, clique: Clique) {
         debug_assert!(clique.len() > 1);
         debug_assert_eq!(
-            clique.iter().cloned().collect::<BTreeSet<Vertex>>().len(),
+            clique.iter().copied().collect::<BTreeSet<Vertex>>().len(),
             clique.len()
         );
         self.cliques.push(clique);
