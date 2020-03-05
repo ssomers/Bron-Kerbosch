@@ -23,7 +23,7 @@ final class BronKerboschTest {
                 throw new AssertionError(ex);
             }
             cliques = Main.OrderCliques(cliques);
-            Assertions.assertEquals(cliques, expectedCliques,
+            Assertions.assertEquals(expectedCliques, cliques,
                     String.format("Unexpected result for %s", funcName));
         }
     }

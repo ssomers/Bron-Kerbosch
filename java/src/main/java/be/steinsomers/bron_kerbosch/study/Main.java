@@ -105,28 +105,28 @@ final class Main {
         try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.US_ASCII)) {
             fo.write("Size");
             for (var funcIndex : funcIndices) {
-                String fn = FUNC_NAMES[funcIndex];
+                var fn = FUNC_NAMES[funcIndex];
                 fo.write(String.format(",%s min,%s mean,%s max", fn, fn, fn));
             }
             fo.write(System.lineSeparator());
 
             for (var size : sizes) {
-                var start = System.currentTimeMillis();
-                var graph = new RandomGraph().readUndirected(orderStr, order, size);
-                var elapsed = System.currentTimeMillis() - start;
-                System.out.printf("%7s nodes, %7d edges, creation: %5.2f%n",
+                var start = System.nanoTime();
+                var graph = RandomGraph.readUndirected(orderStr, order, size);
+                var elapsed = System.nanoTime() - start;
+                System.out.printf("%4s nodes, %7d edges, creation: %6.3f%n",
                         orderStr, size, elapsed / 1e9);
                 var times = bron_kerbosch_timed(graph, samples, funcIndices);
 
                 fo.write(String.format("%d", size));
                 for (var funcIndex : funcIndices) {
-                    String funcName = FUNC_NAMES[funcIndex];
+                    var funcName = FUNC_NAMES[funcIndex];
                     double max = times[funcIndex].max() / 1e9;
                     double min = times[funcIndex].min() / 1e9;
                     double mean = times[funcIndex].mean() / 1e9;
                     double dev = times[funcIndex].deviation() / 1e9;
                     fo.write(String.format(",%f,%f,%f", min, mean, max));
-                    System.out.printf("%7s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
+                    System.out.printf("%4s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
                             orderStr, size, funcName, mean, 100 * dev / mean);
                 }
                 fo.write(System.lineSeparator());
@@ -144,7 +144,8 @@ final class Main {
         int[] allFuncIndices = IntStream.range(0, FUNCS.length).toArray();
         int[] mostFuncIndices = IntStream.range(1, FUNCS.length).toArray();
         int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
-        int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000, s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
+        int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000,
+                s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
         int[] sizes1M = IntStream.iterate(200_000, s -> s <= 5_000_000,
                 s -> s + (s < 2_000_000 ? 200_000 : 1_000_000)).toArray();
         bk("100", 100, new int[]{2000}, 3, allFuncIndices); // warm up

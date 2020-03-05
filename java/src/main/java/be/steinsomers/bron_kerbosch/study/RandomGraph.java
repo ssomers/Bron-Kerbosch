@@ -16,7 +16,7 @@ final class RandomGraph {
         return Stream.generate(() -> new HashSet<Integer>()).limit(n).collect(Collectors.toList());
     }
 
-    UndirectedGraph readUndirected(String orderstr, int order, int size) throws IOException {
+    static UndirectedGraph readUndirected(String orderStr, int order, int size) throws IOException {
         assert order > 2;
         assert size >= 0;
         var fullyMeshedSize = ((long) order) * (order - 1) / 2;
@@ -26,26 +26,26 @@ final class RandomGraph {
         }
 
         var adjacencies = new_sets(order);
-        var path = Paths.get("..").resolve("random_edges_order_" + orderstr + ".txt");
+        var path = Paths.get("..").resolve("random_edges_order_" + orderStr + ".txt");
         try (var br = Files.newBufferedReader(path)) {
             String line;
-            int linenum = 0;
-            while (linenum < size && (line = br.readLine()) != null) {
-                ++linenum;
+            int lineNum = 0;
+            while (lineNum < size && (line = br.readLine()) != null) {
+                ++lineNum;
                 var fields = line.split(" ", 2);
                 int v;
                 int w;
                 try {
                     v = Integer.parseInt(fields[0]);
                     w = Integer.parseInt(fields[1]);
-                } catch (NumberFormatException err) {
-                    throw new IOException("Garbage at line " + linenum + " in file " + path);
+                } catch (NumberFormatException | ArrayIndexOutOfBoundsException err) {
+                    throw new IOException("Garbage at line " + lineNum + " in file " + path);
                 }
                 adjacencies.get(v).add(w);
                 adjacencies.get(w).add(v);
             }
-            if (linenum < size) {
-                throw new IOException("Exhausted generated list of " + linenum + " edges in " + path);
+            if (lineNum < size) {
+                throw new IOException("Exhausted list of " + lineNum + " edges in " + path);
             }
         }
 

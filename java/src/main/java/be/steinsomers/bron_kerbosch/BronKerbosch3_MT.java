@@ -122,6 +122,8 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
             visitors[i].join();
         }
-        return cliques;
+        var result = cliques;
+        cliques = null;
+        return result;
     }
 }
