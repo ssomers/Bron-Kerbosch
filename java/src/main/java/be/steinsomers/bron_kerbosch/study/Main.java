@@ -8,6 +8,7 @@ import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
 import be.steinsomers.bron_kerbosch.BronKerbosch3;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
+import be.steinsomers.bron_kerbosch.BronKerbosch3_gp_p;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
 import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
 import be.steinsomers.bron_kerbosch.UndirectedGraph;
@@ -34,6 +35,7 @@ final class Main {
             "Ver3+",
             "Ver3+GP",
             "Ver3+GPX",
+            "Ver3=GP",
             "Ver3=ST",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
@@ -45,6 +47,7 @@ final class Main {
             new BronKerbosch3(),
             new BronKerbosch3_gp(),
             new BronKerbosch3_gpx(),
+            new BronKerbosch3_gp_p(),
             new BronKerbosch3_ST(),
     };
 

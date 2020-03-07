@@ -6,6 +6,7 @@ import lombok.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -17,8 +18,8 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
                 .collect(Collectors.toCollection(HashSet::new));
         Set<Integer> excluded = new HashSet<>(candidates.size());
         var worker = new Worker(graph, candidates, excluded);
-        var spliterator = new BronKerboschSpliterator(-1, worker);
-        return StreamSupport.stream(spliterator, true);
+        var spliterator = new BronKerboschSpliterator(worker);
+        return StreamSupport.stream(spliterator, false);
     }
 
     private static final class Worker implements BronKerboschSpliterator.Generator {
@@ -34,17 +35,19 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
             mut_excluded = excluded;
         }
 
-        public boolean findNextVertex(BronKerboschSpliterator.VtxConsumer consumer) {
+        public boolean findNextVertex(Consumer<Integer> cliqueConsumer,
+                                      BronKerboschSpliterator.VertexVisitQueue recursionQueue) {
             while (!mut_candidates.isEmpty()) {
                 var v = util.PopArbitrary(mut_candidates);
-                mut_excluded.add(v);
                 var neighbours = graph.neighbours(v);
                 assert !neighbours.isEmpty();
                 var neighbouringCandidates = util.Intersect(mut_candidates, neighbours)
                         .collect(Collectors.toCollection(HashSet::new));
                 if (neighbouringCandidates.isEmpty()) {
-                    if (util.AreDisjoint(mut_excluded, neighbours)) {
-                        consumer.acceptClique(v);
+                    if (cliqueConsumer == null) {
+                        assert !util.AreDisjoint(mut_excluded, neighbours);
+                    } else if (util.AreDisjoint(mut_excluded, neighbours)) {
+                        cliqueConsumer.accept(v);
                         return true;
                     }
                 } else {
@@ -54,9 +57,9 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
                             graph,
                             neighbouringCandidates,
                             neighbouringExcluded);
-                    consumer.diveDeeper(v, subWorker);
-                    return true;
+                    recursionQueue.offer(v, subWorker);
                 }
+                mut_excluded.add(v);
             }
             return false;
         }

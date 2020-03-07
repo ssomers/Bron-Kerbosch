@@ -49,7 +49,8 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
                     PivotChoice.MaxDegree,
                     job.mut_candidates,
                     job.mut_excluded);
-            var spliterator = new BronKerboschSpliterator(job.startVertex, worker);
+            var spliterator = new BronKerboschSpliterator(1);
+            spliterator.offerInitial(job.startVertex, worker);
             return StreamSupport.stream(spliterator, true);
         }
     }
@@ -63,7 +64,7 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
         return ordering.stream()
                 .mapToObj(visitProducer::createJob)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableList())
+                .collect(Collectors.toList())
                 .parallelStream()
                 .flatMap(visitor::visit);
     }

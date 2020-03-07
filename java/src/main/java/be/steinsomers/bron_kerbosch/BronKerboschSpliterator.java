@@ -3,33 +3,57 @@ package be.steinsomers.bron_kerbosch;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
+import java.util.ArrayDeque;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class BronKerboschSpliterator implements Spliterator<int[]> {
+final class BronKerboschSpliterator implements Spliterator<int[]> {
+    private final ArrayDeque<GeneratorLevel> queue;
+
     @FunctionalInterface
     interface Generator {
-        boolean findNextVertex(VtxConsumer consumer);
+        // Find the next vertex that completes a maximal clique, if any.
+        // The generator feeds it to cliqueConsumer and immediately return true.
+        // If cliqueConsumer is null, it's logically impossible to find a clique.
+        boolean findNextVertex(Consumer<Integer> cliqueConsumer, VertexVisitQueue recursionQueue);
     }
 
-    interface VtxConsumer {
-        void acceptClique(int vertex);
+    @FunctionalInterface
+    interface VertexVisitQueue {
+        void offer(int vertex, Generator subGenerator);
+    }
 
-        void diveDeeper(int vertex, Generator subGenerator);
+    @FunctionalInterface
+    interface CliqueVisitQueue {
+        void offer(int[] vertex, Generator subGenerator);
     }
 
     @AllArgsConstructor
     private static final class GeneratorLevel {
-        public final int vertex;
         public final @NonNull Generator generator;
-        public final int numVertices;
-        public final GeneratorLevel below;
+        public final int[] cliqueInProgress;
+
+        private int[] collectClique(int vertex) {
+            return util.Append(cliqueInProgress, vertex);
+        }
+
+        public boolean tryLevel(Consumer<? super int[]> consumer,
+                                CliqueVisitQueue recursionQueue) {
+            return generator.findNextVertex(
+                    vertex -> consumer.accept(collectClique(vertex)),
+                    (vertex, subGen) -> recursionQueue.offer(collectClique(vertex), subGen)
+            );
+        }
     }
 
-    private GeneratorLevel top;
+    BronKerboschSpliterator(int size) {
+        queue = new ArrayDeque<>(size);
+    }
 
-    BronKerboschSpliterator(int startVtx, @NonNull Generator startGen) {
-        top = new GeneratorLevel(startVtx, startGen, startVtx >= 0 ? 1 : 0, null);
+    BronKerboschSpliterator(@NonNull Generator startGen) {
+        queue = new ArrayDeque<>();
+        boolean phantomFound = startGen.findNextVertex(null, this::offerInitial);
+        assert !phantomFound;
     }
 
     public int characteristics() {
@@ -42,47 +66,34 @@ public final class BronKerboschSpliterator implements Spliterator<int[]> {
 
     @SuppressWarnings("ReturnOfNull")
     public Spliterator<int[]> trySplit() {
-        return null;
-    }
-
-    private int[] collectClique(int vertex) {
-        var clique = new int[top.numVertices + 1];
-        int i = 0;
-        clique[i++] = vertex;
-        var level = top;
-        while (true) {
-            assert level.vertex >= 0;
-            clique[i++] = level.vertex;
-            if (level.numVertices == 1) {
-                assert i == top.numVertices + 1;
-                return clique;
+        var halfSize = queue.size() / 2;
+        if (halfSize == 0) {
+            return null;
+        } else {
+            var half = new BronKerboschSpliterator(halfSize);
+            for (int i = 0; i < halfSize; ++i) {
+                half.queue.offer(queue.pop());
             }
-            level = level.below;
+            return half;
         }
     }
 
     public boolean tryAdvance(Consumer<? super int[]> consumer) {
-        while (top != null) {
-            var curLevel = top;
-            var generator = curLevel.generator;
-            if (generator.findNextVertex(new VtxConsumer() {
-                @Override
-                public void acceptClique(int vertex) {
-                    consumer.accept(collectClique(vertex));
-                }
-
-                @Override
-                public void diveDeeper(int vertex, Generator subGenerator) {
-                    top = new GeneratorLevel(vertex, subGenerator, top.numVertices + 1, top);
-                }
-            })) {
-                if (top == curLevel) {
-                    return true;
-                }
-            } else {
-                top = top.below;
+        while (!queue.isEmpty()) {
+            var level = queue.peek();
+            if (level.tryLevel(consumer, this::offer)) {
+                return true;
             }
+            queue.pop();
         }
         return false;
+    }
+
+    public void offerInitial(int vertex, Generator subGenerator) {
+        queue.offer(new GeneratorLevel(subGenerator, new int[]{vertex}));
+    }
+
+    private void offer(int[] cliqueInProgress, Generator subGenerator) {
+        queue.offer(new GeneratorLevel(subGenerator, cliqueInProgress));
     }
 }
