@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,10 +18,10 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
     }
 
     @Override
-    public final Collection<Collection<Integer>> explore(UndirectedGraph graph) {
+    public final Collection<int[]> explore(UndirectedGraph graph) {
         Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
-        Collection<Collection<Integer>> cliques = new ArrayDeque<>();
+        Collection<int[]> cliques = new ArrayDeque<>();
         if (!candidates.isEmpty()) {
             Set<Integer> excluded = new HashSet<>(candidates.size());
             visit(
@@ -30,19 +29,19 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                     itsInitialPivotChoice,
                     itsFurtherPivotChoice,
                     candidates, excluded,
-                    List.of());
+                    EMPTY_CLIQUE);
         }
         return cliques;
     }
 
     public static void visit(
             UndirectedGraph graph,
-            Collection<Collection<Integer>> mut_cliques,
+            Collection<int[]> mut_cliques,
             PivotChoice initialPivotChoice,
             PivotChoice furtherPivotChoice,
             Set<Integer> mut_candidates,
             Set<Integer> mut_excluded,
-            Collection<Integer> cliqueInProgress
+            int[] cliqueInProgress
     ) {
         assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
         assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);

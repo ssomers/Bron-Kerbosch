@@ -1,18 +1,15 @@
 package be.steinsomers.bron_kerbosch;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
 public final class util {
-    public static <T> Collection<T> Append(Collection<? extends T> head, T tail) {
-        Collection<T> result = new ArrayList<>(head.size() + 1);
-        result.addAll(head);
-        result.add(tail);
+    public static int[] Append(int[] head, int tail) {
+        var result = Arrays.copyOf(head, head.length + 1);
+        result[head.length] = tail;
         return result;
     }
 
@@ -36,22 +33,5 @@ public final class util {
 
     public static boolean AreDisjoint(Set<Integer> set1, Set<Integer> set2) {
         return Intersect(set1, set2).findFirst().isEmpty();
-    }
-
-    public static int RandomChoice(Random rng, List<Integer> list) {
-        var i = rng.nextInt(list.size());
-        return list.get(i);
-    }
-
-    public static int RandomSample(Random rng, Set<Integer> set) {
-        var i = rng.nextInt(set.size());
-        return set.stream().skip(i).findFirst().orElseThrow();
-    }
-
-    public static void RemoveFrom(ArrayList<Integer> list, int value) {
-        var index = list.indexOf(value);
-        var last = list.size() - 1;
-        list.set(index, list.get(last));
-        list.remove(last);
     }
 }

@@ -35,10 +35,12 @@ final class RandomGraph {
                 var fields = line.split(" ", 2);
                 int v;
                 int w;
+                //noinspection ProhibitedExceptionCaught
                 try {
                     v = Integer.parseInt(fields[0]);
                     w = Integer.parseInt(fields[1]);
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException err) {
+                    //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
                     throw new IOException("Garbage at line " + lineNum + " in file " + path);
                 }
                 adjacencies.get(v).add(w);

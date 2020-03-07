@@ -5,24 +5,23 @@ package be.steinsomers.bron_kerbosch;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
     @Override
-    public Collection<Collection<Integer>> explore(UndirectedGraph graph) {
+    public Collection<int[]> explore(UndirectedGraph graph) {
         Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
         Set<Integer> excluded = new HashSet<>(candidates.size());
-        Collection<Collection<Integer>> cliques = new ArrayDeque<>();
-        visit(graph, cliques, candidates, excluded, List.of());
+        Collection<int[]> cliques = new ArrayDeque<>();
+        visit(graph, cliques, candidates, excluded, EMPTY_CLIQUE);
         return cliques;
     }
 
-    private static void visit(UndirectedGraph graph, Collection<Collection<Integer>> mut_cliques,
+    private static void visit(UndirectedGraph graph, Collection<int[]> mut_cliques,
                               Set<Integer> mut_candidates, Set<Integer> mut_excluded,
-                              Collection<Integer> cliqueInProgress) {
+                              int[] cliqueInProgress) {
         while (!mut_candidates.isEmpty()) {
             var v = util.PopArbitrary(mut_candidates);
             var neighbours = graph.neighbours(v);

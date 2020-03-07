@@ -8,7 +8,6 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +20,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private UndirectedGraph graph;
     private BlockingQueue<VisitJob> startQueue;
     private BlockingQueue<VisitJob> visitQueue;
-    private Collection<Collection<Integer>> cliques;
+    private Collection<int[]> cliques;
 
     @Data
     @RequiredArgsConstructor
@@ -94,7 +93,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
                             PivotChoice.MaxDegreeLocal,
                             job.mut_candidates,
                             job.mut_excluded,
-                            List.of(job.startVertex));
+                            new int[]{job.startVertex});
                 }
                 if (job.startVertex == DIRTY_END_VERTEX) {
                     cliques.clear();
@@ -106,8 +105,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @Override
-    public Collection<Collection<Integer>> explore(UndirectedGraph graph)
-            throws InterruptedException {
+    public Collection<int[]> explore(UndirectedGraph graph) throws InterruptedException {
         this.graph = graph;
         cliques = Collections.synchronizedCollection(new ArrayDeque<>());
         startQueue = new ArrayBlockingQueue<>(64);

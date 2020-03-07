@@ -6,7 +6,6 @@ import lombok.Data;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,20 +44,20 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     }
 
     private final class Visitor {
-        Stream<Collection<Integer>> visit(VisitJob job) {
-            Collection<Collection<Integer>> cliques = new ArrayDeque<>();
+        Stream<int[]> visit(VisitJob job) {
+            Collection<int[]> cliques = new ArrayDeque<>();
             BronKerboschPivot.visit(graph, cliques,
                     PivotChoice.MaxDegree,
                     PivotChoice.MaxDegree,
                     job.candidates,
                     job.excluded,
-                    List.of(job.startVertex));
+                    new int[]{job.startVertex});
             return cliques.stream();
         }
     }
 
     @Override
-    public Collection<Collection<Integer>> explore(UndirectedGraph graph) {
+    public Collection<int[]> explore(UndirectedGraph graph) {
         this.graph = graph;
         var visitProducer = new VisitProducer();
         var visitor = new Visitor();

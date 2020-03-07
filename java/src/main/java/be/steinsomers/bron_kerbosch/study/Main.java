@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +51,12 @@ final class Main {
             new BronKerbosch3_ST(),
     };
 
-    static List<List<Integer>> OrderCliques(Collection<? extends Collection<Integer>> cliques) {
-        assert cliques.stream().allMatch(clique -> clique.size() > 1);
+    static List<List<Integer>> OrderCliques(Collection<int[]> cliques) {
+        assert cliques.stream().allMatch(clique -> clique.length > 1);
         return cliques.stream()
-                .map(clique -> clique.stream()
+                .map(clique -> Arrays.stream(clique)
                         .sorted()
+                        .boxed()
                         .collect(Collectors.toList()))
                 .sorted((clique1, clique2) ->
                         IntStream.range(0, Math.min(clique1.size(), clique2.size()))
@@ -95,12 +97,13 @@ final class Main {
         return times;
     }
 
-    private static void bk(String orderStr,
+    private static void bk(boolean genuine,
+                           String orderStr,
                            int order,
                            int[] sizes,
                            int samples,
                            int[] funcIndices) {
-        var name = "bron_kerbosch_java_order_" + orderStr;
+        var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
         var path = Paths.get("..").resolve(name + ".csv");
         try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.US_ASCII)) {
             fo.write("Size");
@@ -148,11 +151,11 @@ final class Main {
                 s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
         int[] sizes1M = IntStream.iterate(200_000, s -> s <= 5_000_000,
                 s -> s + (s < 2_000_000 ? 200_000 : 1_000_000)).toArray();
-        bk("100", 100, new int[]{2000}, 3, allFuncIndices); // warm up
+        bk(false, "100", 100, new int[]{2000}, 3, allFuncIndices); // warm up
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
-        bk("100", 100, sizes100, 5, allFuncIndices);
-        bk("10k", 10_000, sizes10K, 3, mostFuncIndices);
-        bk("1M", 1_000_000, sizes1M, 3, new int[]{6, 8, 9});
+        bk(true, "100", 100, sizes100, 5, allFuncIndices);
+        bk(true, "10k", 10_000, sizes10K, 3, mostFuncIndices);
+        bk(true, "1M", 1_000_000, sizes1M, 3, new int[]{6, 8, 9});
         /*
         int[] sizesT = {500_000};
         int[] funcIndices = {8};

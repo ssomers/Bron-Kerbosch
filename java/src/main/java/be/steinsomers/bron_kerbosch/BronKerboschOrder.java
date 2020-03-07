@@ -4,7 +4,6 @@ package be.steinsomers.bron_kerbosch;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,9 +15,9 @@ class BronKerboschOrder implements BronKerboschAlgorithm {
     }
 
     @Override
-    public final Collection<Collection<Integer>> explore(UndirectedGraph graph) {
+    public final Collection<int[]> explore(UndirectedGraph graph) {
         Set<Integer> mut_excluded = new HashSet<>(graph.order());
-        Collection<Collection<Integer>> mut_cliques = new ArrayDeque<>();
+        Collection<int[]> mut_cliques = new ArrayDeque<>();
         Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
         for (var v : vertices) {
             var neighbours = graph.neighbours(v);
@@ -36,7 +35,7 @@ class BronKerboschOrder implements BronKerboschAlgorithm {
                         itsPivotChoice,
                         neighbouringCandidates,
                         neighbouringExcluded,
-                        List.of(v)
+                        new int[]{v}
                 );
             }
             mut_excluded.add(v);

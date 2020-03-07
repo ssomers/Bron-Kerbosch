@@ -4,5 +4,7 @@ import java.util.Collection;
 
 @FunctionalInterface
 public interface BronKerboschAlgorithm {
-    Collection<Collection<Integer>> explore(UndirectedGraph graph) throws InterruptedException;
+    int[] EMPTY_CLIQUE = {};
+
+    Collection<int[]> explore(UndirectedGraph graph) throws InterruptedException;
 }
