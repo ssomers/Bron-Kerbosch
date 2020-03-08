@@ -54,7 +54,7 @@ final class DegeneracyOrderingTest {
         final List<Set<Integer>> adjacencies = Stream
                 .generate(() -> new HashSet<Integer>())
                 .limit(order)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
         for (int v = 0; v < order; ++v) {
             var neighbours = adjacencyLikes.get(v);
             for (int w : neighbours) {

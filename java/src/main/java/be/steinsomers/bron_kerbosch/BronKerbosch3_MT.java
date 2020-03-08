@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private static final int NUM_VISITING_THREADS = 5;
@@ -88,7 +89,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             try {
                 VisitJob job;
                 while ((job = visitQueue.take()).startVertex >= 0) {
-                    BronKerboschPivot.visit(graph, cliques,
+                    BronKerboschPivot.visit(graph, clique -> cliques.add(clique),
                             PivotChoice.MaxDegreeLocal,
                             PivotChoice.MaxDegreeLocal,
                             job.mut_candidates,
@@ -105,7 +106,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @Override
-    public Collection<int[]> explore(UndirectedGraph graph) throws InterruptedException {
+    public Stream<int[]> explore(UndirectedGraph graph) throws InterruptedException {
         this.graph = graph;
         cliques = Collections.synchronizedCollection(new ArrayDeque<>());
         startQueue = new ArrayBlockingQueue<>(64);
@@ -120,8 +121,6 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
             visitors[i].join();
         }
-        var result = cliques;
-        cliques = null;
-        return result;
+        return cliques.stream();
     }
 }

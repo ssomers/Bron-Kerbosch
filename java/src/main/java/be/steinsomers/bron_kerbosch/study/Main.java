@@ -57,7 +57,7 @@ final class Main {
                 .map(clique -> Arrays.stream(clique)
                         .sorted()
                         .boxed()
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toUnmodifiableList()))
                 .sorted((clique1, clique2) ->
                         IntStream.range(0, Math.min(clique1.size(), clique2.size()))
                                 .map((int i) -> clique1.get(i) - clique2.get(i))
@@ -66,7 +66,7 @@ final class Main {
                                 .orElseThrow(() -> new IllegalArgumentException(String.format(
                                         "got overlapping or equal cliques %s <> %s",
                                         clique1, clique2))))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private static SampleStatistics[] bron_kerbosch_timed(UndirectedGraph graph,
@@ -78,7 +78,8 @@ final class Main {
         for (int sample = 1; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
                 var start = System.nanoTime();
-                var cliques = FUNCS[funcIndex].explore(graph);
+                var cliques = FUNCS[funcIndex].explore(graph)
+                        .collect(Collectors.toUnmodifiableList());
                 var elapsed = System.nanoTime() - start;
                 times[funcIndex].put(elapsed);
 

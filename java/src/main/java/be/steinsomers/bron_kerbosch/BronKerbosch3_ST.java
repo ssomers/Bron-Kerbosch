@@ -3,8 +3,6 @@ package be.steinsomers.bron_kerbosch;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -45,19 +43,19 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
 
     private final class Visitor {
         Stream<int[]> visit(VisitJob job) {
-            Collection<int[]> cliques = new ArrayDeque<>();
-            BronKerboschPivot.visit(graph, cliques,
+            Stream.Builder<int[]> cliqueStream = Stream.builder();
+            BronKerboschPivot.visit(graph, cliqueStream,
                     PivotChoice.MaxDegree,
                     PivotChoice.MaxDegree,
                     job.candidates,
                     job.excluded,
                     new int[]{job.startVertex});
-            return cliques.stream();
+            return cliqueStream.build();
         }
     }
 
     @Override
-    public Collection<int[]> explore(UndirectedGraph graph) {
+    public Stream<int[]> explore(UndirectedGraph graph) {
         this.graph = graph;
         var visitProducer = new VisitProducer();
         var visitor = new Visitor();
@@ -65,9 +63,8 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
         return ordering.stream()
                 .mapToObj(visitProducer::createJob)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList())
+                .collect(Collectors.toUnmodifiableList())
                 .parallelStream()
-                .flatMap(visitor::visit)
-                .collect(Collectors.toList());
+                .flatMap(visitor::visit);
     }
 }

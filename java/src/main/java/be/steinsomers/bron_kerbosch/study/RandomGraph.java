@@ -13,7 +13,10 @@ import java.util.stream.Stream;
 
 final class RandomGraph {
     private static List<Set<Integer>> new_sets(int n) {
-        return Stream.generate(() -> new HashSet<Integer>()).limit(n).collect(Collectors.toList());
+        return Stream
+                .generate(() -> new HashSet<Integer>())
+                .limit(n)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     static UndirectedGraph readUndirected(String orderStr, int order, int size) throws IOException {

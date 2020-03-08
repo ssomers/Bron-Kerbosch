@@ -12,13 +12,16 @@ import java.util.stream.Collectors;
 final class BronKerboschTest {
     private static void bk(Collection<List<Integer>> adjacenciesList,
                            List<List<Integer>> expectedCliques) {
-        var adjacencies = adjacenciesList.stream().map(Set::copyOf).collect(Collectors.toList());
+        var adjacencies = adjacenciesList.stream()
+                .map(Set::copyOf)
+                .collect(Collectors.toUnmodifiableList());
         var graph = new UndirectedGraph(adjacencies);
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
             var funcName = Main.FUNC_NAMES[funcIndex];
             Collection<int[]> rawCliques;
             try {
-                rawCliques = Main.FUNCS[funcIndex].explore(graph);
+                rawCliques = Main.FUNCS[funcIndex].explore(graph)
+                        .collect(Collectors.toUnmodifiableList());
             } catch (InterruptedException ex) {
                 throw new AssertionError(ex);
             }
