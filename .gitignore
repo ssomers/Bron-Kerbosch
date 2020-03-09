@@ -15,12 +15,9 @@ target
 /csharp/*/obj
 /csharp/*/*.user
 /csharp/packages
-/java/.idea/compiler.xml
 /java/.idea/workspace.xml
-/java/.idea/libraries
 /java/lombok.config
 /java/.jqwik-database
-/java/build
 /java/lib
 /python3/.hypothesis
 /python3/activate.bat
