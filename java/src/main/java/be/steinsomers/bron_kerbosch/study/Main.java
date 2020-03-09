@@ -35,8 +35,8 @@ final class Main {
             "Ver3+",
             "Ver3+GP",
             "Ver3+GPX",
-            "Ver3+MT",
-            "Ver3+ST",
+            "Ver3=MT",
+            "Ver3=ST",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
             new BronKerbosch1(),
