@@ -1,7 +1,7 @@
 package be.steinsomers.bron_kerbosch;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,11 +13,11 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     private UndirectedGraph graph;
 
     @Data
-    @AllArgsConstructor
+    @RequiredArgsConstructor
     private static final class VisitJob {
         private final int startVertex;
-        private final Set<Integer> candidates;
-        private final Set<Integer> excluded;
+        private final Set<Integer> mut_candidates;
+        private final Set<Integer> mut_excluded;
     }
 
     private final class VisitProducer {
@@ -47,8 +47,8 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
             BronKerboschPivot.visit(graph, cliqueStream,
                     PivotChoice.MaxDegree,
                     PivotChoice.MaxDegree,
-                    job.candidates,
-                    job.excluded,
+                    job.mut_candidates,
+                    job.mut_excluded,
                     new int[]{job.startVertex});
             return cliqueStream.build();
         }
