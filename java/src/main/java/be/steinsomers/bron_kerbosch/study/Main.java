@@ -6,7 +6,6 @@ import be.steinsomers.bron_kerbosch.BronKerbosch2_g;
 import be.steinsomers.bron_kerbosch.BronKerbosch2_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
 import be.steinsomers.bron_kerbosch.BronKerbosch3;
-import be.steinsomers.bron_kerbosch.BronKerbosch3_MT;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
@@ -35,7 +34,6 @@ final class Main {
             "Ver3+",
             "Ver3+GP",
             "Ver3+GPX",
-            "Ver3=MT",
             "Ver3=ST",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
@@ -47,7 +45,6 @@ final class Main {
             new BronKerbosch3(),
             new BronKerbosch3_gp(),
             new BronKerbosch3_gpx(),
-            new BronKerbosch3_MT(),
             new BronKerbosch3_ST(),
     };
 
@@ -70,8 +67,7 @@ final class Main {
     }
 
     private static SampleStatistics[] bron_kerbosch_timed(UndirectedGraph graph,
-                                                          int samples, int[] funcIndices)
-            throws InterruptedException {
+                                                          int samples, int[] funcIndices) {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
         SampleStatistics[] times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
@@ -135,8 +131,6 @@ final class Main {
                 }
                 fo.write(System.lineSeparator());
             }
-        } catch (InterruptedException x) {
-            System.err.format("InterruptedException: %s%n", x);
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }

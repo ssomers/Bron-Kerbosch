@@ -18,13 +18,8 @@ final class BronKerboschTest {
         var graph = new UndirectedGraph(adjacencies);
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
             var funcName = Main.FUNC_NAMES[funcIndex];
-            Collection<int[]> rawCliques;
-            try {
-                rawCliques = Main.FUNCS[funcIndex].explore(graph)
-                        .collect(Collectors.toUnmodifiableList());
-            } catch (InterruptedException ex) {
-                throw new AssertionError(ex);
-            }
+            var rawCliques = Main.FUNCS[funcIndex].explore(graph)
+                    .collect(Collectors.toUnmodifiableList());
             var cliques = Main.OrderCliques(rawCliques);
             Assertions.assertEquals(expectedCliques, cliques,
                     String.format("Unexpected result for %s", funcName));

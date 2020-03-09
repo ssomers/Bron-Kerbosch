@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     private UndirectedGraph graph;
@@ -43,14 +44,13 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
 
     private final class Visitor {
         Stream<int[]> visit(VisitJob job) {
-            Stream.Builder<int[]> cliqueStream = Stream.builder();
-            BronKerboschPivot.visit(graph, cliqueStream,
+            var worker = new BronKerboschPivot.Worker(graph,
                     PivotChoice.MaxDegree,
                     PivotChoice.MaxDegree,
                     job.mut_candidates,
-                    job.mut_excluded,
-                    new int[]{job.startVertex});
-            return cliqueStream.build();
+                    job.mut_excluded);
+            var spliterator = new BronKerboschSpliterator(job.startVertex, worker);
+            return StreamSupport.stream(spliterator, true);
         }
     }
 

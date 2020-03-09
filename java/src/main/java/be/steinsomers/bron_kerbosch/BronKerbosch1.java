@@ -2,11 +2,13 @@
 
 package be.steinsomers.bron_kerbosch;
 
+import lombok.NonNull;
+
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
     @Override
@@ -14,33 +16,49 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
         Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
         Set<Integer> excluded = new HashSet<>(candidates.size());
-        Stream.Builder<int[]> cliqueStream = Stream.builder();
-        visit(graph, cliqueStream, candidates, excluded, EMPTY_CLIQUE);
-        return cliqueStream.build();
+        var worker = new Worker(graph, candidates, excluded);
+        var spliterator = new BronKerboschSpliterator(-1, worker);
+        return StreamSupport.stream(spliterator, true);
     }
 
-    private static void visit(UndirectedGraph graph, Consumer<int[]> cliqueConsumer,
-                              Set<Integer> mut_candidates, Set<Integer> mut_excluded,
-                              int[] cliqueInProgress) {
-        while (!mut_candidates.isEmpty()) {
-            var v = util.PopArbitrary(mut_candidates);
-            var neighbours = graph.neighbours(v);
-            assert !neighbours.isEmpty();
-            var neighbouringCandidates = util.Intersect(mut_candidates, neighbours)
-                    .collect(Collectors.toCollection(HashSet::new));
-            if (neighbouringCandidates.isEmpty()) {
-                if (util.AreDisjoint(mut_excluded, neighbours))
-                    cliqueConsumer.accept(util.Append(cliqueInProgress, v));
-            } else {
-                var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
+    private static final class Worker implements BronKerboschSpliterator.Generator {
+        private final @NonNull UndirectedGraph graph;
+        private final @NonNull Set<Integer> mut_candidates;
+        private final @NonNull Set<Integer> mut_excluded;
+
+        Worker(final @NonNull UndirectedGraph graph,
+               @NonNull Set<Integer> candidates,
+               @NonNull Set<Integer> excluded) {
+            this.graph = graph;
+            mut_candidates = candidates;
+            mut_excluded = excluded;
+        }
+
+        public boolean findNextVertex(BronKerboschSpliterator.VtxConsumer consumer) {
+            while (!mut_candidates.isEmpty()) {
+                var v = util.PopArbitrary(mut_candidates);
+                mut_excluded.add(v);
+                var neighbours = graph.neighbours(v);
+                assert !neighbours.isEmpty();
+                var neighbouringCandidates = util.Intersect(mut_candidates, neighbours)
                         .collect(Collectors.toCollection(HashSet::new));
-                visit(
-                        graph, cliqueConsumer,
-                        neighbouringCandidates,
-                        neighbouringExcluded,
-                        util.Append(cliqueInProgress, v));
+                if (neighbouringCandidates.isEmpty()) {
+                    if (util.AreDisjoint(mut_excluded, neighbours)) {
+                        consumer.acceptClique(v);
+                        return true;
+                    }
+                } else {
+                    var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
+                            .collect(Collectors.toCollection(HashSet::new));
+                    var subWorker = new Worker(
+                            graph,
+                            neighbouringCandidates,
+                            neighbouringExcluded);
+                    consumer.diveDeeper(v, subWorker);
+                    return true;
+                }
             }
-            mut_excluded.add(v);
+            return false;
         }
     }
 }
