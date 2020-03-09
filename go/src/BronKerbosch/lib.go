@@ -20,11 +20,7 @@ var Funcs = [NumFuncs]func(*UndirectedGraph) [][]Vertex{
 var FuncNames = [NumFuncs]string{
 	"Ver1+",
 	"Ver2+G", "Ver2+GP", "Ver2+GPX",
-	"Ver3+GP", "Ver3+GPX",
-	"Ver3+GP2",
-	"Ver3+GP3",
-	"Ver3+GP4",
-	"Ver3+GP5",
+	"Ver3+GP", "Ver3+GPX", "Ver3=GP2", "Ver3=GP3", "Ver3=GP4", "Ver3=GP5",
 }
 
 func SortCliques(cliques [][]Vertex) {
