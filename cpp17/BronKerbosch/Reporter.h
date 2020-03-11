@@ -16,4 +16,13 @@ namespace BronKerbosch {
             cliques.push_back(clique);
         }
     };
+
+    class CountingReporter {
+    public:
+        size_t cliques = 0;
+
+        void record(VertexPile &&) {
+            cliques += 1;
+        }
+    };
 }

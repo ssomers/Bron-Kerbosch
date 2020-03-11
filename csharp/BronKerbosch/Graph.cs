@@ -30,7 +30,7 @@ namespace BronKerbosch
         }
     }
 
-    public sealed class UndirectedGraph
+    public class UndirectedGraph
     {
         private readonly List<HashSet<Vertex>> itsAdjacencies;
 

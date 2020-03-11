@@ -13,12 +13,6 @@ pub struct SimpleReporter {
     pub cliques: Vec<Clique>,
 }
 
-impl SimpleReporter {
-    pub fn new() -> SimpleReporter {
-        SimpleReporter { cliques: vec![] }
-    }
-}
-
 impl Reporter for SimpleReporter {
     fn record(&mut self, clique: Clique) {
         debug_assert!(clique.len() > 1);
@@ -27,5 +21,16 @@ impl Reporter for SimpleReporter {
             clique.len()
         );
         self.cliques.push(clique);
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct CountingReporter {
+    pub count: usize,
+}
+
+impl Reporter for CountingReporter {
+    fn record(&mut self, _clique: Clique) {
+        self.count += 1;
     }
 }

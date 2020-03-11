@@ -1,14 +1,12 @@
 package BronKerbosch
 
-func bronKerbosch2gp(graph *UndirectedGraph) [][]Vertex {
+func bronKerbosch2gp(graph *UndirectedGraph, reporter Reporter) {
 	// Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
 	// chosen from candidates only (IK_GP).
 	candidates := graph.connectedVertices()
 	if candidates.IsEmpty() {
-		return nil
+		return
 	}
 	excluded := make(VertexSet, len(candidates))
-	var reporter SimpleReporter
-	visit(graph, &reporter, MaxDegree, MaxDegreeLocal, candidates, excluded, nil)
-	return reporter.cliques
+	visit(graph, reporter, MaxDegree, MaxDegreeLocal, candidates, excluded, nil)
 }

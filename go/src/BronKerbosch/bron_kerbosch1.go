@@ -1,15 +1,13 @@
 package BronKerbosch
 
-func bronKerbosch1(graph *UndirectedGraph) [][]Vertex {
+func bronKerbosch1(graph *UndirectedGraph, reporter Reporter) {
 	// Naive Bron-Kerbosch algorithm
 	candidates := graph.connectedVertices()
 	if candidates.IsEmpty() {
-		return nil
+		return
 	}
 	excluded := make(VertexSet, len(candidates))
-	var reporter SimpleReporter
-	bronKerbosch1visit(graph, &reporter, candidates, excluded, nil)
-	return reporter.cliques
+	bronKerbosch1visit(graph, reporter, candidates, excluded, nil)
 }
 
 func bronKerbosch1visit(graph *UndirectedGraph, reporter Reporter,

@@ -38,6 +38,6 @@ func IsNull(p interface{}) {
 	}
 }
 
-func Fail() {
+func Unreachable() {
 	panic("shouldn't get here")
 }

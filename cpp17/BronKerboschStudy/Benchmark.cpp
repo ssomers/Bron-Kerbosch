@@ -2,7 +2,7 @@
 
 #include "BronKerbosch/BronKerbosch1.h"
 #include "BronKerbosch/Portfolio.h"
-#include "BronKerbosch/SimpleReporter.h"
+#include "BronKerbosch/Reporter.h"
 #include "BronKerbosch/UndirectedGraph.h"
 #include "Console.h"
 #include "RandomGraph.h"
@@ -10,6 +10,7 @@
 
 using BronKerbosch::ordered_vector;
 using BronKerbosch::Portfolio;
+using BronKerbosch::CountingReporter;
 using BronKerbosch::SimpleReporter;
 using BronKerbosch::UndirectedGraph;
 using BronKerbosch::Vertex;
@@ -26,30 +27,42 @@ class Benchmark {
     using Times = std::array<SampleStatistics<double>, Portfolio::NUM_FUNCS>;
 
     template <typename VertexSet>
-    static Times timed(UndirectedGraph<VertexSet> const& graph, std::vector<int> const& func_indices, int samples) {
+    static Times timed(RandomGraph<VertexSet> const& graph, std::vector<int> const& func_indices, int samples) {
         std::unique_ptr<std::vector<VertexList>> first;
         auto times = Times{};
-        for (int sample = 0; sample < samples; ++sample) {
+        for (int sample = 0; sample <= samples; ++sample) {
             for (int func_index : func_indices) {
-                auto reporter = SimpleReporter{};
-                auto begin = std::chrono::steady_clock::now();
-                Portfolio::explore(func_index, graph, reporter);
-                auto duration = std::chrono::steady_clock::now() - begin;
-                auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
-                if (duration >= std::chrono::seconds(3)) {
-                    std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(6) << secs << "s" << std::endl;
-                }
-                if (sample < 2) {
+                if (sample == 0) {
+                    auto reporter = SimpleReporter{};
+                    auto begin = std::chrono::steady_clock::now();
+                    Portfolio::explore(func_index, graph, reporter);
+                    auto duration = std::chrono::steady_clock::now() - begin;
+                    auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
+                    if (duration >= std::chrono::seconds(3)) {
+                        std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(6) << secs << "s" << std::endl;
+                    }
                     Portfolio::sort_cliques(reporter.cliques);
                     if (first) {
                         if (*first != reporter.cliques) {
                             throw std::logic_error("got different cliques");
                         }
                     } else {
+                        if (reporter.cliques.size() != graph.clique_count) {
+                            throw std::logic_error("got different #cliques");
+                        }
                         first = std::make_unique<std::vector<VertexList>>(reporter.cliques);
                     }
+                } else {
+                    auto reporter = CountingReporter{};
+                    auto begin = std::chrono::steady_clock::now();
+                    Portfolio::explore(func_index, graph, reporter);
+                    auto duration = std::chrono::steady_clock::now() - begin;
+                    if (reporter.cliques != graph.clique_count) {
+                        throw std::logic_error("got different #cliques");
+                    }
+                    auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
+                    times[func_index].put(secs);
                 }
-                times[func_index].put(secs);
             }
         }
         return times;
@@ -58,7 +71,7 @@ class Benchmark {
     template <typename VertexSet>
     static Times bk_core(std::string const& orderstr, unsigned size,
                          std::vector<int> func_indices, int samples) {
-        auto g = RandomGraph::readUndirected<VertexSet>(orderstr, size);
+        auto g = RandomGraph<VertexSet>::readUndirected(orderstr, size);
         return timed(g, func_indices, samples);
     };
 
@@ -193,21 +206,22 @@ int main(int argc, char** argv) {
                               case SetType::hashset: if (size > 400'000) return std::vector<int>{};
                               case SetType::ord_vec: return most_func_indices;
                           }; throw std::logic_error("unreachable"); }, 3);
-        Benchmark::bk("1M", concat(range(2'000u, 20'000u, 2'000u),
-                                   range(40'000u, 100'000u, 20'000u),
-                                   range(200'000u, 1'000'000u, 200'000u)),
+        Benchmark::bk("1M", concat(range(2'000u, 18'000u, 2'000u),
+                                   range(20'000u, 40'000u, 10'000u),
+                                   range(50'000u, 200'000u, 50'000u),
+                                   range(250'000u, 1'500'000u, 250'000u)),
                       [&](SetType set_type, unsigned size) {
                           if (size < 15'000) {
                               return std::vector<int>{0};
                           } else switch (set_type) {
                               case SetType::std_set: return std::vector<int>{};
-                              case SetType::ord_vec: if (size > 50'000) return std::vector<int>{};
+                              case SetType::ord_vec: if (size > 40'000) return std::vector<int>{};
                               case SetType::hashset: return all_func_indices;
                           }; throw std::logic_error("unreachable"); }, 3);
         return EXIT_SUCCESS;
     } else if (argc == 3) {
         auto orderstr = argv[1];
-        unsigned size = BronKerboschStudy::RandomGraph::parseInt(argv[2]);
+        unsigned size = BronKerboschStudy::parseInt(argv[2]);
         Benchmark::bk(orderstr, range(size, size, 1u), [&](SetType, unsigned) { return all_func_indices; }, 1);
         return EXIT_SUCCESS;
     } else {

@@ -2,23 +2,23 @@ package BronKerbosch
 
 import "sync"
 
-func bronKerbosch3gp2(graph *UndirectedGraph) [][]Vertex {
-	return bronKerbosch3om(graph, 5)
+func bronKerbosch3gp2(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 5)
 }
 
-func bronKerbosch3gp3(graph *UndirectedGraph) [][]Vertex {
-	return bronKerbosch3om(graph, 15)
+func bronKerbosch3gp3(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 15)
 }
 
-func bronKerbosch3gp4(graph *UndirectedGraph) [][]Vertex {
-	return bronKerbosch3om(graph, 45)
+func bronKerbosch3gp4(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 45)
 }
 
-func bronKerbosch3gp5(graph *UndirectedGraph) [][]Vertex {
-	return bronKerbosch3om(graph, 135)
+func bronKerbosch3gp5(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 135)
 }
 
-func bronKerbosch3om(graph *UndirectedGraph, numVisitors int) [][]Vertex {
+func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors int) {
 	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
 
 	starts := make(chan Vertex, numVisitors)
@@ -56,7 +56,7 @@ func bronKerbosch3om(graph *UndirectedGraph, numVisitors int) [][]Vertex {
 		wg.Wait()
 		close(reporter.cliques)
 	}()
-	return gatherCliques(cliques)
+	gatherCliques(cliques, finalReporter)
 }
 
 type VisitJob struct {

@@ -7,7 +7,7 @@
 mod random_graph;
 
 use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
-use bron_kerbosch::reporter::SimpleReporter;
+use bron_kerbosch::reporter::{CountingReporter, SimpleReporter};
 use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
 use random_graph::{parse_positive_int, read_undirected, Size};
@@ -54,24 +54,33 @@ enum SetType {
 
 type Seconds = f32;
 
-fn read_random_graph<VertexSet, G>(set_type: SetType, orderstr: &str, size: Size) -> G
+fn read_random_graph<VertexSet, G>(
+    set_type: SetType,
+    orderstr: &str,
+    size: Size,
+) -> (G, Option<usize>)
 where
     VertexSet: VertexSetLike + Clone,
     G: NewableUndirectedGraph<VertexSet>,
 {
     let Size::Of(size) = size;
     let instant = Instant::now();
-    let graph: G = read_undirected(orderstr, Size::Of(size)).unwrap();
+    let (g, known_clique_count) = read_undirected(orderstr, Size::Of(size)).unwrap();
     let seconds = instant.elapsed().as_secs_f32();
     println!(
-        "{}-based random graph of order {}, size {}: (generating took {:.3}s)",
-        set_type, orderstr, size, seconds
+        "{}-based random graph of order {}, size {}, {} cliques: (generating took {:.3}s)",
+        set_type,
+        orderstr,
+        size,
+        known_clique_count.map_or("?".to_string(), |c| c.to_string()),
+        seconds
     );
-    graph
+    (g, known_clique_count)
 }
 
 fn bron_kerbosch_timed<VertexSet>(
     graph: &SlimUndirectedGraph<VertexSet>,
+    known_clique_count: Option<usize>,
     samples: u32,
     func_indices: &[usize],
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS]
@@ -80,18 +89,18 @@ where
 {
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
-    for sample in 0..samples {
+    for sample in 0..=samples {
         for &func_index in func_indices {
-            let mut reporter = SimpleReporter::new();
-            let instant = Instant::now();
-            explore(func_index, graph, &mut reporter);
-            let secs: Seconds = instant.elapsed().as_secs_f32();
-            if samples > 1 && secs >= 3.0 {
-                println!("  {:8}: {}s", FUNC_NAMES[func_index], secs);
-            }
-            if sample < 2 {
+            if sample == 0 {
+                let mut reporter = SimpleReporter::default();
+                let instant = Instant::now();
+                explore(func_index, graph, &mut reporter);
+                let secs: Seconds = instant.elapsed().as_secs_f32();
+                if secs >= 3.0 {
+                    println!("  {:8}: {}s", FUNC_NAMES[func_index], secs);
+                }
                 let current = order_cliques(reporter.cliques);
-                for first_result in first.iter() {
+                if let Some(first_result) = first.as_ref() {
                     if *first_result != current {
                         eprintln!(
                             "  {:8}: expected {} cliques, obtained {} different cliques",
@@ -100,11 +109,35 @@ where
                             current.len()
                         );
                     }
+                } else {
+                    if let Some(clique_count) = known_clique_count {
+                        if current.len() != clique_count {
+                            eprintln!(
+                                "  {:8}: expected {} cliques, obtained {} cliques",
+                                FUNC_NAMES[func_index],
+                                clique_count,
+                                current.len()
+                            );
+                        }
+                    } else {
+                        println!("  {} cliques", current.len());
+                        return times;
+                    }
+                    first = Some(current);
                 }
-                first = first.or(Some(current))
+            } else if let Some(clique_count) = known_clique_count {
+                let mut reporter = CountingReporter::default();
+                let instant = Instant::now();
+                explore(func_index, graph, &mut reporter);
+                let secs: Seconds = instant.elapsed().as_secs_f32();
+                if reporter.count != clique_count {
+                    eprintln!(
+                        "  {:8}: expected {} cliques, obtained {} cliques",
+                        FUNC_NAMES[func_index], clique_count, reporter.count
+                    );
+                }
+                times[func_index].put(secs);
             }
-
-            times[func_index].put(secs);
         }
     }
     times
@@ -120,9 +153,9 @@ fn bk_core_core<VertexSet>(
 where
     VertexSet: VertexSetLike + Clone + Sync + Send,
 {
-    let graph: SlimUndirectedGraph<VertexSet> =
+    let (graph, known_clique_count): (SlimUndirectedGraph<VertexSet>, _) =
         read_random_graph(set_type, orderstr, Size::Of(size));
-    bron_kerbosch_timed(&graph, samples, func_indices)
+    bron_kerbosch_timed(&graph, known_clique_count, samples, func_indices)
 }
 
 fn bk_core(

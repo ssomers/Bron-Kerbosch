@@ -5,13 +5,21 @@ type Reporter interface {
 }
 
 type SimpleReporter struct {
-	cliques [][]Vertex
+	Cliques [][]Vertex
 }
 
 func (r *SimpleReporter) Record(clique []Vertex) {
 	cc := make([]Vertex, len(clique))
 	copy(cc, clique)
-	r.cliques = append(r.cliques, cc)
+	r.Cliques = append(r.Cliques, cc)
+}
+
+type CountingReporter struct {
+	Cliques int
+}
+
+func (r *CountingReporter) Record(clique []Vertex) {
+	r.Cliques += 1
 }
 
 type ChannelReporter struct {
@@ -24,10 +32,8 @@ func (r *ChannelReporter) Record(clique []Vertex) {
 	r.cliques <- cc
 }
 
-func gatherCliques(cliques <-chan []Vertex) [][]Vertex {
-	var result [][]Vertex
+func gatherCliques(cliques <-chan []Vertex, finalReporter Reporter) {
 	for clique := range cliques {
-		result = append(result, clique)
+		finalReporter.Record(clique)
 	}
-	return result
 }

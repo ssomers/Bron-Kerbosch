@@ -7,7 +7,7 @@ import (
 
 const NumFuncs = 10
 
-var Funcs = [NumFuncs]func(*UndirectedGraph) [][]Vertex{
+var Funcs = [NumFuncs]func(*UndirectedGraph, Reporter){
 	bronKerbosch1,
 	bronKerbosch2g, bronKerbosch2gp, bronKerbosch2gpx,
 	bronKerbosch3gp, bronKerbosch3gpx,

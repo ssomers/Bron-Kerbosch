@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "BronKerbosch/Portfolio.h"
-#include "BronKerbosch/SimpleReporter.h"
+#include "BronKerbosch/Reporter.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

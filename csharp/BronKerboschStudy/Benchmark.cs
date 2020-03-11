@@ -9,30 +9,43 @@ namespace BronKerboschStudy
 {
     class Benchmark
     {
-        private static SampleStatistics[] BronKerboschTimed(UndirectedGraph graph, int[] func_indices, int samples)
+        private static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] func_indices, int samples)
         {
             List<List<Vertex>> first = null;
             SampleStatistics[] times = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length).Select(func_index => new SampleStatistics()).ToArray();
-            for (int sample = 0; sample < samples; ++sample)
+            for (int sample = 0; sample <= samples; ++sample)
             {
                 foreach (int func_index in func_indices)
                 {
-                    var reporter = new SimpleReporter();
-                    var sw = Stopwatch.StartNew();
-                    Portfolio.Explore(func_index, graph, reporter);
-                    sw.Stop();
-                    var secs = sw.ElapsedMilliseconds / 1e3;
-                    if (secs >= 3.0)
-                        Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,6:N2}s");
-                    if (sample < 2)
+                    if (sample == 0)
                     {
-                        Portfolio.SortCliques(reporter.Cliques);
+                        var reporter = new SimpleReporter();
+                        var sw = Stopwatch.StartNew();
+                        Portfolio.Explore(func_index, graph, reporter);
+                        sw.Stop();
+                        var secs = sw.ElapsedMilliseconds / 1e3;
+                        if (secs >= 3.0)
+                            Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,6:N2}s");
+                            Portfolio.SortCliques(reporter.Cliques);
                         if (first == null)
+                        {
+                            if (reporter.Cliques.Count != graph.cliqueCount) {
+                                throw new ArgumentException($"Expected {graph.cliqueCount} cliques, got {reporter.Cliques.Count}");
+                            }
                             first = reporter.Cliques;
+                        }
                         else
                             Portfolio.AssertSameCliques(first, reporter.Cliques);
                     }
-                    times[func_index].Put(secs);
+                    else
+                    {
+                        var reporter = new CountingReporter();
+                        var sw = Stopwatch.StartNew();
+                        Portfolio.Explore(func_index, graph, reporter);
+                        sw.Stop();
+                        var secs = sw.ElapsedMilliseconds / 1e3;
+                        times[func_index].Put(secs);
+                    }
                 }
             }
             return times;
@@ -93,7 +106,7 @@ namespace BronKerboschStudy
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)), (size) => most_func_indices, 3);
-            bk("1M", Range(20_000, 200_000, 20_000).Concat(Range(200_000, 1_000_001, 200_000)), (size) => most_func_indices, 3);
+            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 1_500_001, 250_000)), (size) => most_func_indices, 3);
         }
     }
 }

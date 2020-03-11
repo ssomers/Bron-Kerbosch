@@ -8,32 +8,51 @@ import (
 )
 
 func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]SampleStatistics {
-	var times [BronKerbosch.NumFuncs]SampleStatistics
-	graph, err := readRandomUndirectedGraph(orderstr, size)
+	begin := time.Now()
+	graph, cliqueCount, err := readRandomUndirectedGraph(orderstr, size)
+	secs := time.Since(begin).Seconds()
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("order %4s size %7d %-8s: %5.3fs\n", orderstr, size, "creation", secs)
+
+	var times [BronKerbosch.NumFuncs]SampleStatistics
 	var first [][]BronKerbosch.Vertex
-	for sample := 0; sample < samples; sample++ {
+	for sample := 0; sample <= samples; sample++ {
 		for _, funcIndex := range funcIndices {
 			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
-			begin := time.Now()
-			current := bronKerboschFunc(&graph)
-			secs := time.Since(begin).Seconds()
-			if secs >= 3.0 {
-				fmt.Printf("  %-8s: %5.2fs\n", BronKerbosch.FuncNames[funcIndex], secs)
-			}
-			if sample < 2 {
+			if sample == 0 {
+				var reporter BronKerbosch.SimpleReporter
+				begin := time.Now()
+				bronKerboschFunc(&graph, &reporter)
+				secs := time.Since(begin).Seconds()
+				if secs >= 3.0 {
+					fmt.Printf("  %-8s: %5.2fs\n", BronKerbosch.FuncNames[funcIndex], secs)
+				}
+				current := reporter.Cliques
 				BronKerbosch.SortCliques(current)
 				if len(first) == 0 {
+					if len(current) != cliqueCount {
+						fmt.Printf("  %s: expected %d cliques, obtained %d\n",
+							BronKerbosch.FuncNames[funcIndex], cliqueCount, len(current))
+					}
 					first = current
 				} else {
 					BronKerbosch.CompareCliques(current, first, func(e string) {
 						fmt.Printf("  %s: %s\n", BronKerbosch.FuncNames[funcIndex], e)
 					})
 				}
+			} else {
+				var reporter BronKerbosch.CountingReporter
+				begin := time.Now()
+				bronKerboschFunc(&graph, &reporter)
+				secs := time.Since(begin).Seconds()
+				if reporter.Cliques != cliqueCount {
+					fmt.Printf("  %s: expected %d cliques, obtained %d\n",
+						BronKerbosch.FuncNames[funcIndex], cliqueCount, reporter.Cliques)
+				}
+				times[funcIndex].Put(secs)
 			}
-			times[funcIndex].Put(secs)
 		}
 	}
 	return times
@@ -94,10 +113,12 @@ func main() {
 				s += 25e3
 			}
 		}
-		for s := int(200e3); s <= 5e6; {
+		for s := int(50e3); s <= 5e6; {
 			sizes_1M = append(sizes_1M, s)
-			if s < 2e6 {
-				s += 200e3
+			if s < 250e3 {
+				s += 50e3
+			} else if s < 2e6 {
+				s += 250e3
 			} else {
 				s += 1e6
 			}

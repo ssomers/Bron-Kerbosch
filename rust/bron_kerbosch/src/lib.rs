@@ -26,7 +26,7 @@ pub const NUM_FUNCS: usize = 10;
 pub const NUM_FUNCS: usize = 9;
 pub static FUNC_NAMES: &[&str; 10] = &[
     "Ver1", "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver2+RP", "Ver3+", "Ver3+GP", "Ver3+GPX",
-    "Ver3+MT",
+    "Ver3=MT",
 ];
 
 pub fn explore<Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
@@ -66,7 +66,7 @@ where
 {
     let mut first: Option<OrderedCliques> = None;
     for func_index in 0..NUM_FUNCS {
-        let mut reporter = SimpleReporter::new();
+        let mut reporter = SimpleReporter::default();
         explore(func_index, graph, &mut reporter);
         let current = order_cliques(reporter.cliques);
         if first.is_none() {

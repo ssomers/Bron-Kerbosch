@@ -19,4 +19,14 @@ namespace BronKerbosch
             Cliques.Add(clique);
         }
     }
+
+    public sealed class CountingReporter : Reporter
+    {
+        public int Cliques { get; private set;  } = 0;
+
+        public void Record(List<Vertex> clique)
+        {
+            Cliques += 1;
+        }
+    }
 }
