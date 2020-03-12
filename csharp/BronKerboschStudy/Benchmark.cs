@@ -106,7 +106,7 @@ namespace BronKerboschStudy
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)), (size) => most_func_indices, 3);
-            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 1_500_001, 250_000)), (size) => most_func_indices, 3);
+            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 1_000_001, 250_000)), (size) => most_func_indices, 3);
         }
     }
 }

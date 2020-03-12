@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace BronKerbosch
 {
     [DebuggerDisplay("{Index}")]
-    public struct Vertex : IComparable<Vertex>
+    public readonly struct Vertex : IComparable<Vertex>
     {
         private readonly int Index;
 

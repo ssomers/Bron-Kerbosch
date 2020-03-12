@@ -86,7 +86,8 @@ def random_undirected_graph(order: int, size: int) -> UndirectedGraph:
     return g
 
 
-def read_random_graph(orderstr: str, size: Optional[int]) -> UndirectedGraph:
+def read_random_graph(orderstr: str,
+                      size: Optional[int]) -> Tuple[UndirectedGraph, int]:
     order = to_int(orderstr)
     fully_meshed_size = order * (order - 1) // 2
     if size is None:
@@ -94,34 +95,60 @@ def read_random_graph(orderstr: str, size: Optional[int]) -> UndirectedGraph:
     elif size > fully_meshed_size:
         raise ValueError(
             f"{order} nodes accommodate at most {fully_meshed_size} edges")
-    filename = f"random_edges_order_{orderstr}"
-    path = os.path.join(os.pardir, filename + ".txt")
-    print(f"Reading {size or 'all'} edges from {path}")
+    edges_name = f"random_edges_order_{orderstr}"
+    stats_name = f"random_stats"
+    edges_path = os.path.join(os.pardir, edges_name + ".txt")
+    stats_path = os.path.join(os.pardir, stats_name + ".txt")
+    adjacencies = read_edges(edges_path, orderstr, order, size)
+    clique_count = read_stats(stats_path, orderstr, size)
+    g = UndirectedGraph(adjacencies=adjacencies)
+    assert g.order == order
+    assert g.size() == size
+    return g, clique_count
+
+
+def read_edges(path: str, orderstr: str, order: int,
+               size: int) -> List[Set[Vertex]]:
     adjacencies: List[Set[Vertex]] = [set() for _ in range(order)]
     try:
         with open(path, 'r') as txtfile:
             for i, line in enumerate(txtfile):
-                if i == size:
-                    break
                 strs = line.split()
                 try:
                     v = int(strs[0])
                     w = int(strs[1])
                 except (IndexError, ValueError):
                     raise ValueError(
-                        f"{path} contains botched line “{line.rstrip()}”"
+                        f"File {path} has bogus line “{line.rstrip()}”"
                     ) from None
                 adjacencies[v].add(w)
                 adjacencies[w].add(v)
+                if i + 1 == size:
+                    return adjacencies
+            else:
+                raise ValueError(
+                    f"Exhausted generated list of {i+1} edges in {path}")
     except OSError as err:
         raise ValueError(
             f"{err}\nPerhaps generate it with `python -m random_graph {orderstr} <max_size?>`"
         ) from err
 
-    g = UndirectedGraph(adjacencies=adjacencies)
-    assert g.order == order
-    assert g.size() == size
-    return g
+
+def read_stats(path: str, orderstr: str, size: int) -> int:
+    try:
+        prefix = f"{orderstr}\t{size}\t"
+        with open(path, 'r') as txtfile:
+            for line in txtfile:
+                if line.startswith(prefix):
+                    try:
+                        return int(line[len(prefix):])
+                    except (ValueError):
+                        raise ValueError(
+                            f"File {path} has bogus line “{line.rstrip()}”"
+                        ) from None
+    except OSError as err:
+        raise ValueError() from err
+    raise ValueError(f"File {path} lacks order {orderstr} size {size}")
 
 
 def to_int(txt: str) -> int:

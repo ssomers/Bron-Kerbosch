@@ -13,7 +13,7 @@ from bron_kerbosch3_gpx import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, Vertex
 from random_graph import to_int, read_random_graph
-from reporter import SimpleReporter
+from reporter import CountingReporter, SimpleReporter
 from stats import SampleStatistics
 from publish import publish
 
@@ -63,32 +63,52 @@ def are_maximal(cliques: List[List[Vertex]]):
     return True
 
 
-def bron_kerbosch_timed(graph: Graph, func_indices: List[int], samples: int):
+def bron_kerbosch_timed(graph: Graph, clique_count: int,
+                        func_indices: List[int], samples: int):
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
-    for sample in range(samples):
+    for sample in range(samples + 1):
         for func_index in func_indices:
             func = FUNCS[func_index]
-            reporter = SimpleReporter()
-            begin = time.perf_counter()
-            try:
-                func(graph=graph, reporter=reporter)
-            except RecursionError:
-                print(f"  {FUNC_NAMES[func_index]} recursed out")
-            secs = time.perf_counter() - begin
-            if secs >= 3.0:
-                print(f"  {FUNC_NAMES[func_index]:8}: {secs:.3f}s")
-            if sample < 2:
+            func_name = FUNC_NAMES[func_index]
+            if sample == 0:
+                reporter = SimpleReporter()
+                begin = time.perf_counter()
+                try:
+                    func(graph=graph, reporter=reporter)
+                except RecursionError:
+                    print(f"{func_name} recursed out!")
+                secs = time.perf_counter() - begin
+                if secs >= 3.0:
+                    print(f"  {func_name:<8}: {secs:6.3f}s")
                 current = sorted(sorted(clique) for clique in reporter.cliques)
                 if first is None:
+                    if len(current) != clique_count:
+                        print(
+                            f"{func_name}: expected {clique_count}, obtained {len(current)} cliques!"
+                        )
                     if graph.order < 100 and not are_maximal(current):
-                        print(f"  {FUNC_NAMES[func_index]:8} not maximal")
+                        print(f"  {func_name} not maximal")
                     first = current
                 elif first != current:
-                    print(f"  {FUNC_NAMES[func_index]}: " +
+                    print(f"{func_name}: " +
                           f"expected {len(first)} cliques, " +
-                          f"obtained {len(current)} different cliques")
-            times[func_index].put(secs)
+                          f"obtained {len(current)} different cliques!")
+                del reporter
+            else:
+                reporter = CountingReporter()
+                begin = time.perf_counter()
+                try:
+                    func(graph=graph, reporter=reporter)
+                except RecursionError:
+                    print(f"{func_name} recursed out!")
+                secs = time.perf_counter() - begin
+                if reporter.cliques != clique_count:
+                    print(
+                        f"{func_name}: expected {clique_count}, obtained {reporter.cliques} cliques!"
+                    )
+                times[func_index].put(secs)
+                del reporter
     return times
 
 
@@ -274,14 +294,15 @@ def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
     stats_per_func_by_size = {}
     for size in sizes:
         begin = time.process_time()
-        g = read_random_graph(orderstr=orderstr, size=size)
+        g, clique_count = read_random_graph(orderstr=orderstr, size=size)
         secs = time.process_time() - begin
-        name = f"random of order {order}, size {size}"
+        name = f"random of order {orderstr}, size {size}, {clique_count} cliques:"
         if order < 10:
-            print(f"{name}: {g.adjacencies}")
+            print(f"{name} {g.adjacencies}")
         else:
             print(f"{name} (generating took {secs:.3f}s)")
         stats = bron_kerbosch_timed(g,
+                                    clique_count=clique_count,
                                     func_indices=func_indices,
                                     samples=samples)
         for func_index, func_name in enumerate(FUNC_NAMES):
@@ -319,6 +340,7 @@ if __name__ == '__main__':
            samples=1)
     else:
         assert False, "Run with -O for meaningful measurements"
+        """
         bk(
             orderstr="100",
             sizes=range(2_000, 3_001, 50),  # max 4_950
@@ -331,7 +353,9 @@ if __name__ == '__main__':
            func_indices=most_func_indices,
            samples=3)
         time.sleep(7)
+        """
         bk(orderstr="1M",
-           sizes=range(200_000, 1_000_000, 200_000),
+           sizes=itertools.chain(range(50_000, 250_000, 50_000),
+                                 range(250_000, 1_000_001, 250_000)),
            func_indices=mt_func_indices,
            samples=3)

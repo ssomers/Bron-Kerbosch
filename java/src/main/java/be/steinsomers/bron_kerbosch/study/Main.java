@@ -11,7 +11,6 @@ import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
 import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
-import be.steinsomers.bron_kerbosch.UndirectedGraph;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -69,29 +68,36 @@ final class Main {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    private static SampleStatistics[] bron_kerbosch_timed(UndirectedGraph graph,
+    private static SampleStatistics[] bron_kerbosch_timed(RandomGraph graph,
                                                           int samples, int[] funcIndices)
             throws InterruptedException {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
         SampleStatistics[] times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
-        for (int sample = 1; sample <= samples; ++sample) {
+        for (int sample = 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
-                var start = System.nanoTime();
-                var cliques = FUNCS[funcIndex].explore(graph)
-                        .collect(Collectors.toUnmodifiableList());
-                var elapsed = System.nanoTime() - start;
-                times[funcIndex].put(elapsed);
-
-                if (samples > 1 && sample <= 2) {
+                if (sample == 0) {
+                    var cliques = FUNCS[funcIndex].explore(graph)
+                            .collect(Collectors.toUnmodifiableList());
                     var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
+                        if (cliques.size() != graph.cliqueCount) {
+                            throw new AssertionError("Inconsistent results");
+                        }
                         firstOrdered = Optional.of(ordered);
                     } else {
                         if (!firstOrdered.get().equals(ordered)) {
                             throw new AssertionError("Inconsistent results");
                         }
                     }
+                } else {
+                    var start = System.nanoTime();
+                    var cliqueCount = FUNCS[funcIndex].explore(graph).count();
+                    var elapsed = System.nanoTime() - start;
+                    if (cliqueCount != graph.cliqueCount) {
+                        throw new AssertionError("Inconsistent results");
+                    }
+                    times[funcIndex].put(elapsed);
                 }
             }
         }
@@ -150,8 +156,9 @@ final class Main {
         int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
         int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000,
                 s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
-        int[] sizes1M = IntStream.iterate(200_000, s -> s <= 5_000_000,
-                s -> s + (s < 2_000_000 ? 200_000 : 1_000_000)).toArray();
+        int[] sizes1M = IntStream.iterate(50_000, s -> s <= 5_000_000,
+                s -> s + (s < 250_000 ? 50_000 : s < 2_000_000 ? 250_000 : 1_000_000)).toArray();
+
         bk(false, "100", 100, new int[]{2000}, 3, allFuncIndices); // warm up
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk(true, "100", 100, sizes100, 5, allFuncIndices);

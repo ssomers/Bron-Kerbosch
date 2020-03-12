@@ -209,13 +209,13 @@ int main(int argc, char** argv) {
         Benchmark::bk("1M", concat(range(2'000u, 18'000u, 2'000u),
                                    range(20'000u, 40'000u, 10'000u),
                                    range(50'000u, 200'000u, 50'000u),
-                                   range(250'000u, 1'500'000u, 250'000u)),
+                                   range(250'000u, 1'000'000u, 250'000u)),
                       [&](SetType set_type, unsigned size) {
                           if (size < 15'000) {
                               return std::vector<int>{0};
                           } else switch (set_type) {
                               case SetType::std_set: return std::vector<int>{};
-                              case SetType::ord_vec: if (size > 40'000) return std::vector<int>{};
+                              case SetType::ord_vec: if (size > 30'000) return std::vector<int>{};
                               case SetType::hashset: return all_func_indices;
                           }; throw std::logic_error("unreachable"); }, 3);
         return EXIT_SUCCESS;

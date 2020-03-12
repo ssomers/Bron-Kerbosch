@@ -77,6 +77,7 @@ namespace BronKerboschStudy
         {
             var prefix = orderstr + "\t" + size.ToString() + "\t";
             var file = new StreamReader(path);
+            string header = file.ReadLine();
             string line;
             while ((line = file.ReadLine()) != null)
             {
@@ -84,7 +85,7 @@ namespace BronKerboschStudy
                 {
                     if (!int.TryParse(line.Substring(prefix.Length), out int c))
                     {
-                        throw new ArgumentException($"File {path} contains bogus text {line}");
+                        throw new ArgumentException($"File {path} has bogus line “{line}”");
                     }
                     return c;
                 }

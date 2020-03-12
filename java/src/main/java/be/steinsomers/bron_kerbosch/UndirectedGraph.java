@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public final class UndirectedGraph {
+public class UndirectedGraph {
     private final List<? extends Set<Integer>> itsAdjacencies;
 
     public UndirectedGraph(List<Set<Integer>> adjacencies) {
@@ -19,25 +19,25 @@ public final class UndirectedGraph {
         itsAdjacencies = List.copyOf(adjacencies);
     }
 
-    public int order() {
+    public final int order() {
         return itsAdjacencies.size();
     }
 
-    public int size() {
+    public final int size() {
         int total = IntStream.range(0, order()).map(this::degree).sum();
         assert total % 2 == 0;
         return total / 2;
     }
 
-    public int degree(int node) {
+    public final int degree(int node) {
         return itsAdjacencies.get(node).size();
     }
 
-    public Set<Integer> neighbours(int node) {
+    public final Set<Integer> neighbours(int node) {
         return Collections.unmodifiableSet(itsAdjacencies.get(node));
     }
 
-    public Stream<Integer> connectedVertices() {
+    public final Stream<Integer> connectedVertices() {
         return IntStream.range(0, order()).filter(v -> degree(v) > 0).boxed();
     }
 }
