@@ -3,6 +3,7 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Linq;
+using Vertex = System.UInt32;
 
 public class BronKerbosch2G
 {

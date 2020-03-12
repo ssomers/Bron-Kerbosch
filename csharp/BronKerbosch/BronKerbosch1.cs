@@ -4,6 +4,7 @@ using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Vertex = System.UInt32;
 
 class BronKerbosch1
 {

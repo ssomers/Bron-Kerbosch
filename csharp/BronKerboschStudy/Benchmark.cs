@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Vertex = System.UInt32;
 
 namespace BronKerboschStudy
 {
@@ -26,10 +27,11 @@ namespace BronKerboschStudy
                         var secs = sw.ElapsedMilliseconds / 1e3;
                         if (secs >= 3.0)
                             Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,6:N2}s");
-                            Portfolio.SortCliques(reporter.Cliques);
+                        Portfolio.SortCliques(reporter.Cliques);
                         if (first == null)
                         {
-                            if (reporter.Cliques.Count != graph.cliqueCount) {
+                            if (reporter.Cliques.Count != graph.cliqueCount)
+                            {
                                 throw new ArgumentException($"Expected {graph.cliqueCount} cliques, got {reporter.Cliques.Count}");
                             }
                             first = reporter.Cliques;
@@ -105,8 +107,10 @@ namespace BronKerboschStudy
             var most_func_indices = Enumerable.Range(1, Portfolio.FUNC_NAMES.Length - 1);
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
-            bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)), (size) => most_func_indices, 3);
-            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 1_000_001, 250_000)), (size) => most_func_indices, 3);
+            bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
+                (size) => most_func_indices, 3);
+            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 2_000_000, 250_000)).Concat(Range(2_000_000, 5_000_001, 1_000_000)),
+                (size) => most_func_indices, 3);
         }
     }
 }

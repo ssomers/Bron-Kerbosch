@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
@@ -22,7 +23,7 @@ namespace BronKerbosch
 
     public sealed class CountingReporter : Reporter
     {
-        public int Cliques { get; private set;  } = 0;
+        public int Cliques { get; private set; } = 0;
 
         public void Record(List<Vertex> clique)
         {

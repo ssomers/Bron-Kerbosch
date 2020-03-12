@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
@@ -16,15 +17,14 @@ namespace BronKerbosch
             int[] priorityPerVertex = new int[graph.Order];
             var max_priority = 0;
             var numLeftToPick = 0;
-            foreach (var i in Enumerable.Range(0, graph.Order))
+            foreach (Vertex c in Enumerable.Range(0, graph.Order))
             {
-                var c = new Vertex(i);
                 var degree = graph.Degree(c);
                 if (degree > 0)
                 {
                     var priority = degree;
                     max_priority = Math.Max(max_priority, priority);
-                    priorityPerVertex[i] = degree;
+                    priorityPerVertex[c] = degree;
                     numLeftToPick += 1;
                 }
             }
@@ -32,7 +32,7 @@ namespace BronKerbosch
             //   no_priority: when yielded or if unconnected
             //   0..max_priority: candidates still queued with priority (degree - #of yielded neighbours)
             var q = new PriorityQueue(max_priority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => (new Vertex(i), p)))
+            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex)i, p)))
             {
                 if (p > 0)
                     q.Put(priority: p, element: c);
