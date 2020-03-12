@@ -94,21 +94,19 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
                     print(f"{func_name}: " +
                           f"expected {len(first)} cliques, " +
                           f"obtained {len(current)} different cliques!")
-                del reporter
             else:
-                reporter = CountingReporter()
+                counter = CountingReporter()
                 begin = time.perf_counter()
                 try:
-                    func(graph=graph, reporter=reporter)
+                    func(graph=graph, reporter=counter)
                 except RecursionError:
                     print(f"{func_name} recursed out!")
                 secs = time.perf_counter() - begin
-                if reporter.cliques != clique_count:
+                if counter.cliques != clique_count:
                     print(
-                        f"{func_name}: expected {clique_count}, obtained {reporter.cliques} cliques!"
+                        f"{func_name}: expected {clique_count}, obtained {counter.cliques} cliques!"
                     )
                 times[func_index].put(secs)
-                del reporter
     return times
 
 
