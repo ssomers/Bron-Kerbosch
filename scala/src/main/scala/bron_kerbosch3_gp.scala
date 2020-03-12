@@ -8,8 +8,7 @@ import bron_kerbosch_pivot.visit
 import scala.collection.immutable
 
 object bron_kerbosch3_gp extends bron_kerbosch_algorithm {
-  def explore(graph: UndirectedGraph): Cliques = {
-    var cliques = immutable.List[Clique]()
+  def explore(graph: UndirectedGraph, reporter: Clique => Unit): Unit = {
     var excluded = Set.empty[Vertex]
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)
@@ -17,19 +16,19 @@ object bron_kerbosch3_gp extends bron_kerbosch_algorithm {
       val neighbouring_candidates = neighbours &~ excluded
       if (neighbouring_candidates.nonEmpty) {
         val neighbouring_excluded = util.intersect(neighbours, excluded)
-        cliques = visit(
+        visit(
           graph,
+          reporter,
           MaxDegreeLocal,
           MaxDegreeLocal,
           neighbouring_candidates,
           neighbouring_excluded,
           immutable.List(v)
-        ) ::: cliques
+        )
       } else {
         assert(!util.are_disjoint(neighbours, excluded))
       }
       excluded += v
     }
-    cliques
   }
 }

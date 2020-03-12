@@ -28,7 +28,7 @@ object RandomGraph {
 
   def read_undirected(order_str: String,
                       order: Int,
-                      size: Int): UndirectedGraph = {
+                      size: Int): (UndirectedGraph, Int) = {
     require(order > 0)
     val fully_meshed_size = order
       .asInstanceOf[Long] * (order.asInstanceOf[Long] - 1) / 2
@@ -36,7 +36,19 @@ object RandomGraph {
       size <= fully_meshed_size,
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
-    val path = f"..\\random_edges_order_$order_str.txt"
+    val edges_path = f"..\\random_edges_order_$order_str.txt"
+    val stats_path = f"..\\random_stats.txt"
+    val adjacencies = read_edges(edges_path, order, size)
+    val clique_count = read_stats(stats_path, order_str, size)
+    val g = new SlimUndirectedGraph(adjacencies)
+    require(g.order == order)
+    require(g.size == size)
+    (g, clique_count)
+  }
+
+  def read_edges(path: String,
+                 order: Int,
+                 size: Int): IndexedSeq[Set[Vertex]] = {
     val adjacency_sets = new_adjacencies(order)
     val file = Source.fromFile(path)
     for (line <- file.getLines.take(size)) {
@@ -47,11 +59,22 @@ object RandomGraph {
       adjacency_sets(w) += v
     }
     file.close()
-    val adjacencies = IndexedSeq.empty[Set[Vertex]] ++ adjacency_sets
+    IndexedSeq.empty[Set[Vertex]] ++ adjacency_sets
       .map(neighbours => new HashSet[Vertex] ++ neighbours)
-    val g = new SlimUndirectedGraph(adjacencies)
-    require(g.order == order)
-    require(g.size == size)
-    g
+  }
+
+  def read_stats(path: String, order_str: String, size: Int): Int = {
+    val prefix = f"$order_str\t$size\t"
+    val file = Source.fromFile(path)
+    for (line <- file.getLines.take(size)) {
+      if (line.startsWith(prefix)) {
+        val c = Integer.parseInt(line.substring(prefix.length))
+        return c
+      }
+    }
+    file.close()
+    throw new IllegalArgumentException(
+      f"File $path lacks order $order_str size $size"
+    )
   }
 }

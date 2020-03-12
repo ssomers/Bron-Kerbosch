@@ -1,5 +1,5 @@
 import base.Vertex
-import main.{FUNCS, FUNC_NAMES, order_cliques}
+import main.{Clique, Cliques, FUNCS, FUNC_NAMES, order_cliques}
 
 class BronKerboschTest extends org.scalatest.FunSuite {
   def bk(adjacency_list: Seq[Seq[Vertex]],
@@ -10,10 +10,13 @@ class BronKerboschTest extends org.scalatest.FunSuite {
     val graph = new SlimUndirectedGraph(adjacencies)
     for ((func, func_index) <- FUNCS.zipWithIndex) {
       val func_name = FUNC_NAMES(func_index)
-      val cliques = order_cliques(func.explore(graph))
+      var cliques = new Cliques()
+      val reporter = (clique: Clique) => { cliques += clique; () }
+      func.explore(graph, reporter)
+      val ordered = order_cliques(cliques)
       assert(
-        cliques == expected_cliques,
-        f"Unexpected result for $func_name: $cliques"
+        ordered == expected_cliques,
+        f"Unexpected result for $func_name: $ordered"
       )
     }
   }

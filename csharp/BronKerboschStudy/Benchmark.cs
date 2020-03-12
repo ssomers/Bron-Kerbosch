@@ -14,7 +14,7 @@ namespace BronKerboschStudy
         {
             List<List<Vertex>> first = null;
             SampleStatistics[] times = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length).Select(func_index => new SampleStatistics()).ToArray();
-            for (int sample = 0; sample <= samples; ++sample)
+            for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
             {
                 foreach (int func_index in func_indices)
                 {

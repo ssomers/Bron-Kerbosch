@@ -30,7 +30,7 @@ class Benchmark {
     static Times timed(RandomGraph<VertexSet> const& graph, std::vector<int> const& func_indices, int samples) {
         std::unique_ptr<std::vector<VertexList>> first;
         auto times = Times{};
-        for (int sample = 0; sample <= samples; ++sample) {
+        for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
             for (int func_index : func_indices) {
                 if (sample == 0) {
                     auto reporter = SimpleReporter{};

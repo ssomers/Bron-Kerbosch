@@ -1,5 +1,7 @@
 import base.Vertex
 
+import scala.collection.mutable.ArrayBuffer
+
 object main {
   val FUNC_NAMES: IndexedSeq[String] =
     IndexedSeq(
@@ -26,7 +28,7 @@ object main {
   )
 
   type Clique = bron_kerbosch_algorithm#Clique
-  type Cliques = bron_kerbosch_algorithm#Cliques
+  type Cliques = ArrayBuffer[Clique]
   def order_cliques(cliques: Cliques): Seq[Seq[Vertex]] = {
     require(cliques.forall(_.size > 1))
     cliques
@@ -47,24 +49,36 @@ object main {
   }
 
   def bron_kerbosch_timed(graph: UndirectedGraph,
+                          clique_count: Int,
                           samples: Int,
                           func_indices: Array[Int]): Array[SampleStatistics] = {
     var firstOrdered: Option[Seq[Seq[Vertex]]] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
+    val start = if (samples == 1) 1 else 0
 
-    for (sample <- 1 to samples; func_index <- func_indices) {
+    for (sample <- start to samples; func_index <- func_indices) {
       val func = FUNCS(func_index)
-      val start = System.nanoTime()
-      val cliques = func.explore(graph)
-      val elapsed = (System.nanoTime() - start) / 1e9
-      times(func_index).put(elapsed)
-
-      if (samples > 1 && sample <= 2) {
+      val func_name = FUNC_NAMES(func_index)
+      if (sample == 0) {
+        var cliques = new Cliques()
+        val reporter = (clique: Clique) => { cliques += clique; () }
+        func.explore(graph, reporter)
+        if (cliques.size != clique_count)
+          throw new AssertionError(
+            f"$func_name: Expected $clique_count, obtained ${cliques.size} cliques"
+          )
         val ordered = order_cliques(cliques)
         firstOrdered match {
           case None           => firstOrdered = Some(ordered)
-          case Some(ordered1) => require(ordered1 == ordered)
+          case Some(ordered1) => require(ordered1 == ordered, func_name)
         }
+      } else {
+        var cliques = 0
+        val reporter = (_: Clique) => { cliques += 1; () }
+        val start = System.nanoTime()
+        func.explore(graph, reporter)
+        val elapsed = (System.nanoTime() - start) / 1e9
+        times(func_index).put(elapsed)
       }
     }
     times
@@ -88,10 +102,12 @@ object main {
 
     for (size <- sizes) {
       val start = System.nanoTime()
-      val graph = RandomGraph.read_undirected(order_str, order, size)
+      val (graph, clique_count) =
+        RandomGraph.read_undirected(order_str, order, size)
       val elapsed = (System.nanoTime() - start) / 1e9
       println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%6.3f")
-      val times = bron_kerbosch_timed(graph, samples, func_indices)
+      val times =
+        bron_kerbosch_timed(graph, clique_count, samples, func_indices)
 
       fo.print(f"$size")
       for (func_index <- func_indices) {
@@ -130,7 +146,8 @@ object main {
         ++ (i"100k" to i"200k" by i"25k"): _*
     )
     val sizes_1M = Array(
-      (i"200k" until i"1M" by i"200k")
+      (i"50k" until i"250k" by i"50k")
+        ++ (i"250k" until i"1M" by i"250k")
         ++ (i"1M" to i"5M" by i"1M"): _*
     )
     bk("100", 100, Array(2000), 3, FUNCS.indices.toArray) // warm up

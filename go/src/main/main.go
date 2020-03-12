@@ -18,7 +18,11 @@ func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbo
 
 	var times [BronKerbosch.NumFuncs]SampleStatistics
 	var first [][]BronKerbosch.Vertex
-	for sample := 0; sample <= samples; sample++ {
+	sample := 0
+	if samples == 1 {
+		sample = 1
+	}
+	for ; sample <= samples; sample++ {
 		for _, funcIndex := range funcIndices {
 			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
 			if sample == 0 {

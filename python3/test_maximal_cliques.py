@@ -67,7 +67,7 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
                         func_indices: List[int], samples: int):
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
-    for sample in range(samples + 1):
+    for sample in range(1 if samples == 1 else 0, samples + 1):
         for func_index in func_indices:
             func = FUNCS[func_index]
             func_name = FUNC_NAMES[func_index]

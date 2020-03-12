@@ -74,7 +74,7 @@ final class Main {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
         SampleStatistics[] times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
-        for (int sample = 0; sample <= samples; ++sample) {
+        for (int sample = samples == 1 ?  1 : 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
                 if (sample == 0) {
                     var cliques = FUNCS[funcIndex].explore(graph)
