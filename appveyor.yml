@@ -18,8 +18,8 @@ test_script:
   - vstest.console csharp\BronKerboschUnitTest\bin\%CONFIGURATION%\BronKerboschUnitTest.dll csharp\BronKerboschStudyUnitTest\bin\%CONFIGURATION%\BronKerboschStudyUnitTest.dll
   - mypy --cache-dir=/dev/null --ignore-missing-import python3
   - pytest -p no:cacheprovider python3
-  - pushd go
+  - cd go
   - go vet BronKerbosch/...
   - go test BronKerbosch/...
   - go test -race BronKerbosch/lib
-  - popd
+  - cd ..
