@@ -1,7 +1,7 @@
 package main
 
 import (
-	"BronKerbosch"
+	"BronKerbosch/lib"
 	"bufio"
 	"fmt"
 	"os"
@@ -40,8 +40,8 @@ func readRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.Undirect
 
 	edgesName := "random_edges_order_" + orderstr + ".txt"
 	statsName := "random_stats.txt"
-	edgesPath := filepath.Join(".", edgesName)
-	statsPath := filepath.Join(".", statsName)
+	edgesPath := filepath.Join("..", edgesName)
+	statsPath := filepath.Join("..", statsName)
 	adjacencies, err := readEdges(edgesPath, orderstr, order, size)
 	if err != nil {
 		err = fmt.Errorf("%s\nPerhaps generate it with `python -m ..\\python3\\random_graph %s <max_size?>`", err, orderstr)

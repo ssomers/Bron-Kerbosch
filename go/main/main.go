@@ -1,9 +1,10 @@
 package main
 
 import (
-	"BronKerbosch"
+	"BronKerbosch/lib"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -64,7 +65,7 @@ func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbo
 
 func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
-	path := name + ".csv"
+	path := filepath.Join("..", name+".csv")
 	fo, err := os.Create(path)
 	if err != nil {
 		panic(err)

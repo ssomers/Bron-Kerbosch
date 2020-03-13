@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Assert"
+	"BronKerbosch/Assert"
 	"math"
 	"testing"
 )

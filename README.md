@@ -77,11 +77,12 @@ Order of a graph = number of vertices.
 
 ### Go
 
-    set GOPATH=%CD%\go
-    go vet BronKerbosch main
-    go test -race BronKerbosch
-    go run main
-    python python3\publish.py go 100 10k 1M
+    cd go
+    go vet BronKerbosch/...
+    go test BronKerbosch/...
+    go test -race BronKerbosch/lib
+    go run BronKerbosch/main
+    python ..\python3\publish.py go 100 10k 1M
 
 ### C#
   - open csharp\BronKerboschStudy.sln with Visual Studio 2017 or 2019
