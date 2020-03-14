@@ -33,6 +33,7 @@ namespace BronKerboschStudy {
         }
 
         double mean() const {
+            static_assert(std::numeric_limits<double>::has_quiet_NaN);
             if (samples < 1) {
                 return std::numeric_limits<double>::quiet_NaN();
             } else {
@@ -42,6 +43,7 @@ namespace BronKerboschStudy {
         }
 
         double variance() const {
+            static_assert(std::numeric_limits<double>::has_quiet_NaN);
             if (samples < 2) {
                 return std::numeric_limits<double>::quiet_NaN();
             } else if (minOrZero == maxOrZero) {
@@ -54,6 +56,7 @@ namespace BronKerboschStudy {
         }
 
         double deviation() const {
+            static_assert(std::numeric_limits<double>::has_quiet_NaN);
             auto r = std::sqrt(variance());
             if (std::isnan(r)) {
                 return r;

@@ -6,9 +6,9 @@
 ---
 [![Time spent in Java on graphs of order 100](https://plot.ly/~stein.somers/275.png?share_key=6RR8zlwdQSnvV7T6AAGu2x "View interactively")](https://plot.ly/~stein.somers/275/?share_key=6RR8zlwdQSnvV7T6AAGu2x)
 ---
-[![Time spent in Scala on graphs of order 100](https://plot.ly/~stein.somers/197.png?share_key=F33K579eKLzY0A7fSherUI "View interactively")](https://plot.ly/~stein.somers/197/?share_key=F33K579eKLzY0A7fSherUI)
----
 [![Time spent in C++17 on graphs of order 100](https://plot.ly/~stein.somers/418.png?share_key=W2IyPLK3oBElHu2yvq4g6t "View interactively")](https://plot.ly/~stein.somers/418/?share_key=W2IyPLK3oBElHu2yvq4g6t)
+---
+[![Time spent in Scala on graphs of order 100](https://plot.ly/~stein.somers/197.png?share_key=F33K579eKLzY0A7fSherUI "View interactively")](https://plot.ly/~stein.somers/197/?share_key=F33K579eKLzY0A7fSherUI)
 ---
 [![Time spent in Python3 on graphs of order 100](https://plot.ly/~stein.somers/157.png?share_key=FMnLKjdaEhpyZlGG6nH09O "View interactively")](https://plot.ly/~stein.somers/157/?share_key=FMnLKjdaEhpyZlGG6nH09O)
 ---

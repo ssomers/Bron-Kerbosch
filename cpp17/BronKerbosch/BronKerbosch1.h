@@ -25,10 +25,11 @@ namespace BronKerbosch {
 
         template <typename VertexSet, typename Reporter>
         static void visit(UndirectedGraph<VertexSet> const& graph, Reporter& reporter,
-                          VertexSet candidates, VertexSet excluded, const VertexPile* clique) {
+                          VertexSet &&candidates, VertexSet &&excluded, const VertexPile* clique) {
+            assert(!candidates.empty());
             for (;;) {
                 Vertex v = Util::pop_arbitrary(candidates);
-                auto neighbours = graph.neighbours(v);
+                auto const& neighbours = graph.neighbours(v);
                 assert(!neighbours.empty());
                 auto neighbouring_candidates = Util::intersection(candidates, neighbours);
                 if (!neighbouring_candidates.empty()) {

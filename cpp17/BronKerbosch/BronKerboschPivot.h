@@ -19,14 +19,14 @@ namespace BronKerbosch {
         template <typename VertexSet, typename Reporter>
         static void visit(UndirectedGraph<VertexSet> const& graph, Reporter& reporter,
                           PivotChoice initial_pivot_choice, PivotChoice further_pivot_choice,
-                          VertexSet candidates, VertexSet excluded, VertexPile* clique) {
+                          VertexSet&& candidates, VertexSet&& excluded, VertexPile* clique) {
             assert(!candidates.empty());
             assert(Util::are_disjoint(candidates, excluded));
 
             if (candidates.size() == 1) {
                 // Same logic as below, but stripped down for this common case
                 for (Vertex v : candidates) {
-                    auto neighbours = graph.neighbours(v);
+                    auto const& neighbours = graph.neighbours(v);
                     if (Util::are_disjoint(neighbours, excluded)) {
                         reporter.record(VertexPile(v, clique));
                     }
@@ -43,7 +43,7 @@ namespace BronKerbosch {
                     // Quickly handle locally unconnected candidates while finding pivot
                     size_t seen_local_degree = 0;
                     for (Vertex v : candidates) {
-                        auto neighbours = graph.neighbours(v);
+                        auto const& neighbours = graph.neighbours(v);
                         auto local_degree = Util::intersection_size(neighbours, candidates);
                         if (local_degree == 0) {
                             // Same logic as below, but stripped down
@@ -63,7 +63,7 @@ namespace BronKerbosch {
                     }
                     if (initial_pivot_choice == PivotChoice::MaxDegreeLocalX) {
                         for (Vertex v : excluded) {
-                            auto neighbours = graph.neighbours(v);
+                            auto const& neighbours = graph.neighbours(v);
                             auto local_degree = Util::intersection_size(neighbours, candidates);
                             if (seen_local_degree < local_degree) {
                                 seen_local_degree = local_degree;
@@ -82,7 +82,7 @@ namespace BronKerbosch {
 
             assert(!remaining_candidates.empty());
             for (Vertex v : remaining_candidates) {
-                auto neighbours = graph.neighbours(v);
+                auto const& neighbours = graph.neighbours(v);
                 if (neighbours.count(pivot)) {
                     continue;
                 }
@@ -100,8 +100,8 @@ namespace BronKerbosch {
                         reporter,
                         further_pivot_choice,
                         further_pivot_choice,
-                        neighbouring_candidates,
-                        neighbouring_excluded,
+                        std::move(neighbouring_candidates),
+                        std::move(neighbouring_excluded),
                         &newclique
                     );
                 }

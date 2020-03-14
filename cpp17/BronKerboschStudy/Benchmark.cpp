@@ -39,16 +39,21 @@ class Benchmark {
                     auto duration = std::chrono::steady_clock::now() - begin;
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     if (duration >= std::chrono::seconds(3)) {
-                        std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": " << std::setw(6) << secs << "s" << std::endl;
+                        std::cout << "  "
+                            << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": "
+                            << std::setw(6) << secs << "s" << std::endl;
                     }
                     Portfolio::sort_cliques(reporter.cliques);
                     if (first) {
                         if (*first != reporter.cliques) {
-                            throw std::logic_error("got different cliques");
+                            throw std::logic_error("Expected got different cliques");
                         }
                     } else {
                         if (reporter.cliques.size() != graph.clique_count) {
-                            throw std::logic_error("got different #cliques");
+                            std::ostringstream s;
+                            s << "Expected " << graph.clique_count << ","
+                                " obtained " << reporter.cliques.size() << " cliques";
+                            throw std::logic_error(s.str());
                         }
                         first = std::make_unique<std::vector<VertexList>>(reporter.cliques);
                     }
@@ -127,7 +132,7 @@ public:
                         fo << "," << mean;
                         fo << "," << max;
                         if (!std::isnan(mean)) {
-                            auto reldev = int(100 * stats[func_index].deviation() / mean + .5);
+                            auto reldev = stats[func_index].deviation() / mean;
                             auto p = std::cout.precision(3);
                             auto f = std::cout.setf(std::ios_base::fixed);
                             std::cout
@@ -135,7 +140,8 @@ public:
                                 << " size " << std::setw(7) << size
                                 << " " << std::setw(8) << func_name
                                 << "@" << set_type_name(set_type)
-                                << ": " << std::setw(6) << mean << "s ± " << reldev << "%"
+                                << ": " << std::setw(6) << mean << "s ± "
+                                << std::setprecision(0) << reldev * 100 << "%"
                                 << std::endl;
                             std::cout.precision(p);
                             std::cout.setf(f);
@@ -189,35 +195,31 @@ int main(int argc, char** argv) {
     std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
     if (argc == 1) {
-        Benchmark::bk("100", range(2'000u, 3'000u, 50u), // max 4'950
-                      [&](SetType set_type, unsigned size) {
-                          switch (set_type) {
-                              case SetType::std_set:
-                              case SetType::hashset: if (size <= 2500) return all_func_indices;
-                                                   else if (size <= 2600) return std::vector<int>{1, 2, 3};
-                                                   else return std::vector<int>{};
-                              case SetType::ord_vec: return all_func_indices;
-                          }; throw std::logic_error("unreachable"); }, 5);
-        Benchmark::bk("10k", concat(range(10'000u, 90'000u, 10'000u),
+        Benchmark::bk("100", range(2'000u, 3'000u, 50u),
+                      [&](SetType, unsigned) { return all_func_indices; }, 5);
+        Benchmark::bk("10k", concat(range(1'000u, 9'000u, 1'000u),
+                                    range(10'000u, 90'000u, 10'000u),
                                     range(100'000u, 200'000u, 25'000u)),
                       [&](SetType set_type, unsigned size) {
                           switch (set_type) {
-                              case SetType::std_set: return std::vector<int>{};
-                              case SetType::hashset: if (size > 400'000) return std::vector<int>{};
+                              case SetType::std_set: if (size > 10'000) return std::vector<int>{};
+                              case SetType::hashset:
                               case SetType::ord_vec: return most_func_indices;
                           }; throw std::logic_error("unreachable"); }, 3);
-        Benchmark::bk("1M", concat(range(2'000u, 18'000u, 2'000u),
-                                   range(20'000u, 40'000u, 10'000u),
+        Benchmark::bk("1M", concat(range(2'000u, 8'000u, 2'000u),
+                                   range(10'000u, 40'000u, 10'000u),
                                    range(50'000u, 200'000u, 50'000u),
-                                   range(250'000u, 1'000'000u, 250'000u)),
+                                   range(250'000u, 750'000u, 250'000u),
+                                   range(1'000'000u, 5'000'000u, 1'000'000u)),
                       [&](SetType set_type, unsigned size) {
-                          if (size < 15'000) {
+                          if (size <= 10'000) {
                               return std::vector<int>{0};
                           } else switch (set_type) {
-                              case SetType::std_set: return std::vector<int>{};
-                              case SetType::ord_vec: if (size > 30'000) return std::vector<int>{};
-                              case SetType::hashset: return all_func_indices;
-                          }; throw std::logic_error("unreachable"); }, 3);
+                              case SetType::std_set:
+                              case SetType::ord_vec: return std::vector<int>{};
+                              case SetType::hashset: return size > 3'000'000 ? std::vector<int>{ 5, 6 } : most_func_indices;
+                          }; throw std::logic_error("unreachable"); },
+                      3);
         return EXIT_SUCCESS;
     } else if (argc == 3) {
         auto orderstr = argv[1];

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <numeric>
 #include <set>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_set>

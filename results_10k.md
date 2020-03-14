@@ -4,10 +4,10 @@
 ---
 [![Time spent in Go on graphs of order 10k](https://plot.ly/~stein.somers/187.png?share_key=EtNe8FbmD8BwrxBaC7dHBt "View interactively")](https://plot.ly/~stein.somers/187/?share_key=EtNe8FbmD8BwrxBaC7dHBt)
 ---
+[![Time spent in C++17 on graphs of order 10k](https://plot.ly/~stein.somers/422.png?share_key=6iRQrXzAalG2cQPzv2BwWS "View interactively")](https://plot.ly/~stein.somers/422/?share_key=6iRQrXzAalG2cQPzv2BwWS)
+---
 [![Time spent in Java on graphs of order 10k](https://plot.ly/~stein.somers/277.png?share_key=36zZ9joB55lvyYICQ7QL3B "View interactively")](https://plot.ly/~stein.somers/277/?share_key=36zZ9joB55lvyYICQ7QL3B)
 ---
 [![Time spent in Scala on graphs of order 10k](https://plot.ly/~stein.somers/199.png?share_key=ZM9Igh4glwfW0rFVJFzf3s "View interactively")](https://plot.ly/~stein.somers/199/?share_key=ZM9Igh4glwfW0rFVJFzf3s)
----
-[![Time spent in C++17 on graphs of order 10k](https://plot.ly/~stein.somers/422.png?share_key=6iRQrXzAalG2cQPzv2BwWS "View interactively")](https://plot.ly/~stein.somers/422/?share_key=6iRQrXzAalG2cQPzv2BwWS)
 ---
 [![Time spent in Python3 on graphs of order 10k](https://plot.ly/~stein.somers/128.png?share_key=8AATmcjFpdY0onO7L9nmad "View interactively")](https://plot.ly/~stein.somers/128/?share_key=8AATmcjFpdY0onO7L9nmad)

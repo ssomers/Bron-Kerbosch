@@ -23,12 +23,12 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3+MT:** (Rust, Java only) Ver3+GP with multi-threading using channels (2 + 5 threads)
-* **Ver3+ST:** (Java only) Ver3+GP with simple multi-threading using streams
-* **Ver3+GP2:** (Go only) Ver3+GP with multi-threading (2 + 5 goroutines)
-* **Ver3+GP3:** (Go only) Ver3+GP with multi-threading (2 + 15 goroutine)
-* **Ver3+GP4:** (Go only) Ver3+GP with multi-threading (2 + 45 goroutines)
-* **Ver3+GP5:** (Go only) Ver3+GP with multi-threading (2 + 135 goroutines)
+* **Ver3=MT:** (Rust, Java only) parallel Ver3+GP using channels (2 + 5 threads)
+* **Ver3=ST:** (Java only) parallel Ver3+GP using simple stream
+* **Ver3=GP2:** (Go only) parallel Ver3+GP (2 + 5 goroutines)
+* **Ver3=GP3:** (Go only) parallel Ver3+GP (2 + 15 goroutine)
+* **Ver3=GP4:** (Go only) parallel Ver3+GP (2 + 45 goroutines)
+* **Ver3=GP5:** (Go only) parallel Ver3+GP (2 + 135 goroutines)
 
 ## Set data structures
 

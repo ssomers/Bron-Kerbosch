@@ -30,8 +30,8 @@ namespace BronKerbosch {
                         reporter,
                         pivot_choice,
                         pivot_choice,
-                        neighbouring_candidates,
-                        neighbouring_excluded,
+                        std::move(neighbouring_candidates),
+                        std::move(neighbouring_excluded),
                         &pile
                     );
                 }

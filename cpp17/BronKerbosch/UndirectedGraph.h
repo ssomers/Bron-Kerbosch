@@ -49,7 +49,7 @@ namespace BronKerbosch {
         static bool are_valid_adjacencies(Adjacencies const& adjacencies) {
             auto order = adjacencies.size();
             for (Vertex v = 0; v < order; ++v) {
-                auto adjacent_to_v = adjacencies[v];
+                auto const& adjacent_to_v = adjacencies[v];
                 for (Vertex w : adjacent_to_v) {
                     if (w == v || w >= order || adjacencies[w].count(v) == 0) {
                         return false;
