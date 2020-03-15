@@ -1,6 +1,6 @@
 ﻿using BronKerbosch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Vertex = System.UInt32;
 
@@ -18,7 +18,7 @@ namespace BronKerboschUnitTest
                 Portfolio.Explore(func_index, graph, reporter);
                 Assert.AreEqual(expected_cliques.Length, reporter.Cliques.Count);
                 Portfolio.SortCliques(reporter.Cliques);
-                foreach ((List<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
+                foreach ((ImmutableArray<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
                     Assert.IsTrue(clique.SequenceEqual(expected_cliques[i]));
             }
         }

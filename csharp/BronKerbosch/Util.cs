@@ -1,11 +1,18 @@
-using BronKerbosch;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using Vertex = System.UInt32;
 
 public class Util
 {
+    public static ImmutableArray<Vertex> Append(ImmutableArray<Vertex> head, Vertex tail)
+    {
+        var builder = ImmutableArray.CreateBuilder<Vertex>(head.Length + 1);
+        builder.AddRange(head);
+        builder.Add(tail);
+        return builder.MoveToImmutable();
+    }
+
     public static bool AreDisjoint(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
         if (lhs.Count > rhs.Count)
@@ -26,10 +33,10 @@ public class Util
         // much slower: lhs.Except(rhs).ToHashSet();
     }
 
-    public static int IntersectCount(ISet<Vertex> lhs, ISet<Vertex> rhs)
+    public static int IntersectionSize(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
         if (lhs.Count > rhs.Count)
-            return IntersectCount(rhs, lhs);
+            return IntersectionSize(rhs, lhs);
 
         var result = 0;
         foreach (Vertex v in lhs)
@@ -43,10 +50,10 @@ public class Util
         // even slower: return lhs.Intersect(rhs).Count();
     }
 
-    public static HashSet<Vertex> Intersect(ISet<Vertex> lhs, ISet<Vertex> rhs)
+    public static HashSet<Vertex> Intersection(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
         if (lhs.Count > rhs.Count)
-            return Intersect(rhs, lhs);
+            return Intersection(rhs, lhs);
 
         var result = new HashSet<Vertex>();
         foreach (Vertex v in lhs)

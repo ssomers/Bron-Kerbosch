@@ -3,6 +3,7 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Vertex = System.UInt32;
@@ -19,11 +20,11 @@ public class BronKerbosch3GPX
             var neighbouring_candidates = Util.Difference(neighbours, excluded);
             if (neighbouring_candidates.Any())
             {
-                var neighbouring_excluded = Util.Intersect(excluded, neighbours);
+                var neighbouring_excluded = Util.Intersection(excluded, neighbours);
                 Pivot.Visit(graph, reporter,
                             Pivot.Choice.MaxDegreeLocalX, Pivot.Choice.MaxDegreeLocalX,
                             neighbouring_candidates, neighbouring_excluded,
-                            new List<Vertex>() { v });
+                            ImmutableArray.Create(v));
             }
             else
             {

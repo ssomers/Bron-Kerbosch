@@ -2,6 +2,7 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Vertex = System.UInt32;
 
@@ -18,8 +19,8 @@ public class BronKerbosch2GPX
                 Pivot.Choice.MaxDegree,
                 Pivot.Choice.MaxDegreeLocalX,
                 candidates,
-                new HashSet<Vertex>(),
-                new List<Vertex>(capacity: candidates.Count));
+                new HashSet<Vertex>(capacity: candidates.Count),
+                ImmutableArray.Create<Vertex>());
         }
     }
 }

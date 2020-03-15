@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Vertex = System.UInt32;
@@ -17,7 +18,7 @@ namespace BronKerbosch
 
         public static void Visit(UndirectedGraph graph, Reporter reporter,
                                  Choice initialChoice, Choice furtherChoice,
-                                 ISet<Vertex> candidates, ISet<Vertex> excluded, List<Vertex> clique)
+                                 ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
         {
             Debug.Assert(candidates.Any());
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
@@ -30,7 +31,7 @@ namespace BronKerbosch
                 Vertex v = candidates.First();
                 var neighbours = graph.Neighbours(v);
                 if (Util.AreDisjoint(excluded, neighbours))
-                    reporter.Record(new List<Vertex>(clique) { v });
+                    reporter.Record(Util.Append(cliqueInProgress, v));
                 return;
             }
 
@@ -45,12 +46,12 @@ namespace BronKerbosch
                 foreach (Vertex v in candidates)
                 {
                     var neighbours = graph.Neighbours(v);
-                    var localDegree = Util.IntersectCount(neighbours, candidates);
+                    var localDegree = Util.IntersectionSize(neighbours, candidates);
                     if (localDegree == 0)
                     {
                         // Same logic as below, stripped down
                         if (Util.AreDisjoint(excluded, neighbours))
-                            reporter.Record(new List<Vertex>(clique) { v });
+                            reporter.Record(Util.Append(cliqueInProgress, v));
                     }
                     else
                     {
@@ -71,7 +72,7 @@ namespace BronKerbosch
                     foreach (Vertex v in excluded)
                     {
                         var neighbours = graph.Neighbours(v);
-                        var localDegree = Util.IntersectCount(neighbours, candidates);
+                        var localDegree = Util.IntersectionSize(neighbours, candidates);
                         if (seenLocalDegree < localDegree)
                         {
                             seenLocalDegree = localDegree;
@@ -93,18 +94,18 @@ namespace BronKerbosch
                 if (neighbours.Contains(pivot))
                     continue;
                 candidates.Remove(v);
-                var neighbouringCandidates = Util.Intersect(candidates, neighbours);
+                var neighbouringCandidates = Util.Intersection(candidates, neighbours);
                 if (neighbouringCandidates.Any())
                 {
-                    var neighbouringExcluded = Util.Intersect(excluded, neighbours);
+                    var neighbouringExcluded = Util.Intersection(excluded, neighbours);
                     Visit(graph, reporter, furtherChoice, furtherChoice,
                           neighbouringCandidates, neighbouringExcluded,
-                          new List<Vertex>(clique) { v });
+                          Util.Append(cliqueInProgress, v));
                 }
                 else
                 {
                     if (Util.AreDisjoint(excluded, neighbours))
-                        reporter.Record(new List<Vertex>(clique) { v });
+                        reporter.Record(Util.Append(cliqueInProgress, v));
                 }
                 excluded.Add(v);
             }

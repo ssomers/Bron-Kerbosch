@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace BronKerboschStudy
     {
         private static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] func_indices, int samples)
         {
-            List<List<Vertex>> first = null;
+            List<ImmutableArray<Vertex>> first = null;
             SampleStatistics[] times = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length).Select(func_index => new SampleStatistics()).ToArray();
             for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
             {
@@ -109,8 +110,10 @@ namespace BronKerboschStudy
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
                 (size) => most_func_indices, 3);
-            bk("1M", Range(50_000, 250_000, 50_000).Concat(Range(250_000, 2_000_000, 250_000)).Concat(Range(2_000_000, 5_000_001, 1_000_000)),
-                (size) => most_func_indices, 3);
+            bk("1M", Range(50_000, 250_000, 50_000)
+                .Concat(Range(250_000, 2_000_000, 250_000))
+                .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
+                (size) => size > 3_000_000 ? new int[] { 4, 5 } : most_func_indices, 3);
         }
     }
 }

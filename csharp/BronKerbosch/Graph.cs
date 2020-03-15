@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Vertex = System.UInt32;
@@ -22,10 +21,7 @@ namespace BronKerbosch
             itsAdjacencies = adjacencies;
         }
 
-        public int Order
-        {
-            get => itsAdjacencies.Count;
-        }
+        public int Order => itsAdjacencies.Count;
 
         public int Size
         {
@@ -39,15 +35,9 @@ namespace BronKerbosch
             }
         }
 
-        public HashSet<Vertex> Neighbours(Vertex node)
-        {
-            return itsAdjacencies[(int)node]; // .AsReadOnly()
-        }
+        public HashSet<Vertex> Neighbours(Vertex node) => itsAdjacencies[(int)node]; // .AsReadOnly()
 
-        public int Degree(Vertex node)
-        {
-            return itsAdjacencies[(int)node].Count;
-        }
+        public int Degree(Vertex node) => itsAdjacencies[(int)node].Count;
 
         public HashSet<Vertex> ConnectedVertices()
         {

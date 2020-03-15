@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Vertex = System.UInt32;
 
 namespace BronKerbosch
@@ -22,22 +23,22 @@ namespace BronKerbosch
             }
         }
 
-        public static void SortCliques(List<List<Vertex>> cliques)
+        public static void SortCliques(List<ImmutableArray<Vertex>> cliques)
         {
-            foreach (List<Vertex> clique in cliques)
-                clique.Sort();
+            for (int i = 0; i < cliques.Count; ++i) 
+                cliques[i] = cliques[i].Sort();
             cliques.Sort(comparer);
         }
 
-        public static void AssertSameCliques(List<List<Vertex>> lhs, List<List<Vertex>> rhs)
+        public static void AssertSameCliques(List<ImmutableArray<Vertex>> lhs, List<ImmutableArray<Vertex>> rhs)
         {
             if (lhs.Count != rhs.Count)
                 throw new Exception($"{lhs.Count} cliques <> {rhs.Count} cliques");
             for (var i = 0; i < lhs.Count; ++i)
             {
-                if (lhs[i].Count != rhs[i].Count)
-                    throw new Exception($"clique #{i + 1}: length {lhs[i].Count} <> length {rhs[i].Count}");
-                for (var j = 0; j < lhs[i].Count; ++j)
+                if (lhs[i].Length != rhs[i].Length)
+                    throw new Exception($"clique #{i + 1}: length {lhs[i].Length} <> length {rhs[i].Length}");
+                for (var j = 0; j < lhs[i].Length; ++j)
                 {
                     if (lhs[i][j] != rhs[i][j])
                         throw new Exception($"clique #{i + 1}, vertex #{j + 1}: {lhs[i][j]} <> length {rhs[i][j]}");
@@ -45,13 +46,13 @@ namespace BronKerbosch
             }
         }
 
-        static int comparer(List<Vertex> lhs, List<Vertex> rhs)
+        static int comparer(ImmutableArray<Vertex> lhs, ImmutableArray<Vertex> rhs)
         {
             if (Object.Equals(lhs, rhs))
             {   // Seriously, Sort sometimes compares an element with itself
                 return 0;
             }
-            for (var i = 0; i < lhs.Count && i < rhs.Count; ++i)
+            for (var i = 0; i < lhs.Length && i < rhs.Length; ++i)
             {
                 var d = (int)lhs[i] - (int)rhs[i];
                 if (d != 0)
@@ -59,7 +60,7 @@ namespace BronKerbosch
                     return d;
                 }
             }
-            throw new ArgumentException($"got overlapping or equal cliques (length {lhs.Count} <> length {rhs.Count})");
+            throw new ArgumentException($"got overlapping or equal cliques (length {lhs.Length} <> length {rhs.Length})");
         }
     }
 }

@@ -1,5 +1,5 @@
-using BronKerbosch;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using Vertex = System.UInt32;
 
@@ -7,16 +7,16 @@ namespace BronKerbosch
 {
     public interface Reporter
     {
-        void Record(List<Vertex> clique);
+        void Record(ImmutableArray<Vertex> clique);
     }
 
     public sealed class SimpleReporter : Reporter
     {
-        public List<List<Vertex>> Cliques { get; } = new List<List<Vertex>>();
+        public List<ImmutableArray<Vertex>> Cliques { get; } = new List<ImmutableArray<Vertex>>();
 
-        public void Record(List<Vertex> clique)
+        public void Record(ImmutableArray<Vertex> clique)
         {
-            Debug.Assert(clique.Count > 1);
+            Debug.Assert(clique.Length > 1);
             Cliques.Add(clique);
         }
     }
@@ -25,7 +25,7 @@ namespace BronKerbosch
     {
         public int Cliques { get; private set; } = 0;
 
-        public void Record(List<Vertex> clique)
+        public void Record(ImmutableArray<Vertex> clique)
         {
             Cliques += 1;
         }
