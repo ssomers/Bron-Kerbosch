@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace BronKerboschStudy
     {
         public readonly int cliqueCount;
 
-        private RandomUndirectedGraph(List<HashSet<Vertex>> adjacencies, int cliqueCount) : base(adjacencies)
+        private RandomUndirectedGraph(ImmutableArray<HashSet<Vertex>> adjacencies, int cliqueCount) : base(adjacencies)
         {
             this.cliqueCount = cliqueCount;
         }
@@ -44,10 +45,10 @@ namespace BronKerboschStudy
             return g;
         }
 
-        private static List<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
+        private static ImmutableArray<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
         {
             int order = ParsePositiveInt(orderstr);
-            var adjacencies = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
+            var adjacencies = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToImmutableArray();
             var file = new StreamReader(path);
             int linenum = 0;
             string line;

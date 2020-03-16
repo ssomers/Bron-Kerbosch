@@ -1,5 +1,6 @@
 ﻿using BronKerbosch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Immutable;
 using System.Linq;
 using Vertex = System.UInt32;
 
@@ -10,7 +11,7 @@ namespace BronKerboschUnitTest
     {
         static void bk(Vertex[][] adjacencies, Vertex[][] expected_cliques)
         {
-            var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet()).ToList());
+            var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet()).ToImmutableArray());
             foreach (int func_index in Enumerable.Range(0, Portfolio.FUNC_NAMES.Length))
             {
                 var reporter = new SimpleReporter();

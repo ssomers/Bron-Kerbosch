@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using Vertex = System.UInt32;
 
@@ -6,11 +7,11 @@ namespace BronKerbosch
 {
     public class UndirectedGraph
     {
-        private readonly List<HashSet<Vertex>> itsAdjacencies;
+        private readonly ImmutableArray<HashSet<Vertex>> itsAdjacencies;
 
-        public UndirectedGraph(List<HashSet<Vertex>> adjacencies)
+        public UndirectedGraph(ImmutableArray<HashSet<Vertex>> adjacencies)
         {
-            for (Vertex v = 0; v < adjacencies.Count; ++v)
+            for (Vertex v = 0; v < adjacencies.Length; ++v)
             {
                 foreach (Vertex w in adjacencies[(int)v])
                 {
@@ -21,7 +22,7 @@ namespace BronKerbosch
             itsAdjacencies = adjacencies;
         }
 
-        public int Order => itsAdjacencies.Count;
+        public int Order => itsAdjacencies.Length;
 
         public int Size
         {
