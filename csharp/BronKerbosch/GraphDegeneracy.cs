@@ -71,7 +71,7 @@ namespace BronKerbosch
 
     class PriorityQueue
     {
-        private List<Vertex>[] queuePerPriority;
+        private readonly List<Vertex>[] queuePerPriority;
 
         public PriorityQueue(int max_priority)
         {

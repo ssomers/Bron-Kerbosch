@@ -1,6 +1,5 @@
 ﻿using BronKerbosch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Immutable;
 using System.Linq;
 using Vertex = System.UInt32;
 

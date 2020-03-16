@@ -10,7 +10,7 @@ using Vertex = System.UInt32;
 
 public class BronKerbosch3GP
 {
-    static public void Explore(UndirectedGraph graph, Reporter reporter)
+    public static void Explore(UndirectedGraph graph, Reporter reporter)
     {
         var excluded = new HashSet<Vertex>();
         foreach (Vertex v in Degeneracy.Ordering(graph, drop: 1))

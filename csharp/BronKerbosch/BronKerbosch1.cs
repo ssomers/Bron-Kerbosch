@@ -9,7 +9,7 @@ using Vertex = System.UInt32;
 
 class BronKerbosch1
 {
-    static public void Explore(UndirectedGraph graph, Reporter reporter)
+    public static void Explore(UndirectedGraph graph, Reporter reporter)
     {
         var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
         if (candidates.Any())

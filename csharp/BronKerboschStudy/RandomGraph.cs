@@ -1,8 +1,8 @@
 using BronKerbosch;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Vertex = System.UInt32;
 
@@ -47,7 +47,7 @@ namespace BronKerboschStudy
         private static List<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
         {
             int order = ParsePositiveInt(orderstr);
-            List<HashSet<Vertex>> adjacencies = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
+            var adjacencies = Enumerable.Range(0, order).Select(_ => new HashSet<Vertex>()).ToList();
             var file = new StreamReader(path);
             int linenum = 0;
             string line;
