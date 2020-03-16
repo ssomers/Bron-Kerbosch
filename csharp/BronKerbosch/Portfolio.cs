@@ -7,27 +7,29 @@ namespace BronKerbosch
 {
     public class Portfolio
     {
-        public static readonly string[] FUNC_NAMES = new string[] { "Ver1+", "Ver2+G", "Ver2+GP", "Ver2+GPX", "Ver3+GP", "Ver3+GPX" };
+        public static readonly string[] FUNC_NAMES = new string[] {
+            "Ver1+",
+            "Ver2+GP", "Ver2+GPX",
+            "Ver3+GP", "Ver3+GPX" };
 
         public static void Explore(int func_index, UndirectedGraph graph, Reporter reporter)
         {
             switch (func_index)
             {
                 case 0: BronKerbosch1.Explore(graph, reporter); break;
-                case 1: BronKerbosch2G.Explore(graph, reporter); break;
-                case 2: BronKerbosch2GP.Explore(graph, reporter); break;
-                case 3: BronKerbosch2GPX.Explore(graph, reporter); break;
-                case 4: BronKerbosch3GP.Explore(graph, reporter); break;
-                case 5: BronKerbosch3GPX.Explore(graph, reporter); break;
+                case 1: BronKerbosch2GP.Explore(graph, reporter); break;
+                case 2: BronKerbosch2GPX.Explore(graph, reporter); break;
+                case 3: BronKerbosch3GP.Explore(graph, reporter); break;
+                case 4: BronKerbosch3GPX.Explore(graph, reporter); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }
 
         public static void SortCliques(List<ImmutableArray<Vertex>> cliques)
         {
-            for (int i = 0; i < cliques.Count; ++i) 
+            for (int i = 0; i < cliques.Count; ++i)
                 cliques[i] = cliques[i].Sort();
-            cliques.Sort(comparer);
+            cliques.Sort(Comparer);
         }
 
         public static void AssertSameCliques(List<ImmutableArray<Vertex>> lhs, List<ImmutableArray<Vertex>> rhs)
@@ -46,7 +48,7 @@ namespace BronKerbosch
             }
         }
 
-        static int comparer(ImmutableArray<Vertex> lhs, ImmutableArray<Vertex> rhs)
+        static int Comparer(ImmutableArray<Vertex> lhs, ImmutableArray<Vertex> rhs)
         {
             if (Object.Equals(lhs, rhs))
             {   // Seriously, Sort sometimes compares an element with itself

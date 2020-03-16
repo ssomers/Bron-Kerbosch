@@ -18,7 +18,7 @@ namespace BronKerboschUnitTest
                 Portfolio.Explore(func_index, graph, reporter);
                 Assert.AreEqual(expected_cliques.Length, reporter.Cliques.Count);
                 Portfolio.SortCliques(reporter.Cliques);
-                foreach ((ImmutableArray<Vertex> clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
+                foreach ((var clique, int i) in reporter.Cliques.Select((v, i) => (v, i)))
                     Assert.IsTrue(clique.SequenceEqual(expected_cliques[i]));
             }
         }

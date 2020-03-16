@@ -11,7 +11,7 @@ class BronKerbosch1
 {
     static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
-        var candidates = graph.ConnectedVertices();
+        var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
         if (candidates.Any())
         {
             Visit(

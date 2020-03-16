@@ -39,13 +39,11 @@ namespace BronKerbosch
 
         public int Degree(Vertex node) => itsAdjacencies[(int)node].Count;
 
-        public HashSet<Vertex> ConnectedVertices()
+        public IEnumerable<Vertex> ConnectedVertices()
         {
-            var result = new HashSet<Vertex>();
             for (Vertex v = 0; v < Order; ++v)
                 if (Degree(v) > 0)
-                    result.Add(v);
-            return result;
+                    yield return v;
         }
     }
 }

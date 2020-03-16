@@ -1,4 +1,4 @@
-// Bron-Kerbosch algorithm with pivot picked arbitrarily
+// Bron-Kerbosch algorithm with pivot of highest degree (IK_GP)
 
 using BronKerbosch;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ public class BronKerbosch2GP
 {
     static public void Explore(UndirectedGraph graph, Reporter reporter)
     {
-        var candidates = graph.ConnectedVertices();
+        var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
         if (candidates.Any())
         {
             Pivot.Visit(
