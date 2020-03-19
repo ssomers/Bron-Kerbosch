@@ -8,8 +8,8 @@ proptest = "0.9"
 rand_chacha = "0.1"
 
 [dependencies]
-crossbeam = "0.7"
-crossbeam-channel = "0.4"
-fnv = "1"
-hashbrown = "0.7"
-rand = "0.7"
+crossbeam = "*"
+crossbeam-channel = "*"
+fnv = "*"
+hashbrown = "*"
+rand = "*"

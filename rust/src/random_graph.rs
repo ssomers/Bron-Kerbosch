@@ -65,7 +65,7 @@ where
         let v = split.next().expect("at least an empty string");
         let w = split
             .next()
-            .ok_or(anyhow!("Missing 2nd field"))
+            .ok_or_else(|| anyhow!("Missing 2nd field"))
             .with_context(context(line_num))?;
         let v: Vertex = v.parse().with_context(context(line_num))?;
         let w: Vertex = w.parse().with_context(context(line_num))?;

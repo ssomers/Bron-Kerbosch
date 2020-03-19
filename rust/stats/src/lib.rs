@@ -1,5 +1,3 @@
-extern crate num_traits;
-
 #[derive(Clone, Default)]
 pub struct SampleStatistics<T> {
     max: T,

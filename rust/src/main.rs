@@ -1,9 +1,3 @@
-#![allow(
-    clippy::assertions_on_constants,
-    clippy::or_fun_call,
-    clippy::manual_mul_add
-)]
-
 mod random_graph;
 
 use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
@@ -281,6 +275,7 @@ fn bk(
 fn main() -> Result<(), std::io::Error> {
     let opt = Opt::from_args();
     if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
+        #[allow(clippy::assertions_on_constants)]
         debug_assert!(false, "Run with --release for meaningful measurements");
         bk(
             "100",
