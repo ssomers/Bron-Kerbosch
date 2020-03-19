@@ -55,6 +55,5 @@ namespace BronKerboschStudy
             Sum += v;
             SumOfSquares += v * v;
         }
-
     }
 }

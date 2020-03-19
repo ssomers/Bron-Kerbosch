@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Vertex = System.UInt32;
 
-public class Util
+public static class CollectionsUtil
 {
     public static ImmutableArray<Vertex> Append(ImmutableArray<Vertex> head, Vertex tail)
     {
@@ -15,7 +16,9 @@ public class Util
 
     public static bool AreDisjoint(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
-        if (lhs.Count > rhs.Count)
+        if (lhs is null || rhs is null)
+            return true;
+        else if (lhs.Count > rhs.Count)
             return !lhs.Overlaps(rhs);
         else
             return !rhs.Overlaps(lhs);
@@ -23,7 +26,7 @@ public class Util
 
     public static HashSet<Vertex> Difference(ISet<Vertex> lhs, ISet<Vertex> rhs)
     {
-        var result = new HashSet<Vertex>();
+        var result = new HashSet<Vertex>(capacity: lhs.Count);
         foreach (Vertex v in lhs)
         {
             if (!rhs.Contains(v))
@@ -55,7 +58,7 @@ public class Util
         if (lhs.Count > rhs.Count)
             return Intersection(rhs, lhs);
 
-        var result = new HashSet<Vertex>();
+        var result = new HashSet<Vertex>(capacity: Math.Min(lhs.Count, rhs.Count));
         foreach (Vertex v in lhs)
         {
             if (rhs.Contains(v))

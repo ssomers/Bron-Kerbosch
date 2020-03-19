@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,130 +7,129 @@ using Vertex = System.UInt32;
 
 namespace BronKerboschUnitTest
 {
-    [TestClass]
     public class UtilTest
     {
-        [TestMethod]
+        [Test]
         public void Util_Append()
         {
             var empty = ImmutableArray.Create<Vertex>();
-            var one = Util.Append(empty, 11);
-            var two = Util.Append(one, 22);
-            Assert.AreEqual(0, empty.Length);
-            Assert.AreEqual(1, one.Length);
-            Assert.AreEqual(2, two.Length);
-            Assert.AreEqual(11u, one[0]);
-            Assert.AreEqual(11u, two[0]);
-            Assert.AreEqual(22u, two[1]);
+            var one = CollectionsUtil.Append(empty, 11);
+            var two = CollectionsUtil.Append(one, 22);
+            Assert.That(empty.Length.Equals(0));
+            Assert.That(one.Length.Equals(1));
+            Assert.That(two.Length.Equals(2));
+            Assert.That(one[0].Equals(11u));
+            Assert.That(two[0].Equals(11u));
+            Assert.That(two[1].Equals(22u));
         }
 
-        [TestMethod]
+        [Test]
         public void Util_PopArbitrary()
         {
             var one = new HashSet<Vertex> { 1 };
             var two = new HashSet<Vertex> { 1, 2 };
-            Assert.AreEqual(1u, Util.PopArbitrary(one));
-            Assert.AreEqual(0, one.Count());
-            var x = Util.PopArbitrary(two);
-            var y = Util.PopArbitrary(two);
-            Assert.AreEqual(1u, Math.Min(x, y));
-            Assert.AreEqual(2u, Math.Max(x, y));
+            Assert.That(CollectionsUtil.PopArbitrary(one).Equals(1u));
+            Assert.Zero(one.Count());
+            var x = CollectionsUtil.PopArbitrary(two);
+            var y = CollectionsUtil.PopArbitrary(two);
+            Assert.That(Math.Min(x, y).Equals(1u));
+            Assert.That(Math.Max(x, y).Equals(2u));
         }
 
-        [TestMethod]
+        [Test]
         public void Util_AreDisjoint()
         {
             var empty = new HashSet<Vertex> { };
             var one = new HashSet<Vertex> { 1 };
             var two = new HashSet<Vertex> { 1, 2 };
             var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Util.AreDisjoint(empty, one));
-            Assert.IsTrue(Util.AreDisjoint(one, empty));
-            Assert.IsTrue(Util.AreDisjoint(empty, two));
-            Assert.IsTrue(Util.AreDisjoint(two, empty));
-            Assert.IsTrue(Util.AreDisjoint(empty, six));
-            Assert.IsTrue(Util.AreDisjoint(six, empty));
-            Assert.IsFalse(Util.AreDisjoint(one, two));
-            Assert.IsFalse(Util.AreDisjoint(two, one));
-            Assert.IsFalse(Util.AreDisjoint(one, six));
-            Assert.IsFalse(Util.AreDisjoint(six, one));
-            Assert.IsFalse(Util.AreDisjoint(two, six));
-            Assert.IsFalse(Util.AreDisjoint(six, two));
-            Assert.IsFalse(Util.AreDisjoint(one, one));
-            Assert.IsFalse(Util.AreDisjoint(two, two));
-            Assert.IsFalse(Util.AreDisjoint(six, six));
+            Assert.That(CollectionsUtil.AreDisjoint(empty, one));
+            Assert.That(CollectionsUtil.AreDisjoint(one, empty));
+            Assert.That(CollectionsUtil.AreDisjoint(empty, two));
+            Assert.That(CollectionsUtil.AreDisjoint(two, empty));
+            Assert.That(CollectionsUtil.AreDisjoint(empty, six));
+            Assert.That(CollectionsUtil.AreDisjoint(six, empty));
+            Assert.That(!CollectionsUtil.AreDisjoint(one, two));
+            Assert.That(!CollectionsUtil.AreDisjoint(two, one));
+            Assert.That(!CollectionsUtil.AreDisjoint(one, six));
+            Assert.That(!CollectionsUtil.AreDisjoint(six, one));
+            Assert.That(!CollectionsUtil.AreDisjoint(two, six));
+            Assert.That(!CollectionsUtil.AreDisjoint(six, two));
+            Assert.That(!CollectionsUtil.AreDisjoint(one, one));
+            Assert.That(!CollectionsUtil.AreDisjoint(two, two));
+            Assert.That(!CollectionsUtil.AreDisjoint(six, six));
         }
 
-        [TestMethod]
+        [Test]
         public void Util_Intersection()
         {
             var empty = new HashSet<Vertex> { };
             var one = new HashSet<Vertex> { 1 };
             var two = new HashSet<Vertex> { 1, 2 };
             var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Util.Intersection(empty, one).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(one, empty).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(empty, two).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(two, empty).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(empty, six).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(six, empty).SetEquals(empty));
-            Assert.IsTrue(Util.Intersection(one, two).SetEquals(one));
-            Assert.IsTrue(Util.Intersection(two, one).SetEquals(one));
-            Assert.IsTrue(Util.Intersection(one, six).SetEquals(one));
-            Assert.IsTrue(Util.Intersection(six, one).SetEquals(one));
-            Assert.IsTrue(Util.Intersection(two, six).SetEquals(two));
-            Assert.IsTrue(Util.Intersection(six, two).SetEquals(two));
-            Assert.IsTrue(Util.Intersection(one, one).SetEquals(one));
-            Assert.IsTrue(Util.Intersection(two, two).SetEquals(two));
-            Assert.IsTrue(Util.Intersection(six, six).SetEquals(six));
+            Assert.That(CollectionsUtil.Intersection(empty, one).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(one, empty).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(empty, two).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(two, empty).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(empty, six).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(six, empty).SetEquals(empty));
+            Assert.That(CollectionsUtil.Intersection(one, two).SetEquals(one));
+            Assert.That(CollectionsUtil.Intersection(two, one).SetEquals(one));
+            Assert.That(CollectionsUtil.Intersection(one, six).SetEquals(one));
+            Assert.That(CollectionsUtil.Intersection(six, one).SetEquals(one));
+            Assert.That(CollectionsUtil.Intersection(two, six).SetEquals(two));
+            Assert.That(CollectionsUtil.Intersection(six, two).SetEquals(two));
+            Assert.That(CollectionsUtil.Intersection(one, one).SetEquals(one));
+            Assert.That(CollectionsUtil.Intersection(two, two).SetEquals(two));
+            Assert.That(CollectionsUtil.Intersection(six, six).SetEquals(six));
         }
 
-        [TestMethod]
+        [Test]
         public void Util_IntersectCount()
         {
             var empty = new HashSet<Vertex> { };
             var one = new HashSet<Vertex> { 1 };
             var two = new HashSet<Vertex> { 1, 2 };
             var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
-            Assert.AreEqual(0, Util.IntersectionSize(empty, one));
-            Assert.AreEqual(0, Util.IntersectionSize(one, empty));
-            Assert.AreEqual(0, Util.IntersectionSize(empty, two));
-            Assert.AreEqual(0, Util.IntersectionSize(two, empty));
-            Assert.AreEqual(0, Util.IntersectionSize(empty, six));
-            Assert.AreEqual(0, Util.IntersectionSize(six, empty));
-            Assert.AreEqual(1, Util.IntersectionSize(one, two));
-            Assert.AreEqual(1, Util.IntersectionSize(two, one));
-            Assert.AreEqual(1, Util.IntersectionSize(one, six));
-            Assert.AreEqual(1, Util.IntersectionSize(six, one));
-            Assert.AreEqual(2, Util.IntersectionSize(two, six));
-            Assert.AreEqual(2, Util.IntersectionSize(six, two));
-            Assert.AreEqual(1, Util.IntersectionSize(one, one));
-            Assert.AreEqual(2, Util.IntersectionSize(two, two));
-            Assert.AreEqual(6, Util.IntersectionSize(six, six));
+            Assert.That(CollectionsUtil.IntersectionSize(empty, one).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(one, empty).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(empty, two).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(two, empty).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(empty, six).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(six, empty).Equals(0));
+            Assert.That(CollectionsUtil.IntersectionSize(one, two).Equals(1));
+            Assert.That(CollectionsUtil.IntersectionSize(two, one).Equals(1));
+            Assert.That(CollectionsUtil.IntersectionSize(one, six).Equals(1));
+            Assert.That(CollectionsUtil.IntersectionSize(six, one).Equals(1));
+            Assert.That(CollectionsUtil.IntersectionSize(two, six).Equals(2));
+            Assert.That(CollectionsUtil.IntersectionSize(six, two).Equals(2));
+            Assert.That(CollectionsUtil.IntersectionSize(one, one).Equals(1));
+            Assert.That(CollectionsUtil.IntersectionSize(two, two).Equals(2));
+            Assert.That(CollectionsUtil.IntersectionSize(six, six).Equals(6));
         }
 
-        [TestMethod]
+        [Test]
         public void Util_Difference()
         {
             var empty = new HashSet<Vertex> { };
             var one = new HashSet<Vertex> { 1 };
             var two = new HashSet<Vertex> { 1, 2 };
             var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Util.Difference(empty, one).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(empty, two).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(empty, six).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(one, one).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(one, two).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(one, six).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(two, two).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(two, six).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(six, six).SetEquals(empty));
-            Assert.IsTrue(Util.Difference(one, empty).SetEquals(one));
-            Assert.IsTrue(Util.Difference(two, empty).SetEquals(two));
-            Assert.IsTrue(Util.Difference(six, empty).SetEquals(six));
-            Assert.IsTrue(Util.Difference(two, one).SetEquals(new HashSet<Vertex> { 2 }));
-            Assert.IsTrue(Util.Difference(six, one).SetEquals(new HashSet<Vertex> { 0, 2, 3, 4, 5 }));
-            Assert.IsTrue(Util.Difference(six, two).SetEquals(new HashSet<Vertex> { 0, 3, 4, 5 }));
+            Assert.That(CollectionsUtil.Difference(empty, one).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(empty, two).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(empty, six).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(one, one).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(one, two).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(one, six).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(two, two).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(two, six).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(six, six).SetEquals(empty));
+            Assert.That(CollectionsUtil.Difference(one, empty).SetEquals(one));
+            Assert.That(CollectionsUtil.Difference(two, empty).SetEquals(two));
+            Assert.That(CollectionsUtil.Difference(six, empty).SetEquals(six));
+            Assert.That(CollectionsUtil.Difference(two, one).SetEquals(new HashSet<Vertex> { 2 }));
+            Assert.That(CollectionsUtil.Difference(six, one).SetEquals(new HashSet<Vertex> { 0, 2, 3, 4, 5 }));
+            Assert.That(CollectionsUtil.Difference(six, two).SetEquals(new HashSet<Vertex> { 0, 3, 4, 5 }));
         }
     }
 }

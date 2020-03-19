@@ -5,16 +5,16 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public class Portfolio
+    public static class Portfolio
     {
-        public static readonly string[] FUNC_NAMES = new string[] {
+        public static readonly string[] FuncNames = new string[] {
             "Ver1+",
             "Ver2+GP", "Ver2+GPX",
             "Ver3+GP", "Ver3+GPX" };
 
-        public static void Explore(int func_index, UndirectedGraph graph, Reporter reporter)
+        public static void Explore(int funcIndex, UndirectedGraph graph, IReporter reporter)
         {
-            switch (func_index)
+            switch (funcIndex)
             {
                 case 0: BronKerbosch1.Explore(graph, reporter); break;
                 case 1: BronKerbosch2GP.Explore(graph, reporter); break;

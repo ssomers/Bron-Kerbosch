@@ -5,12 +5,12 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public interface Reporter
+    public interface IReporter
     {
         void Record(ImmutableArray<Vertex> clique);
     }
 
-    public sealed class SimpleReporter : Reporter
+    public sealed class SimpleReporter : IReporter
     {
         public List<ImmutableArray<Vertex>> Cliques { get; } = new List<ImmutableArray<Vertex>>();
 
@@ -21,7 +21,7 @@ namespace BronKerbosch
         }
     }
 
-    public sealed class CountingReporter : Reporter
+    public sealed class CountingReporter : IReporter
     {
         public int Cliques { get; private set; } = 0;
 

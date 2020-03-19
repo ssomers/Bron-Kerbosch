@@ -13,8 +13,8 @@ namespace BronKerboschStudy
     {
         private static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] func_indices, int samples)
         {
-            List<ImmutableArray<Vertex>> first = null;
-            SampleStatistics[] times = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length).Select(func_index => new SampleStatistics()).ToArray();
+            List<ImmutableArray<Vertex>>? first = null;
+            SampleStatistics[] times = Enumerable.Range(0, Portfolio.FuncNames.Length).Select(func_index => new SampleStatistics()).ToArray();
             for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
             {
                 foreach (int func_index in func_indices)
@@ -23,17 +23,17 @@ namespace BronKerboschStudy
                     {
                         var reporter = new SimpleReporter();
                         var sw = Stopwatch.StartNew();
-                        Portfolio.Explore(func_index, graph, reporter);
+                        Portfolio.Explore(func_index, graph.Graph, reporter);
                         sw.Stop();
                         var secs = sw.ElapsedMilliseconds / 1e3;
                         if (secs >= 3.0)
-                            Console.WriteLine($"  {Portfolio.FUNC_NAMES[func_index],8}: {secs,6:N2}s");
+                            Console.WriteLine($"  {Portfolio.FuncNames[func_index],8}: {secs,6:N2}s");
                         Portfolio.SortCliques(reporter.Cliques);
                         if (first == null)
                         {
-                            if (reporter.Cliques.Count != graph.cliqueCount)
+                            if (reporter.Cliques.Count != graph.CliqueCount)
                             {
-                                throw new ArgumentException($"Expected {graph.cliqueCount} cliques, got {reporter.Cliques.Count}");
+                                throw new ArgumentException($"Expected {graph.CliqueCount} cliques, got {reporter.Cliques.Count}");
                             }
                             first = reporter.Cliques;
                         }
@@ -44,7 +44,7 @@ namespace BronKerboschStudy
                     {
                         var reporter = new CountingReporter();
                         var sw = Stopwatch.StartNew();
-                        Portfolio.Explore(func_index, graph, reporter);
+                        Portfolio.Explore(func_index, graph.Graph, reporter);
                         sw.Stop();
                         var secs = sw.ElapsedMilliseconds / 1e3;
                         times[func_index].Put(secs);
@@ -60,7 +60,7 @@ namespace BronKerboschStudy
             using (StreamWriter fo = new StreamWriter(tmpfname))
             {
                 fo.Write("Size");
-                foreach (string name in Portfolio.FUNC_NAMES)
+                foreach (string name in Portfolio.FuncNames)
                 {
                     fo.Write(",{0} min,{0} mean,{0} max", name);
                 }
@@ -71,7 +71,7 @@ namespace BronKerboschStudy
                     var g = RandomUndirectedGraph.Read(orderstr, size);
                     var stats = BronKerboschTimed(g, func_indices, samples);
                     fo.Write($"{size}");
-                    foreach ((int func_index, string func_name) in Portfolio.FUNC_NAMES.Select((n, i) => (i, n)))
+                    foreach ((int func_index, string func_name) in Portfolio.FuncNames.Select((n, i) => (i, n)))
                     {
                         var max = stats[func_index].Max;
                         var min = stats[func_index].Min;
@@ -102,10 +102,10 @@ namespace BronKerboschStudy
             }
         }
 
-        static void Main(string[] args)
+        static void Main()
         {
-            var all_func_indices = Enumerable.Range(0, Portfolio.FUNC_NAMES.Length);
-            var most_func_indices = Enumerable.Range(1, Portfolio.FUNC_NAMES.Length - 1);
+            var all_func_indices = Enumerable.Range(0, Portfolio.FuncNames.Length);
+            var most_func_indices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
             Debug.Fail("Run Release build for meaningful measurements");
             bk("100", Range(2_000, 3_001, 50), (size) => all_func_indices, 5); // max 4_950
             bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),

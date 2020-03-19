@@ -5,7 +5,7 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public class UndirectedGraph
+    public sealed class UndirectedGraph
     {
         private readonly ImmutableArray<HashSet<Vertex>> itsAdjacencies;
 

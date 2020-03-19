@@ -6,7 +6,7 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public class Degeneracy
+    public static class Degeneracy
     {
         // Iterate connected vertices, lowest degree first.
         // drop=N: omit last N vertices

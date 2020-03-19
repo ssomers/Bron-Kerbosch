@@ -8,19 +8,19 @@ using System.Diagnostics;
 using System.Linq;
 using Vertex = System.UInt32;
 
-public class BronKerbosch3GP
+public static class BronKerbosch3GP
 {
-    public static void Explore(UndirectedGraph graph, Reporter reporter)
+    public static void Explore(UndirectedGraph graph, IReporter reporter)
     {
         var excluded = new HashSet<Vertex>();
         foreach (Vertex v in Degeneracy.Ordering(graph, drop: 1))
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var neighbouring_candidates = Util.Difference(neighbours, excluded);
+            var neighbouring_candidates = CollectionsUtil.Difference(neighbours, excluded);
             if (neighbouring_candidates.Any())
             {
-                var neighbouring_excluded = Util.Intersection(excluded, neighbours);
+                var neighbouring_excluded = CollectionsUtil.Intersection(excluded, neighbours);
                 Pivot.Visit(graph, reporter,
                             Pivot.Choice.MaxDegreeLocal, Pivot.Choice.MaxDegreeLocal,
                             neighbouring_candidates, neighbouring_excluded,
@@ -28,7 +28,7 @@ public class BronKerbosch3GP
             }
             else
             {
-                Debug.Assert(!Util.AreDisjoint(neighbours, excluded));
+                Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
             }
             excluded.Add(v);
         }

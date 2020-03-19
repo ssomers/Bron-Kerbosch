@@ -9,7 +9,7 @@ using Vertex = System.UInt32;
 
 class BronKerbosch1
 {
-    public static void Explore(UndirectedGraph graph, Reporter reporter)
+    public static void Explore(UndirectedGraph graph, IReporter reporter)
     {
         var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
         if (candidates.Any())
@@ -24,25 +24,25 @@ class BronKerbosch1
     }
 
 
-    static void Visit(UndirectedGraph graph, Reporter reporter,
+    static void Visit(UndirectedGraph graph, IReporter reporter,
                       ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
         while (true)
         {
-            Vertex v = Util.PopArbitrary(candidates);
+            Vertex v = CollectionsUtil.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var neighbouring_candidates = Util.Intersection(candidates, neighbours);
+            var neighbouring_candidates = CollectionsUtil.Intersection(candidates, neighbours);
             if (neighbouring_candidates.Any())
             {
-                var neighbouring_excluded = Util.Intersection(excluded, neighbours);
+                var neighbouring_excluded = CollectionsUtil.Intersection(excluded, neighbours);
                 Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded,
-                      Util.Append(cliqueInProgress, v));
+                      CollectionsUtil.Append(cliqueInProgress, v));
             }
             else
             {
-                if (Util.AreDisjoint(excluded, neighbours))
-                    reporter.Record(Util.Append(cliqueInProgress, v));
+                if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 if (!candidates.Any())
                     break;
             }

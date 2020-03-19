@@ -9,14 +9,14 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public class Pivot
+    public static class Pivot
     {
         public enum Choice
         {
             MaxDegree, MaxDegreeLocal, MaxDegreeLocalX
         };
 
-        public static void Visit(UndirectedGraph graph, Reporter reporter,
+        public static void Visit(UndirectedGraph graph, IReporter reporter,
                                  Choice initialChoice, Choice furtherChoice,
                                  ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
         {
@@ -30,8 +30,8 @@ namespace BronKerbosch
                 // Same logic as below, stripped down
                 Vertex v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                if (Util.AreDisjoint(excluded, neighbours))
-                    reporter.Record(Util.Append(cliqueInProgress, v));
+                if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 return;
             }
 
@@ -46,12 +46,12 @@ namespace BronKerbosch
                 foreach (Vertex v in candidates)
                 {
                     var neighbours = graph.Neighbours(v);
-                    var localDegree = Util.IntersectionSize(neighbours, candidates);
+                    var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
                     if (localDegree == 0)
                     {
                         // Same logic as below, stripped down
-                        if (Util.AreDisjoint(excluded, neighbours))
-                            reporter.Record(Util.Append(cliqueInProgress, v));
+                        if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+                            reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }
                     else
                     {
@@ -72,7 +72,7 @@ namespace BronKerbosch
                     foreach (Vertex v in excluded)
                     {
                         var neighbours = graph.Neighbours(v);
-                        var localDegree = Util.IntersectionSize(neighbours, candidates);
+                        var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
                         if (seenLocalDegree < localDegree)
                         {
                             seenLocalDegree = localDegree;
@@ -94,18 +94,18 @@ namespace BronKerbosch
                 if (neighbours.Contains(pivot))
                     continue;
                 candidates.Remove(v);
-                var neighbouringCandidates = Util.Intersection(candidates, neighbours);
+                var neighbouringCandidates = CollectionsUtil.Intersection(candidates, neighbours);
                 if (neighbouringCandidates.Any())
                 {
-                    var neighbouringExcluded = Util.Intersection(excluded, neighbours);
+                    var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
                     Visit(graph, reporter, furtherChoice, furtherChoice,
                           neighbouringCandidates, neighbouringExcluded,
-                          Util.Append(cliqueInProgress, v));
+                          CollectionsUtil.Append(cliqueInProgress, v));
                 }
                 else
                 {
-                    if (Util.AreDisjoint(excluded, neighbours))
-                        reporter.Record(Util.Append(cliqueInProgress, v));
+                    if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 }
                 excluded.Add(v);
             }

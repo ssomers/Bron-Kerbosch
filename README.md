@@ -85,7 +85,7 @@ Order of a graph = number of vertices.
     python ..\python3\publish.py go 100 10k 1M
 
 ### C#
-  - open csharp\BronKerboschStudy.sln with Visual Studio 2017 or 2019
+  - open csharp\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
