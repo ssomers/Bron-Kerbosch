@@ -1,12 +1,13 @@
+using BronKerboschStudy;
 using NUnit.Framework;
 using System;
 
-namespace BronKerboschStudy
+namespace BronKerboschStudyUnitTest
 {
-    public class Tests
+    public class SampleStatisticsTests
     {
         [Test]
-        public void test_stats_0()
+        public void stats_0()
         {
             var s = new SampleStatistics();
             Assert.That(Double.IsNaN(s.Mean));
@@ -16,7 +17,7 @@ namespace BronKerboschStudy
 
 
         [Test]
-        public void test_stats_1()
+        public void stats_1()
         {
             var s = new SampleStatistics();
             s.Put(-1);
@@ -27,7 +28,7 @@ namespace BronKerboschStudy
 
 
         [Test]
-        public void test_stats_2()
+        public void stats_2()
         {
             var s = new SampleStatistics();
             s.Put(-1);
@@ -39,7 +40,7 @@ namespace BronKerboschStudy
 
 
         [Test]
-        public void test_stats_3()
+        public void stats_3()
         {
             var s = new SampleStatistics();
             s.Put(89);
@@ -52,7 +53,7 @@ namespace BronKerboschStudy
 
 
         [Test]
-        public void test_stats_9()
+        public void stats_9()
         {
             var s = new SampleStatistics();
             s.Put(2);

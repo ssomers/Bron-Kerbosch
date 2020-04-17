@@ -13,10 +13,10 @@ namespace BronKerbosch
         {
             for (Vertex v = 0; v < adjacencies.Length; ++v)
             {
-                foreach (Vertex w in adjacencies[(int)v])
+                foreach (var w in adjacencies[(int) v])
                 {
                     Debug.Assert(v != w);
-                    Debug.Assert(adjacencies[(int)w].Contains(v));
+                    Debug.Assert(adjacencies[(int) w].Contains(v));
                 }
             }
             itsAdjacencies = adjacencies;
@@ -36,9 +36,9 @@ namespace BronKerbosch
             }
         }
 
-        public HashSet<Vertex> Neighbours(Vertex node) => itsAdjacencies[(int)node]; // .AsReadOnly()
+        public HashSet<Vertex> Neighbours(Vertex node) => itsAdjacencies[(int) node]; // .AsReadOnly()
 
-        public int Degree(Vertex node) => itsAdjacencies[(int)node].Count;
+        public int Degree(Vertex node) => itsAdjacencies[(int) node].Count;
 
         public IEnumerable<Vertex> ConnectedVertices()
         {

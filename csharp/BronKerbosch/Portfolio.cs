@@ -7,10 +7,12 @@ namespace BronKerbosch
 {
     public static class Portfolio
     {
-        public static readonly string[] FuncNames = new string[] {
+        public static readonly string[] FuncNames =
+        {
             "Ver1+",
             "Ver2+GP", "Ver2+GPX",
-            "Ver3+GP", "Ver3+GPX" };
+            "Ver3+GP", "Ver3+GPX"
+        };
 
         public static void Explore(int funcIndex, UndirectedGraph graph, IReporter reporter)
         {
@@ -27,7 +29,7 @@ namespace BronKerbosch
 
         public static void SortCliques(List<ImmutableArray<Vertex>> cliques)
         {
-            for (int i = 0; i < cliques.Count; ++i)
+            for (var i = 0; i < cliques.Count; ++i)
                 cliques[i] = cliques[i].Sort();
             cliques.Sort(Comparer);
         }
@@ -48,21 +50,24 @@ namespace BronKerbosch
             }
         }
 
-        static int Comparer(ImmutableArray<Vertex> lhs, ImmutableArray<Vertex> rhs)
+        private static int Comparer(ImmutableArray<Vertex> lhs, ImmutableArray<Vertex> rhs)
         {
-            if (Object.Equals(lhs, rhs))
-            {   // Seriously, Sort sometimes compares an element with itself
+            if (Equals(lhs, rhs))
+            {
+                // Seriously, Sort sometimes compares an element with itself
                 return 0;
             }
+
             for (var i = 0; i < lhs.Length && i < rhs.Length; ++i)
             {
-                var d = (int)lhs[i] - (int)rhs[i];
+                var d = (int) lhs[i] - (int) rhs[i];
                 if (d != 0)
                 {
                     return d;
                 }
             }
-            throw new ArgumentException($"got overlapping or equal cliques (length {lhs.Length} <> length {rhs.Length})");
+            throw new ArgumentException(
+                $"got overlapping or equal cliques (length {lhs.Length} <> length {rhs.Length})");
         }
     }
 }

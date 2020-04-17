@@ -23,7 +23,7 @@ namespace BronKerbosch
 
     public sealed class CountingReporter : IReporter
     {
-        public int Cliques { get; private set; } = 0;
+        public int Cliques { get; private set; }
 
         public void Record(ImmutableArray<Vertex> clique)
         {

@@ -13,12 +13,15 @@ namespace BronKerbosch
     {
         public enum Choice
         {
-            MaxDegree, MaxDegreeLocal, MaxDegreeLocalX
-        };
+            MaxDegree,
+            MaxDegreeLocal,
+            MaxDegreeLocalX
+        }
 
         public static void Visit(UndirectedGraph graph, IReporter reporter,
                                  Choice initialChoice, Choice furtherChoice,
-                                 ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
+                                 ISet<Vertex> candidates, ISet<Vertex> excluded,
+                                 ImmutableArray<Vertex> cliqueInProgress)
         {
             Debug.Assert(candidates.Any());
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
@@ -28,7 +31,7 @@ namespace BronKerbosch
             if (candidates.Count == 1)
             {
                 // Same logic as below, stripped down
-                Vertex v = candidates.First();
+                var v = candidates.First();
                 var neighbours = graph.Neighbours(v);
                 if (CollectionsUtil.AreDisjoint(excluded, neighbours))
                     reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
@@ -43,7 +46,7 @@ namespace BronKerbosch
                 // Quickly handle locally unconnected candidates while finding pivot
                 pivot = Vertex.MaxValue;
                 var seenLocalDegree = 0;
-                foreach (Vertex v in candidates)
+                foreach (var v in candidates)
                 {
                     var neighbours = graph.Neighbours(v);
                     var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
@@ -69,7 +72,7 @@ namespace BronKerbosch
                 Debug.Assert(pivot != Vertex.MaxValue);
                 if (initialChoice == Choice.MaxDegreeLocalX)
                 {
-                    foreach (Vertex v in excluded)
+                    foreach (var v in excluded)
                     {
                         var neighbours = graph.Neighbours(v);
                         var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
@@ -87,7 +90,8 @@ namespace BronKerbosch
                 candidates.CopyTo(remainingCandidates, 0);
                 remainingCandidateCount = candidates.Count;
             }
-            for (int i = 0; i < remainingCandidateCount; ++i)
+
+            for (var i = 0; i < remainingCandidateCount; ++i)
             {
                 var v = remainingCandidates[i];
                 var neighbours = graph.Neighbours(v);
@@ -113,11 +117,11 @@ namespace BronKerbosch
 
         private static Vertex Choose(Choice choice, ISet<Vertex> candidates, UndirectedGraph graph)
         {
-            switch (choice)
+            return choice switch
             {
-                case Choice.MaxDegree: return candidates.OrderByDescending(v => graph.Degree(v)).First();
-                default: throw new ArgumentException("implemented differently");
-            }
+                Choice.MaxDegree => candidates.OrderByDescending(graph.Degree).First(),
+                _ => throw new ArgumentException("implemented differently")
+            };
         }
     }
 }

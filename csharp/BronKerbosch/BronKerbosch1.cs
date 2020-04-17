@@ -24,20 +24,20 @@ class BronKerbosch1
     }
 
 
-    static void Visit(UndirectedGraph graph, IReporter reporter,
-                      ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
+    private static void Visit(UndirectedGraph graph, IReporter reporter,
+        ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
         while (true)
         {
-            Vertex v = CollectionsUtil.PopArbitrary(candidates);
+            var v = CollectionsUtil.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var neighbouring_candidates = CollectionsUtil.Intersection(candidates, neighbours);
-            if (neighbouring_candidates.Any())
+            var neighbouringCandidates = CollectionsUtil.Intersection(candidates, neighbours);
+            if (neighbouringCandidates.Any())
             {
-                var neighbouring_excluded = CollectionsUtil.Intersection(excluded, neighbours);
-                Visit(graph, reporter, neighbouring_candidates, neighbouring_excluded,
-                      CollectionsUtil.Append(cliqueInProgress, v));
+                var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
+                Visit(graph, reporter, neighbouringCandidates, neighbouringExcluded,
+                    CollectionsUtil.Append(cliqueInProgress, v));
             }
             else
             {

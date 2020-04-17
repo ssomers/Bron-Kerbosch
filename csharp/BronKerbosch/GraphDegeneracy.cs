@@ -15,7 +15,7 @@ namespace BronKerbosch
             Debug.Assert(drop >= 0);
             const int NO_PRIORITY = -1;
             int[] priorityPerVertex = new int[graph.Order];
-            var max_priority = 0;
+            var maxPriority = 0;
             var numLeftToPick = 0;
             foreach (Vertex c in Enumerable.Range(0, graph.Order))
             {
@@ -23,16 +23,17 @@ namespace BronKerbosch
                 if (degree > 0)
                 {
                     var priority = degree;
-                    max_priority = Math.Max(max_priority, priority);
+                    maxPriority = Math.Max(maxPriority, priority);
                     priorityPerVertex[c] = degree;
                     numLeftToPick += 1;
                 }
             }
+
             // Possible values of priority_per_vertex:
             //   no_priority: when yielded or if unconnected
-            //   0..max_priority: candidates still queued with priority (degree - #of yielded neighbours)
-            var q = new PriorityQueue(max_priority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex)i, p)))
+            //   0..maxPriority: candidates still queued with priority (degree - #of yielded neighbours)
+            var q = new PriorityQueue(maxPriority);
+            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex) i, p)))
             {
                 if (p > 0)
                     q.Put(priority: p, element: c);
@@ -51,7 +52,7 @@ namespace BronKerbosch
                 Debug.Assert(priorityPerVertex[i] >= 0);
                 priorityPerVertex[i] = NO_PRIORITY;
                 yield return i;
-                foreach (Vertex v in graph.Neighbours(i))
+                foreach (var v in graph.Neighbours(i))
                 {
                     var oldPriority = priorityPerVertex[v];
                     if (oldPriority != NO_PRIORITY)
@@ -69,26 +70,25 @@ namespace BronKerbosch
         }
     }
 
-    class PriorityQueue
+    internal class PriorityQueue
     {
-        private readonly List<Vertex>[] queuePerPriority;
+        private readonly List<Vertex>[] itsQueuePerPriority;
 
-        public PriorityQueue(int max_priority)
+        public PriorityQueue(int maxPriority)
         {
-            queuePerPriority = new List<Vertex>[max_priority + 1];
+            itsQueuePerPriority = new List<Vertex>[maxPriority + 1];
         }
 
         public void Put(int priority, Vertex element)
         {
             Debug.Assert(priority >= 0);
-            if (queuePerPriority[priority] == null)
-                queuePerPriority[priority] = new List<Vertex>();
-            queuePerPriority[priority].Add(element);
+            itsQueuePerPriority[priority] ??= new List<Vertex>();
+            itsQueuePerPriority[priority].Add(element);
         }
 
         public Vertex Pop()
         {
-            foreach (var queue in queuePerPriority)
+            foreach (var queue in itsQueuePerPriority)
             {
                 if (queue != null)
                 {

@@ -9,47 +9,22 @@ namespace BronKerboschStudy
         public int Samples { get; private set; }
         private double Sum;
         private double SumOfSquares;
-        public double Mean
-        {
-            get
-            {
-                if (Samples > 0)
-                {
-                    var r = Sum / Samples;
-                    return Math.Max(Min, Math.Min(Max, r));
-                }
-                else
-                    return Double.NaN;
-            }
-        }
-        public double Variance
-        {
-            get
-            {
-                if (Samples > 1)
-                    return Math.Max(SumOfSquares - Sum * Sum / Samples, 0) / (Samples - 1);
-                else
-                    return Double.NaN;
-            }
-        }
-        public double Deviation
-        {
-            get
-            {
-                return Math.Min(Max - Min, Math.Sqrt(Variance));
-            }
-        }
+
+        public double Mean => Samples > 0
+            ? Math.Max(Min, Math.Min(Max, Sum / Samples))
+            : Double.NaN;
+
+        public double Variance => Samples > 1
+            ? Math.Max(0, SumOfSquares - Sum * Sum / Samples) / (Samples - 1)
+            : Double.NaN;
+
+        public double Deviation => Math.Min(Max - Min, Math.Sqrt(Variance));
 
         public void Put(double v)
         {
-            if (Samples == 0)
-            {
+            if (Samples == 0 || v < Min)
                 Min = v;
-                Max = v;
-            }
-            else if (Min > v)
-                Min = v;
-            else if (Max < v)
+            if (Samples == 0 || v > Max)
                 Max = v;
             Samples += 1;
             Sum += v;
