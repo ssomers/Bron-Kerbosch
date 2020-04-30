@@ -78,7 +78,7 @@ class Benchmark {
                          std::vector<int> func_indices, int samples) {
         auto g = RandomGraph<VertexSet>::readUndirected(orderstr, size);
         return timed(g, func_indices, samples);
-    };
+    }
 
     static Times bk_core(SetType set_type, std::string const& orderstr, unsigned size,
                          std::function<std::vector<int>(SetType, unsigned size)> includedFuncs, int samples) {
@@ -202,10 +202,11 @@ int main(int argc, char** argv) {
                                     range(100'000u, 200'000u, 25'000u)),
                       [&](SetType set_type, unsigned size) {
                           switch (set_type) {
-                              case SetType::std_set: if (size > 10'000) return std::vector<int>{};
-                              case SetType::hashset:
+                              case SetType::std_set: if (size > 10'000) return std::vector<int>{}; else [[fallthrough]];
+                              case SetType::hashset: [[fallthrough]];
                               case SetType::ord_vec: return most_func_indices;
-                          }; throw std::logic_error("unreachable"); }, 3);
+                          }
+                          throw std::logic_error("unreachable"); }, 3);
         Benchmark::bk("1M", concat(range(2'000u, 8'000u, 2'000u),
                                    range(10'000u, 40'000u, 10'000u),
                                    range(50'000u, 200'000u, 50'000u),
@@ -215,10 +216,11 @@ int main(int argc, char** argv) {
                           if (size <= 10'000) {
                               return std::vector<int>{0};
                           } else switch (set_type) {
-                              case SetType::std_set:
+                              case SetType::std_set: [[fallthrough]];
                               case SetType::ord_vec: return std::vector<int>{};
                               case SetType::hashset: return size > 3'000'000 ? std::vector<int>{ 5, 6 } : most_func_indices;
-                          }; throw std::logic_error("unreachable"); },
+                          }
+                          throw std::logic_error("unreachable"); },
                       3);
         return EXIT_SUCCESS;
     } else if (argc == 3) {

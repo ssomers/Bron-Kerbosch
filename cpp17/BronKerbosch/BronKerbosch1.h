@@ -19,7 +19,7 @@ namespace BronKerbosch {
                     reporter,
                     std::move(candidates),
                     Util::with_capacity<VertexSet>(num_candidates),
-                    NULL);
+                    nullptr);
             }
         }
 

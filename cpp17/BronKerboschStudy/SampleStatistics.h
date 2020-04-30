@@ -56,12 +56,11 @@ namespace BronKerboschStudy {
         }
 
         double deviation() const {
-            static_assert(std::numeric_limits<double>::has_quiet_NaN);
             auto r = std::sqrt(variance());
             if (std::isnan(r)) {
                 return r;
             } else {
-                return std::min(double(maxOrZero - minOrZero), r);
+                return std::min(double(maxOrZero) - double(minOrZero), r);
             }
         }
     };
