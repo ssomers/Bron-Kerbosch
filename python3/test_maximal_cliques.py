@@ -338,7 +338,6 @@ if __name__ == '__main__':
            samples=1)
     else:
         assert False, "Run with -O for meaningful measurements"
-        """
         bk(
             orderstr="100",
             sizes=range(2_000, 3_001, 50),  # max 4_950
@@ -351,7 +350,6 @@ if __name__ == '__main__':
            func_indices=most_func_indices,
            samples=3)
         time.sleep(7)
-        """
         bk(orderstr="1M",
            sizes=itertools.chain(range(50_000, 250_000, 50_000),
                                  range(250_000, 1_000_001, 250_000)),
