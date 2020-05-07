@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <BoostDir>..\..\..\boost_1_73_0</BoostDir>
+  </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>General</_PropertySheetDisplayName>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
-    <ClangTidyChecks>-clang-diagnostic-c++98-compat,-clang-diagnostic-c++98-c++11-compat,-clang-diagnostic-c++98-compat-local-type-template-args,-clang-diagnostic-sign-conversion,-clang-diagnostic-float-equal,-clang-diagnostic-shadow-field-in-constructor</ClangTidyChecks>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;$(BoostDir)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -20,7 +20,13 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
-    <Link />
+    <Link>
+      <AdditionalLibraryDirectories>$(BoostDir)\stage\lib</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BuildMacro Include="BoostDir">
+      <Value>$(BoostDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>

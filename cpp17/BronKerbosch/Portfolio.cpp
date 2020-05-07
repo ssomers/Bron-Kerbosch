@@ -9,6 +9,7 @@ const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = {
     "Ver3+",
     "Ver3+GP",
     "Ver3+GPX",
+    "Ver3=MT",
 };
 
 void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cliques) {

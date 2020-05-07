@@ -79,6 +79,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BronKerbosch1.cpp" />
+    <ClCompile Include="BronKerbosch3MT.cpp" />
     <ClCompile Include="BronKerboschPivot.cpp" />
     <ClCompile Include="Portfolio.cpp" />
     <ClCompile Include="Reporter.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="BronKerbosch2GPX.h" />
     <ClInclude Include="BronKerbosch3GP.h" />
     <ClInclude Include="BronKerbosch3GPX.h" />
+    <ClInclude Include="BronKerbosch3MT.h" />
     <ClInclude Include="BronKerboschDegeneracy.h" />
     <ClInclude Include="BronKerboschPivot.h" />
     <ClInclude Include="BronKerbosch3.h" />

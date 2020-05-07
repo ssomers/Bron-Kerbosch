@@ -10,8 +10,7 @@ namespace BronKerbosch {
     public:
         std::vector<std::vector<Vertex>> cliques;
 
-        void record(VertexPile &&pile) {
-            std::vector<Vertex> clique = pile.collect();
+        void record(VertexList&& clique) {
             assert(clique.size() > 1);
             cliques.push_back(clique);
         }
@@ -21,7 +20,7 @@ namespace BronKerbosch {
     public:
         size_t cliques = 0;
 
-        void record(VertexPile &&) {
+        void record(VertexList&&) {
             cliques += 1;
         }
     };

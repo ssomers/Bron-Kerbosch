@@ -28,7 +28,7 @@ namespace BronKerbosch {
                 for (Vertex v : candidates) {
                     auto const& neighbours = graph.neighbours(v);
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        reporter.record(VertexPile(v, clique));
+                        reporter.record(VertexPile(v, clique).collect());
                     }
                 }
                 return;
@@ -48,7 +48,7 @@ namespace BronKerbosch {
                         if (local_degree == 0) {
                             // Same logic as below, but stripped down
                             if (Util::are_disjoint(neighbours, excluded)) {
-                                reporter.record(VertexPile(v, clique));
+                                reporter.record(VertexPile(v, clique).collect());
                             }
                         } else {
                             if (seen_local_degree < local_degree) {
@@ -90,7 +90,7 @@ namespace BronKerbosch {
                 auto neighbouring_candidates = Util::intersection(neighbours, candidates);
                 if (neighbouring_candidates.empty()) {
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        reporter.record(VertexPile(v, clique));
+                        reporter.record(VertexPile(v, clique).collect());
                     }
                 } else {
                     auto neighbouring_excluded = Util::intersection(neighbours, excluded);

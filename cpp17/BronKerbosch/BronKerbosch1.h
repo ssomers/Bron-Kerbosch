@@ -41,7 +41,7 @@ namespace BronKerbosch {
                           &newclique);
                 } else {
                     if (Util::are_disjoint(excluded, neighbours))
-                        reporter.record(VertexPile(v, clique));
+                        reporter.record(VertexPile(v, clique).collect());
                     if (candidates.empty())
                         break;
                 }
