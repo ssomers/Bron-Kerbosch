@@ -83,7 +83,7 @@ where
 {
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
-    for sample in (if samples == 1 { 1 } else { 0 })..=samples {
+    for sample in 0..=(if samples == 1 { 0 } else { samples }) {
         for &func_index in func_indices {
             if sample == 0 {
                 let mut reporter = SimpleReporter::default();
