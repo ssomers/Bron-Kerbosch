@@ -35,7 +35,7 @@ Compared to the original forked from, the code is:
 ### Rust
 * **BTreeSet:** std::collections::BTreeSet
 * **HashSet:** std::collections::HashSet, a wrapper around hashbrown
-* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.7
+* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.8
 * **fnv:** FnvHashSet from [crate fnv](https://crates.io/crates/fnv) 1.0
 * **ord_vec:** ordered std::collections::Vec
 
