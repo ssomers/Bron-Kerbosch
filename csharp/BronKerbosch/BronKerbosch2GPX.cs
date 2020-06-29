@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Vertex = System.UInt32;
 
-public static class BronKerbosch2GPX
+internal static class BronKerbosch2GPX
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {

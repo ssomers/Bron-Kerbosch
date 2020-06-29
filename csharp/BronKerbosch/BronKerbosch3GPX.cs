@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using Vertex = System.UInt32;
 
-public static class BronKerbosch3GPX
+internal static class BronKerbosch3GPX
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {

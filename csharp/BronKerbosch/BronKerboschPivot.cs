@@ -9,7 +9,7 @@ using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
-    public static class Pivot
+    internal static class Pivot
     {
         public enum Choice
         {
