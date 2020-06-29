@@ -81,7 +81,7 @@ namespace BronKerboschStudy
 
         private static int ReadStats(string path, string orderstr, int size)
         {
-            var prefix = $"{orderstr}\\t{size}\\t";
+            var prefix = $"{orderstr}\t{size}\t";
             using var file = new StreamReader(path);
             string header = file.ReadLine()!;
             string? line;
