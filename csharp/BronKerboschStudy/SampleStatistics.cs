@@ -12,11 +12,11 @@ namespace BronKerboschStudy
 
         public double Mean => Samples > 0
             ? Math.Max(Min, Math.Min(Max, Sum / Samples))
-            : Double.NaN;
+            : double.NaN;
 
         public double Variance => Samples > 1
             ? Math.Max(0, SumOfSquares - Sum * Sum / Samples) / (Samples - 1)
-            : Double.NaN;
+            : double.NaN;
 
         public double Deviation => Math.Min(Max - Min, Math.Sqrt(Variance));
 

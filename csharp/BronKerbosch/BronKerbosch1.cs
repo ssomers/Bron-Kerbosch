@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Vertex = System.UInt32;
 
-class BronKerbosch1
+internal class BronKerbosch1
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {

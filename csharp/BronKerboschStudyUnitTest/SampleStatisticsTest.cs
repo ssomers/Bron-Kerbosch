@@ -10,9 +10,9 @@ namespace BronKerboschStudyUnitTest
         public void stats_0()
         {
             var s = new SampleStatistics();
-            Assert.That(Double.IsNaN(s.Mean));
-            Assert.That(Double.IsNaN(s.Variance));
-            Assert.That(Double.IsNaN(s.Deviation));
+            Assert.That(double.IsNaN(s.Mean));
+            Assert.That(double.IsNaN(s.Variance));
+            Assert.That(double.IsNaN(s.Deviation));
         }
 
 
@@ -22,8 +22,8 @@ namespace BronKerboschStudyUnitTest
             var s = new SampleStatistics();
             s.Put(-1);
             Assert.That(s.Mean.Equals(-1));
-            Assert.That(Double.IsNaN(s.Variance));
-            Assert.That(Double.IsNaN(s.Deviation));
+            Assert.That(double.IsNaN(s.Variance));
+            Assert.That(double.IsNaN(s.Deviation));
         }
 
 

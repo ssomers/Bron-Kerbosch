@@ -8,7 +8,7 @@ namespace BronKerboschUnitTest
 {
     public class BronKerboschTest
     {
-        static void bk(Vertex[][] adjacencies, Vertex[][] cliques)
+        private static void bk(Vertex[][] adjacencies, Vertex[][] cliques)
         {
             var graph = new UndirectedGraph(adjacencies.Select(neighbours => neighbours.ToHashSet())
                 .ToImmutableArray());

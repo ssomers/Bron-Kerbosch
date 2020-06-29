@@ -23,11 +23,11 @@ namespace BronKerboschStudy
         public static int ParsePositiveInt(string orderstr)
         {
             if (orderstr.EndsWith("M"))
-                return Int32.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000_000;
+                return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000_000;
             else if (orderstr.EndsWith("k"))
-                return Int32.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000;
+                return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000;
             else
-                return Int32.Parse(orderstr);
+                return int.Parse(orderstr);
         }
 
         public static RandomUndirectedGraph Read(string orderstr, int size)

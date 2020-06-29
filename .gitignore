@@ -10,7 +10,8 @@ target
 /cpp17/a.exe
 /cpp17/x64
 /cpp17/*/x64
-/csharp/.vs
+/csharp/.vs/BronKerboschStudy/DesignTimeBuild
+/csharp/.vs/BronKerboschStudy/v16/TestStore
 /csharp/*/bin
 /csharp/*/obj
 /csharp/*/*.user
@@ -20,6 +21,7 @@ target
 /java/.jqwik-database
 /java/lib
 /python3/.hypothesis
+/python3/.idea
 /python3/activate.bat
 /python3/venv*
 /rust/.vs

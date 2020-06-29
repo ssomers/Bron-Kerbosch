@@ -80,7 +80,7 @@ namespace BronKerboschStudy
                         var min = stats[funcIndex].Min;
                         var mean = stats[funcIndex].Mean;
                         fo.Write($",{min},{mean},{max}");
-                        if (!Double.IsNaN(mean))
+                        if (!double.IsNaN(mean))
                         {
                             var reldev = stats[funcIndex].Deviation / mean;
                             Console.WriteLine(
