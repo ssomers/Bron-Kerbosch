@@ -60,7 +60,7 @@ namespace BronKerbosch
 
             for (var i = 0; i < lhs.Length && i < rhs.Length; ++i)
             {
-                var d = (int) lhs[i] - (int) rhs[i];
+                var d = (int)lhs[i] - (int)rhs[i];
                 if (d != 0)
                 {
                     return d;

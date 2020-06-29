@@ -118,7 +118,7 @@ namespace BronKerboschStudy
             bk("1M", Range(50_000, 250_000, 50_000)
                     .Concat(Range(250_000, 2_000_000, 250_000))
                     .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
-                size => size > 3_000_000 ? new[] {3, 4} : mostFuncIndices, 3);
+                size => size > 3_000_000 ? new[] { 3, 4 } : mostFuncIndices, 3);
         }
     }
 }

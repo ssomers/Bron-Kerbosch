@@ -33,7 +33,7 @@ namespace BronKerbosch
             //   no_priority: when yielded or if unconnected
             //   0..maxPriority: candidates still queued with priority (degree - #of yielded neighbours)
             var q = new PriorityQueue(maxPriority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex) i, p)))
+            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex)i, p)))
             {
                 if (p > 0)
                     q.Put(priority: p, element: c);

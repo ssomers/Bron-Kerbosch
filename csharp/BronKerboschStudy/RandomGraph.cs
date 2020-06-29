@@ -33,7 +33,7 @@ namespace BronKerboschStudy
         public static RandomUndirectedGraph Read(string orderstr, int size)
         {
             var order = ParsePositiveInt(orderstr);
-            var fullyMeshedSize = (long) order * (order - 1) / 2;
+            var fullyMeshedSize = (long)order * (order - 1) / 2;
             if (size > fullyMeshedSize)
                 throw new ArgumentException($"{order} nodes accommodate at most {fullyMeshedSize} edges");
 
@@ -66,8 +66,8 @@ namespace BronKerboschStudy
                     {
                         throw new ArgumentException($"File {path} line {linenum} contains bogus text {line}");
                     }
-                    var added1 = adjacencies[v].Add((Vertex) w);
-                    var added2 = adjacencies[w].Add((Vertex) v);
+                    var added1 = adjacencies[v].Add((Vertex)w);
+                    var added2 = adjacencies[w].Add((Vertex)v);
                     Debug.Assert(added1);
                     Debug.Assert(added2);
                 }

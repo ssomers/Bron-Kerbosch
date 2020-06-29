@@ -33,43 +33,43 @@ namespace BronKerboschUnitTest
         [Test]
         public void TestOrder1()
         {
-            bk(adjacencies: new[] {new Vertex[] { }},
+            bk(adjacencies: new[] { new Vertex[] { } },
                cliques: new Vertex[][] { });
         }
 
         [Test]
         public void TestOrder2_Isolated()
         {
-            bk(adjacencies: new[] {new Vertex[] { }, new Vertex[] { }},
+            bk(adjacencies: new[] { new Vertex[] { }, new Vertex[] { } },
                cliques: new Vertex[][] { });
         }
 
         [Test]
         public void TestOrder2_Connected()
         {
-            bk(adjacencies: new[] {new Vertex[] {1}, new Vertex[] {0}},
-               cliques: new[] {new Vertex[] {0, 1}});
+            bk(adjacencies: new[] { new Vertex[] { 1 }, new Vertex[] { 0 } },
+               cliques: new[] { new Vertex[] { 0, 1 } });
         }
 
         [Test]
         public void TestOrder3_Size1_Left()
         {
-            bk(adjacencies: new[] {new Vertex[] {1}, new Vertex[] {0}, new Vertex[] { }},
-               cliques: new[] {new Vertex[] {0, 1}});
+            bk(adjacencies: new[] { new Vertex[] { 1 }, new Vertex[] { 0 }, new Vertex[] { } },
+               cliques: new[] { new Vertex[] { 0, 1 } });
         }
 
         [Test]
         public void TestOrder3_Size1_Long()
         {
-            bk(adjacencies: new[] {new Vertex[] {2}, new Vertex[] { }, new Vertex[] {0}},
-               cliques: new[] {new Vertex[] {0, 2}});
+            bk(adjacencies: new[] { new Vertex[] { 2 }, new Vertex[] { }, new Vertex[] { 0 } },
+               cliques: new[] { new Vertex[] { 0, 2 } });
         }
 
         [Test]
         public void TestOrder3_Size1_Right()
         {
-            bk(adjacencies: new[] {new Vertex[] { }, new Vertex[] {2}, new Vertex[] {1}},
-               cliques: new[] {new Vertex[] {1, 2}});
+            bk(adjacencies: new[] { new Vertex[] { }, new Vertex[] { 2 }, new Vertex[] { 1 } },
+               cliques: new[] { new Vertex[] { 1, 2 } });
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {0, 2},
                     new Vertex[] {1}
                 },
-               cliques: new[] {new Vertex[] {0, 1}, new Vertex[] {1, 2}});
+               cliques: new[] { new Vertex[] { 0, 1 }, new Vertex[] { 1, 2 } });
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {0, 2},
                     new Vertex[] {0, 1}
                 },
-               cliques: new[] {new Vertex[] {0, 1, 2}});
+               cliques: new[] { new Vertex[] { 0, 1, 2 } });
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1}, new Vertex[] {0},
                     new Vertex[] {3}, new Vertex[] {2}
                 },
-               cliques: new[] {new Vertex[] {0, 1}, new Vertex[] {2, 3}});
+               cliques: new[] { new Vertex[] { 0, 1 }, new Vertex[] { 2, 3 } });
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1}, new Vertex[] {0, 2},
                     new Vertex[] {1, 3}, new Vertex[] {2}
                 },
-               cliques: new[] {new Vertex[] {0, 1}, new Vertex[] {1, 2}, new Vertex[] {2, 3}});
+               cliques: new[] { new Vertex[] { 0, 1 }, new Vertex[] { 1, 2 }, new Vertex[] { 2, 3 } });
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1, 2, 3}, new Vertex[] {0},
                     new Vertex[] {0}, new Vertex[] {0}
                 },
-               cliques: new[] {new Vertex[] {0, 1}, new Vertex[] {0, 2}, new Vertex[] {0, 3}});
+               cliques: new[] { new Vertex[] { 0, 1 }, new Vertex[] { 0, 2 }, new Vertex[] { 0, 3 } });
         }
 
         [Test]
@@ -137,7 +137,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1}, new Vertex[] {0, 2, 3},
                     new Vertex[] {1, 3}, new Vertex[] {1, 2}
                 },
-               cliques: new[] {new Vertex[] {0, 1}, new Vertex[] {1, 2, 3}});
+               cliques: new[] { new Vertex[] { 0, 1 }, new Vertex[] { 1, 2, 3 } });
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1, 2, 3}, new Vertex[] {0, 2},
                     new Vertex[] {0, 1, 3}, new Vertex[] {0, 2}
                 },
-               cliques: new[] {new Vertex[] {0, 1, 2}, new Vertex[] {0, 2, 3}});
+               cliques: new[] { new Vertex[] { 0, 1, 2 }, new Vertex[] { 0, 2, 3 } });
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {1, 2, 3}, new Vertex[] {0, 2, 3},
                     new Vertex[] {0, 1, 3}, new Vertex[] {0, 1, 2}
                 },
-               cliques: new[] {new Vertex[] {0, 1, 2, 3}});
+               cliques: new[] { new Vertex[] { 0, 1, 2, 3 } });
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace BronKerboschUnitTest
                     new Vertex[] {0, 1, 3, 4}, new Vertex[] {0, 1, 2},
                     new Vertex[] {0, 1, 2}
                 },
-               cliques: new[] {new Vertex[] {0, 1, 2, 3}, new Vertex[] {0, 1, 2, 4}});
+               cliques: new[] { new Vertex[] { 0, 1, 2, 3 }, new Vertex[] { 0, 1, 2, 4 } });
         }
 
         [Test]
