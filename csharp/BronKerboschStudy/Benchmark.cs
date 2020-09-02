@@ -56,7 +56,7 @@ namespace BronKerboschStudy
             return times;
         }
 
-        private static void bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
+        private static void Bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
             int samples)
         {
             const string tmpfname = "tmp.csv";
@@ -112,10 +112,10 @@ namespace BronKerboschStudy
             var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
             var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
             Debug.Fail("Run Release build for meaningful measurements");
-            bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
-            bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
+            Bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
+            Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
                 size => mostFuncIndices, 3);
-            bk("1M", Range(50_000, 250_000, 50_000)
+            Bk("1M", Range(50_000, 250_000, 50_000)
                     .Concat(Range(250_000, 2_000_000, 250_000))
                     .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
                 size => size > 3_000_000 ? new[] { 3, 4 } : mostFuncIndices, 3);

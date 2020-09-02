@@ -7,7 +7,7 @@ namespace BronKerboschStudyUnitTest
     public class SampleStatisticsTests
     {
         [Test]
-        public void stats_0()
+        public void Stats_0()
         {
             var s = new SampleStatistics();
             Assert.That(double.IsNaN(s.Mean));
@@ -17,7 +17,7 @@ namespace BronKerboschStudyUnitTest
 
 
         [Test]
-        public void stats_1()
+        public void Stats_1()
         {
             var s = new SampleStatistics();
             s.Put(-1);
@@ -28,7 +28,7 @@ namespace BronKerboschStudyUnitTest
 
 
         [Test]
-        public void stats_2()
+        public void Stats_2()
         {
             var s = new SampleStatistics();
             s.Put(-1);
@@ -40,7 +40,7 @@ namespace BronKerboschStudyUnitTest
 
 
         [Test]
-        public void stats_3()
+        public void Stats_3()
         {
             var s = new SampleStatistics();
             s.Put(89);
@@ -53,7 +53,7 @@ namespace BronKerboschStudyUnitTest
 
 
         [Test]
-        public void stats_9()
+        public void Stats_9()
         {
             var s = new SampleStatistics();
             s.Put(2);
