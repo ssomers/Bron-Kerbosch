@@ -1,5 +1,5 @@
-//! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
-//! choosing a pivot arbitrarily
+//! Bron-Kerbosch algorithm with degeneracy ordering,
+//! parametrized by the way nested searches choose a pivot.
 
 #pragma once
 
@@ -40,4 +40,3 @@ namespace BronKerbosch {
         }
     };
 }
-
