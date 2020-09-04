@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,17 +18,21 @@ namespace BronKerbosch
         public void Record(ImmutableArray<Vertex> clique)
         {
             Debug.Assert(clique.Length > 1);
-            Cliques.Add(clique);
+            lock (this)
+            {
+                Cliques.Add(clique);
+            }
         }
     }
 
     public sealed class CountingReporter : IReporter
     {
-        public int Cliques { get; private set; }
+        private int count;
+        public int Cliques { get => count; }
 
         public void Record(ImmutableArray<Vertex> clique)
         {
-            Cliques += 1;
+            System.Threading.Interlocked.Increment(ref count);
         }
     }
 }

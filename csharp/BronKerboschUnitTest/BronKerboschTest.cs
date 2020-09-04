@@ -16,7 +16,7 @@ namespace BronKerboschUnitTest
             {
                 var reporter = new SimpleReporter();
                 Portfolio.Explore(funcIndex, graph, reporter);
-                Assert.That(reporter.Cliques.Count.Equals(cliques.Length));
+                Assert.AreEqual(reporter.Cliques.Count, cliques.Length);
                 Portfolio.SortCliques(reporter.Cliques);
                 foreach ((var reportedClique, var i) in reporter.Cliques.Select((v, i) => (v, i)))
                     Assert.That(reportedClique.SequenceEqual(cliques[i]));
