@@ -13,64 +13,73 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using Vertex = System.UInt32;
 
+public static class MyExtensions
+{
+    public static async Task<T?> ReceiveAsyncIfEver<T>(this IReceivableSourceBlock<T> source)
+        where T : struct
+    {
+        try
+        {
+            return await source.ReceiveAsync().ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+}
+
 internal static class BronKerbosch3MT
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {
-        var excluded = new HashSet<Vertex>();
-
-        var startVertices = new BufferBlock<Vertex>(new DataflowBlockOptions { BoundedCapacity = 32 });
+        var scheduler = TaskScheduler.Default;
+        var vertices = new BufferBlock<Vertex>(new DataflowBlockOptions { BoundedCapacity = 64 });
         int sent = 0;
         int received = 0;
         Task.Factory.StartNew(async delegate
             {
                 foreach (var v in Degeneracy.Ordering(graph, drop: 1))
                 {
-                    await startVertices.SendAsync(v).ConfigureAwait(false);
+                    await vertices.SendAsync(v).ConfigureAwait(false);
                     ++sent;
                 }
-                startVertices.Complete();
+                vertices.Complete();
             },
             CancellationToken.None,
             TaskCreationOptions.None,
-            TaskScheduler.Default);
+            scheduler).Unwrap();
         var task = Task.Factory.StartNew(async delegate
             {
-                try
+                var excluded = new HashSet<Vertex>();
+                while ((await vertices.ReceiveAsyncIfEver().ConfigureAwait(false)) is Vertex v)
                 {
-                    while (true)
+                    var neighbours = graph.Neighbours(v);
+                    Debug.Assert(neighbours.Any());
+                    var neighbouringCandidates = CollectionsUtil.Difference(neighbours, excluded);
+                    if (neighbouringCandidates.Any())
                     {
-                        Vertex v = await startVertices.ReceiveAsync().ConfigureAwait(false);
-                        var neighbours = graph.Neighbours(v);
-                        Debug.Assert(neighbours.Any());
-                        var neighbouringCandidates = CollectionsUtil.Difference(neighbours, excluded);
-                        if (neighbouringCandidates.Any())
-                        {
-                            var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
-                            _ = Task.Factory.StartNew(
-                                () => Pivot.Visit(graph, reporter,
-                                                  Pivot.Choice.MaxDegreeLocal, Pivot.Choice.MaxDegreeLocal,
-                                                  neighbouringCandidates, neighbouringExcluded,
-                                                  ImmutableArray.Create(v)),
-                                CancellationToken.None,
-                                TaskCreationOptions.AttachedToParent,
-                                TaskScheduler.Default);
-                        }
-                        else
-                        {
-                            Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
-                        }
-                        excluded.Add(v);
-                        ++received;
+                        var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
+                        _ = Task.Factory.StartNew(
+                            () => Pivot.Visit(graph, reporter,
+                                              Pivot.Choice.MaxDegreeLocal, Pivot.Choice.MaxDegreeLocal,
+                                              neighbouringCandidates, neighbouringExcluded,
+                                              ImmutableArray.Create(v)),
+                            CancellationToken.None,
+                            TaskCreationOptions.AttachedToParent,
+                            scheduler);
                     }
-                }
-                catch (InvalidOperationException)
-                {
+                    else
+                    {
+                        Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
+                    }
+                    excluded.Add(v);
+                    ++received;
                 }
             },
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
-            TaskScheduler.Default).Unwrap();
+            scheduler).Unwrap();
         task.Wait();
         if (sent != received)
             throw new Exception($"{sent} sent <> {received} received");

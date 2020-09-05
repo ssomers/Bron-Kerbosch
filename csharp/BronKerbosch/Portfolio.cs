@@ -47,7 +47,7 @@ namespace BronKerbosch
                 for (var j = 0; j < lhs[i].Length; ++j)
                 {
                     if (lhs[i][j] != rhs[i][j])
-                        throw new Exception($"clique #{i + 1}, vertex #{j + 1}: {lhs[i][j]} <> length {rhs[i][j]}");
+                        throw new Exception($"clique #{i + 1}, vertex #{j + 1}: {lhs[i][j]} <> {rhs[i][j]}");
                 }
             }
         }
