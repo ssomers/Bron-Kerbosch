@@ -29,30 +29,15 @@ public static class MyExtensions
     }
 }
 
-internal static class BronKerbosch3MT
+internal static class BronKerbosch3ST
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {
         var scheduler = TaskScheduler.Default;
-        var vertices = new BufferBlock<Vertex>(new DataflowBlockOptions { BoundedCapacity = 64 });
-        int sent = 0;
-        int received = 0;
-        Task.Factory.StartNew(async delegate
-            {
-                foreach (var v in Degeneracy.Ordering(graph, drop: 1))
-                {
-                    await vertices.SendAsync(v).ConfigureAwait(false);
-                    ++sent;
-                }
-                vertices.Complete();
-            },
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            scheduler).Unwrap();
-        var task = Task.Factory.StartNew(async delegate
+        var task = Task.Factory.StartNew(delegate
             {
                 var excluded = new HashSet<Vertex>();
-                while ((await vertices.ReceiveAsyncIfEver().ConfigureAwait(false)) is Vertex v)
+                foreach (var v in Degeneracy.Ordering(graph, drop: 1))
                 {
                     var neighbours = graph.Neighbours(v);
                     Debug.Assert(neighbours.Any());
@@ -74,14 +59,12 @@ internal static class BronKerbosch3MT
                         Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
                     }
                     excluded.Add(v);
-                    ++received;
                 }
             },
             CancellationToken.None,
-            TaskCreationOptions.LongRunning,
-            scheduler).Unwrap();
+            TaskCreationOptions.None,
+            scheduler);
         task.Wait();
-        if (sent != received)
-            throw new Exception($"{sent} sent <> {received} received");
+        reporter.Close();
     }
 }

@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object bron_kerbosch3_mt extends bron_kerbosch_algorithm {
+object bron_kerbosch3_st extends bron_kerbosch_algorithm {
   def explore(graph: UndirectedGraph, reporter: Clique => Unit): Unit = {
     val futures = go_explore(graph, (clique: Clique) => {
       this.synchronized {

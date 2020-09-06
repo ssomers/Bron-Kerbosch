@@ -23,12 +23,12 @@ Compared to the original forked from, the code is:
 * **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
 * **Ver3+GP:** Ver2+GP with degeneracy ordering
 * **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3=MT:** (Rust, Java, C#) parallel Ver3+GP using channels (2 + 5 threads)
-* **Ver3=ST:** (Java only) parallel Ver3+GP using simple stream
 * **Ver3=GP2:** (Go only) parallel Ver3+GP (2 + 5 goroutines)
 * **Ver3=GP3:** (Go only) parallel Ver3+GP (2 + 15 goroutine)
 * **Ver3=GP4:** (Go only) parallel Ver3+GP (2 + 45 goroutines)
 * **Ver3=GP5:** (Go only) parallel Ver3+GP (2 + 135 goroutines)
+* **Ver3=MT:** (Rust, Java) parallel Ver3+GP using channels (2 + 5 threads)
+* **Ver3=ST:** (C#, Java, Scala) parallel Ver3+GP using simple composition (async, stream, future)
 
 ## Set data structures
 
@@ -115,7 +115,7 @@ and finally
     python python3\publish.py c++ 100 10k 1M
 
 ### Java
-  - open folder java with IntelliJ IDEA 2019.3.3 (Community Edition)
+  - open folder java with IntelliJ IDEA 2020.2 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
   - set run configuration to "Main"
@@ -126,8 +126,8 @@ and finally
     python python3\publish.py java 100 10k 1M
 
 ### Scala
-  - open folder scala with IntelliJ IDEA 2019.3.3 (Community Edition)
-  - set compiler configuration to debug: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to compile with -Xdisable-assertions)
+  - open folder scala with IntelliJ IDEA 2020.2 (Community Edition)
+  - set compiler configuration to debug: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to toggle -Xdisable-assertions)
   - Build > Rebuild
   - set run configuration to test
   - Run > Run 'test'

@@ -13,7 +13,7 @@ object main {
       "Ver3+",
       "Ver3+GP",
       "Ver3+GPX",
-      "Ver3=MT",
+      "Ver3=ST",
     )
   val FUNCS: IndexedSeq[bron_kerbosch_algorithm] = IndexedSeq(
     bron_kerbosch1,
@@ -24,7 +24,7 @@ object main {
     bron_kerbosch3,
     bron_kerbosch3_gp,
     bron_kerbosch3_gpx,
-    bron_kerbosch3_mt,
+    bron_kerbosch3_st,
   )
 
   type Clique = bron_kerbosch_algorithm#Clique
