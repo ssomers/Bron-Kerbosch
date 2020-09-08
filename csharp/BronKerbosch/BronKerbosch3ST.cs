@@ -1,4 +1,4 @@
-// Bron-Kerbosch algorithm with degeneracy ordering,
+﻿// Bron-Kerbosch algorithm with degeneracy ordering,
 // choosing a pivot from both candidates and excluded vertices (IK_GPX).
 
 using BronKerbosch;
@@ -47,34 +47,20 @@ internal static class BronKerbosch3ST
         int sent = 0;
         int received = 0;
 
-        var results = new BufferBlock<ImmutableArray<Vertex>>();
-        var reporter = new NestedReporter(results);
+        // Step 3: collect results.
+        var collect = new ActionBlock<ImmutableArray<Vertex>>(clique => finalReporter.Record(clique));
+
+        // Step 2: visit vertices.
+        var reporter = new NestedReporter(collect);
         int waitgroup = 1;
         void completion(Task _)
         {
             if (Interlocked.Decrement(ref waitgroup) == 0)
             {
                 reporter.Close();
-                results.Complete();
+                collect.Complete();
             }
         }
-
-        // Step 3: collect results.
-        var collect = Task.Run(delegate
-            {
-                try
-                {
-                    while (true)
-                    {
-                        finalReporter.Record(results.Receive());
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                }
-            });
-
-        // Step 2: visit vertices.
         var excluded = new HashSet<Vertex>();
         var visit = new ActionBlock<Vertex>(v =>
             {
@@ -102,7 +88,7 @@ internal static class BronKerbosch3ST
             });
         visit.Completion.ContinueWith(completion, scheduler);
 
-        // Step !: feed vertices in order.
+        // Step 1: feed vertices in order.
         Task.Run(delegate
             {
                 foreach (var v in Degeneracy.Ordering(graph, drop: 1))
@@ -116,7 +102,7 @@ internal static class BronKerbosch3ST
                 visit.Complete();
             });
 
-        collect.Wait();
+        collect.Completion.Wait();
         if (sent != received)
             throw new Exception($"{sent} sent <> {received} received");
     }
