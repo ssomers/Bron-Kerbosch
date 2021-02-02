@@ -17,22 +17,22 @@ where
 {
     type VertexSet = VertexSet;
 
-    fn order(&self) -> u32 {
-        self.adjacencies.len() as u32
+    fn order(&self) -> usize {
+        self.adjacencies.len()
     }
 
-    fn size(&self) -> u32 {
-        let total: u32 = self.adjacencies.iter().map(|a| a.len() as u32).sum();
+    fn size(&self) -> usize {
+        let total: usize = self.adjacencies.iter().map(|(_, a)| a.len()).sum();
         assert!(total % 2 == 0);
         total / 2
     }
 
-    fn degree(&self, node: Vertex) -> u32 {
-        self.neighbours(node).len() as u32
+    fn degree(&self, node: Vertex) -> usize {
+        self.neighbours(node).len()
     }
 
     fn neighbours(&self, node: Vertex) -> &VertexSet {
-        &self.adjacencies[node as usize]
+        &self.adjacencies[node]
     }
 }
 

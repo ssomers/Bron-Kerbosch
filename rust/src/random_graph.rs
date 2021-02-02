@@ -5,12 +5,12 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 pub enum Size {
-    Of(u32),
+    Of(usize),
 }
 
-pub fn parse_positive_int(value: &str) -> u32 {
+pub fn parse_positive_int(value: &str) -> usize {
     let numstr: &str;
-    let factor: u32;
+    let factor: usize;
     if value.ends_with('M') {
         numstr = &value[0..value.len() - 1];
         factor = 1_000_000;
@@ -21,25 +21,25 @@ pub fn parse_positive_int(value: &str) -> u32 {
         numstr = value;
         factor = 1;
     }
-    let num: u32 = numstr
+    let num: usize = numstr
         .parse()
         .unwrap_or_else(|err| panic!("{} is not a positive integer ({})", numstr, err));
     num * factor
 }
 
-fn new_adjacencies<VertexSet>(order: u32) -> Adjacencies<VertexSet>
+fn new_adjacencies<VertexSet>(order: usize) -> Adjacencies<VertexSet>
 where
     VertexSet: VertexSetLike + Clone,
 {
-    std::vec::from_elem(VertexSet::new(), order as usize)
+    Adjacencies::sneak_in(std::vec::from_elem(VertexSet::new(), order))
 }
 
-fn read_edges<VertexSet>(path: &Path, orderstr: &str, size: u32) -> Result<Vec<VertexSet>>
+fn read_edges<VertexSet>(path: &Path, orderstr: &str, size: usize) -> Result<Adjacencies<VertexSet>>
 where
     VertexSet: VertexSetLike + Clone,
 {
     let order = parse_positive_int(orderstr);
-    let mut adjacency_sets: Vec<VertexSet> = new_adjacencies(order);
+    let mut adjacency_sets: Adjacencies<VertexSet> = new_adjacencies(order);
     let context = |line_num| {
         move || {
             let line_str = if line_num > 0 {
@@ -67,13 +67,13 @@ where
             .next()
             .ok_or_else(|| anyhow!("Missing 2nd field"))
             .with_context(context(line_num))?;
-        let v: Vertex = v.parse().with_context(context(line_num))?;
-        let w: Vertex = w.parse().with_context(context(line_num))?;
+        let v = Vertex::new(v.parse().with_context(context(line_num))?);
+        let w = Vertex::new(w.parse().with_context(context(line_num))?);
         debug_assert_ne!(v, w);
-        debug_assert!(!adjacency_sets[v as usize].contains(w));
-        debug_assert!(!adjacency_sets[w as usize].contains(v));
-        adjacency_sets[v as usize].insert(w);
-        adjacency_sets[w as usize].insert(v);
+        debug_assert!(!adjacency_sets[v].contains(w));
+        debug_assert!(!adjacency_sets[w].contains(v));
+        adjacency_sets[v].insert(w);
+        adjacency_sets[w].insert(v);
     }
     if line_num < size {
         return Err(anyhow!("Exhausted generated list of edges")).with_context(context(line_num));
@@ -81,7 +81,7 @@ where
     Ok(adjacency_sets)
 }
 
-fn read_clique_count(path: &Path, orderstr: &str, size: u32) -> Result<Option<usize>> {
+fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<usize>> {
     let f = File::open(path).with_context(|| format!("In file {}", path.display()))?;
     let reader = BufReader::new(f);
     let context = |line_num| move || format!("In file {} on line {}", path.display(), line_num);

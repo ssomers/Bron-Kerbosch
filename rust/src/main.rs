@@ -139,7 +139,7 @@ where
 
 fn bk_core_core<VertexSet>(
     orderstr: &str,
-    size: u32,
+    size: usize,
     samples: u32,
     set_type: SetType,
     func_indices: &[usize],
@@ -154,9 +154,9 @@ where
 
 fn bk_core(
     orderstr: &str,
-    size: u32,
+    size: usize,
     samples: u32,
-    included_funcs: &impl Fn(SetType, u32) -> Vec<usize>,
+    included_funcs: &impl Fn(SetType, usize) -> Vec<usize>,
     set_type: SetType,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let func_indices = included_funcs(set_type, size);
@@ -199,9 +199,9 @@ fn bk_core(
 
 fn bk(
     orderstr: &str,
-    sizes: impl Iterator<Item = u32>,
+    sizes: impl Iterator<Item = usize>,
     samples: u32,
-    included_funcs: impl Fn(SetType, u32) -> Vec<usize>,
+    included_funcs: impl Fn(SetType, usize) -> Vec<usize>,
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
 
@@ -281,7 +281,7 @@ fn main() -> Result<(), std::io::Error> {
             "100",
             (2_000..=3_000).step_by(50), // max 4_950
             5,
-            |_set_type: SetType, _size: u32| -> Vec<usize> { (0..NUM_FUNCS).collect() },
+            |_set_type: SetType, _size: usize| -> Vec<usize> { (0..NUM_FUNCS).collect() },
         )?;
         thread::sleep(Duration::from_secs(7));
         bk(
@@ -290,7 +290,7 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((10_000..100_000).step_by(10_000))
                 .chain((100_000..=200_000).step_by(25_000)),
             3,
-            |_set_type: SetType, _size: u32| -> Vec<usize> {
+            |_set_type: SetType, _size: usize| -> Vec<usize> {
                 // Skip Ver1 (already rejected) and Ver2+RP (not interesting in random graph)
                 vec![2, 3, 4, 6, 7, 8, 9]
             },
@@ -304,7 +304,7 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |set_type: SetType, size: u32| -> Vec<usize> {
+            |set_type: SetType, size: usize| -> Vec<usize> {
                 match size {
                     0..=99_999 => vec![1],
                     100_000..=249_999 => match set_type {
@@ -325,7 +325,7 @@ fn main() -> Result<(), std::io::Error> {
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
         let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
-        let included_funcs = |set_type: SetType, _size: u32| -> Vec<usize> {
+        let included_funcs = |set_type: SetType, _size: usize| -> Vec<usize> {
             if opt.set.filter(|&s| s != set_type).is_some() {
                 vec![]
             } else if let Some(func_index) = opt.ver {

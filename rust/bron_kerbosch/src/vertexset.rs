@@ -473,7 +473,9 @@ mod tests {
     use super::*;
 
     fn test_pop_arbitrary<VertexSet: VertexSetLike>() {
-        let mut s: VertexSet = [4, 2].iter().copied().collect();
+        let mut s = VertexSet::new();
+        s.insert(Vertex::new(4));
+        s.insert(Vertex::new(2));
         assert!(s.pop_arbitrary().is_some());
         assert_eq!(s.len(), 1);
         assert!(s.pop_arbitrary().is_some());

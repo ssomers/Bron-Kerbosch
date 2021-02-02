@@ -14,6 +14,7 @@ pub mod graph_degeneracy;
 pub mod pile;
 pub mod reporter;
 pub mod slimgraph;
+mod vertex;
 mod vertexset;
 
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
@@ -81,8 +82,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use graph::{Adjacencies, NewableUndirectedGraph};
-    use reporter::Clique;
+    use graph::{NewableUndirectedGraph, VertexMap};
     use slimgraph::SlimUndirectedGraph;
 
     extern crate fnv;
@@ -94,15 +94,26 @@ mod tests {
     where
         VertexSet: VertexSetLike + Send + Sync,
     {
-        let adjacencies: Adjacencies<VertexSet> = adjacencies
+        let adjacencies: Vec<VertexSet> = adjacencies
             .iter()
             .map(|neighbours| neighbours.into_iter().copied().collect())
             .collect();
+        let adjacencies = VertexMap::sneak_in(adjacencies);
         let graph = SlimUndirectedGraph::new(adjacencies);
         bron_kerbosch(&graph)
     }
-    fn bk(adjacencies: Vec<Vec<Vertex>>, expected_cliques: Vec<Clique>) {
-        let expected_cliques = order_cliques(expected_cliques);
+
+    fn bk(adjacencies: Vec<Vec<usize>>, expected_cliques: Vec<Vec<usize>>) {
+        let adjacencies = adjacencies
+            .into_iter()
+            .map(|vertices| vertices.into_iter().map(|v| Vertex::new(v)).collect())
+            .collect();
+        let expected_cliques = order_cliques(
+            expected_cliques
+                .into_iter()
+                .map(|clique| clique.into_iter().map(|v| Vertex::new(v)).collect())
+                .collect(),
+        );
         assert_eq!(bk_core::<BTreeSet<Vertex>>(&adjacencies), expected_cliques);
         assert_eq!(bk_core::<HashSet<Vertex>>(&adjacencies), expected_cliques);
         assert_eq!(

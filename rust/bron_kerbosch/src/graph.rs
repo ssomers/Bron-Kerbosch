@@ -2,8 +2,7 @@ pub extern crate rand;
 use self::rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;
-
-pub type Vertex = u32;
+pub use vertex::{Vertex, VertexMap};
 
 pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     fn new() -> Self;
@@ -39,9 +38,9 @@ pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
 pub trait UndirectedGraph: Sync {
     type VertexSet: VertexSetLike;
 
-    fn order(&self) -> u32;
-    fn size(&self) -> u32;
-    fn degree(&self, node: Vertex) -> u32;
+    fn order(&self) -> usize;
+    fn size(&self) -> usize;
+    fn degree(&self, node: Vertex) -> usize;
     fn neighbours(&self, node: Vertex) -> &Self::VertexSet;
 }
 
@@ -49,23 +48,22 @@ pub fn connected_vertices<Graph>(g: &Graph) -> Graph::VertexSet
 where
     Graph: UndirectedGraph,
 {
-    (0..g.order()).filter(|&v| g.degree(v) > 0).collect()
+    (0..g.order())
+        .map(Vertex::new)
+        .filter(|&v| g.degree(v) > 0)
+        .collect()
 }
 
-pub type Adjacencies<VertexSet> = Vec<VertexSet>;
+pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
-pub fn are_valid_adjacencies<VertexSet>(adjacencies: &[VertexSet]) -> bool
+pub fn are_valid_adjacencies<VertexSet>(adjacencies: &Adjacencies<VertexSet>) -> bool
 where
     VertexSet: VertexSetLike,
 {
-    let order = adjacencies.len() as u32;
-    adjacencies
-        .iter()
-        .enumerate()
-        .map(|(i, neighbours)| (i as Vertex, neighbours))
-        .all(|(v, adjacent_to_v)| {
-            adjacent_to_v.all(|&w| w != v && w < order && adjacencies[w as usize].contains(v))
-        })
+    let order = adjacencies.len();
+    adjacencies.iter().all(|(v, adjacent_to_v)| {
+        adjacent_to_v.all(|&w| w != v && w < Vertex::new(order) && adjacencies[w].contains(v))
+    })
 }
 
 pub trait NewableUndirectedGraph<VertexSet>: UndirectedGraph {

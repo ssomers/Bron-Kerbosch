@@ -1,4 +1,4 @@
-use graph::{UndirectedGraph, Vertex, VertexSetLike};
+use graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 
 pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<Graph>
 where
@@ -6,14 +6,15 @@ where
 {
     debug_assert!(drop <= 0);
     let order = graph.order();
-    let mut priority_per_vertex: Vec<Option<Priority>> = vec![None; order as usize];
+    let mut priority_per_vertex: VertexMap<Option<Priority>> = VertexMap::new(None, order);
     let mut max_priority: Option<Priority> = None;
     let mut num_candidates: isize = 0;
     for c in 0..order {
+        let c = Vertex::new(c);
         let degree = graph.degree(c);
         if degree > 0 {
             let priority = Priority::new(degree + 1);
-            priority_per_vertex[c as usize] = priority;
+            priority_per_vertex[c] = priority;
             max_priority = max_priority.iter().copied().chain(priority).max();
             debug_assert!(max_priority.is_some());
             num_candidates += 1;
@@ -21,7 +22,8 @@ where
     }
     let mut queue = PriorityQueue::new(max_priority);
     for c in 0..order {
-        if let Some(priority) = priority_per_vertex[c as usize] {
+        let c = Vertex::new(c);
+        if let Some(priority) = priority_per_vertex[c] {
             queue.put(priority, c);
         }
     }
@@ -34,7 +36,7 @@ where
     }
 }
 
-type Priority = std::num::NonZeroU32;
+type Priority = std::num::NonZeroUsize;
 
 struct PriorityQueue<T> {
     stack_per_priority: Vec<Vec<T>>,
@@ -77,7 +79,7 @@ where
 
 pub struct DegeneracyOrderIter<'a, Graph> {
     graph: &'a Graph,
-    priority_per_vertex: Vec<Option<Priority>>,
+    priority_per_vertex: VertexMap<Option<Priority>>,
     // If priority is None, vertex was already picked or was always irrelevant (unconnected);
     // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.
     // +1 because we want the priority number to be NonZero to allow free wrapping inside Option.
@@ -87,18 +89,14 @@ pub struct DegeneracyOrderIter<'a, Graph> {
 
 impl<'a, Graph> DegeneracyOrderIter<'a, Graph> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
-        debug_assert!(self
-            .priority_per_vertex
-            .iter()
-            .enumerate()
-            .all(|(v, &p)| match p {
-                None => true, // might still be in some stack
-                Some(p) => self.queue.contains(p, v as Vertex),
-            }));
+        debug_assert!(self.priority_per_vertex.iter().all(|(v, &p)| match p {
+            None => true, // might still be in some stack
+            Some(p) => self.queue.contains(p, v),
+        }));
         loop {
             let v = self.queue.pop().expect("Cannot pop more than has been put");
-            if self.priority_per_vertex[v as usize].is_some() {
-                self.priority_per_vertex[v as usize] = None;
+            if self.priority_per_vertex[v].is_some() {
+                self.priority_per_vertex[v] = None;
                 return v;
             }
             // else v was requeued with a more urgent priority and therefore already picked
@@ -117,14 +115,14 @@ where
             self.num_left_to_pick -= 1;
             let i = self.pick_with_lowest_degree();
             self.graph.neighbours(i).for_each(|v| {
-                if let Some(old_priority) = self.priority_per_vertex[v as usize] {
+                if let Some(old_priority) = self.priority_per_vertex[v] {
                     // Since this is an unvisited neighbour of a vertex just being picked,
                     // its priority can't be down to the minimum.
                     let new_priority = Priority::new(old_priority.get() - 1);
                     debug_assert!(new_priority.is_some());
                     // Requeue with a more urgent priority, but don't bother to remove
                     // the original entry - it will be skipped if it's reached at all.
-                    self.priority_per_vertex[v as usize] = new_priority;
+                    self.priority_per_vertex[v] = new_priority;
                     self.queue.put(new_priority.unwrap(), v);
                 }
             });
@@ -149,25 +147,24 @@ mod tests {
     fn test_degeneracy_order() {
         TestRunner::default()
             .run(
-                &(2..99u32).prop_flat_map(|order| {
+                &(2..99usize).prop_flat_map(|order| {
                     proptest::collection::vec(
-                        proptest::collection::btree_set(0..order - 1, ..order as usize),
-                        order as usize,
+                        proptest::collection::btree_set(0..order - 1, ..order),
+                        order,
                     )
                 }),
                 |adjac| {
                     let order = adjac.len();
-                    let mut adjacencies: Adjacencies<BTreeSet<Vertex>> =
+                    let adjacencies: Vec<BTreeSet<Vertex>> =
                         (0..order).map(|_| BTreeSet::new()).collect();
-                    for (v, adjacent_to_v) in adjac
-                        .iter()
-                        .enumerate()
-                        .map(|(i, neighbours)| (i as Vertex, neighbours))
-                    {
+                    let mut adjacencies = Adjacencies::sneak_in(adjacencies);
+                    for (v, adjacent_to_v) in adjac.iter().enumerate() {
+                        let v = Vertex::new(v);
                         for &w in adjacent_to_v {
+                            let w = Vertex::new(w);
                             if w != v {
-                                adjacencies[v as usize].insert(w);
-                                adjacencies[w as usize].insert(v);
+                                adjacencies[v].insert(w);
+                                adjacencies[w].insert(v);
                             }
                         }
                     }
