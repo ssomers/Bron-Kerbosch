@@ -56,7 +56,9 @@ func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors
 		wg.Wait()
 		close(reporter.cliques)
 	}()
-	gatherCliques(cliques, finalReporter)
+	for clique := range cliques {
+		finalReporter.Record(clique)
+	}
 }
 
 type VisitJob struct {

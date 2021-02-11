@@ -31,9 +31,3 @@ func (r *ChannelReporter) Record(clique []Vertex) {
 	copy(cc, clique)
 	r.cliques <- cc
 }
-
-func gatherCliques(cliques <-chan []Vertex, finalReporter Reporter) {
-	for clique := range cliques {
-		finalReporter.Record(clique)
-	}
-}
