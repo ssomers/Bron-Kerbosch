@@ -6,7 +6,10 @@
 #include "BronKerboschPivot.h"
 #include "GraphDegeneracy.h"
 #include "Reporter.h"
+#pragma warning(push)
+#pragma warning(disable: 5220)
 #include <boost/fiber/buffered_channel.hpp>
+#pragma warning(pop)
 #include <thread>
 
 namespace BronKerbosch {

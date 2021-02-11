@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UndirectedGraph.h"
+#include <stdexcept>
 #include <vector>
 
 namespace BronKerbosch {

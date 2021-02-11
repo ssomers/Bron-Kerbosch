@@ -5,6 +5,7 @@
 #include "UndirectedGraph.h"
 #include "VertexPile.h"
 #include <cassert>
+#include <stdexcept>
 
 namespace BronKerbosch {
     enum class PivotChoice {

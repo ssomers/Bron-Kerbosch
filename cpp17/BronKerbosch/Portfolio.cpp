@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Portfolio.h"
 
+#include <stdexcept>
+
 const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = {
     "Ver1+",
     "Ver2+",

@@ -7,6 +7,7 @@
 #include "Console.h"
 #include "RandomGraph.h"
 #include "SampleStatistics.h"
+#include <stdexcept>
 
 using BronKerbosch::ordered_vector;
 using BronKerbosch::Portfolio;
@@ -46,14 +47,15 @@ class Benchmark {
                     Portfolio::sort_cliques(reporter.cliques);
                     if (first) {
                         if (*first != reporter.cliques) {
-                            throw std::logic_error("Expected got different cliques");
+                            std::cerr << "Expected " << first->size() << ","
+                                " obtained " << reporter.cliques.size() << " cliques\n";
+                            std::exit(EXIT_FAILURE);
                         }
                     } else {
                         if (reporter.cliques.size() != graph.clique_count) {
-                            std::ostringstream s;
-                            s << "Expected " << graph.clique_count << ","
-                                " obtained " << reporter.cliques.size() << " cliques";
-                            throw std::logic_error(s.str());
+                            std::cerr << "Expected " << graph.clique_count << ","
+                                         " obtained " << reporter.cliques.size() << " cliques\n";
+                            std::exit(EXIT_FAILURE);
                         }
                         first = std::make_unique<std::vector<VertexList>>(reporter.cliques);
                     }
@@ -63,7 +65,9 @@ class Benchmark {
                     Portfolio::explore(func_index, graph, reporter);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     if (reporter.cliques != graph.clique_count) {
-                        throw std::logic_error("got different #cliques");
+                        std::cerr << "Expected " << graph.clique_count << ", obtained "
+                            << reporter.cliques << " cliques\n";
+                            std::exit(EXIT_FAILURE);
                     }
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     times[func_index].put(secs);

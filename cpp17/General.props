@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostDir>..\..\..\boost_1_73_0</BoostDir>
+    <BoostDir>..\..\..\boost_1_75_0</BoostDir>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>General</_PropertySheetDisplayName>
@@ -13,7 +13,7 @@
       <AdditionalIncludeDirectories>..;$(BoostDir)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <SDLCheck>true</SDLCheck>
