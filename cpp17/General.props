@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <BoostDir>..\..\..\boost_1_75_0</BoostDir>
+    <CppcoroDir>..\..\..\cppcoro</CppcoroDir>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>General</_PropertySheetDisplayName>
@@ -10,7 +11,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..;$(BoostDir)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;$(BoostDir);$(CppcoroDir)\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -19,14 +20,19 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BoostDir)\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BoostDir)\stage\lib;$(CppcoroDir)\build\lib\$(ConfigurationName)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cppcoro.lib;synchronization.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="BoostDir">
       <Value>$(BoostDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CppcoroDir">
+      <Value>$(CppcoroDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
