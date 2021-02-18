@@ -199,7 +199,6 @@ int main(int argc, char** argv) {
     std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
     if (argc == 1) {
-        /*
         Benchmark::bk("100", range(2'000u, 3'000u, 50u),
                       [&](SetType, unsigned) { return all_func_indices; }, 5);
         Benchmark::bk("10k", concat(range(1'000u, 9'000u, 1'000u),
@@ -212,7 +211,6 @@ int main(int argc, char** argv) {
                               case SetType::ord_vec: return most_func_indices;
                           }
                           throw std::logic_error("unreachable"); }, 3);
-        */
         Benchmark::bk("1M", concat(range(2'000u, 8'000u, 2'000u),
                                    range(10'000u, 40'000u, 10'000u),
                                    range(50'000u, 200'000u, 50'000u),
