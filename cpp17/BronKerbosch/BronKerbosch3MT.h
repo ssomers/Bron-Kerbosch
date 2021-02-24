@@ -46,19 +46,19 @@ namespace BronKerbosch {
         static cppcoro::task<> start_producer(
             UndirectedGraph<VertexSet> const& graph,
             cppcoro::single_producer_sequencer<size_t>& start_sequencer,
-            Vertex starts[STARTS],
+            Vertex (*starts)[STARTS],// pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp
         )
         {
             auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph, -1);
             while (auto next = ordering.next()) {
                 size_t seq = co_await start_sequencer.claim_one(tp);
-                starts[seq % STARTS] = *next;
+                (*starts)[seq % STARTS] = *next;
                 start_sequencer.publish(seq);
             }
 
             auto seq = co_await start_sequencer.claim_one(tp);
-            starts[seq % VISIT_JOBS] = SENTINEL_VTX;
+            (*starts)[seq % VISIT_JOBS] = SENTINEL_VTX;
             start_sequencer.publish(seq);
         }
 
@@ -68,8 +68,8 @@ namespace BronKerbosch {
             cppcoro::sequence_barrier<size_t>& start_barrier,
             cppcoro::single_producer_sequencer<size_t> const& start_sequencer,
             cppcoro::single_producer_sequencer<size_t>& visit_sequencer,
-            Vertex const starts[STARTS],
-            VisitJob visit_jobs[VISIT_JOBS],
+            Vertex const (*starts)[STARTS], // pass-by-reference avoiding ICE
+            VisitJob(*visit_jobs)[VISIT_JOBS], // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp
         )
         {
@@ -81,7 +81,7 @@ namespace BronKerbosch {
                 const std::size_t available = co_await start_sequencer.wait_until_published(nextToRead, tp);
                 do
                 {
-                    Vertex v = starts[nextToRead % VISIT_JOBS];
+                    Vertex v = (*starts)[nextToRead % VISIT_JOBS];
                     reachedEnd = v == SENTINEL_VTX;
                     if (reachedEnd) {
                         assert(nextToRead == available);
@@ -97,7 +97,7 @@ namespace BronKerbosch {
                         auto neighbouring_excluded = Util::intersection(neighbours, excluded);
 
                         size_t seq = co_await visit_sequencer.claim_one(tp);
-                        visit_jobs[seq % VISIT_JOBS] = VisitJob{ v, std::move(neighbouring_candidates), std::move(neighbouring_excluded) };
+                        (*visit_jobs)[seq % VISIT_JOBS] = VisitJob{ v, std::move(neighbouring_candidates), std::move(neighbouring_excluded) };
                         visit_sequencer.publish(seq);
                     }
                     excluded.insert(v);
@@ -108,7 +108,7 @@ namespace BronKerbosch {
             }
 
             auto seq = co_await visit_sequencer.claim_one(tp);
-            visit_jobs[seq % VISIT_JOBS].start = SENTINEL_VTX;
+            (*visit_jobs)[seq % VISIT_JOBS].start = SENTINEL_VTX;
             visit_sequencer.publish(seq);
         }
 
@@ -118,7 +118,7 @@ namespace BronKerbosch {
             Reporter& reporter,
             cppcoro::sequence_barrier<size_t>& visit_barrier,
             cppcoro::single_producer_sequencer<size_t> const& visit_sequencer,
-            VisitJob visit_jobs[VISIT_JOBS],
+            VisitJob (*visit_jobs)[VISIT_JOBS], // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp
         )
         {
@@ -129,7 +129,7 @@ namespace BronKerbosch {
                 const std::size_t available = co_await visit_sequencer.wait_until_published(nextToRead, tp);
                 do
                 {
-                    auto& job = visit_jobs[nextToRead % VISIT_JOBS];
+                    auto& job = (*visit_jobs)[nextToRead % VISIT_JOBS];
                     reachedEnd = job.start == SENTINEL_VTX;
                     if (reachedEnd) {
                         assert(nextToRead == available);
@@ -165,9 +165,9 @@ namespace BronKerbosch {
             VisitJob visit_jobs[VISIT_JOBS];
 
             auto tasks = std::vector<cppcoro::task<void>>{};
-            tasks.emplace_back(BronKerbosch3MT::start_producer(graph, start_sequencer, starts, tp));
-            tasks.emplace_back(BronKerbosch3MT::visit_producer(graph, start_barrier, start_sequencer, visit_sequencer, starts, visit_jobs, tp));
-            tasks.emplace_back(BronKerbosch3MT::visit_consumer(graph, reporter, visit_barrier, visit_sequencer, visit_jobs, tp));
+            tasks.emplace_back(BronKerbosch3MT::start_producer(graph, start_sequencer, &starts, tp));
+            tasks.emplace_back(BronKerbosch3MT::visit_producer(graph, start_barrier, start_sequencer, visit_sequencer, &starts, &visit_jobs, tp));
+            tasks.emplace_back(BronKerbosch3MT::visit_consumer(graph, reporter, visit_barrier, visit_sequencer, &visit_jobs, tp));
             cppcoro::sync_wait(cppcoro::when_all(std::move(tasks)));
         }
     };
