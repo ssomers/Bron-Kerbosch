@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CliqueList.h"
 #include "UndirectedGraph.h"
 #include "VertexPile.h"
 #include <cassert>
@@ -17,22 +18,24 @@ namespace BronKerbosch {
 
     class BronKerboschPivot {
     public:
-        template <typename VertexSet, typename Reporter>
-        static void visit(UndirectedGraph<VertexSet> const& graph, Reporter& reporter,
+        template <typename VertexSet>
+        static CliqueList visit(UndirectedGraph<VertexSet> const& graph,
                           PivotChoice initial_pivot_choice, PivotChoice further_pivot_choice,
                           VertexSet&& candidates, VertexSet&& excluded, VertexPile* clique) {
             assert(!candidates.empty());
             assert(Util::are_disjoint(candidates, excluded));
+
+            auto cliques = CliqueList{};
 
             if (candidates.size() == 1) {
                 // Same logic as below, but stripped down for this common case
                 for (Vertex v : candidates) {
                     auto const& neighbours = graph.neighbours(v);
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        reporter.record(VertexPile(v, clique).collect());
+                        cliques.push_back(VertexPile(v, clique).collect());
                     }
                 }
-                return;
+                return cliques;
             }
 
             auto pivot = std::numeric_limits<Vertex>::max();
@@ -49,7 +52,7 @@ namespace BronKerbosch {
                         if (local_degree == 0) {
                             // Same logic as below, but stripped down
                             if (Util::are_disjoint(neighbours, excluded)) {
-                                reporter.record(VertexPile(v, clique).collect());
+                                cliques.push_back(VertexPile(v, clique).collect());
                             }
                         } else {
                             if (seen_local_degree < local_degree) {
@@ -60,7 +63,7 @@ namespace BronKerbosch {
                         }
                     }
                     if (remaining_candidates.empty()) {
-                        return;
+                        return cliques;
                     }
                     if (initial_pivot_choice == PivotChoice::MaxDegreeLocalX) {
                         for (Vertex v : excluded) {
@@ -91,23 +94,23 @@ namespace BronKerbosch {
                 auto neighbouring_candidates = Util::intersection(neighbours, candidates);
                 if (neighbouring_candidates.empty()) {
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        reporter.record(VertexPile(v, clique).collect());
+                        cliques.push_back(VertexPile(v, clique).collect());
                     }
                 } else {
                     auto neighbouring_excluded = Util::intersection(neighbours, excluded);
                     auto newclique = VertexPile(v, clique);
-                    visit(
+                    cliques.splice(cliques.end(), visit(
                         graph,
-                        reporter,
                         further_pivot_choice,
                         further_pivot_choice,
                         std::move(neighbouring_candidates),
                         std::move(neighbouring_excluded),
                         &newclique
-                    );
+                    ));
                 }
                 excluded.insert(v);
             }
+            return cliques;
         }
 
     private:

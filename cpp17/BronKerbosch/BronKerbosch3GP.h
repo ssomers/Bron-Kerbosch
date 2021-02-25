@@ -4,13 +4,14 @@
 #pragma once
 
 #include "BronKerboschDegeneracy.h"
+#include "CliqueList.h"
 
 namespace BronKerbosch {
     class BronKerbosch3GP {
     public:
-        template <typename VertexSet, typename Reporter>
-        static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter) {
-            BronKerboschDegeneracy::explore(graph, reporter, PivotChoice::MaxDegreeLocal);
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
+            return BronKerboschDegeneracy::explore(graph, PivotChoice::MaxDegreeLocal);
         }
     };
 }

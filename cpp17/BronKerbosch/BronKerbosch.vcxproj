@@ -81,7 +81,6 @@
     <ClCompile Include="BronKerbosch3MT.cpp" />
     <ClCompile Include="BronKerboschPivot.cpp" />
     <ClCompile Include="Portfolio.cpp" />
-    <ClCompile Include="Reporter.cpp" />
     <ClCompile Include="UndirectedGraph.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -101,10 +100,10 @@
     <ClInclude Include="BronKerboschDegeneracy.h" />
     <ClInclude Include="BronKerboschPivot.h" />
     <ClInclude Include="BronKerbosch3.h" />
+    <ClInclude Include="CliqueList.h" />
     <ClInclude Include="GraphDegeneracy.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Portfolio.h" />
-    <ClInclude Include="Reporter.h" />
     <ClInclude Include="UndirectedGraph.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Vertex.h" />

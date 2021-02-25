@@ -4,10 +4,10 @@
 #pragma once
 
 #include "BronKerboschPivot.h"
+#include "CliqueList.h"
 #include "GraphDegeneracy.h"
-#include "Reporter.h"
 #pragma warning(push)
-#pragma warning(disable: 4265)
+#pragma warning(disable : 4265)
 #include "cppcoro/async_generator.hpp"
 #include "cppcoro/sequence_barrier.hpp"
 #include "cppcoro/single_producer_sequencer.hpp"
@@ -16,7 +16,7 @@
 #include "cppcoro/task.hpp"
 #include "cppcoro/when_all.hpp"
 #pragma warning(pop)
-#pragma warning(disable: 4623)
+#pragma warning(disable : 4623)
 
 
 namespace BronKerbosch {
@@ -46,7 +46,7 @@ namespace BronKerbosch {
         static cppcoro::task<> start_producer(
             UndirectedGraph<VertexSet> const& graph,
             cppcoro::single_producer_sequencer<size_t>& start_sequencer,
-            Vertex (*starts)[STARTS],// pass-by-reference avoiding ICE
+            Vertex (*starts)[STARTS], // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp
         )
         {
@@ -69,7 +69,7 @@ namespace BronKerbosch {
             cppcoro::single_producer_sequencer<size_t> const& start_sequencer,
             cppcoro::single_producer_sequencer<size_t>& visit_sequencer,
             Vertex const (*starts)[STARTS], // pass-by-reference avoiding ICE
-            VisitJob(*visit_jobs)[VISIT_JOBS], // pass-by-reference avoiding ICE
+            VisitJob (*visit_jobs)[VISIT_JOBS], // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp
         )
         {
@@ -112,13 +112,13 @@ namespace BronKerbosch {
             visit_sequencer.publish(seq);
         }
 
-        template <typename VertexSet, typename Reporter>
+        template <typename VertexSet>
         static cppcoro::task<> visit_consumer(
             UndirectedGraph<VertexSet> const& graph,
-            Reporter& reporter,
             cppcoro::sequence_barrier<size_t>& visit_barrier,
             cppcoro::single_producer_sequencer<size_t> const& visit_sequencer,
             VisitJob (*visit_jobs)[VISIT_JOBS], // pass-by-reference avoiding ICE
+            CliqueList& cliques,
             cppcoro::static_thread_pool& tp
         )
         {
@@ -136,14 +136,13 @@ namespace BronKerbosch {
                         break;
                     }
                     auto pile = VertexPile{ job.start };
-                    BronKerboschPivot::visit<VertexSet>(
+                    cliques.splice(cliques.end(), BronKerboschPivot::visit<VertexSet>(
                         graph,
-                        reporter,
                         PivotChoice::MaxDegreeLocal,
                         PivotChoice::MaxDegreeLocal,
                         std::move(job.candidates),
                         std::move(job.excluded),
-                        &pile);
+                        &pile));
                     ++nextToRead;
                 } while (nextToRead < available);
 
@@ -152,8 +151,8 @@ namespace BronKerbosch {
         }
 
     public:
-        template <typename VertexSet, typename Reporter>
-        static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter)
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph)
         {
             auto tp = cppcoro::static_thread_pool{ 6 };
             auto start_barrier = cppcoro::sequence_barrier<size_t>{};
@@ -165,10 +164,12 @@ namespace BronKerbosch {
             VisitJob visit_jobs[VISIT_JOBS];
 
             auto tasks = std::vector<cppcoro::task<void>>{};
+            auto cliques = CliqueList{};
             tasks.emplace_back(BronKerbosch3MT::start_producer(graph, start_sequencer, &starts, tp));
             tasks.emplace_back(BronKerbosch3MT::visit_producer(graph, start_barrier, start_sequencer, visit_sequencer, &starts, &visit_jobs, tp));
-            tasks.emplace_back(BronKerbosch3MT::visit_consumer(graph, reporter, visit_barrier, visit_sequencer, &visit_jobs, tp));
+            tasks.emplace_back(BronKerbosch3MT::visit_consumer(graph, visit_barrier, visit_sequencer, &visit_jobs, cliques, tp));
             cppcoro::sync_wait(cppcoro::when_all(std::move(tasks)));
+            return cliques;
         }
     };
 }

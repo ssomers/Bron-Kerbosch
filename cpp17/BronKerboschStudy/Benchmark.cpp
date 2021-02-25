@@ -2,7 +2,6 @@
 
 #include "BronKerbosch/BronKerbosch1.h"
 #include "BronKerbosch/Portfolio.h"
-#include "BronKerbosch/Reporter.h"
 #include "BronKerbosch/UndirectedGraph.h"
 #include "Console.h"
 #include "RandomGraph.h"
@@ -11,8 +10,6 @@
 
 using BronKerbosch::ordered_vector;
 using BronKerbosch::Portfolio;
-using BronKerbosch::CountingReporter;
-using BronKerbosch::SimpleReporter;
 using BronKerbosch::UndirectedGraph;
 using BronKerbosch::Vertex;
 using BronKerbosch::VertexList;
@@ -34,9 +31,8 @@ class Benchmark {
         for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
             for (int func_index : func_indices) {
                 if (sample == 0) {
-                    auto reporter = SimpleReporter{};
                     auto begin = std::chrono::steady_clock::now();
-                    Portfolio::explore(func_index, graph, reporter);
+                    auto result = Portfolio::explore(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     if (duration >= std::chrono::seconds(3)) {
@@ -44,29 +40,29 @@ class Benchmark {
                             << std::setw(8) << Portfolio::FUNC_NAMES[func_index] << ": "
                             << std::setw(6) << secs << "s" << std::endl;
                     }
-                    Portfolio::sort_cliques(reporter.cliques);
+                    auto obtained_cliques = std::vector<VertexList>(result.begin(), result.end());
+                    Portfolio::sort_cliques(obtained_cliques);
                     if (first) {
-                        if (*first != reporter.cliques) {
+                        if (*first != obtained_cliques) {
                             std::cerr << "Expected " << first->size() << ","
-                                " obtained " << reporter.cliques.size() << " cliques\n";
+                                " obtained " << obtained_cliques.size() << " cliques\n";
                             std::exit(EXIT_FAILURE);
                         }
                     } else {
-                        if (reporter.cliques.size() != graph.clique_count) {
+                        if (obtained_cliques.size() != graph.clique_count) {
                             std::cerr << "Expected " << graph.clique_count << ","
-                                         " obtained " << reporter.cliques.size() << " cliques\n";
+                                         " obtained " << obtained_cliques.size() << " cliques\n";
                             std::exit(EXIT_FAILURE);
                         }
-                        first = std::make_unique<std::vector<VertexList>>(reporter.cliques);
+                        first = std::make_unique<std::vector<VertexList>>(obtained_cliques);
                     }
                 } else {
-                    auto reporter = CountingReporter{};
                     auto begin = std::chrono::steady_clock::now();
-                    Portfolio::explore(func_index, graph, reporter);
+                    auto cliques = Portfolio::explore(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
-                    if (reporter.cliques != graph.clique_count) {
+                    if (cliques.size() != graph.clique_count) {
                         std::cerr << "Expected " << graph.clique_count << ", obtained "
-                            << reporter.cliques << " cliques\n";
+                            << cliques.size() << " cliques\n";
                             std::exit(EXIT_FAILURE);
                     }
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();

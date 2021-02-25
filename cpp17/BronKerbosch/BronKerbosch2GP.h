@@ -3,25 +3,27 @@
 #pragma once
 
 #include "BronKerboschPivot.h"
+#include "CliqueList.h"
 #include "UndirectedGraph.h"
 #include "Util.h"
 
 namespace BronKerbosch {
     class BronKerbosch2GP {
     public:
-        template <typename VertexSet, typename Reporter>
-        static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter) {
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
             auto candidates = graph.connected_vertices();
             auto num_candidates = candidates.size();
             if (num_candidates) {
-                BronKerboschPivot::visit(
+                return BronKerboschPivot::visit(
                     graph,
-                    reporter,
                     PivotChoice::MaxDegree,
                     PivotChoice::MaxDegreeLocal,
                     std::move(candidates),
                     Util::with_capacity<VertexSet>(num_candidates),
                     NULL);
+            } else {
+                return CliqueList{};
             }
         }
     };

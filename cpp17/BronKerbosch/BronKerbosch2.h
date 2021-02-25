@@ -9,19 +9,20 @@
 namespace BronKerbosch {
     class BronKerbosch2 {
     public:
-        template <typename VertexSet, typename Reporter>
-        static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter) {
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
             auto candidates = graph.connected_vertices();
             auto num_candidates = candidates.size();
             if (num_candidates) {
-                BronKerboschPivot::visit(
+                return BronKerboschPivot::visit(
                     graph,
-                    reporter,
                     PivotChoice::Arbitrary,
                     PivotChoice::Arbitrary,
                     std::move(candidates),
                     Util::with_capacity<VertexSet>(num_candidates),
                     NULL);
+            } else {
+                return CliqueList{};
             }
         }
     };

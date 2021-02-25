@@ -4,6 +4,7 @@
 #pragma once
 
 #include "BronKerboschPivot.h"
+#include "CliqueList.h"
 #include "GraphDegeneracy.h"
 #include "UndirectedGraph.h"
 #include "Util.h"
@@ -11,8 +12,9 @@
 namespace BronKerbosch {
     class BronKerboschDegeneracy {
     public:
-        template <typename VertexSet, typename Reporter>
-        static void explore(UndirectedGraph<VertexSet> const& graph, Reporter& reporter, PivotChoice pivot_choice) {
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph, PivotChoice pivot_choice) {
+            auto cliques = CliqueList{};
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
             auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph, -1);
             while (auto next = ordering.next()) {
@@ -25,18 +27,18 @@ namespace BronKerbosch {
                 } else {
                     auto neighbouring_excluded = Util::intersection(neighbours, excluded);
                     auto pile = VertexPile{ v };
-                    BronKerboschPivot::visit(
+                    cliques.splice(cliques.end(), BronKerboschPivot::visit(
                         graph,
-                        reporter,
                         pivot_choice,
                         pivot_choice,
                         std::move(neighbouring_candidates),
                         std::move(neighbouring_excluded),
                         &pile
-                    );
+                    ));
                 }
                 excluded.insert(v);
             }
+            return cliques;
         }
     };
 }
