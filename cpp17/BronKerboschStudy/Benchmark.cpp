@@ -63,7 +63,7 @@ class Benchmark {
                     if (cliques.size() != graph.clique_count) {
                         std::cerr << "Expected " << graph.clique_count << ", obtained "
                             << cliques.size() << " cliques\n";
-                            std::exit(EXIT_FAILURE);
+                        std::exit(EXIT_FAILURE);
                     }
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     times[func_index].put(secs);
@@ -186,7 +186,7 @@ template<typename... Args> std::vector<unsigned> concat(Args... args) {
 int main(int argc, char** argv) {
     console_init();
 #ifndef NDEBUG
-    std::cerr << "Run Release build for meaningful measurements\n";
+    std::cerr << "Run Release build instead for meaningful measurements\n";
     //return EXIT_FAILURE;
 #endif
 
@@ -196,7 +196,8 @@ int main(int argc, char** argv) {
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
     if (argc == 1) {
         Benchmark::bk("100", range(2'000u, 3'000u, 50u),
-                      [&](SetType, unsigned) { return all_func_indices; }, 5);
+                      [&](SetType, unsigned) { return all_func_indices; },
+                      5);
         Benchmark::bk("10k", concat(range(1'000u, 9'000u, 1'000u),
                                     range(10'000u, 90'000u, 10'000u),
                                     range(100'000u, 200'000u, 25'000u)),
@@ -206,7 +207,8 @@ int main(int argc, char** argv) {
                               case SetType::hashset: [[fallthrough]];
                               case SetType::ord_vec: return most_func_indices;
                           }
-                          throw std::logic_error("unreachable"); }, 3);
+                          throw std::logic_error("unreachable"); },
+                      3);
         Benchmark::bk("1M", concat(range(2'000u, 8'000u, 2'000u),
                                    range(10'000u, 40'000u, 10'000u),
                                    range(50'000u, 200'000u, 50'000u),
