@@ -8,7 +8,7 @@ namespace BronKerbosch {
     class ordered_vector {
         std::vector<T> vals;
 
-    public:
+       public:
         using size_type = typename std::vector<T>::size_type;
         using iterator = typename std::vector<T>::iterator;
         using const_iterator = typename std::vector<T>::const_iterator;
@@ -16,7 +16,7 @@ namespace BronKerbosch {
 
         ordered_vector() = default;
 
-        ordered_vector(std::initializer_list<T> &&list) : vals(list) {
+        ordered_vector(std::initializer_list<T>&& list) : vals(list) {
             assert(std::is_sorted(begin(), end()));
         }
 
@@ -180,7 +180,8 @@ namespace BronKerbosch {
             return count;
         }
         template <typename T>
-        static size_t intersection_size(ordered_vector<T> const& lhs, ordered_vector<T> const& rhs) {
+        static size_t intersection_size(ordered_vector<T> const& lhs,
+                                        ordered_vector<T> const& rhs) {
             size_t count = 0;
             auto lit = lhs.begin();
             auto rit = rhs.begin();
@@ -218,7 +219,8 @@ namespace BronKerbosch {
             return result;
         }
         template <typename T>
-        static ordered_vector<T> intersection(ordered_vector<T> const& lhs, ordered_vector<T> const& rhs) {
+        static ordered_vector<T> intersection(ordered_vector<T> const& lhs,
+                                              ordered_vector<T> const& rhs) {
             ordered_vector<T> result;
             result.reserve(std::min(lhs.size(), rhs.size()));
             std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
@@ -249,7 +251,8 @@ namespace BronKerbosch {
             return result;
         }
         template <typename T>
-        static ordered_vector<T> difference(ordered_vector<T> const& lhs, ordered_vector<T> const& rhs) {
+        static ordered_vector<T> difference(ordered_vector<T> const& lhs,
+                                            ordered_vector<T> const& rhs) {
             ordered_vector<T> result;
             result.reserve(lhs.size());
             std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),

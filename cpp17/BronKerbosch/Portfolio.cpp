@@ -1,17 +1,11 @@
 #include "pch.h"
+
 #include "Portfolio.h"
 
 #include <stdexcept>
 
 const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = {
-    "Ver1+",
-    "Ver2+",
-    "Ver2+GP",
-    "Ver2+GPX",
-    "Ver3+",
-    "Ver3+GP",
-    "Ver3+GPX",
-    "Ver3=MT",
+    "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver3+", "Ver3+GP", "Ver3+GPX", "Ver3=MT",
 };
 
 void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cliques) {
@@ -20,7 +14,8 @@ void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cli
     std::sort(cliques.begin(), cliques.end(), &clique_less);
 }
 
-bool BronKerbosch::Portfolio::clique_less(std::vector<Vertex> const& lhs, std::vector<Vertex> const& rhs) {
+bool BronKerbosch::Portfolio::clique_less(std::vector<Vertex> const& lhs,
+                                          std::vector<Vertex> const& rhs) {
     for (size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
         int d = int(lhs[i]) - int(rhs[i]);
         if (d != 0)

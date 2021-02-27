@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include <cassert>
+#include <stdexcept>
 #include "CliqueList.h"
 #include "UndirectedGraph.h"
 #include "VertexPile.h"
-#include <cassert>
-#include <stdexcept>
 
 namespace BronKerbosch {
     enum class PivotChoice {
@@ -17,11 +17,14 @@ namespace BronKerbosch {
     };
 
     class BronKerboschPivot {
-    public:
+       public:
         template <typename VertexSet>
         static CliqueList visit(UndirectedGraph<VertexSet> const& graph,
-                          PivotChoice initial_pivot_choice, PivotChoice further_pivot_choice,
-                          VertexSet&& candidates, VertexSet&& excluded, VertexPile* clique) {
+                                PivotChoice initial_pivot_choice,
+                                PivotChoice further_pivot_choice,
+                                VertexSet&& candidates,
+                                VertexSet&& excluded,
+                                VertexPile* clique) {
             assert(!candidates.empty());
             assert(Util::are_disjoint(candidates, excluded));
 
@@ -79,7 +82,8 @@ namespace BronKerbosch {
                 }
                 case PivotChoice::Arbitrary:
                 case PivotChoice::MaxDegree: {
-                    std::copy(candidates.begin(), candidates.end(), std::back_inserter(remaining_candidates));
+                    std::copy(candidates.begin(), candidates.end(),
+                              std::back_inserter(remaining_candidates));
                     pivot = choose(initial_pivot_choice, remaining_candidates, graph);
                 }
             }
@@ -99,33 +103,27 @@ namespace BronKerbosch {
                 } else {
                     auto neighbouring_excluded = Util::intersection(neighbours, excluded);
                     auto newclique = VertexPile(v, clique);
-                    cliques.splice(cliques.end(), visit(
-                        graph,
-                        further_pivot_choice,
-                        further_pivot_choice,
-                        std::move(neighbouring_candidates),
-                        std::move(neighbouring_excluded),
-                        &newclique
-                    ));
+                    cliques.splice(cliques.end(),
+                                   visit(graph, further_pivot_choice, further_pivot_choice,
+                                         std::move(neighbouring_candidates),
+                                         std::move(neighbouring_excluded), &newclique));
                 }
                 excluded.insert(v);
             }
             return cliques;
         }
 
-    private:
+       private:
         template <typename VertexSet>
-        static Vertex choose(
-            PivotChoice pivot_choice,
-            std::vector<Vertex> const& candidates,
-            UndirectedGraph<VertexSet> const& graph) {
+        static Vertex choose(PivotChoice pivot_choice,
+                             std::vector<Vertex> const& candidates,
+                             UndirectedGraph<VertexSet> const& graph) {
             switch (pivot_choice) {
                 case PivotChoice::Arbitrary: return *candidates.begin();
-                case PivotChoice::MaxDegree: return *std::max_element(candidates.begin(),
-                                                                      candidates.end(),
-                                                                      [&graph](Vertex v, Vertex w) {
-                                                                          return graph.degree(v) < graph.degree(w);
-                                                                      });
+                case PivotChoice::MaxDegree:
+                    return *std::max_element(
+                        candidates.begin(), candidates.end(),
+                        [&graph](Vertex v, Vertex w) { return graph.degree(v) < graph.degree(w); });
                 case PivotChoice::MaxDegreeLocal:
                 case PivotChoice::MaxDegreeLocalX: break;
             }

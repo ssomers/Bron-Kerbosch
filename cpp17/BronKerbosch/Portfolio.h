@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "BronKerbosch1.h"
 #include "BronKerbosch2.h"
 #include "BronKerbosch2GP.h"
@@ -9,19 +10,17 @@
 #include "BronKerbosch3GPX.h"
 #include "BronKerbosch3MT.h"
 #include "UndirectedGraph.h"
-#include <vector>
 
 namespace BronKerbosch {
     class Portfolio {
-    public:
+       public:
         static int const NUM_FUNCS = 8;
         static const char* const FUNC_NAMES[NUM_FUNCS];
 
         template <typename VertexSet>
-        static CliqueList explore(int func_index, UndirectedGraph<VertexSet> const& graph)
-        {
+        static CliqueList explore(int func_index, UndirectedGraph<VertexSet> const& graph) {
             switch (func_index) {
-            case 0: return BronKerbosch1::explore(graph);
+                case 0: return BronKerbosch1::explore(graph);
                 case 1: return BronKerbosch2::explore(graph);
                 case 2: return BronKerbosch2GP::explore(graph);
                 case 3: return BronKerbosch2GPX::explore(graph);
@@ -35,8 +34,7 @@ namespace BronKerbosch {
 
         static void sort_cliques(std::vector<std::vector<Vertex>>& cliques);
 
-    private:
+       private:
         static bool clique_less(std::vector<Vertex> const&, std::vector<Vertex> const&);
     };
 }
-

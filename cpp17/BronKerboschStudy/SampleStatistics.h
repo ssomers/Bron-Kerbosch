@@ -3,14 +3,14 @@
 namespace BronKerboschStudy {
     template <typename T>
     class SampleStatistics {
-    private:
+       private:
         T maxOrZero = 0;
         T minOrZero = 0;
         unsigned samples = 0;
         double sum = 0;
         double sum_of_squares = 0;
 
-    public:
+       public:
         void put(T v) {
             if (samples == 0) {
                 minOrZero = v;

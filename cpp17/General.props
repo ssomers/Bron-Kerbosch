@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostDir>..\..\..\boost_1_75_0</BoostDir>
     <CppcoroDir>..\..\..\cppcoro</CppcoroDir>
   </PropertyGroup>
   <PropertyGroup>
@@ -11,7 +10,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..;$(BoostDir);$(CppcoroDir)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;$(CppcoroDir)\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -27,9 +26,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <BuildMacro Include="BoostDir">
-      <Value>$(BoostDir)</Value>
-    </BuildMacro>
     <BuildMacro Include="CppcoroDir">
       <Value>$(CppcoroDir)</Value>
     </BuildMacro>

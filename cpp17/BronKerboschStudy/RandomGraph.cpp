@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "RandomGraph.h"
 
 unsigned BronKerboschStudy::parseInt(std::string const& str) {

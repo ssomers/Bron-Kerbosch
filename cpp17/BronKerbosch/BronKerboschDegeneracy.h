@@ -11,9 +11,10 @@
 
 namespace BronKerbosch {
     class BronKerboschDegeneracy {
-    public:
+       public:
         template <typename VertexSet>
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph, PivotChoice pivot_choice) {
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph,
+                                  PivotChoice pivot_choice) {
             auto cliques = CliqueList{};
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
             auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph, -1);
@@ -26,15 +27,11 @@ namespace BronKerbosch {
                     assert(!Util::are_disjoint(neighbours, excluded));
                 } else {
                     auto neighbouring_excluded = Util::intersection(neighbours, excluded);
-                    auto pile = VertexPile{ v };
+                    auto pile = VertexPile{v};
                     cliques.splice(cliques.end(), BronKerboschPivot::visit(
-                        graph,
-                        pivot_choice,
-                        pivot_choice,
-                        std::move(neighbouring_candidates),
-                        std::move(neighbouring_excluded),
-                        &pile
-                    ));
+                                                      graph, pivot_choice, pivot_choice,
+                                                      std::move(neighbouring_candidates),
+                                                      std::move(neighbouring_excluded), &pile));
                 }
                 excluded.insert(v);
             }

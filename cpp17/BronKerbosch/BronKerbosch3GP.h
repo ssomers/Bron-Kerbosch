@@ -8,11 +8,10 @@
 
 namespace BronKerbosch {
     class BronKerbosch3GP {
-    public:
+       public:
         template <typename VertexSet>
         static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
             return BronKerboschDegeneracy::explore(graph, PivotChoice::MaxDegreeLocal);
         }
     };
 }
-

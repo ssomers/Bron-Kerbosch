@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Vertex.h"
-#include "Util.h"
 #include <vector>
+#include "Util.h"
+#include "Vertex.h"
 
 namespace BronKerbosch {
     template <typename VertexSet>
     class UndirectedGraph {
-    public:
+       public:
         using Adjacencies = std::vector<VertexSet>;
 
         UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
@@ -59,7 +59,7 @@ namespace BronKerbosch {
             return true;
         }
 
-    private:
+       private:
         Adjacencies itsAdjacencies;
     };
 }

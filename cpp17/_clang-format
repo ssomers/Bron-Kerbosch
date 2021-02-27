@@ -1,0 +1,10 @@
+BasedOnStyle: Chromium
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+FixNamespaceComments: false
+NamespaceMacros: [TEST_CLASS, TEST_METHOD]
+IndentPPDirectives: AfterHash
+NamespaceIndentation: All
+IndentWidth: 4
+ColumnLimit: 100

@@ -9,21 +9,21 @@ namespace BronKerboschStudy {
 
     template <typename VertexSet>
     class RandomGraph : public UndirectedGraph<VertexSet> {
-    public:
+       public:
         const size_t clique_count;
 
-    private:
-        RandomGraph(std::vector<VertexSet>&& adjacencies, size_t clique_count) :
-            UndirectedGraph<VertexSet>(std::move(adjacencies)),
-            clique_count(clique_count) {
+       private:
+        RandomGraph(std::vector<VertexSet>&& adjacencies, size_t clique_count)
+            : UndirectedGraph<VertexSet>(std::move(adjacencies)), clique_count(clique_count) {
         }
 
-    public:
+       public:
         static RandomGraph<VertexSet> readUndirected(std::string const& orderstr, unsigned size) {
             unsigned order = parseInt(orderstr);
-            auto fully_meshed_size = (unsigned long) order * (order - 1) / 2;
+            auto fully_meshed_size = (unsigned long)order * (order - 1) / 2;
             if (size > fully_meshed_size) {
-                std::cerr << order << " nodes accommodate at most " << fully_meshed_size << " edges\n";
+                std::cerr << order << " nodes accommodate at most " << fully_meshed_size
+                          << " edges\n";
                 std::exit(EXIT_FAILURE);
             }
 
@@ -31,7 +31,7 @@ namespace BronKerboschStudy {
             auto stats_path = std::string("..\\random_stats.txt");
             auto adjacencies = readEdges(edges_path, orderstr, size);
             auto expected_clique_count = readStats(stats_path, orderstr, size);
-            auto g = RandomGraph<VertexSet>{ std::move(adjacencies), expected_clique_count };
+            auto g = RandomGraph<VertexSet>{std::move(adjacencies), expected_clique_count};
             if (g.order() != order || g.size() != size) {
                 std::cerr << "Messed up while reading " << edges_path << "\n";
                 std::exit(EXIT_FAILURE);
@@ -39,8 +39,10 @@ namespace BronKerboschStudy {
             return g;
         }
 
-    private:
-        static std::vector<VertexSet> readEdges(std::string const& path, std::string const& orderstr, unsigned size) {
+       private:
+        static std::vector<VertexSet> readEdges(std::string const& path,
+                                                std::string const& orderstr,
+                                                unsigned size) {
             unsigned order = parseInt(orderstr);
             unsigned line_idx = 0;
             std::vector<VertexSet> adjacencies(order);
@@ -64,13 +66,16 @@ namespace BronKerboschStudy {
                 }
             }
             if (line_idx < size) {
-                std::cerr << "Exhausted generated list of " << line_idx << " edges in " << path << "\n";
+                std::cerr << "Exhausted generated list of " << line_idx << " edges in " << path
+                          << "\n";
                 std::exit(EXIT_FAILURE);
             }
             return adjacencies;
         }
 
-        static size_t readStats(std::string const& path, std::string const& orderstr, unsigned size) {
+        static size_t readStats(std::string const& path,
+                                std::string const& orderstr,
+                                unsigned size) {
             std::ifstream file(path.c_str());
             if (!file) {
                 std::cerr << "Missing " << path << "\n";
