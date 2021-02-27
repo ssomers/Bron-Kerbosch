@@ -27,7 +27,7 @@ Compared to the original forked from, the code is:
 * **Ver3=GP3:** (Go only) parallel Ver3+GP (2 + 15 goroutine)
 * **Ver3=GP4:** (Go only) parallel Ver3+GP (2 + 45 goroutines)
 * **Ver3=GP5:** (Go only) parallel Ver3+GP (2 + 135 goroutines)
-* **Ver3=MT:** (Rust, Java) parallel Ver3+GP using channels (2 + 5 threads)
+* **Ver3=MT:** (Rust, C++, Java) parallel Ver3+GP using something resembling channels
 * **Ver3=ST:** (C#, Java, Scala) parallel Ver3+GP using simple composition (async, stream, future)
 
 ## Set data structures
