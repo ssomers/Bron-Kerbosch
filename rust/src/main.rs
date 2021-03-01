@@ -312,12 +312,18 @@ fn main() -> Result<(), std::io::Error> {
                         SetType::BTreeSet => vec![1, 7, 9],
                         _ => vec![7, 9],
                     },
-                    250_000..=1_500_000 => match set_type {
+                    250_000..=1_999_999 => match set_type {
                         SetType::OrdVec => vec![],
+                        _ => vec![7, 9],
+                    },
+                    2_000_000..=3_000_000 => match set_type {
+                        SetType::OrdVec => vec![],
+                        SetType::BTreeSet => vec![9],
                         _ => vec![7, 9],
                     },
                     _ => match set_type {
                         SetType::OrdVec => vec![],
+                        SetType::BTreeSet => vec![],
                         _ => vec![9],
                     },
                 }
