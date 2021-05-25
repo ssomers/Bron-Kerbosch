@@ -3,9 +3,7 @@
 from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 
-from enum import Enum
 from typing import Callable, List, Set
-import itertools
 import random
 
 PivotChoice = Callable
@@ -65,14 +63,13 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
         candidates.remove(v)
         if neighbouring_candidates := candidates.intersection(neighbours):
             neighbouring_excluded = excluded.intersection(neighbours)
-            visit(
-                graph=graph,
-                reporter=reporter,
-                initial_pivot_choice=further_pivot_choice,
-                further_pivot_choice=further_pivot_choice,
-                candidates=neighbouring_candidates,
-                excluded=neighbouring_excluded,
-                clique=clique + [v])
+            visit(graph=graph,
+                  reporter=reporter,
+                  initial_pivot_choice=further_pivot_choice,
+                  further_pivot_choice=further_pivot_choice,
+                  candidates=neighbouring_candidates,
+                  excluded=neighbouring_excluded,
+                  clique=clique + [v])
         else:
             if excluded.isdisjoint(neighbours):
                 reporter.record(clique + [v])
@@ -84,7 +81,7 @@ def pick_arbitrary(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
 
 
 def pick_random(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
-    return random.sample(candidates, k=1)[0]
+    return random.choice(tuple(candidates))
     """
     return random.sample(
         random.choices(

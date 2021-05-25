@@ -20,7 +20,7 @@ class NeighbourhoodWatch:
         v = random.choice(self.unsaturated_vertices)
         if self.complement[v]:
             assert self.neighbours[v]
-            w = random.sample(self.neighbours[v], 1)[0]
+            w = random.choice(tuple(self.neighbours[v]))
         else:
             w = v
             while w == v or w in self.neighbours[v]:
