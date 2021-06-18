@@ -330,7 +330,7 @@ fn main() -> Result<(), std::io::Error> {
             },
         )?;
     } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
-        let sizes = opt.sizes.iter().map(|s| parse_positive_int(&s));
+        let sizes = opt.sizes.iter().map(|s| parse_positive_int(s));
         let included_funcs = |set_type: SetType, _size: usize| -> Vec<usize> {
             if opt.set.filter(|&s| s != set_type).is_some() {
                 vec![]
