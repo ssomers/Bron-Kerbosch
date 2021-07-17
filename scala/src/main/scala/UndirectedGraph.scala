@@ -1,6 +1,4 @@
-import base.Vertex
-
-trait UndirectedGraph {
+trait UndirectedGraph[Vertex] {
   def order(): Int
 
   def size(): Int

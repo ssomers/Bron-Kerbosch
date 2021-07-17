@@ -10,13 +10,15 @@ object bron_kerbosch_pivot {
   }
   import PivotChoice._
 
-  def visit(graph: UndirectedGraph,
-            reporter: Clique => Unit,
-            initial_pivot_choice: PivotChoice,
-            further_pivot_choice: PivotChoice,
-            candidates: Set[Vertex],
-            excluded: Set[Vertex],
-            clique_in_progress: immutable.List[Vertex]): Unit = {
+  def visit(
+      graph: UndirectedGraph[Vertex],
+      reporter: Clique => Unit,
+      initial_pivot_choice: PivotChoice,
+      further_pivot_choice: PivotChoice,
+      candidates: Set[Vertex],
+      excluded: Set[Vertex],
+      clique_in_progress: immutable.List[Vertex]
+  ): Unit = {
     assert(candidates.nonEmpty)
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
@@ -37,7 +39,7 @@ object bron_kerbosch_pivot {
           case MaxDegreeLocal |
               MaxDegreeLocalX => // Quickly handle locally unconnected candidates while finding pivot
             var pivot: Option[Vertex] = None
-            var remaining_candidates =
+            val remaining_candidates =
               new mutable.ArrayBuffer[Vertex](candidates.size)
             var seen_local_degree = 0
             for (v <- candidates) {

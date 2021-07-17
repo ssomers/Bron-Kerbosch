@@ -2,6 +2,10 @@
   <configuration default="false" name="test" type="ScalaTestRunConfiguration" factoryName="ScalaTest" show_console_on_std_err="false" show_console_on_std_out="false">
     <module name="Bron-Kerbosch" />
     <option name="allowRunningInParallel" value="false" />
+    <option name="projectPathOnTarget" />
+    <option name="selectedOptions">
+      <list />
+    </option>
     <option name="testKind" value="All in package" />
     <option name="classBuf">
       <list>
@@ -9,17 +13,7 @@
         <option value="SampleStatisticsTest" />
       </list>
     </option>
-    <option name="envs">
-      <map />
-    </option>
-    <option name="javaOptions" value="" />
-    <option name="jrePath" />
     <option name="searchTest" value="In single module" />
-    <option name="showProgressMessages" value="true" />
-    <option name="testArgs" value="" />
-    <option name="testPackagePath" value="" />
-    <option name="useSbt" value="false" />
-    <option name="useUiWithSbt" value="false" />
     <option name="workingDirectory" value="C:\a\Bron-Kerbosch\scala" />
     <method v="2">
       <option name="Make" enabled="true" />

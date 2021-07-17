@@ -11,18 +11,26 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 object bron_kerbosch3_st extends bron_kerbosch_algorithm {
-  def explore(graph: UndirectedGraph, reporter: Clique => Unit): Unit = {
-    val futures = go_explore(graph, (clique: Clique) => {
-      this.synchronized {
-        reporter(clique)
+  def explore(
+      graph: UndirectedGraph[Vertex],
+      reporter: Clique => Unit
+  ): Unit = {
+    val futures = go_explore(
+      graph,
+      (clique: Clique) => {
+        this.synchronized {
+          reporter(clique)
+        }
       }
-    })
+    )
     for (future <- futures)
       Await.ready(future, Duration.Inf)
   }
 
-  def go_explore(graph: UndirectedGraph,
-                 reporter: Clique => Unit): List[Future[Unit]] = {
+  def go_explore(
+      graph: UndirectedGraph[Vertex],
+      reporter: Clique => Unit
+  ): List[Future[Unit]] = {
     var excluded = Set.empty[Vertex]
     var futures = List[Future[Unit]]()
     for (v <- degeneracy_ordering(graph, -1)) {

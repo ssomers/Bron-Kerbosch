@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="debug" modules="">
+    <profile name="debug" modules="Bron-Kerbosch-build">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />
     </profile>
-    <profile name="release" modules="Bron-Kerbosch,bron-kerbosch">
+    <profile name="release" modules="bron-kerbosch">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />
@@ -14,6 +14,6 @@
         <parameter value="-Xdisable-assertions" />
       </parameters>
     </profile>
-    <profile name="sbt 1" modules="" />
+    <profile name="sbt 1" modules="Bron-Kerbosch" />
   </component>
 </project>

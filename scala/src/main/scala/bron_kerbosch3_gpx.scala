@@ -8,7 +8,10 @@ import bron_kerbosch_pivot.visit
 import scala.collection.immutable
 
 object bron_kerbosch3_gpx extends bron_kerbosch_algorithm {
-  def explore(graph: UndirectedGraph, reporter: Clique => Unit): Unit = {
+  def explore(
+      graph: UndirectedGraph[Vertex],
+      reporter: Clique => Unit
+  ): Unit = {
     var excluded = Set.empty[Vertex]
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)

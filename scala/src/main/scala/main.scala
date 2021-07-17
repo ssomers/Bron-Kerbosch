@@ -13,7 +13,7 @@ object main {
       "Ver3+",
       "Ver3+GP",
       "Ver3+GPX",
-      "Ver3=ST",
+      "Ver3=ST"
     )
   val FUNCS: IndexedSeq[bron_kerbosch_algorithm] = IndexedSeq(
     bron_kerbosch1,
@@ -24,7 +24,7 @@ object main {
     bron_kerbosch3,
     bron_kerbosch3_gp,
     bron_kerbosch3_gpx,
-    bron_kerbosch3_st,
+    bron_kerbosch3_st
   )
 
   type Clique = bron_kerbosch_algorithm#Clique
@@ -48,10 +48,12 @@ object main {
       })
   }
 
-  def bron_kerbosch_timed(graph: UndirectedGraph,
-                          clique_count: Int,
-                          samples: Int,
-                          func_indices: Array[Int]): Array[SampleStatistics] = {
+  def bron_kerbosch_timed(
+      graph: UndirectedGraph[Vertex],
+      clique_count: Int,
+      samples: Int,
+      func_indices: Array[Int]
+  ): Array[SampleStatistics] = {
     var firstOrdered: Option[Seq[Seq[Vertex]]] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
     val start = if (samples == 1) 1 else 0
@@ -60,7 +62,7 @@ object main {
       val func = FUNCS(func_index)
       val func_name = FUNC_NAMES(func_index)
       if (sample == 0) {
-        var cliques = new Cliques()
+        val cliques = new Cliques()
         val reporter = (clique: Clique) => { cliques += clique; () }
         func.explore(graph, reporter)
         if (cliques.size != clique_count)
@@ -84,11 +86,13 @@ object main {
     times
   }
 
-  def bk(order_str: String,
-         order: Int,
-         sizes: Array[Int],
-         samples: Int,
-         func_indices: Array[Int]): Unit = {
+  def bk(
+      order_str: String,
+      order: Int,
+      sizes: Array[Int],
+      samples: Int,
+      func_indices: Array[Int]
+  ): Unit = {
     val name = "bron_kerbosch_scala_order_" + order_str
     val path = f"..\\$name.csv"
 
@@ -103,7 +107,7 @@ object main {
     for (size <- sizes) {
       val start = System.nanoTime()
       val (graph, clique_count) =
-        RandomGraph.read_undirected(order_str, order, size)
+        RandomGraph.read_undirected[Vertex](order_str, order, size)
       val elapsed = (System.nanoTime() - start) / 1e9
       println(f"$order_str%7s nodes, $size%7d edges, creation: $elapsed%6.3f")
       val times =
@@ -115,10 +119,10 @@ object main {
         val max = times(func_index).max
         val min = times(func_index).min
         val mean = times(func_index).mean()
-        val reldev = times(func_index).deviation() / mean * 100
+        val dev = times(func_index).deviation() / mean * 100
         fo.print(f",$min,$mean,$max")
         println(
-          f"$order_str%7s nodes, $size%7d edges, $func_name%8s: $mean%6.3f ± $reldev%.0f%%"
+          f"$order_str%7s nodes, $size%7d edges, $func_name%8s: $mean%6.3f ± $dev%.0f%%"
         )
       }
       fo.println()
