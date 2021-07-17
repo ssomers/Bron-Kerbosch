@@ -46,8 +46,8 @@ object RandomGraph {
     val adjacencies = read_edges[Vertex](edges_path, order, size)
     val clique_count = read_stats(stats_path, order_str, size)
     val graph = new SlimUndirectedGraph(adjacencies)
-    require(graph.order == order)
-    require(graph.size == size)
+    require(graph.order() == order)
+    require(graph.size() == size)
     (graph, clique_count)
   }
 
@@ -58,7 +58,7 @@ object RandomGraph {
   ): IndexedSeq[Set[Vertex]] = {
     val adjacency_sets = new_adjacencies[Vertex](order)
     val file = Source.fromFile(path)
-    for (line <- file.getLines.take(size)) {
+    for (line <- file.getLines().take(size)) {
       val fields = line.split(" ", 2)
       val v = Integer.parseInt(fields(0))
       val w = Integer.parseInt(fields(1))
@@ -73,7 +73,7 @@ object RandomGraph {
   def read_stats(path: String, order_str: String, size: Int): Int = {
     val prefix = f"$order_str\t$size\t"
     val file = Source.fromFile(path)
-    for (line <- file.getLines.take(size)) {
+    for (line <- file.getLines().take(size)) {
       if (line.startsWith(prefix)) {
         file.close()
         return Integer.parseInt(line.substring(prefix.length))

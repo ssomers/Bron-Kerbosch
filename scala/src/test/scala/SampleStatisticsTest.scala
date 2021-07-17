@@ -1,4 +1,4 @@
-class SampleStatisticsTest extends org.scalatest.FunSuite {
+class SampleStatisticsTest extends org.scalatest.funsuite.AnyFunSuite {
   test("0") {
     val s = new SampleStatistics
     assert(s.mean().isNaN)

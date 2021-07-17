@@ -1,7 +1,7 @@
 import base.Vertex
 import main.{Clique, Cliques, FUNCS, FUNC_NAMES, order_cliques}
 
-class BronKerboschTest extends org.scalatest.FunSuite {
+class BronKerboschTest extends org.scalatest.funsuite.AnyFunSuite {
   def bk(
       adjacency_list: Seq[Seq[Vertex]],
       expected_cliques: Seq[Seq[Vertex]]

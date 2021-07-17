@@ -125,13 +125,13 @@ and finally
     python python3\publish.py java 100 10k 1M
 
 ### Scala
-  - open folder scala with IntelliJ IDEA 2020.2 (Community Edition)
-  - set compiler configuration to debug: open File > Settings > Build, Execution, Deployment > Compiler > Scala Compiler; select Bron-Kerbosch and move to release profile; change something else so IntelliJ doesn't ignore you, Apply (upon which IntelliJ applies the profile change and sometimes the something else), revert the something else and Apply (all this just to toggle -Xdisable-assertions)
-  - Build > Rebuild
+  - open folder scala with IntelliJ IDEA 2021.1 (Community Edition)
+  - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
+  - Build > Rebuild Project
   - set run configuration to test
   - Run > Run 'test'
-  - set compiler configuration to release (as above)
-  - Build > Rebuild
+  - disable assertions: uncomment `"-Xdisable-assertions"` in build.sbt
+  - Build > Rebuild Project
   - set run configuration to main
   - Run > Run 'main'
 
