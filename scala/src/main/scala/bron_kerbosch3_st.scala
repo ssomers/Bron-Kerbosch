@@ -1,7 +1,6 @@
 // Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
 // choosing a pivot from candidates only (IK_GP), multi-threaded
 
-import base.Vertex
 import bron_kerbosch_pivot.PivotChoice.MaxDegreeLocal
 import bron_kerbosch_pivot.visit
 
@@ -10,14 +9,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object bron_kerbosch3_st extends bron_kerbosch_algorithm {
+class bron_kerbosch3_st[Vertex: Integral]
+    extends bron_kerbosch_algorithm[Vertex] {
   def explore(
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit
+      reporter: immutable.Iterable[Vertex] => Unit
   ): Unit = {
     val futures = go_explore(
       graph,
-      (clique: Clique) => {
+      (clique: immutable.Iterable[Vertex]) => {
         this.synchronized {
           reporter(clique)
         }
@@ -29,7 +29,7 @@ object bron_kerbosch3_st extends bron_kerbosch_algorithm {
 
   def go_explore(
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit
+      reporter: immutable.Iterable[Vertex] => Unit
   ): List[Future[Unit]] = {
     var excluded = Set.empty[Vertex]
     var futures = List[Future[Unit]]()

@@ -1,6 +1,3 @@
-import base.Vertex
-import bron_kerbosch2.Clique
-
 import scala.collection.{immutable, mutable}
 
 object bron_kerbosch_pivot {
@@ -10,9 +7,9 @@ object bron_kerbosch_pivot {
   }
   import PivotChoice._
 
-  def visit(
+  def visit[Vertex](
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit,
+      reporter: immutable.Iterable[Vertex] => Unit,
       initial_pivot_choice: PivotChoice,
       further_pivot_choice: PivotChoice,
       candidates: Set[Vertex],

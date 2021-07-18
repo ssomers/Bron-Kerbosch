@@ -1,11 +1,9 @@
-import base.Vertex
-
 import scala.collection.immutable
 
-object bron_kerbosch1 extends bron_kerbosch_algorithm {
+class bron_kerbosch1[Vertex] extends bron_kerbosch_algorithm[Vertex] {
   def explore(
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit
+      reporter: immutable.Iterable[Vertex] => Unit
   ): Unit = {
     val candidates = graph.connected_vertices().toSet
     visit(graph, reporter, candidates, Set(), immutable.List())
@@ -13,7 +11,7 @@ object bron_kerbosch1 extends bron_kerbosch_algorithm {
 
   def visit(
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit,
+      reporter: immutable.Iterable[Vertex] => Unit,
       initial_candidates: Set[Vertex],
       initial_excluded: Set[Vertex],
       clique_in_progress: immutable.List[Vertex]

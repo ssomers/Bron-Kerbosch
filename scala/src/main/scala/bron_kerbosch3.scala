@@ -1,16 +1,15 @@
 // Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
 // choosing a pivot arbitrarily
 
-import base.Vertex
 import bron_kerbosch_pivot.PivotChoice.Arbitrary
 import bron_kerbosch_pivot.visit
 
 import scala.collection.immutable
 
-object bron_kerbosch3 extends bron_kerbosch_algorithm {
+class bron_kerbosch3[Vertex: Integral] extends bron_kerbosch_algorithm[Vertex] {
   def explore(
       graph: UndirectedGraph[Vertex],
-      reporter: Clique => Unit
+      reporter: immutable.Iterable[Vertex] => Unit
   ): Unit = {
     var excluded = Set.empty[Vertex]
     for (v <- degeneracy_ordering[Vertex](graph, -1)) {

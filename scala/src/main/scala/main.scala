@@ -1,5 +1,4 @@
-import base.Vertex
-
+import scala.collection.immutable
 import scala.collection.mutable.ArrayBuffer
 
 object main {
@@ -15,19 +14,20 @@ object main {
       "Ver3+GPX",
       "Ver3=ST"
     )
-  val FUNCS: IndexedSeq[bron_kerbosch_algorithm] = IndexedSeq(
-    bron_kerbosch1,
-    bron_kerbosch2,
-    bron_kerbosch2_g,
-    bron_kerbosch2_gp,
-    bron_kerbosch2_gpx,
-    bron_kerbosch3,
-    bron_kerbosch3_gp,
-    bron_kerbosch3_gpx,
-    bron_kerbosch3_st
+  val FUNCS: IndexedSeq[bron_kerbosch_algorithm[Vertex]] = IndexedSeq(
+    new bron_kerbosch1,
+    new bron_kerbosch2,
+    new bron_kerbosch2_g,
+    new bron_kerbosch2_gp,
+    new bron_kerbosch2_gpx,
+    new bron_kerbosch3,
+    new bron_kerbosch3_gp,
+    new bron_kerbosch3_gpx,
+    new bron_kerbosch3_st
   )
 
-  type Clique = bron_kerbosch_algorithm#Clique
+  type Vertex = Int
+  type Clique = immutable.Iterable[Vertex]
   type Cliques = ArrayBuffer[Clique]
   def order_cliques(cliques: Cliques): Seq[Seq[Vertex]] = {
     require(cliques.forall(_.size > 1))
