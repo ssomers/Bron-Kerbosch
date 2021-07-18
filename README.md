@@ -126,6 +126,7 @@ and finally
 
 ### Scala
   - open folder scala with IntelliJ IDEA 2021.1 (Community Edition)
+  - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
   - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
   - Build > Rebuild Project
   - set run configuration to test
