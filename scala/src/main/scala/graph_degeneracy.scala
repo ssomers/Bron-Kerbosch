@@ -26,14 +26,14 @@ class degeneracy_ordering[Vertex: Integral] private (
         .map { case (p, v) => (p, implicitly[Integral[Vertex]].fromInt(v)) }
         .forall { case (p, v) => p == 0 || queue.contains(p, v) }
     )
-    var i = queue.pop().get
-    while (priority_of_vertex(i) == 0) {
-      // v was requeued with a more urgent priority and therefore already picked
-      i = queue.pop().get
+    var v0 = queue.pop().get
+    while (priority_of_vertex(v0) == 0) {
+      // v0 was requeued with a more urgent priority and therefore already picked
+      v0 = queue.pop().get
     }
 
-    prioritize_vertex(i, 0)
-    for (v <- graph.neighbours(i)) {
+    prioritize_vertex(v0, 0)
+    for (v <- graph.neighbours(v0)) {
       val old_priority = priority_of_vertex(v)
       if (old_priority != 0) {
         // Since this is an unvisited neighbour of a vertex just being picked,
@@ -47,7 +47,7 @@ class degeneracy_ordering[Vertex: Integral] private (
       }
     }
     num_left_to_pick -= 1
-    i
+    v0
   }
 }
 

@@ -4,6 +4,7 @@ version := "0.1"
 scalaVersion := "2.13.6"
 //noinspection Annotator,SpellCheckingInspection
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.5" % "test"
+//noinspection SpellCheckingInspection
 scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",

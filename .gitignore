@@ -29,8 +29,8 @@ target
 /rust/*.vspx
 /rust/measure/measure.vcxproj.filters
 /rust/measure/x64
-/scala/target
 /scala/bron-kerbosch.iml
+/scala/.bsp/sbt.json
 /scala/.idea/codeStyles/codeStyleConfig.xml
 /scala/.idea/encodings.xml
 /scala/.idea/misc.xml
@@ -39,3 +39,4 @@ target
 /scala/.idea/scala_settings.xml
 /scala/.idea/workspace.xml
 /scala/.idea/.name
+/scala/target
