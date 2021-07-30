@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
@@ -44,7 +43,8 @@ namespace BronKerbosch
             if (initialChoice >= Choice.MaxDegreeLocal)
             {
                 // Quickly handle locally unconnected candidates while finding pivot
-                pivot = Vertex.MaxValue;
+                const int INVALID = Int32.MaxValue;
+                pivot = Vertex.nth(INVALID);
                 var seenLocalDegree = 0;
                 foreach (var v in candidates)
                 {
@@ -69,7 +69,7 @@ namespace BronKerbosch
                 }
                 if (seenLocalDegree == 0)
                     return;
-                Debug.Assert(pivot != Vertex.MaxValue);
+                Debug.Assert(pivot.index != INVALID);
                 if (initialChoice == Choice.MaxDegreeLocalX)
                 {
                     foreach (var v in excluded)

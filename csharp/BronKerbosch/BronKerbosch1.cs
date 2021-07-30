@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Vertex = System.UInt32;
 
 internal static class BronKerbosch1
 {

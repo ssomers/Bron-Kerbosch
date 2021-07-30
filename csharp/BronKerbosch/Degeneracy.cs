@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
@@ -17,14 +16,15 @@ namespace BronKerbosch
             int[] priorityPerVertex = new int[graph.Order];
             var maxPriority = 0;
             var numLeftToPick = 0;
-            foreach (Vertex c in Enumerable.Range(0, graph.Order))
+            foreach (int i in Enumerable.Range(0, graph.Order))
             {
+                var c = Vertex.nth(i);
                 var degree = graph.Degree(c);
                 if (degree > 0)
                 {
                     var priority = degree;
                     maxPriority = Math.Max(maxPriority, priority);
-                    priorityPerVertex[c] = degree;
+                    priorityPerVertex[i] = degree;
                     numLeftToPick += 1;
                 }
             }
@@ -33,7 +33,7 @@ namespace BronKerbosch
             //   no_priority: when yielded or if unconnected
             //   0..maxPriority: candidates still queued with priority (degree - #of yielded neighbours)
             var q = new PriorityQueue(maxPriority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => ((Vertex)i, p)))
+            foreach (var (c, p) in priorityPerVertex.Select((p, i) => (Vertex.nth(i), p)))
             {
                 if (p > 0)
                     q.Put(priority: p, element: c);
@@ -44,17 +44,17 @@ namespace BronKerbosch
             {
                 numLeftToPick -= 1;
                 var i = q.Pop();
-                while (priorityPerVertex[i] == NO_PRIORITY)
+                while (priorityPerVertex[i.index] == NO_PRIORITY)
                 {
                     // was requeued with a more urgent priority and therefore already picked
                     i = q.Pop();
                 }
-                Debug.Assert(priorityPerVertex[i] >= 0);
-                priorityPerVertex[i] = NO_PRIORITY;
+                Debug.Assert(priorityPerVertex[i.index] >= 0);
+                priorityPerVertex[i.index] = NO_PRIORITY;
                 yield return i;
                 foreach (var v in graph.Neighbours(i))
                 {
-                    var oldPriority = priorityPerVertex[v];
+                    var oldPriority = priorityPerVertex[v.index];
                     if (oldPriority != NO_PRIORITY)
                     {
                         // Since this is an unvisited neighbour of a vertex just being picked,
@@ -62,7 +62,7 @@ namespace BronKerbosch
                         Debug.Assert(oldPriority > 0);
                         // Requeue with a more urgent priority, but don't bother to remove
                         // the original entry - it will be skipped if it's reached at all.
-                        priorityPerVertex[v] = oldPriority - 1;
+                        priorityPerVertex[v.index] = oldPriority - 1;
                         q.Put(priority: oldPriority - 1, element: v);
                     }
                 }

@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Vertex = System.UInt32;
 
 namespace BronKerboschStudy
 {
@@ -66,8 +65,8 @@ namespace BronKerboschStudy
                     {
                         throw new ArgumentException($"File {path} line {linenum} contains bogus text {line}");
                     }
-                    var added1 = adjacencies[v].Add((Vertex)w);
-                    var added2 = adjacencies[w].Add((Vertex)v);
+                    var added1 = adjacencies[v].Add(Vertex.nth(w));
+                    var added2 = adjacencies[w].Add(Vertex.nth(v));
                     Debug.Assert(added1);
                     Debug.Assert(added2);
                 }

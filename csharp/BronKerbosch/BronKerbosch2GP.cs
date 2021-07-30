@@ -4,7 +4,6 @@ using BronKerbosch;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Vertex = System.UInt32;
 
 internal static class BronKerbosch2GP
 {

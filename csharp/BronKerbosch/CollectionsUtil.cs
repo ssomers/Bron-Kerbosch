@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
     public static class CollectionsUtil
     {
-        public static ImmutableArray<Vertex> Append(ImmutableArray<Vertex> head, Vertex tail)
+        public static ImmutableArray<T> Append<T>(ImmutableArray<T> head, T tail)
         {
-            var builder = ImmutableArray.CreateBuilder<Vertex>(head.Length + 1);
+            var builder = ImmutableArray.CreateBuilder<T>(head.Length + 1);
             builder.AddRange(head);
             builder.Add(tail);
             return builder.MoveToImmutable();
         }
 
-        public static bool AreDisjoint(ISet<Vertex> lhs, ISet<Vertex> rhs)
+        public static bool AreDisjoint<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs is null || rhs is null)
                 return true;
@@ -27,9 +26,9 @@ namespace BronKerbosch
                 return !rhs.Overlaps(lhs);
         }
 
-        public static HashSet<Vertex> Difference(ISet<Vertex> lhs, ISet<Vertex> rhs)
+        public static HashSet<T> Difference<T>(ISet<T> lhs, ISet<T> rhs)
         {
-            var result = new HashSet<Vertex>(capacity: lhs.Count);
+            var result = new HashSet<T>(capacity: lhs.Count);
             foreach (var v in lhs)
             {
                 if (!rhs.Contains(v))
@@ -39,7 +38,7 @@ namespace BronKerbosch
             // much slower: lhs.Except(rhs).ToHashSet();
         }
 
-        public static int IntersectionSize(ISet<Vertex> lhs, ISet<Vertex> rhs)
+        public static int IntersectionSize<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs.Count > rhs.Count)
                 return IntersectionSize(rhs, lhs);
@@ -50,12 +49,12 @@ namespace BronKerbosch
             // even slower: return lhs.Intersect(rhs).Count();
         }
 
-        public static HashSet<Vertex> Intersection(ISet<Vertex> lhs, ISet<Vertex> rhs)
+        public static HashSet<T> Intersection<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs.Count > rhs.Count)
                 return Intersection(rhs, lhs);
 
-            var result = new HashSet<Vertex>(capacity: Math.Min(lhs.Count, rhs.Count));
+            var result = new HashSet<T>(capacity: Math.Min(lhs.Count, rhs.Count));
             foreach (var v in lhs)
             {
                 if (rhs.Contains(v))
@@ -66,7 +65,7 @@ namespace BronKerbosch
             // even slower: return lhs.Intersect(rhs).ToHashSet();
         }
 
-        public static Vertex GetArbitrary(ISet<Vertex> candidates)
+        public static T GetArbitrary<T>(ISet<T> candidates)
         {
             using var en = candidates.GetEnumerator();
             var ok = en.MoveNext();
@@ -74,7 +73,7 @@ namespace BronKerbosch
             return en.Current;
         }
 
-        public static Vertex PopArbitrary(ISet<Vertex> candidates)
+        public static T PopArbitrary<T>(ISet<T> candidates)
         {
             using var en = candidates.GetEnumerator();
             var ok = en.MoveNext();

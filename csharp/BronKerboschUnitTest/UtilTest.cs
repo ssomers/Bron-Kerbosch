@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Vertex = System.UInt32;
 
 namespace BronKerboschUnitTest
 {
@@ -12,9 +11,9 @@ namespace BronKerboschUnitTest
         [Test]
         public void Append()
         {
-            var empty = ImmutableArray.Create<Vertex>();
-            var one = CollectionsUtil.Append(empty, 11);
-            var two = CollectionsUtil.Append(one, 22);
+            var empty = ImmutableArray.Create<uint>();
+            var one = CollectionsUtil.Append(empty, 11u);
+            var two = CollectionsUtil.Append(one, 22u);
             Assert.That(empty.Length.Equals(0));
             Assert.That(one.Length.Equals(1));
             Assert.That(two.Length.Equals(2));
@@ -26,8 +25,8 @@ namespace BronKerboschUnitTest
         [Test]
         public void PopArbitrary()
         {
-            var one = new HashSet<Vertex> { 1 };
-            var two = new HashSet<Vertex> { 1, 2 };
+            var one = new HashSet<uint> { 1u };
+            var two = new HashSet<uint> { 1u, 2u };
             Assert.That(CollectionsUtil.PopArbitrary(one).Equals(1u));
             Assert.Zero(one.Count);
             var x = CollectionsUtil.PopArbitrary(two);
@@ -39,10 +38,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void AreDisjoint()
         {
-            var empty = new HashSet<Vertex> { };
-            var one = new HashSet<Vertex> { 1 };
-            var two = new HashSet<Vertex> { 1, 2 };
-            var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
+            var empty = new HashSet<int> { };
+            var one = new HashSet<int> { 1 };
+            var two = new HashSet<int> { 1, 2 };
+            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.AreDisjoint(empty, one));
             Assert.That(CollectionsUtil.AreDisjoint(one, empty));
             Assert.That(CollectionsUtil.AreDisjoint(empty, two));
@@ -63,10 +62,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void Intersection()
         {
-            var empty = new HashSet<Vertex> { };
-            var one = new HashSet<Vertex> { 1 };
-            var two = new HashSet<Vertex> { 1, 2 };
-            var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
+            var empty = new HashSet<int> { };
+            var one = new HashSet<int> { 1 };
+            var two = new HashSet<int> { 1, 2 };
+            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.Intersection(empty, one).SetEquals(empty));
             Assert.That(CollectionsUtil.Intersection(one, empty).SetEquals(empty));
             Assert.That(CollectionsUtil.Intersection(empty, two).SetEquals(empty));
@@ -87,10 +86,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void IntersectCount()
         {
-            var empty = new HashSet<Vertex> { };
-            var one = new HashSet<Vertex> { 1 };
-            var two = new HashSet<Vertex> { 1, 2 };
-            var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
+            var empty = new HashSet<int> { };
+            var one = new HashSet<int> { 1 };
+            var two = new HashSet<int> { 1, 2 };
+            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.IntersectionSize(empty, one).Equals(0));
             Assert.That(CollectionsUtil.IntersectionSize(one, empty).Equals(0));
             Assert.That(CollectionsUtil.IntersectionSize(empty, two).Equals(0));
@@ -111,10 +110,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void Difference()
         {
-            var empty = new HashSet<Vertex> { };
-            var one = new HashSet<Vertex> { 1 };
-            var two = new HashSet<Vertex> { 1, 2 };
-            var six = new HashSet<Vertex> { 0, 1, 2, 3, 4, 5 };
+            var empty = new HashSet<int> { };
+            var one = new HashSet<int> { 1 };
+            var two = new HashSet<int> { 1, 2 };
+            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.Difference(empty, one).SetEquals(empty));
             Assert.That(CollectionsUtil.Difference(empty, two).SetEquals(empty));
             Assert.That(CollectionsUtil.Difference(empty, six).SetEquals(empty));
@@ -127,9 +126,9 @@ namespace BronKerboschUnitTest
             Assert.That(CollectionsUtil.Difference(one, empty).SetEquals(one));
             Assert.That(CollectionsUtil.Difference(two, empty).SetEquals(two));
             Assert.That(CollectionsUtil.Difference(six, empty).SetEquals(six));
-            Assert.That(CollectionsUtil.Difference(two, one).SetEquals(new HashSet<Vertex> { 2 }));
-            Assert.That(CollectionsUtil.Difference(six, one).SetEquals(new HashSet<Vertex> { 0, 2, 3, 4, 5 }));
-            Assert.That(CollectionsUtil.Difference(six, two).SetEquals(new HashSet<Vertex> { 0, 3, 4, 5 }));
+            Assert.That(CollectionsUtil.Difference(two, one).SetEquals(new HashSet<int> { 2 }));
+            Assert.That(CollectionsUtil.Difference(six, one).SetEquals(new HashSet<int> { 0, 2, 3, 4, 5 }));
+            Assert.That(CollectionsUtil.Difference(six, two).SetEquals(new HashSet<int> { 0, 3, 4, 5 }));
         }
     }
 }

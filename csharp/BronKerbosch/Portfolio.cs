@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Vertex = System.UInt32;
 
 namespace BronKerbosch
 {
@@ -62,7 +61,7 @@ namespace BronKerbosch
 
             for (var i = 0; i < lhs.Length && i < rhs.Length; ++i)
             {
-                var d = (int)lhs[i] - (int)rhs[i];
+                var d = lhs[i].index - rhs[i].index;
                 if (d != 0)
                 {
                     return d;

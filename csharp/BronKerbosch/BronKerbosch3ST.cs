@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Vertex = System.UInt32;
 
 internal static class BronKerbosch3ST
 {

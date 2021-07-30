@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Vertex = System.UInt32;
 
 namespace BronKerboschStudy
 {
