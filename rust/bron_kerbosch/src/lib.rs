@@ -85,9 +85,8 @@ mod tests {
     use graph::{NewableUndirectedGraph, VertexMap};
     use slimgraph::SlimUndirectedGraph;
 
-    extern crate fnv;
-    extern crate hashbrown;
-    use self::fnv::FnvHashSet;
+    use fnv::FnvHashSet;
+    use hashbrown;
     use std::collections::HashSet;
 
     fn bk_core<VertexSet>(adjacencies: &Vec<Vec<Vertex>>) -> OrderedCliques

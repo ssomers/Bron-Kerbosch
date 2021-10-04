@@ -1,11 +1,11 @@
 //! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
 //! choosing a pivot from both candidates and excluded vertices (IK_GPX)
 
-use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{UndirectedGraph, VertexSetLike};
-use graph_degeneracy::degeneracy_ordering;
-use pile::Pile;
-use reporter::Reporter;
+use crate::bron_kerbosch_pivot::{visit, PivotChoice};
+use crate::graph::{UndirectedGraph, VertexSetLike};
+use crate::graph_degeneracy::degeneracy_ordering;
+use crate::pile::Pile;
+use crate::reporter::Reporter;
 
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where

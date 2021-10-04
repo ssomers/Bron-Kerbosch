@@ -1,8 +1,8 @@
-pub extern crate rand;
-use self::rand::Rng;
+pub use crate::vertex::{Vertex, VertexMap};
+
+use rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;
-pub use vertex::{Vertex, VertexMap};
 
 pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
     fn new() -> Self;

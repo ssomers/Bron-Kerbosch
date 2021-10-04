@@ -1,4 +1,4 @@
-use graph::{
+use crate::graph::{
     are_valid_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex,
     VertexSetLike,
 };

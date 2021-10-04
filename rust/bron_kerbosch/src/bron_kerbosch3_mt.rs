@@ -2,13 +2,13 @@
 //! recursing with pivot of highest degree (IK_GP)
 //! implemented by multiple threads
 
-use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{UndirectedGraph, Vertex, VertexSetLike};
-use graph_degeneracy::degeneracy_ordering;
-use pile::Pile;
-use reporter::{Clique, Reporter};
+use crate::bron_kerbosch_pivot::{visit, PivotChoice};
+use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use crate::graph_degeneracy::degeneracy_ordering;
+use crate::pile::Pile;
+use crate::reporter::{Clique, Reporter};
 
-extern crate crossbeam_channel;
+use crossbeam_channel;
 
 struct SendingReporter {
     tx: crossbeam_channel::Sender<Clique>,

@@ -1,4 +1,4 @@
-use graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use crate::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 
 pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<Graph>
 where
@@ -135,12 +135,11 @@ where
 
 #[cfg(all(test, not(miri)))]
 mod tests {
-    extern crate proptest;
-    use self::proptest::prelude::*;
-    use self::proptest::test_runner::TestRunner;
     use super::*;
-    use graph::{connected_vertices, Adjacencies, NewableUndirectedGraph};
-    use slimgraph::SlimUndirectedGraph;
+    use crate::graph::{connected_vertices, Adjacencies, NewableUndirectedGraph};
+    use crate::slimgraph::SlimUndirectedGraph;
+    use proptest::prelude::*;
+    use proptest::test_runner::TestRunner;
     use std::collections::BTreeSet;
 
     #[test]

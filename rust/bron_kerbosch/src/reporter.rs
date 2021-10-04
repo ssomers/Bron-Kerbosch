@@ -1,4 +1,4 @@
-use graph::Vertex;
+use crate::graph::Vertex;
 
 use std::collections::BTreeSet;
 

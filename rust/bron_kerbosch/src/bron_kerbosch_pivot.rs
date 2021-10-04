@@ -1,10 +1,10 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
-use graph::{UndirectedGraph, Vertex, VertexSetLike};
-use pile::Pile;
-use reporter::Reporter;
+use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use crate::pile::Pile;
+use crate::reporter::Reporter;
 
-use graph::rand::seq::SliceRandom;
+use rand::seq::SliceRandom;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {

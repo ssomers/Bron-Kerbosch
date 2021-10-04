@@ -137,9 +137,8 @@ mod tests {
 
 #[cfg(all(test, not(miri)))]
 mod proptests {
-    extern crate proptest;
-    use self::proptest::prelude::*;
     use super::*;
+    use proptest::prelude::*;
 
     proptest! {
         #[test]

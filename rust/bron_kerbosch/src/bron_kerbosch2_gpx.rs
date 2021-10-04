@@ -1,8 +1,8 @@
 //! Bron-Kerbosch algorithm with pivot of highest degree towards the remaining candidates (IK_GPX)
 
-use bron_kerbosch_pivot::{visit, PivotChoice};
-use graph::{connected_vertices, UndirectedGraph, VertexSetLike};
-use reporter::Reporter;
+use crate::bron_kerbosch_pivot::{visit, PivotChoice};
+use crate::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
+use crate::reporter::Reporter;
 
 pub fn explore<Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where

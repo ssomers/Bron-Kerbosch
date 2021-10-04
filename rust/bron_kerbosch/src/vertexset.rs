@@ -1,8 +1,7 @@
-extern crate fnv;
-extern crate hashbrown;
-use self::fnv::{FnvBuildHasher, FnvHashSet};
-use graph::rand::{seq::IteratorRandom, seq::SliceRandom, Rng};
-use graph::{Vertex, VertexSetLike};
+use crate::graph::{Vertex, VertexSetLike};
+
+use fnv::{FnvBuildHasher, FnvHashSet};
+use rand::{seq::IteratorRandom, seq::SliceRandom, Rng};
 use std::collections::{BTreeSet, HashSet};
 use std::iter::FromIterator;
 
