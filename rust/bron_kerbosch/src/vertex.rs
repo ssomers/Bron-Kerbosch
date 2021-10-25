@@ -12,7 +12,6 @@ impl Vertex {
 impl<T> Index<Vertex> for [T] {
     type Output = T;
     fn index(&self, i: Vertex) -> &T {
-        use std::convert::TryInto;
         // Won't actually ever panic on 32- or 64-bit platforms
         let i: usize = i.0.try_into().unwrap();
         &self[i]
@@ -21,7 +20,6 @@ impl<T> Index<Vertex> for [T] {
 
 impl<T> IndexMut<Vertex> for [T] {
     fn index_mut(&mut self, i: Vertex) -> &mut T {
-        use std::convert::TryInto;
         // Won't actually ever panic on 32- or 64-bit platforms
         let i: usize = i.0.try_into().unwrap();
         &mut self[i]
@@ -65,7 +63,6 @@ impl<T> VertexMap<T> {
 impl<T> Index<Vertex> for VertexMap<T> {
     type Output = T;
     fn index(&self, i: Vertex) -> &T {
-        use std::convert::TryInto;
         // Won't actually ever panic on 32- or 64-bit platforms
         let i: usize = i.0.try_into().unwrap();
         &self.0[i]
@@ -74,7 +71,6 @@ impl<T> Index<Vertex> for VertexMap<T> {
 
 impl<T> IndexMut<Vertex> for VertexMap<T> {
     fn index_mut(&mut self, i: Vertex) -> &mut T {
-        use std::convert::TryInto;
         // Won't actually ever panic on 32- or 64-bit platforms
         let i: usize = i.0.try_into().unwrap();
         &mut self.0[i]

@@ -8,8 +8,6 @@ use crate::graph_degeneracy::degeneracy_ordering;
 use crate::pile::Pile;
 use crate::reporter::{Clique, Reporter};
 
-use crossbeam_channel;
-
 struct SendingReporter {
     tx: crossbeam_channel::Sender<Clique>,
 }
