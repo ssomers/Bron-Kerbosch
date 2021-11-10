@@ -72,7 +72,7 @@ final class Main {
                                                           int samples, int[] funcIndices)
             throws InterruptedException {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
-        SampleStatistics[] times = new SampleStatistics[FUNCS.length];
+        var times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
         for (int sample = samples == 1 ?  1 : 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {

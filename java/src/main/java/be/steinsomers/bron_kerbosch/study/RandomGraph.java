@@ -81,14 +81,12 @@ final class RandomGraph extends UndirectedGraph {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(prefix)) {
-                    int c;
                     try {
-                        c = Integer.parseInt(line.substring(prefix.length()));
+                        return Integer.parseInt(line.substring(prefix.length()));
                     } catch (NumberFormatException err) {
                         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
                         throw new IOException("File " + path + " has bogus line “" + line + "”");
                     }
-                    return c;
                 }
             }
             throw new IOException("File " + path + " lacks order " + orderStr + " size " + size);

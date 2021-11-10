@@ -25,6 +25,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
 
     @Data
     @RequiredArgsConstructor
+    @SuppressWarnings("EqualsAndHashcode")
     private static final class VisitJob {
         private final int startVertex;
         private Set<Integer> mut_candidates;
