@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@SuppressWarnings("TypeMayBeWeakened")
 public final class util {
     public static int[] Append(int[] head, int tail) {
         var result = Arrays.copyOf(head, head.length + 1);

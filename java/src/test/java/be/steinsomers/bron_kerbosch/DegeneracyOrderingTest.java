@@ -49,6 +49,13 @@ final class DegeneracyOrderingTest {
         assertEquals(Set.of(0, 1, 2), degeneracyOrdering(g, 0));
     }
 
+    /**
+     * @param adjacencyLikes List of suggested neighbours, indexed by vertex. The list is oblivious
+     *                       to symmetry. If a vertex appears as its own neighbour, that entry will
+     *                       be ignored. The list may be empty to begin with. The latter two
+     *                       properties make it likely a vertex is unconnected, but the need for
+     *                       symmetry makes it likely that another vertex connects to it anyway.
+     */
     private static List<Set<Integer>> makeSymmetricAdjacencies(List<Set<Integer>> adjacencyLikes) {
         final var order = adjacencyLikes.size();
         final List<Set<Integer>> adjacencies = Stream
@@ -58,7 +65,7 @@ final class DegeneracyOrderingTest {
         for (int v = 0; v < order; ++v) {
             var neighbours = adjacencyLikes.get(v);
             for (int w : neighbours) {
-                if (v != w) {
+                if (v < w) {
                     adjacencies.get(v).add(w);
                     adjacencies.get(w).add(v);
                 }
@@ -89,10 +96,10 @@ final class DegeneracyOrderingTest {
         return Arbitraries.integers().between(0, order - 1).set();
     }
 
-    @SuppressWarnings({"WeakerAccess", "unused"})
+    // Provide arbitrary input for makeSymmetricAdjacencies.
     @Provide
     private static Arbitrary<List<Set<Integer>>> arbitraryAdjacencyLikes() {
-        Arbitrary<Integer> orders = Arbitraries.integers().between(1, 99);
-        return orders.flatMap(order -> arbitraryNeighbours(order).list().ofSize(order));
+        Arbitrary<Integer> order = Arbitraries.integers().between(1, 99);
+        return order.flatMap(o -> arbitraryNeighbours(o).list().ofSize(o));
     }
 }

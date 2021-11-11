@@ -8,12 +8,10 @@ final class SampleStatistics {
     private double sum_of_squares = 0.0;
 
     public void put(long v) {
-        if (samples == 0) {
+        if (samples == 0 || min > v) {
             min = v;
-            max = v;
-        } else if (min > v) {
-            min = v;
-        } else if (max < v) {
+         }
+        if (samples == 0 || max < v) {
             max = v;
         }
         samples += 1;
