@@ -8,10 +8,10 @@ namespace BronKerbosch
     {
         public static readonly string[] FuncNames =
         {
-            "Ver1+",
-            "Ver2+GP", "Ver2+GPX",
-            "Ver3+GP", "Ver3+GPX",
-            "Ver3=ST"
+            "Ver1",
+            "Ver2-GP", "Ver2-GPX",
+            "Ver3-GP", "Ver3-GPX",
+            "Ver3=GPs"
         };
 
         public static void Explore(int funcIndex, UndirectedGraph graph, IReporter reporter)

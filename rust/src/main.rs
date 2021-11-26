@@ -36,11 +36,13 @@ struct Opt {
 
 #[derive(Copy, Clone, Debug, Display, EnumIter, EnumString, Eq, PartialEq, Ord, PartialOrd)]
 enum SetType {
+    #[strum(to_string = "Hash")]
     HashSet,
     #[strum(to_string = "hashbrown")]
     Hashbrown,
     #[strum(to_string = "fnv")]
     Fnv,
+    #[strum(to_string = "BTree")]
     BTreeSet,
     #[strum(to_string = "ord_vec")]
     OrdVec,
@@ -290,7 +292,7 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((100_000..=200_000).step_by(25_000)),
             3,
             |_set_type: SetType, _size: usize| -> Vec<usize> {
-                // Skip Ver1 (already rejected) and Ver2+RP (not interesting in random graph)
+                // Skip Ver1 (already rejected) and Ver2-RP (not interesting in random graph)
                 vec![2, 3, 4, 6, 7, 8, 9]
             },
         )?;

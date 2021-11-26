@@ -100,9 +100,9 @@ func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 }
 
 func main() {
-	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	mostFuncIndices := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	mtFuncIndices := []int{4, 6, 7, 8, 9}
+	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	mostFuncIndices := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	mtFuncIndices := []int{4, 6, 7, 8, 9, 10}
 	if len(os.Args) == 1 {
 		var sizes_100 []int
 		var sizes_10k []int

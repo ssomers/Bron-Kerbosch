@@ -16,14 +16,13 @@ def bron_kerbosch3_gpx(graph: UndirectedGraph, reporter: Reporter):
         assert neighbours
         if neighbouring_candidates := neighbours.difference(excluded):
             neighbouring_excluded = neighbours.intersection(excluded)
-            visit(
-                graph=graph,
-                reporter=reporter,
-                initial_pivot_choice=pick_max_degree_localX,
-                further_pivot_choice=pick_max_degree_localX,
-                candidates=neighbouring_candidates,
-                excluded=neighbouring_excluded,
-                clique=[v])
+            visit(graph=graph,
+                  reporter=reporter,
+                  initial_pivot_choice=pick_max_degree_localX,
+                  further_pivot_choice=pick_max_degree_localX,
+                  candidates=neighbouring_candidates,
+                  excluded=neighbouring_excluded,
+                  clique=[v])
         else:
             assert not excluded.isdisjoint(neighbours)
         excluded.add(v)

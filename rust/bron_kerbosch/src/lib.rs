@@ -1,5 +1,5 @@
+mod bron_kerbosch0;
 mod bron_kerbosch1;
-mod bron_kerbosch1o;
 mod bron_kerbosch2;
 mod bron_kerbosch2_gp;
 mod bron_kerbosch2_gpx;
@@ -26,8 +26,8 @@ pub const NUM_FUNCS: usize = 10;
 #[cfg(miri)]
 pub const NUM_FUNCS: usize = 9;
 pub static FUNC_NAMES: &[&str; 10] = &[
-    "Ver1", "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver2+RP", "Ver3+", "Ver3+GP", "Ver3+GPX",
-    "Ver3=MT",
+    "Ver0", "Ver1", "Ver2", "Ver2-GP", "Ver2-GPX", "Ver2-RP", "Ver3", "Ver3-GP", "Ver3-GPX",
+    "Ver3=GPc",
 ];
 
 pub fn explore<Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
@@ -37,8 +37,8 @@ where
     Rprtr: Reporter,
 {
     match func_index {
-        0 => bron_kerbosch1::explore(graph, reporter),
-        1 => bron_kerbosch1o::explore(graph, reporter),
+        0 => bron_kerbosch0::explore(graph, reporter),
+        1 => bron_kerbosch1::explore(graph, reporter),
         2 => bron_kerbosch2::explore(graph, reporter),
         3 => bron_kerbosch2_gp::explore(graph, reporter),
         4 => bron_kerbosch2_gpx::explore(graph, reporter),

@@ -62,6 +62,8 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 				}
 			}
 		}
+	default:
+		panic("unhandled pivot selection")
 	}
 
 	for _, v := range remainingCandidates {

@@ -8,11 +8,10 @@ from reporter import Reporter
 def bron_kerbosch2(graph: UndirectedGraph, reporter: Reporter):
     '''Bron-Kerbosch algorithm with arbitrarily chosen pivot'''
     if candidates := graph.connected_vertices():
-        visit(
-            graph=graph,
-            reporter=reporter,
-            initial_pivot_choice=pick_arbitrary,
-            further_pivot_choice=pick_arbitrary,
-            candidates=candidates,
-            excluded=set(),
-            clique=[])
+        visit(graph=graph,
+              reporter=reporter,
+              initial_pivot_choice=pick_arbitrary,
+              further_pivot_choice=pick_arbitrary,
+              candidates=candidates,
+              excluded=set(),
+              clique=[])

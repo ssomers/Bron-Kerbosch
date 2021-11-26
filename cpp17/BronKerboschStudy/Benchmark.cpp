@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 
 #include <stdexcept>
-#include "BronKerbosch/BronKerbosch1.h"
 #include "BronKerbosch/Portfolio.h"
 #include "BronKerbosch/UndirectedGraph.h"
 #include "Console.h"
@@ -204,9 +203,13 @@ int main(int argc, char** argv) {
 #endif
 
     std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
-    std::vector<int> most_func_indices(Portfolio::NUM_FUNCS - 1);
     std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
+#ifdef CPPCORO_WORKS
+    std::vector<int> most_func_indices(Portfolio::NUM_FUNCS - 1);
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
+#else
+    std::vector<int> const& most_func_indices = all_func_indices;
+#endif
     if (argc == 1) {
         Benchmark::bk(
             "100", range(2'000u, 3'000u, 50u), [&](SetType, unsigned) { return all_func_indices; },

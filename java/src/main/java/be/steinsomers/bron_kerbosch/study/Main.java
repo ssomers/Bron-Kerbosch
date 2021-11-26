@@ -26,16 +26,16 @@ import java.util.stream.IntStream;
 
 final class Main {
     static final String[] FUNC_NAMES = {
-            "Ver1+",
-            "Ver2+",
-            "Ver2+G",
-            "Ver2+GP",
-            "Ver2+GPX",
-            "Ver3+",
-            "Ver3+GP",
-            "Ver3+GPX",
-            "Ver3=MT",
-            "Ver3=ST",
+            "Ver1",
+            "Ver2",
+            "Ver2-G",
+            "Ver2-GP",
+            "Ver2-GPX",
+            "Ver3",
+            "Ver3-GP",
+            "Ver3-GPX",
+            "Ver3=GPc",
+            "Ver3=GPs",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
             new BronKerbosch1(),

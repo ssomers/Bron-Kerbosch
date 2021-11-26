@@ -74,6 +74,7 @@ def test_stats_3_float_deviation_big():
     assert s.max == s.min
     assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
 
+
 def test_stats_3_float_deviation_small():
     # found by hypothesis
     s = SampleStatistics()
@@ -83,6 +84,7 @@ def test_stats_3_float_deviation_small():
     assert s.max == s.min
     assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
 
+
 def test_stats_3_float_mean_small():
     # found by hypothesis
     s = SampleStatistics()
@@ -91,6 +93,7 @@ def test_stats_3_float_mean_small():
     s.put(-9.020465019382587e+92)
     assert s.sum / s.samples < s.min
     assert s.mean() == s.min
+
 
 @given(lists(floats(min_value=-1e100, max_value=1e100), min_size=2))
 def test_stats_floats(samples):

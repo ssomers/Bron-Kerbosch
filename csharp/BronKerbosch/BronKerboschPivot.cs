@@ -43,7 +43,7 @@ namespace BronKerbosch
             if (initialChoice >= Choice.MaxDegreeLocal)
             {
                 // Quickly handle locally unconnected candidates while finding pivot
-                const int INVALID = Int32.MaxValue;
+                const int INVALID = int.MaxValue;
                 pivot = Vertex.nth(INVALID);
                 var seenLocalDegree = 0;
                 foreach (var v in candidates)

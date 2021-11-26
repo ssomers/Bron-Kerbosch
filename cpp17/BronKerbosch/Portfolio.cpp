@@ -5,7 +5,10 @@
 #include <stdexcept>
 
 const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = {
-    "Ver1+", "Ver2+", "Ver2+GP", "Ver2+GPX", "Ver3+", "Ver3+GP", "Ver3+GPX", "Ver3=MT",
+    "Ver1", "Ver2", "Ver2-GP", "Ver2-GPX", "Ver3", "Ver3-GP", "Ver3-GPX",
+#ifdef CPPCORO_WORKS
+    "Ver3=GPc",
+#endif
 };
 
 void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cliques) {

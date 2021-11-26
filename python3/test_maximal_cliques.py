@@ -1,7 +1,7 @@
 # coding: utf-8
 
+from bron_kerbosch0 import bron_kerbosch0
 from bron_kerbosch1 import bron_kerbosch1
-from bron_kerbosch1o import bron_kerbosch1o
 from bron_kerbosch2 import bron_kerbosch2
 from bron_kerbosch2_g import bron_kerbosch2_g
 from bron_kerbosch2_gp import bron_kerbosch2_gp
@@ -26,8 +26,8 @@ import time
 from typing import Iterable, List, Set
 
 FUNCS = [
+    bron_kerbosch0,
     bron_kerbosch1,
-    bron_kerbosch1o,
     bron_kerbosch2,
     bron_kerbosch2_g,
     bron_kerbosch2_gp,
@@ -39,16 +39,16 @@ FUNCS = [
 ]
 
 FUNC_NAMES = [
+    "Ver0",
     "Ver1",
-    "Ver1+",
-    "Ver2+",
-    "Ver2+G",
-    "Ver2+GP",
-    "Ver2+GPX",
-    "Ver2+RP",
-    "Ver3+",
-    "Ver3+GP",
-    "Ver3+GPX",
+    "Ver2",
+    "Ver2-G",
+    "Ver2-GP",
+    "Ver2-GPX",
+    "Ver2-RP",
+    "Ver3",
+    "Ver3-GP",
+    "Ver3-GPX",
 ]
 
 

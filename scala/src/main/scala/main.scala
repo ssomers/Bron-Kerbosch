@@ -4,15 +4,15 @@ import scala.collection.mutable.ArrayBuffer
 object main {
   val FUNC_NAMES: IndexedSeq[String] =
     IndexedSeq(
-      "Ver1+",
-      "Ver2+",
-      "Ver2+G",
-      "Ver2+GP",
-      "Ver2+GPX",
-      "Ver3+",
-      "Ver3+GP",
-      "Ver3+GPX",
-      "Ver3=ST"
+      "Ver1",
+      "Ver2",
+      "Ver2-G",
+      "Ver2-GP",
+      "Ver2-GPX",
+      "Ver3",
+      "Ver3-GP",
+      "Ver3-GPX",
+      "Ver3=GPs"
     )
   val FUNCS: IndexedSeq[bron_kerbosch_algorithm[Vertex]] = IndexedSeq(
     new bron_kerbosch1,

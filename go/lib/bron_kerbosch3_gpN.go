@@ -2,20 +2,24 @@ package BronKerbosch
 
 import "sync"
 
+func bronKerbosch3gp0(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 1)
+}
+
+func bronKerbosch3gp1(graph *UndirectedGraph, reporter Reporter) {
+	bronKerbosch3om(graph, reporter, 4)
+}
+
 func bronKerbosch3gp2(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 5)
+	bronKerbosch3om(graph, reporter, 16)
 }
 
 func bronKerbosch3gp3(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 15)
+	bronKerbosch3om(graph, reporter, 64)
 }
 
 func bronKerbosch3gp4(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 45)
-}
-
-func bronKerbosch3gp5(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 135)
+	bronKerbosch3om(graph, reporter, 256)
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors int) {

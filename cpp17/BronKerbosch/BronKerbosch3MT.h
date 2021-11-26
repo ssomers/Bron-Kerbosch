@@ -173,7 +173,7 @@ namespace BronKerbosch {
             CliqueList (*cliques)[CLIQUES],  // pass-by-reference avoiding ICE
             size_t producers,
             CliqueList& all_cliques,
-            cppcoro::static_thread_pool& tp) {
+            cppcoro::static_thread_pool& tp) noexcept {
             std::size_t nextToRead = 0;
             while (producers) {
                 const std::size_t available =

@@ -3,48 +3,103 @@
 ## What is this?
 
 Performance comparison of various implementations of three Bron-Kerbosch algorithms to find all maximal cliques in a graph.
-The purpose is not only to compare the algorithms, but also programming languages, and the effect of optimization within a programming language.
-Compared to the original forked from, the code is:
+The purpose is not only to compare the algorithms, but also programming languages, library choices, and the effect of optimization.
+Compared to the original project this is forked from, the code is:
 * converted from python 2 to python 3.8
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
-* all that mirrored in Rust, Java, Go, C++ and partly in C# and Scala
+* most of in Rust, Java, Go, C++ and partly in C# and Scala
 
-## Algorithms
 
-* **Ver1:** Naive Bron-Kerbosch algorithm
-* **Ver1+:** Ver1 optimized, including language-specific tweaks
-* **Ver2+:** Ver1+ excluding neighbours of a pivot that is chosen arbitrarily
-* **Ver2+G:** Similar but with pivot of highest degree in the whole graph, chosen from candidates only
-* **Ver2+GP:** Similar but with pivot of highest degree towards the remaining candidates, chosen from candidates only (IK\_GP)
-* **Ver2+GPX:** Similar but with pivot of highest degree towards the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
-* **Ver2+RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP)
-* **Ver3+:** Ver2+ with degeneracy ordering (optimized, where the original clearly marked it necessary)
-* **Ver3+GP:** Ver2+GP with degeneracy ordering
-* **Ver3+GPX:** Ver2+GPX with degeneracy ordering
-* **Ver3=GP2:** (Go only) parallel Ver3+GP (2 + 5 goroutines)
-* **Ver3=GP3:** (Go only) parallel Ver3+GP (2 + 15 goroutine)
-* **Ver3=GP4:** (Go only) parallel Ver3+GP (2 + 45 goroutines)
-* **Ver3=GP5:** (Go only) parallel Ver3+GP (2 + 135 goroutines)
-* **Ver3=MT:** (Rust, C++, Java) parallel Ver3+GP using something resembling channels
-* **Ver3=ST:** (C#, Java, Scala) parallel Ver3+GP using simple composition (async, stream, future)
+## Local optimization
+
+Let's first get one thing out of the way: what does some "obvious" local optimization yield in the simplest, naive Bron-Kerbosch algorithm, in Python and Rust. You might call this premature optimization or low hanging fruit.
+
+* **Ver0:** Ver1 in the original project
+* **Ver1:** Same locally optimized, without changing the algorithm as such.
+
+In particular:
+  - In the loop, don't calculate the intersection of excluded vertices when we know the intersection of candidates is empty.
+  - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap. Basically just showing off Rust's ability to guarantee, at compile time, this can be done.
+
+### Results
+
+We get almost as much gain as switching programming languages.
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/774.png "View interactively")](https://plotly.com/~stein.somers/774/)
+
+## Comparing Algorithms
+
+These are all single-threaded implementations (using only one CPU core), all with basic optimalization.
+
+* **Ver1:** Original naive Bron-Kerbosch algorithm Ver1
+* **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
+* **Ver2-G:** Similar but with pivot of highest degree in the whole graph, chosen from candidates only
+* **Ver2-GP:** Similar but with pivot of highest degree towards the remaining candidates, chosen from candidates only (IK\_GP)
+* **Ver2-GPX:** Similar but with pivot of highest degree towards the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
+* **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP)
+* **Ver3:** Ver2 with degeneracy ordering (optimized, where the original clearly marked it necessary)
+* **Ver3-GP:** Ver2-GP with degeneracy ordering, with pivot chosen from candidates only (IK\_GP)
+* **Ver3-GPX:** Ver2-GPX with degeneracy ordering, with pivot chosen from both candidates and excluded (IK\_GPX)
+
+### Results
+
+* Ver1 indeed struggles with dense graphs:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/783.png "View interactively")](https://plotly.com/~stein.somers/783/)
+* Among Ver2 variants, GP and GPX are indeed best…
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/823.png "View interactively")](https://plotly.com/~stein.somers/823/)
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/836.png "View interactively")](https://plotly.com/~stein.somers/836/)
+…but GPX looses ground in big graphs:
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/825.png "View interactively")](https://plotly.com/~stein.somers/825/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/839.png "View interactively")](https://plotly.com/~stein.somers/839/)
+* Ver3 isn't better in Python:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/855.png "View interactively")](https://plotly.com/~stein.somers/855/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/858.png "View interactively")](https://plotly.com/~stein.somers/858/)
+[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/862.png "View interactively")](https://plotly.com/~stein.somers/862/)
+* Neither in Rust:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/867.png "View interactively")](https://plotly.com/~stein.somers/867/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/869.png "View interactively")](https://plotly.com/~stein.somers/869/)
+* Ver3-GP seems better in Java, at least in bigger graphs:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/873.png "View interactively")](https://plotly.com/~stein.somers/873/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/875.png "View interactively")](https://plotly.com/~stein.somers/875/)
+* Same in Go:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/885.png "View interactively")](https://plotly.com/~stein.somers/885/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/887.png "View interactively")](https://plotly.com/~stein.somers/887/)
+* And in C#:
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/879.png "View interactively")](https://plotly.com/~stein.somers/879/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/881.png "View interactively")](https://plotly.com/~stein.somers/881/)
+[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/883.png "View interactively")](https://plotly.com/~stein.somers/883/)
+
+## Introducing parallelism
+
+These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
+
+* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
+* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
+* **Ver3=GP0:** (Go only) channels & 2 + 1 goroutines
+* **Ver3=GP1:** (Go only) channels & 2 + 4 goroutines
+* **Ver3=GP2:** (Go only) channels & 2 + 16 goroutine
+* **Ver3=GP3:** (Go only) channels & 2 + 64 goroutines
+* **Ver3=GP4:** (Go only) channels & 2 + 256 goroutines
 
 ## Set data structures
+
+All algorithms operate heavily on and with sets. In some languages, it's easy to pick among
+various generic set implementations and compare their performance.
 
 ### Rust
 * **BTreeSet:** std::collections::BTreeSet
 * **HashSet:** std::collections::HashSet, a wrapper around hashbrown
-* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.8
+* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
 * **fnv:** FnvHashSet from [crate fnv](https://crates.io/crates/fnv) 1.0
-* **ord_vec:** ordered std::collections::Vec
+* **ord_vec:** ordered std::collections::Vec (obviously, this can only work well on small graphs)
 
 ### C++
 * **std_set:** std::set
 * **hashset:** std::unordered_set
-* **ord_vec:** ordered std::vector
+* **ord_vec:** ordered std::vector (obviously, this can only work well on small graphs)
 
-## Results
+## Detailed Results
 
 Graphs of the amount of time spent on a particular machine with 6 core CPU,
 all on predetermined random graphs (generated with typical pseudo-random generators in python):
