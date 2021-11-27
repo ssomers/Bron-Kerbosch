@@ -21,26 +21,27 @@ Let's first get one thing out of the way: what does some "obvious" local optimiz
 
 In particular:
   - In the loop, don't calculate the intersection of excluded vertices when we know the intersection of candidates is empty.
-  - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap. Basically just showing off Rust's ability to guarantee, at compile time, this can be done.
+  - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap. Basically just showing off Rust's ability to guarantee, at compile time, this can be done safely.
 
 ### Results
 
 We get almost as much gain as switching programming languages.
 [![Time spent on graphs of order 100](https://plotly.com/~stein.somers/774.png "View interactively")](https://plotly.com/~stein.somers/774/)
+Therefore, all the other implementations will contain similar tweaks.
 
-## Comparing Algorithms
-
-These are all single-threaded implementations (using only one CPU core), all with basic optimalization.
+## Comparing algorithms
 
 * **Ver1:** Original naive Bron-Kerbosch algorithm Ver1
 * **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
-* **Ver2-G:** Similar but with pivot of highest degree in the whole graph, chosen from candidates only
-* **Ver2-GP:** Similar but with pivot of highest degree towards the remaining candidates, chosen from candidates only (IK\_GP)
-* **Ver2-GPX:** Similar but with pivot of highest degree towards the remaining candidates, chosen from both candidates and excluded (IK\_GPX)
-* **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP)
-* **Ver3:** Ver2 with degeneracy ordering (optimized, where the original clearly marked it necessary)
-* **Ver3-GP:** Ver2-GP with degeneracy ordering, with pivot chosen from candidates only (IK\_GP)
-* **Ver3-GPX:** Ver2-GPX with degeneracy ordering, with pivot chosen from both candidates and excluded (IK\_GPX)
+* **Ver2-G:** Ver2 but pivot chosen to be the candidate of the highest degree in the whole graph
+* **Ver2-GP:** Ver2 but pivot chosen to be the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
+* **Ver2-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
+* **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
+* **Ver3:** Ver2 with degeneracy ordering
+* **Ver3-GP:** Ver2-GP with degeneracy ordering
+* **Ver3-GPX:** Ver2-GPX with degeneracy ordering
+
+These are all single-threaded implementations (using only one CPU core).
 
 ### Results
 
@@ -49,7 +50,7 @@ These are all single-threaded implementations (using only one CPU core), all wit
 * Among Ver2 variants, GP and GPX are indeed best…
 [![Time spent on graphs of order 100](https://plotly.com/~stein.somers/823.png "View interactively")](https://plotly.com/~stein.somers/823/)
 [![Time spent on graphs of order 100](https://plotly.com/~stein.somers/836.png "View interactively")](https://plotly.com/~stein.somers/836/)
-…but GPX looses ground in big graphs:
+* …but GPX looses ground in big graphs:
 [![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/825.png "View interactively")](https://plotly.com/~stein.somers/825/)
 [![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/839.png "View interactively")](https://plotly.com/~stein.somers/839/)
 * Ver3 isn't better in Python:
@@ -70,17 +71,11 @@ These are all single-threaded implementations (using only one CPU core), all wit
 [![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/881.png "View interactively")](https://plotly.com/~stein.somers/881/)
 [![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/883.png "View interactively")](https://plotly.com/~stein.somers/883/)
 
-## Introducing parallelism
+## Comparing languages
 
-These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
-
-* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
-* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
-* **Ver3=GP0:** (Go only) channels & 2 + 1 goroutines
-* **Ver3=GP1:** (Go only) channels & 2 + 4 goroutines
-* **Ver3=GP2:** (Go only) channels & 2 + 16 goroutine
-* **Ver3=GP3:** (Go only) channels & 2 + 64 goroutines
-* **Ver3=GP4:** (Go only) channels & 2 + 256 goroutines
+[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/889.png "View interactively")](https://plotly.com/~stein.somers/889/)
+[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/897.png "View interactively")](https://plotly.com/~stein.somers/897/)
+[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/910.png "View interactively")](https://plotly.com/~stein.somers/910/)
 
 ## Set data structures
 
@@ -88,8 +83,8 @@ All algorithms operate heavily on and with sets. In some languages, it's easy to
 various generic set implementations and compare their performance.
 
 ### Rust
-* **BTreeSet:** std::collections::BTreeSet
-* **HashSet:** std::collections::HashSet, a wrapper around hashbrown
+* **BTree:** std::collections::BTreeSet
+* **Hash:** std::collections::HashSet, a wrapper around hashbrown
 * **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
 * **fnv:** FnvHashSet from [crate fnv](https://crates.io/crates/fnv) 1.0
 * **ord_vec:** ordered std::collections::Vec (obviously, this can only work well on small graphs)
@@ -98,6 +93,26 @@ various generic set implementations and compare their performance.
 * **std_set:** std::set
 * **hashset:** std::unordered_set
 * **ord_vec:** ordered std::vector (obviously, this can only work well on small graphs)
+
+### Results
+
+## Introducing parallelism
+
+These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
+We can run 2 + N jobs in parallel:
+- 1 stage of degeneracy ordering
+- 1 stage of base iteration
+- many stages of recursive calls
+
+* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
+* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
+* **Ver3=GP0:** (Go only) using channels and 2 + 1 goroutines
+* **Ver3=GP1:** (Go only) using channels and 2 + 4 goroutines
+* **Ver3=GP2:** (Go only) using channels and 2 + 16 goroutine
+* **Ver3=GP3:** (Go only) using channels and 2 + 64 goroutines
+* **Ver3=GP4:** (Go only) using channels and 2 + 256 goroutines
+
+### Results
 
 ## Detailed Results
 

@@ -110,9 +110,11 @@ func main() {
 		for s := int(2e3); s <= 3e3; s += 50 {
 			sizes_100 = append(sizes_100, s)
 		}
-		for s := int(10e3); s <= 200e3; {
+		for s := int(1e3); s <= 200e3; {
 			sizes_10k = append(sizes_10k, s)
-			if s < 100e3 {
+			if s < 10e3 {
+				s += 1e3
+			} else if s < 100e3 {
 				s += 10e3
 			} else {
 				s += 25e3

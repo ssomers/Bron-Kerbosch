@@ -154,8 +154,8 @@ final class Main {
         int[] allFuncIndices = IntStream.range(0, FUNCS.length).toArray();
         int[] mostFuncIndices = IntStream.range(1, FUNCS.length).toArray();
         int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
-        int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000,
-                s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
+        int[] sizes10K = IntStream.iterate(1_000, s -> s <= 200_000,
+                s -> s + (s < 10_000 ? 1_000 : s < 100_000 ? 10_000 : 25_000)).toArray();
         int[] sizes1M = IntStream.iterate(50_000, s -> s <= 5_000_000,
                 s -> s + (s < 250_000 ? 50_000 : s < 2_000_000 ? 250_000 : 1_000_000)).toArray();
 

@@ -233,19 +233,21 @@ int main(int argc, char** argv) {
             3);
         Benchmark::bk(
             "1M",
-            concat(range(2'000u, 8'000u, 2'000u), range(10'000u, 40'000u, 10'000u),
-                   range(50'000u, 200'000u, 50'000u), range(250'000u, 750'000u, 250'000u),
-                   range(1'000'000u, 5'000'000u, 1'000'000u)),
+            concat(range(50'000u, 200'000u, 50'000u), range(250'000u, 1'999'999u, 250'000u),
+                   range(2'000'000u, 5'000'000u, 1'000'000u)),
             [&](SetType set_type, unsigned size) {
-                if (size <= 10'000) {
-                    return std::vector<int>{0};
-                } else
-                    switch (set_type) {
-                        case SetType::std_set: [[fallthrough]];
-                        case SetType::ord_vec: return std::vector<int>{};
-                        case SetType::hashset:
-                            return size > 3'000'000 ? std::vector<int>{5, 6, 7} : most_func_indices;
-                    }
+                switch (set_type) {
+                    case SetType::std_set: [[fallthrough]];
+                    case SetType::ord_vec: return std::vector<int>{};
+                    case SetType::hashset:
+                        return size > 1'000'000 ? std::vector<int>{5
+#ifdef CPPCORO_WORKS
+                                                                   ,
+                                                                   7
+#endif
+                                                  }
+                                                : most_func_indices;
+                }
                 throw std::logic_error("unreachable");
             },
             3);

@@ -288,6 +288,7 @@ fn main() -> Result<(), std::io::Error> {
         bk(
             "10k",
             std::iter::empty()
+                .chain((1_000..10_000).step_by(1_000))
                 .chain((10_000..100_000).step_by(10_000))
                 .chain((100_000..=200_000).step_by(25_000)),
             3,
@@ -300,20 +301,13 @@ fn main() -> Result<(), std::io::Error> {
         bk(
             "1M",
             std::iter::empty()
-                .chain((10_000..100_000).step_by(10_000))
-                .chain((100_000..250_000).step_by(50_000))
+                .chain((50_000..250_000).step_by(50_000))
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match size {
-                    0..=99_999 => vec![1],
-                    100_000..=249_999 => match set_type {
-                        SetType::OrdVec => vec![],
-                        SetType::BTreeSet => vec![1, 7, 9],
-                        _ => vec![7, 9],
-                    },
-                    250_000..=1_999_999 => match set_type {
+                    0..=1_999_999 => match set_type {
                         SetType::OrdVec => vec![],
                         _ => vec![7, 9],
                     },
@@ -325,7 +319,7 @@ fn main() -> Result<(), std::io::Error> {
                     _ => match set_type {
                         SetType::OrdVec => vec![],
                         SetType::BTreeSet => vec![],
-                        _ => vec![9],
+                        _ => vec![7, 9],
                     },
                 }
             },
