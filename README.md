@@ -2,16 +2,21 @@
 
 ## What is this?
 
-Performance comparison of various implementations of three Bron-Kerbosch algorithms to find all maximal cliques in a graph.
-The purpose is not only to compare the algorithms, but also programming languages, library choices, and the effect of optimization.
+Performance comparison of various implementations of three [Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm) to find all maximal cliques in a graph.
+
+Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+
+The purpose of this fork is not only to compare the algorithms, but also programming languages, library choices, and the effect of optimization, chiefly parallelism.
+
 Compared to the original project this is forked from, the code is:
 * converted from python 2 to python 3.9
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
-* extended with unit tests and a performance test on random graphs
+* extended with unit tests, property based testing, and a performance test on random graphs
 * most of in Rust, Java, Go, C++ and partly in C# and Scala
 
 All charts below show the amount of time spent on the same particular machine with 6 core CPU, all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
+Order of a graph = number of vertices.
 
 ## Local optimization
 
@@ -26,7 +31,7 @@ In particular:
 
 ### Results
 
-We gain almost as much as with switching programming languages:
+* We gain almost as much as through switching programming languages:
 ![Time spent on graphs of order 100](images/report_1.png)
 
 Therefore, all the other implementations will contain similar tweaks.
@@ -47,7 +52,7 @@ These are all single-threaded implementations (using only one CPU core).
 
 ### Results
 
-* Ver1 indeed struggles with dense graphs
+* Ver1 indeed struggles with dense graphs, when it has to deal with more than half of the 4950 possible edges
 ![Time spent on graphs of order 100](images/report_2.png)
 
 * Among Ver2 variants, GP and GPX are indeed best…
@@ -91,11 +96,11 @@ We can run 2 + N jobs in parallel:
 
 * **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
 * **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
-* **Ver3=GP0:** (Go only) using channels and 2 + 1 goroutines
-* **Ver3=GP1:** (Go only) using channels and 2 + 4 goroutines
-* **Ver3=GP2:** (Go only) using channels and 2 + 16 goroutine
-* **Ver3=GPc:** (Go only) using channels and 2 + 64 goroutines
-* **Ver3=GP4:** (Go only) using channels and 2 + 256 goroutines
+* **Ver3=GP0:** (Go only) using channels and providing 1 goroutine for the recursive calls
+* **Ver3=GP1:** (Go only) using channels and providing 4 goroutines for the recursive calls
+* **Ver3=GP2:** (Go only) using channels and providing 16 goroutines for the recursive calls
+* **Ver3=GPc:** (Go only) using channels and providing 64 goroutines for the recursive calls
+* **Ver3=GP4:** (Go only) using channels and providing 256 goroutines for the recursive calls
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
@@ -127,7 +132,7 @@ We can run 2 + N jobs in parallel:
 
 ## Set data structures
 
-All algorithms operate heavily on and with sets. Some languages allow picking at compile time among
+All algorithms work heavily with sets. Some languages allow picking at compile time among
 various generic set implementations and compare their performance.
 
 ### Rust
@@ -155,11 +160,9 @@ various generic set implementations and compare their performance.
 
 ## Detailed Results
 
-* [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
-* [Graphs of order 10k](results_10k.md): probably the most realistic case.
-* [Graphs of order 1M](results_1M.md): who scales best?
-
-Order of a graph = number of vertices.
+* [Dense graphs of order 100](results_100.md)
+* [Graphs of order 10k](results_10k.md)
+* [Graphs of order 1M](results_1M.md)
 
 ## Run & Test
 
@@ -245,12 +248,6 @@ and finally
 and finally
 
     python python3\publish.py scala 100 10k 1M
-
-## Context
-
-[More information on Wikipedia](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm).
-
-Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
 ## License
 
