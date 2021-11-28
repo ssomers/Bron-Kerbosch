@@ -3,17 +3,18 @@ from stats import SampleStatistics
 from hypothesis import given
 from hypothesis.strategies import floats, lists
 from math import isnan, sqrt
+from typing import Sequence
 import pytest
 
 
-def test_stats_0_i32():
+def test_stats_0_i32() -> None:
     s = SampleStatistics()
     assert isnan(s.mean())
     assert isnan(s.variance())
     assert isnan(s.deviation())
 
 
-def test_stats_1_int():
+def test_stats_1_int() -> None:
     s = SampleStatistics()
     s.put(-1)
     assert s.mean() == -1.0
@@ -21,7 +22,7 @@ def test_stats_1_int():
     assert isnan(s.deviation())
 
 
-def test_stats_2_int():
+def test_stats_2_int() -> None:
     s = SampleStatistics()
     s.put(-1)
     s.put(1)
@@ -30,7 +31,7 @@ def test_stats_2_int():
     assert s.deviation() == sqrt(2.0)
 
 
-def test_stats_3_int():
+def test_stats_3_int() -> None:
     s = SampleStatistics()
     s.put(89)
     s.put(90)
@@ -40,7 +41,7 @@ def test_stats_3_int():
     assert s.deviation() == 1.0
 
 
-def test_stats_9_int():
+def test_stats_9_int() -> None:
     s = SampleStatistics()
     s.put(2)
     s.put(4)
@@ -56,7 +57,7 @@ def test_stats_9_int():
     assert s.deviation() == 2.0
 
 
-def test_stats_2_float():
+def test_stats_2_float() -> None:
     s = SampleStatistics()
     s.put(1.0)
     s.put(2.0)
@@ -65,7 +66,7 @@ def test_stats_2_float():
     assert s.deviation() == sqrt(0.5)
 
 
-def test_stats_3_float_deviation_big():
+def test_stats_3_float_deviation_big() -> None:
     # found by hypothesis
     s = SampleStatistics()
     s.put(688338275.2675972)
@@ -75,7 +76,7 @@ def test_stats_3_float_deviation_big():
     assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
 
 
-def test_stats_3_float_deviation_small():
+def test_stats_3_float_deviation_small() -> None:
     # found by hypothesis
     s = SampleStatistics()
     s.put(1.5765166949677225e-06)
@@ -85,7 +86,7 @@ def test_stats_3_float_deviation_small():
     assert (s.sum_of_squares - s.sum * s.sum / 3) / 2 > 0
 
 
-def test_stats_3_float_mean_small():
+def test_stats_3_float_mean_small() -> None:
     # found by hypothesis
     s = SampleStatistics()
     s.put(-9.020465019382587e+92)
@@ -96,7 +97,7 @@ def test_stats_3_float_mean_small():
 
 
 @given(lists(floats(min_value=-1e100, max_value=1e100), min_size=2))
-def test_stats_floats(samples):
+def test_stats_floats(samples: Sequence[float]) -> None:
     s = SampleStatistics()
     for sample in samples:
         s.put(sample)

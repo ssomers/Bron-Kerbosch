@@ -5,7 +5,7 @@ from reporter import Reporter
 from typing import List, Set
 
 
-def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter) -> None:
     '''Naive Bron-Kerbosch algorithm optimized'''
     if candidates := graph.connected_vertices():
         visit(graph=graph,
@@ -16,7 +16,7 @@ def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter):
 
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
-          excluded: Set[Vertex], clique: List[Vertex]):
+          excluded: Set[Vertex], clique: List[Vertex]) -> None:
     assert candidates
 
     while candidates:

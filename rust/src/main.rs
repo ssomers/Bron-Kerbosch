@@ -306,21 +306,10 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
-                match size {
-                    0..=1_999_999 => match set_type {
-                        SetType::OrdVec => vec![],
-                        _ => vec![7, 9],
-                    },
-                    2_000_000..=3_000_000 => match set_type {
-                        SetType::OrdVec => vec![],
-                        SetType::BTreeSet => vec![9],
-                        _ => vec![7, 9],
-                    },
-                    _ => match set_type {
-                        SetType::OrdVec => vec![],
-                        SetType::BTreeSet => vec![],
-                        _ => vec![7, 9],
-                    },
+                match set_type {
+                    SetType::OrdVec if size > 100_000 => vec![],
+                    SetType::BTreeSet if size > 2_000_000 => vec![],
+                    _ => vec![7, 9],
                 }
             },
         )?;

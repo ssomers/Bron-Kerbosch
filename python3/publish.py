@@ -5,6 +5,8 @@ import os
 import sys
 from typing import Callable, Dict, List, Mapping, Optional, Tuple
 
+figsize = (8, 6)  # in hectopixels
+
 
 def lang_name(case_name: str) -> str:
     return case_name.split(' ')[0]
@@ -61,23 +63,24 @@ def dash_by_lib(case_name: str) -> str:
 
 
 class Measurement(object):
-    def __init__(self, min, mean, max):
+    def __init__(self, min: float, mean: float, max: float) -> None:
         self.min = min
         self.mean = mean
         self.max = max
 
-    def isnan(self):
+    def isnan(self) -> bool:
         return math.isnan(self.mean)
 
-    def error_plus(self):
+    def error_plus(self) -> float:
         return self.max - self.mean
 
-    def error_minus(self):
+    def error_minus(self) -> float:
         return self.mean - self.min
 
 
-def publish(language: str, orderstr: str, case_names: List[str],
-            stats_per_func_by_size: Mapping[int, List[SampleStatistics]]):
+def publish(
+        language: str, orderstr: str, case_names: List[str],
+        stats_per_func_by_size: Mapping[int, List[SampleStatistics]]) -> None:
     num_cases = len(case_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
@@ -86,7 +89,7 @@ def publish(language: str, orderstr: str, case_names: List[str],
         w.writerow(["Size"] + [(f"{name} {t}") for name in case_names
                                for t in ["min", "mean", "max"]])
         for size, stats in stats_per_func_by_size.items():
-            w.writerow([size] +
+            w.writerow([float(size)] +
                        [f for s in stats
                         for f in [s.min, s.mean(), s.max]])
     publish_whole_csv(language=language, orderstr=orderstr)
@@ -152,72 +155,42 @@ def read_csv(
     return filename, sizes, measurement_per_size_by_case_name
 
 
-def publish_whole_csv(language: str, orderstr: str):
-    filename, sizes, measurements = read_csv(language, orderstr)
-    publish_measurements(language=language,
-                         orderstr=orderstr,
-                         filename=filename,
-                         sizes=sizes,
-                         measurement_per_size_by_case_name=measurements,
-                         color_by_case=color_by_func_name,
-                         dash_by_case=dash_by_lib)
-
-
-def publish_measurements(
-        language: str,
-        orderstr: str,
-        filename: str,
-        sizes: List[int],
-        measurement_per_size_by_case_name: Mapping[str, List[Measurement]],
-        version: Optional[str] = None,
-        color_by_case: Optional[Callable[[str], str]] = None,
-        dash_by_case: Optional[Callable[[str], str]] = None,
-        legendgroup: Optional[Callable[[str], str]] = None):
+def publish_whole_csv(language: str, orderstr: str) -> None:
+    filename, sizes, measurement_per_size_by_case_name = read_csv(
+        language, orderstr)
     assert sizes
     assert measurement_per_size_by_case_name
     try:
-        from chart_studio import plotly
+        from chart_studio import plotly  # type: ignore
+        from plotly import io as plotly_io  # type: ignore
     except ImportError as e:
         print(f"{e} (maybe you want to pip install chart-studio?)")
     else:
-        # Group traces in legend, unless every func_name is either unique or the same
-        case_names = measurement_per_size_by_case_name.keys()
-        unique_func_names = len({func_name(n) for n in case_names})
-        legendgroups = len(case_names) > 6 and unique_func_names in range(
-            2, len(case_names))
-
-        import plotly.io as pio
-        pio.templates.default = "none"  # disable default 4.0 theme
+        plotly_io.templates.default = "none"  # disable default 4.0 theme
         from plotly import graph_objects
         traces = [
             graph_objects.Scatter(
                 x=sizes,
-                y=[m.mean for m in measurement_per_size],
+                y=[m.mean for m in m_per_size],
                 error_y=dict(
                     type="data",
-                    array=[m.error_plus() for m in measurement_per_size],
-                    arrayminus=[m.error_minus() for m in measurement_per_size],
+                    array=[m.error_plus() for m in m_per_size],
+                    arrayminus=[m.error_minus() for m in m_per_size],
                 ),
                 hoverinfo="name",
-                line=None if color_by_case is None else dict(
-                    color=color_by_case(case_name),
-                    dash=None
-                    if dash_by_case is None else dash_by_case(case_name)),
-                marker=None if color_by_case is None else dict(
-                    color=color_by_case(case_name)),
+                line=dict(color=color_by_func_name(case_name),
+                          dash=dash_by_lib(case_name)),
+                marker=dict(color=color_by_func_name(case_name)),
                 mode="lines+markers",
                 name=case_name,
-                legendgroup=(None if legendgroup is None else
-                             legendgroup(case_name)),
-            ) for case_name, measurement_per_size in
+            ) for case_name, m_per_size in
             measurement_per_size_by_case_name.items()
         ]
         layout = dict(
             title=(
                 '<a href="https://github.com/ssomers/Bron-Kerbosch">' +
-                f"{language.capitalize()} implementations of Bron-Kerbosch" +
-                (f" {version}" if version else "") + "</a>" +
-                f" on random graphs of order {orderstr}"),
+                f"{language.capitalize()} implementations of Bron-Kerbosch</a>"
+                + f" on a random graph of order {orderstr}"),
             xaxis=dict(title="Size (#edges)"),
             yaxis=dict(title="Seconds spent"),
         )
@@ -225,8 +198,48 @@ def publish_measurements(
                     filename=filename)
 
 
+def publish_measurements(
+        language: Optional[str],
+        orderstr: str,
+        filename: str,
+        sizes: List[int],
+        measurement_per_size_by_case_name: Mapping[str, List[Measurement]],
+        version: Optional[str] = None,
+        color_by_case: Optional[Callable[[str], str]] = None,
+        dash_by_case: Optional[Callable[[str], str]] = None) -> None:
+    assert sizes
+    assert measurement_per_size_by_case_name
+    try:
+        from matplotlib import pyplot as plt  # type: ignore
+    except ImportError as e:
+        print(f"{e} (maybe you want to pip install matplotlib?)")
+    else:
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.set_title((f"{language.capitalize()} implementations"
+                      if language else "Implementations") +
+                     " of Bron-Kerbosch" + (f" {version}" if version else "") +
+                     f" on a random graph of order {orderstr}",
+                     loc="left")
+        ax.set_xlabel("Size (#edges)")
+        ax.set_ylabel("Seconds spent")
+        for case_name, m_per_size in measurement_per_size_by_case_name.items():
+            ax.errorbar(x=sizes[:len(m_per_size)],
+                        y=[m.mean for m in m_per_size],
+                        yerr=[[m.error_minus() for m in m_per_size],
+                              [m.error_plus() for m in m_per_size]],
+                        label=case_name,
+                        color=(None if color_by_case is None else
+                               color_by_case(case_name)),
+                        linestyle=(None if dash_by_case is None else
+                                   dash_by_case(case_name)))
+        ax.legend(loc="upper left")
+        fig.tight_layout()
+        fig.savefig(filename, bbox_inches=0, pad_inches=0)
+        plt.close(fig)
+
+
 def publish_report(orderstr: str, filename: str, langlibs: List[str],
-                   versions: List[str]):
+                   versions: List[str]) -> None:
     sizes: List[int] = []
     measurements: Dict[str, List[Measurement]] = {}
     languages = set(langlib.split('@', 1)[0] for langlib in langlibs)
@@ -253,118 +266,125 @@ def publish_report(orderstr: str, filename: str, langlibs: List[str],
 
     dash_by_case = None
     if len(versions) == 2:
-        dash_by_case = lambda case_name: "dot" if f" {versions[0]}" in case_name else "solid"
+        dash_by_case = lambda case_name: "dotted" if f" {versions[0]}" in case_name else "solid"
     publish_measurements(
-        language=single_language or "various",
+        language=single_language,
         orderstr=orderstr,
         filename=filename,
         sizes=sizes,
         version=single_version,
         measurement_per_size_by_case_name=measurements,
-        legendgroup=lang_name if single_language is None else None,
         color_by_case=color_by_language if single_language is None else None,
         dash_by_case=dash_by_case)
 
 
-def publish_reports():
-    """
+def publish_reports() -> None:
     # 1. Ver0 vs. Ver1
-    publish_report(filename="bron_kerbosch_result_1",
+    publish_report(filename="report_1",
                    orderstr="100",
                    langlibs=["python3", "rust@fnv"],
                    versions=["Ver0", "Ver1"])
     # 2. Ver1 vs. Ver2
     publish_report(
-        filename="bron_kerbosch_result_2",
+        filename="report_2",
         orderstr="100",
         langlibs=["c++@hashset", "scala", "python3", "java", "rust@fnv"],
         versions=["Ver1", "Ver2"])
     # 3. Ver2 variants
     for orderstr in ["100", "10k"]:
         publish_report(
-            filename=f"bron_kerbosch_result_3_python3_{orderstr}",
+            filename=f"report_3_python3_{orderstr}",
             orderstr=orderstr,
             langlibs=["python3"],
             versions=["Ver2", "Ver2-G", "Ver2-GP", "Ver2-GPX", "Ver2-RP"])
-        publish_report(filename=f"bron_kerbosch_result_3_java_{orderstr}",
+        publish_report(filename=f"report_3_java_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java"],
                        versions=["Ver2", "Ver2-G", "Ver2-GP", "Ver2-GPX"])
     # 4. Ver2 vs. Ver3
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"bron_kerbosch_result_4_python3_{orderstr}",
+        publish_report(filename=f"report_4_python3_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["python3"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"bron_kerbosch_result_4_c#_{orderstr}",
+        publish_report(filename=f"report_4_c#_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["c#"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
     for orderstr in ["100", "10k"]:
-        publish_report(filename=f"bron_kerbosch_result_4_rust_{orderstr}",
+        publish_report(filename=f"report_4_rust_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["rust@fnv"],
-                       versions=[
-                           "Ver2-GP", "Ver2-GPX", "Ver3-GP",
-                           "Ver3-GPX"
-                       ])
-        publish_report(filename=f"bron_kerbosch_result_4_java_{orderstr}",
+                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
+        publish_report(filename=f"report_4_java_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"bron_kerbosch_result_4_go_{orderstr}",
+        publish_report(filename=f"report_4_go_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["go"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-    # 5. Languages
-    for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"bron_kerbosch_result_5_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=[
-                           "python3", "scala", "java", "go", "c#",
-                           "c++@hashset", "rust@fnv"
-                       ],
-                       versions=["Ver3-GP"])
-    # 6. Parallelism
+    # 5. Parallelism
     for orderstr in ["100", "10k", "1M"]:
         '''
-        publish_report(filename=f"bron_kerbosch_result_6_rust_{orderstr}",
+        publish_report(filename=f"report_5_rust_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["rust@fnv"],
                        versions=["Ver3-GP", "Ver3=GPc"])
-        publish_report(filename=f"bron_kerbosch_result_6_c#_{orderstr}",
+        publish_report(filename=f"report_5_c#_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["c#"],
                        versions=["Ver3-GP", "Ver3=GPs"])
         '''
-        publish_report(filename=f"bron_kerbosch_result_6_java_{orderstr}",
+        publish_report(filename=f"report_5_java_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java"],
                        versions=["Ver3-GP", "Ver3=GPs", "Ver3=GPc"])
-        publish_report(filename=f"bron_kerbosch_result_6_go_{orderstr}",
+        publish_report(filename=f"report_5_go_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["go"],
                        versions=[
                            "Ver3-GP", "Ver3=GP0", "Ver3=GP1", "Ver3=GP2",
                            "Ver3=GP3", "Ver3=GP4"
                        ])
-    """
-    # 7. Libraries
+    # 6. Languages
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"bron_kerbosch_result_7_rust_{orderstr}",
+        publish_report(filename=f"report_6_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
-                           "rust@BTree", "rust@Hash", "rust@hashbrown",
-                           "rust@fnv", "rust@ord_vec"
+                           "python3", "scala", "java", "go", "c#",
+                           "c++@hashset", "rust@fnv"
                        ],
                        versions=["Ver3-GP"])
-        publish_report(filename=f"bron_kerbosch_result_7_rust_parallel_{orderstr}",
+        publish_report(filename=f"report_6_channels_{orderstr}",
+                       orderstr=orderstr,
+                       langlibs=["java", "go", "c#", "rust@fnv"],
+                       versions=["Ver3=GPc"])
+        publish_report(filename=f"report_6_parallel_{orderstr}",
+                       orderstr=orderstr,
+                       langlibs=["java", "scala"],
+                       versions=["Ver3=GPs"])
+    # 7. Libraries
+    for orderstr in ["100", "10k", "1M"]:
+        publish_report(filename=f"report_7_rust_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
-                           "rust@BTree", "rust@Hash", "rust@hashbrown",
-                           "rust@fnv", "rust@ord_vec"
+                           "rust@BTree",
+                           "rust@Hash",
+                           "rust@hashbrown",
+                           "rust@fnv",
+                           "rust@ord_vec",
                        ],
-                       versions=["Ver3=GPc"])
+                       versions=["Ver3-GP"])
+    for orderstr in ["100", "10k"]:
+        publish_report(filename=f"report_7_c++_{orderstr}",
+                       orderstr=orderstr,
+                       langlibs=[
+                           "c++@hashset",
+                           "c++@std_set",
+                           "c++@ord_vec",
+                       ],
+                       versions=["Ver3-GP"])
 
 
 if __name__ == '__main__':

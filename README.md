@@ -5,33 +5,35 @@
 Performance comparison of various implementations of three Bron-Kerbosch algorithms to find all maximal cliques in a graph.
 The purpose is not only to compare the algorithms, but also programming languages, library choices, and the effect of optimization.
 Compared to the original project this is forked from, the code is:
-* converted from python 2 to python 3.8
+* converted from python 2 to python 3.9
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests and a performance test on random graphs
 * most of in Rust, Java, Go, C++ and partly in C# and Scala
 
+All charts below show the amount of time spent on the same particular machine with 6 core CPU, all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
 
 ## Local optimization
 
-Let's first get one thing out of the way: what does some "obvious" local optimization yield in the simplest, naive Bron-Kerbosch algorithm, in Python and Rust. You might call this premature optimization or low hanging fruit.
+Let's first get one thing out of the way: what does some local optimization yield in the simplest, naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimization or low hanging fruit?
 
 * **Ver0:** Ver1 in the original project
 * **Ver1:** Same locally optimized, without changing the algorithm as such.
 
 In particular:
-  - In the loop, don't calculate the intersection of excluded vertices when we know the intersection of candidates is empty.
+  - In the loop, don't calculate the intersection of excluded vertices when we see the intersection of candidates is empty.
   - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap. Basically just showing off Rust's ability to guarantee, at compile time, this can be done safely.
 
 ### Results
 
-We get almost as much gain as switching programming languages.
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/774.png "View interactively")](https://plotly.com/~stein.somers/774/)
+We gain almost as much as with switching programming languages:
+![Time spent on graphs of order 100](images/report_1.png)
+
 Therefore, all the other implementations will contain similar tweaks.
 
 ## Comparing algorithms
 
-* **Ver1:** Original naive Bron-Kerbosch algorithm Ver1
+* **Ver1:** Naive but optimized Bron-Kerbosch algorithm
 * **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
 * **Ver2-G:** Ver2 but pivot chosen to be the candidate of the highest degree in the whole graph
 * **Ver2-GP:** Ver2 but pivot chosen to be the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
@@ -45,41 +47,87 @@ These are all single-threaded implementations (using only one CPU core).
 
 ### Results
 
-* Ver1 indeed struggles with dense graphs:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/783.png "View interactively")](https://plotly.com/~stein.somers/783/)
+* Ver1 indeed struggles with dense graphs
+![Time spent on graphs of order 100](images/report_2.png)
+
 * Among Ver2 variants, GP and GPX are indeed best…
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/823.png "View interactively")](https://plotly.com/~stein.somers/823/)
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/836.png "View interactively")](https://plotly.com/~stein.somers/836/)
-* …but GPX looses ground in big graphs:
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/825.png "View interactively")](https://plotly.com/~stein.somers/825/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/839.png "View interactively")](https://plotly.com/~stein.somers/839/)
-* Ver3 isn't better in Python:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/855.png "View interactively")](https://plotly.com/~stein.somers/855/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/858.png "View interactively")](https://plotly.com/~stein.somers/858/)
-[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/862.png "View interactively")](https://plotly.com/~stein.somers/862/)
-* Neither in Rust:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/867.png "View interactively")](https://plotly.com/~stein.somers/867/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/869.png "View interactively")](https://plotly.com/~stein.somers/869/)
-* Ver3-GP seems better in Java, at least in bigger graphs:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/873.png "View interactively")](https://plotly.com/~stein.somers/873/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/875.png "View interactively")](https://plotly.com/~stein.somers/875/)
-* Same in Go:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/885.png "View interactively")](https://plotly.com/~stein.somers/885/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/887.png "View interactively")](https://plotly.com/~stein.somers/887/)
-* And in C#:
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/879.png "View interactively")](https://plotly.com/~stein.somers/879/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/881.png "View interactively")](https://plotly.com/~stein.somers/881/)
-[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/883.png "View interactively")](https://plotly.com/~stein.somers/883/)
+![Time spent on graphs of order 100](images/report_3_python3_100.png)
+![Time spent on graphs of order 100](images/report_3_java_100.png)
+
+* …but GPX looses ground in big graphs
+![Time spent on graphs of order 10k](images/report_3_python3_10k.png)
+![Time spent on graphs of order 10k](images/report_3_java_10k.png)
+
+* Ver3 isn't better than Ver2 in Python…
+![Time spent on graphs of order 100](images/report_4_python3_100.png)
+![Time spent on graphs of order 10k](images/report_4_python3_10k.png)
+![Time spent on graphs of order 1M](images/report_4_python3_1M.png)
+
+* …nor in Rust…
+![Time spent on graphs of order 100](images/report_4_rust_100.png)
+![Time spent on graphs of order 10k](images/report_4_rust_10k.png)
+
+* …but Ver3-GP seems better in Java, at least in bigger graphs…
+![Time spent on graphs of order 100](images/report_4_java_100.png)
+![Time spent on graphs of order 10k](images/report_4_java_10k.png)
+![Time spent on graphs of order 1M](images/report_4_java_1M.png)
+
+* …and in Go…
+![Time spent on graphs of order 100](images/report_4_go_100.png)
+![Time spent on graphs of order 10k](images/report_4_go_10k.png)
+
+* …as well as in C#
+![Time spent on graphs of order 100](images/report_4_rust_100.png)
+![Time spent on graphs of order 10k](images/report_4_rust_10k.png)
+![Time spent on graphs of order 1M](images/report_4_rust_1M.png)
+
+## Introducing parallelism
+
+These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
+We can run 2 + N jobs in parallel:
+- 1 stage of degeneracy ordering
+- 1 stage with the base iteration
+- many stages of recursive calls
+
+* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
+* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
+* **Ver3=GP0:** (Go only) using channels and 2 + 1 goroutines
+* **Ver3=GP1:** (Go only) using channels and 2 + 4 goroutines
+* **Ver3=GP2:** (Go only) using channels and 2 + 16 goroutine
+* **Ver3=GPc:** (Go only) using channels and 2 + 64 goroutines
+* **Ver3=GP4:** (Go only) using channels and 2 + 256 goroutines
+
+### Results
+* In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
+![Time spent on graphs of order 100](images/report_5_java_100.png)
+![Time spent on graphs of order 10k](images/report_5_java_10k.png)
+![Time spent on graphs of order 1M](images/report_5_java_1M.png)
+
+* In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel; and there's no need to severely limit the number of goroutines
+![Time spent on graphs of order 100](images/report_5_go_100.png)
+![Time spent on graphs of order 10k](images/report_5_go_10k.png)
+![Time spent on graphs of order 1M](images/report_5_go_1M.png)
 
 ## Comparing languages
 
-[![Time spent on graphs of order 100](https://plotly.com/~stein.somers/889.png "View interactively")](https://plotly.com/~stein.somers/889/)
-[![Time spent on graphs of order 10k](https://plotly.com/~stein.somers/897.png "View interactively")](https://plotly.com/~stein.somers/897/)
-[![Time spent on graphs of order 1M](https://plotly.com/~stein.somers/910.png "View interactively")](https://plotly.com/~stein.somers/910/)
+* Plain single-threaded
+![Time spent on graphs of order 100](images/report_6_100.png)
+![Time spent on graphs of order 10k](images/report_6_10k.png)
+![Time spent on graphs of order 1M](images/report_6_1M.png)
+
+* Simple multi-threaded
+![Time spent on graphs of order 100](images/report_6_parallel_100.png)
+![Time spent on graphs of order 10k](images/report_6_parallel_10k.png)
+![Time spent on graphs of order 1M](images/report_6_parallel_1M.png)
+
+* Multi-thread using something resembling channels
+![Time spent on graphs of order 100](images/report_6_channels_100.png)
+![Time spent on graphs of order 10k](images/report_6_channels_10k.png)
+![Time spent on graphs of order 1M](images/report_6_channels_1M.png)
 
 ## Set data structures
 
-All algorithms operate heavily on and with sets. In some languages, it's easy to pick among
+All algorithms operate heavily on and with sets. Some languages allow picking at compile time among
 various generic set implementations and compare their performance.
 
 ### Rust
@@ -96,28 +144,16 @@ various generic set implementations and compare their performance.
 
 ### Results
 
-## Introducing parallelism
+* Rust (multi-threaded use shows very similar results, but less consistent runs)
+![Time spent on graphs of order 100](images/report_7_rust_100.png)
+![Time spent on graphs of order 10k](images/report_7_rust_10k.png)
+![Time spent on graphs of order 1M](images/report_7_rust_1M.png)
 
-These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
-We can run 2 + N jobs in parallel:
-- 1 stage of degeneracy ordering
-- 1 stage of base iteration
-- many stages of recursive calls
-
-* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
-* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
-* **Ver3=GP0:** (Go only) using channels and 2 + 1 goroutines
-* **Ver3=GP1:** (Go only) using channels and 2 + 4 goroutines
-* **Ver3=GP2:** (Go only) using channels and 2 + 16 goroutine
-* **Ver3=GP3:** (Go only) using channels and 2 + 64 goroutines
-* **Ver3=GP4:** (Go only) using channels and 2 + 256 goroutines
-
-### Results
+* C++
+![Time spent on graphs of order 100](images/report_7_c++_100.png)
+![Time spent on graphs of order 10k](images/report_7_c++_10k.png)
 
 ## Detailed Results
-
-Graphs of the amount of time spent on a particular machine with 6 core CPU,
-all on predetermined random graphs (generated with typical pseudo-random generators in python):
 
 * [Dense graphs of order 100](results_100.md): Ver1 indeed can't cope.
 * [Graphs of order 10k](results_10k.md): probably the most realistic case.
@@ -133,7 +169,7 @@ Order of a graph = number of vertices.
     (once) python -m venv venv
     venv\Scripts\activate.bat
     (once) pip install pytest chart-studio hypothesis mypy
-    mypy . --ignore-missing-imports
+    mypy . --strict
     pytest
     python -O test_maximal_cliques.py
 

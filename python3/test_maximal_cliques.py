@@ -13,7 +13,7 @@ from bron_kerbosch3_gpx import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, Vertex
 from random_graph import to_int, read_random_graph
-from reporter import CountingReporter, SimpleReporter
+from reporter import CountingReporter, SimpleReporter, Reporter
 from stats import SampleStatistics
 from publish import publish
 
@@ -23,9 +23,11 @@ from math import isnan
 import pytest
 import sys
 import time
-from typing import Iterable, List, Set
+from typing import Callable, Iterable, List, Set
 
-FUNCS = [
+FUNC = Callable[[Graph, Reporter], None]
+
+FUNCS: List[FUNC] = [
     bron_kerbosch0,
     bron_kerbosch1,
     bron_kerbosch2,
@@ -52,7 +54,7 @@ FUNC_NAMES = [
 ]
 
 
-def are_maximal(cliques: List[List[Vertex]]):
+def are_maximal(cliques: List[List[Vertex]]) -> bool:
     for j, clique2 in enumerate(cliques):
         if j % 1000 == 0:
             print(f"checking maximality {j}/{len(cliques)}")
@@ -64,7 +66,8 @@ def are_maximal(cliques: List[List[Vertex]]):
 
 
 def bron_kerbosch_timed(graph: Graph, clique_count: int,
-                        func_indices: List[int], samples: int):
+                        func_indices: List[int],
+                        samples: int) -> List[SampleStatistics]:
     first = None
     times = [SampleStatistics() for _ in range(len(FUNCS))]
     for sample in range(1 if samples == 1 else 0, samples + 1):
@@ -75,7 +78,7 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
                 reporter = SimpleReporter()
                 begin = time.perf_counter()
                 try:
-                    func(graph=graph, reporter=reporter)
+                    func(graph, reporter)
                 except RecursionError:
                     print(f"{func_name} recursed out!")
                 secs = time.perf_counter() - begin
@@ -98,7 +101,7 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
                 counter = CountingReporter()
                 begin = time.perf_counter()
                 try:
-                    func(graph=graph, reporter=counter)
+                    func(graph, counter)
                 except RecursionError:
                     print(f"{func_name} recursed out!")
                 secs = time.perf_counter() - begin
@@ -110,64 +113,64 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
     return times
 
 
-def bkf(func, adjacencies: List[Set[Vertex]]) -> List[List[Vertex]]:
+def bkf(func: FUNC, adjacencies: List[Set[Vertex]]) -> List[List[Vertex]]:
     reporter = SimpleReporter()
-    func(graph=Graph(adjacencies=adjacencies), reporter=reporter)
+    func(Graph(adjacencies=adjacencies), reporter)
     return sorted(sorted(clique) for clique in reporter.cliques)
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_0(func):
+def test_order_0(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[]) == []
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_1(func):
-    assert bkf(func=func, adjacencies=[[]]) == []
+def test_order_1(func: FUNC) -> None:
+    assert bkf(func=func, adjacencies=[set()]) == []
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_2_isolated(func):
-    assert bkf(func=func, adjacencies=[[], []]) == []
+def test_order_2_isolated(func: FUNC) -> None:
+    assert bkf(func=func, adjacencies=[set(), set()]) == []
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_2_connected(func):
+def test_order_2_connected(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1}, {0}]) == [[0, 1]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_1_left(func):
-    assert bkf(func=func, adjacencies=[{1}, {0}, []]) == [[0, 1]]
+def test_order_3_size_1_left(func: FUNC) -> None:
+    assert bkf(func=func, adjacencies=[{1}, {0}, set()]) == [[0, 1]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_1_long(func):
-    assert bkf(func=func, adjacencies=[{2}, [], {0}]) == [[0, 2]]
+def test_order_3_size_1_long(func: FUNC) -> None:
+    assert bkf(func=func, adjacencies=[{2}, set(), {0}]) == [[0, 2]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_1_right(func):
-    assert bkf(func=func, adjacencies=[[], {2}, {1}]) == [[1, 2]]
+def test_order_3_size_1_right(func: FUNC) -> None:
+    assert bkf(func=func, adjacencies=[set(), {2}, {1}]) == [[1, 2]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_2(func):
+def test_order_3_size_2(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1}, {0, 2}, {1}]) == [[0, 1], [1, 2]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_3_size_3(func):
+def test_order_3_size_3(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1, 2}, {0, 2}, {0, 1}]) == [[0, 1, 2]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_2(func):
+def test_order_4_size_2(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1}, {0}, {3}, {2}]) == [[0, 1], [2, 3]]
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_3_bus(func):
+def test_order_4_size_3_bus(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1}, {0, 2}, {1, 3}, {2}]) == [
         [0, 1],
         [1, 2],
@@ -176,7 +179,7 @@ def test_order_4_size_3_bus(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_3_star(func):
+def test_order_4_size_3_star(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1, 2, 3}, {0}, {0}, {0}]) == [
         [0, 1],
         [0, 2],
@@ -185,7 +188,7 @@ def test_order_4_size_3_star(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_4_p(func):
+def test_order_4_size_4_p(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1}, {0, 2, 3}, {1, 3}, {1, 2}]) == [
         [0, 1],
         [1, 2, 3],
@@ -193,7 +196,7 @@ def test_order_4_size_4_p(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_4_square(func):
+def test_order_4_size_4_square(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1, 3}, {0, 2}, {1, 3}, {0, 2}]) == [
         [0, 1],
         [0, 3],
@@ -203,7 +206,7 @@ def test_order_4_size_4_square(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_5(func):
+def test_order_4_size_5(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=[{1, 2, 3}, {0, 2}, {0, 1, 3},
                                        {0, 2}]) == [
                                            [0, 1, 2],
@@ -212,7 +215,7 @@ def test_order_4_size_5(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_4_size_6(func):
+def test_order_4_size_6(func: FUNC) -> None:
     assert bkf(func=func,
                adjacencies=[
                    {1, 2, 3},
@@ -225,7 +228,7 @@ def test_order_4_size_6(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_order_5_penultimate(func):
+def test_order_5_penultimate(func: FUNC) -> None:
     assert bkf(func=func,
                adjacencies=[
                    {1, 2, 3, 4},
@@ -240,7 +243,7 @@ def test_order_5_penultimate(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_sample(func):
+def test_sample(func: FUNC) -> None:
     assert bkf(func=func, adjacencies=SAMPLE_ADJACENCY_LIST) == [
         [1, 2, 3, 4],
         [2, 3, 5],
@@ -249,7 +252,7 @@ def test_sample(func):
 
 
 @pytest.mark.parametrize("func", FUNCS)
-def test_bigger(func):
+def test_bigger(func: FUNC) -> None:
     assert bkf(func=func,
                adjacencies=[
                    {1, 2, 3, 4, 6, 7},
@@ -287,7 +290,7 @@ def test_bigger(func):
 
 
 def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
-       samples: int):
+       samples: int) -> None:
     order = to_int(orderstr)
     stats_per_func_by_size = {}
     for size in sizes:

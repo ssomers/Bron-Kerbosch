@@ -28,7 +28,7 @@ class NeighbourhoodWatch:
         assert v != w
         return v, w
 
-    def record_neighbour(self, v: int, new_neighbour: int):
+    def record_neighbour(self, v: int, new_neighbour: int) -> None:
         assert v != new_neighbour
         if self.complement[v]:
             assert new_neighbour in self.neighbours[v]
@@ -47,7 +47,7 @@ class NeighbourhoodWatch:
             else:
                 self.neighbours[v].add(new_neighbour)
 
-    def meet_neighbour(self, v: int, new_neighbour: int):
+    def meet_neighbour(self, v: int, new_neighbour: int) -> None:
         self.record_neighbour(v, new_neighbour)
 
 

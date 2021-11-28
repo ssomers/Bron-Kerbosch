@@ -23,7 +23,7 @@ class UndirectedGraph(object):
         assert total % 2 == 0
         return total // 2
 
-    def degree(self, node):
+    def degree(self, node: Vertex) -> int:
         return len(self.adjacencies[node])
 
     def connected_vertices(self) -> Set[Vertex]:

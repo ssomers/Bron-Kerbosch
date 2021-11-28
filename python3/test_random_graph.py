@@ -4,7 +4,7 @@ from random_graph import random_undirected_graph
 import random
 
 
-def test_random_graph():
+def test_random_graph() -> None:
     random.seed(19680516)
     random_undirected_graph(order=2, size=0)
     random_undirected_graph(order=3, size=0)

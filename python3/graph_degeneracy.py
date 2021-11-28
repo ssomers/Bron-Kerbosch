@@ -1,25 +1,31 @@
 # coding: utf-8
 
-from graph import UndirectedGraph
+from graph import UndirectedGraph, Vertex
+from typing import Generator, List
 
 
 class PriorityQueue:
-    def __init__(self, max_priority):
-        self.stack_per_priority = [[] for _ in range(max_priority + 1)]
+    def __init__(self, max_priority: int) -> None:
+        self.stack_per_priority: List[List[int]] = [
+            [] for _ in range(max_priority + 1)
+        ]
 
-    def put(self, priority, element):
+    def put(self, priority: int, element: int) -> None:
         assert priority >= 0
         self.stack_per_priority[priority].append(element)
 
-    def pop(self):
+    def pop(self) -> int:
         for stack in self.stack_per_priority:
             try:
                 return stack.pop()
             except IndexError:
                 pass
+        else:
+            raise ValueError("attempt to pop more than was put")
 
 
-def degeneracy_ordering(graph: UndirectedGraph, drop=0):
+def degeneracy_ordering(graph: UndirectedGraph,
+                        drop: int = 0) -> Generator[Vertex, None, None]:
     """
     Iterate connected vertices, lowest degree first.
     drop=N: omit last N vertices

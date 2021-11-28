@@ -7,7 +7,7 @@ from reporter import Reporter
 from typing import Set
 
 
-def bron_kerbosch3_gpx(graph: UndirectedGraph, reporter: Reporter):
+def bron_kerbosch3_gpx(graph: UndirectedGraph, reporter: Reporter) -> None:
     '''Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
        choosing a pivot from both candidates and excluded vertices (IK_GPX)'''
     excluded: Set[Vertex] = set()

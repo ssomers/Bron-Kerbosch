@@ -6,13 +6,13 @@ from reporter import Reporter
 from typing import Callable, List, Set
 import random
 
-PivotChoice = Callable
+PivotChoice = Callable[[UndirectedGraph, Set[Vertex]], Vertex]
 
 
 def visit(graph: UndirectedGraph, reporter: Reporter,
           initial_pivot_choice: PivotChoice, further_pivot_choice: PivotChoice,
           candidates: Set[Vertex], excluded: Set[Vertex],
-          clique: List[Vertex]):
+          clique: List[Vertex]) -> None:
     assert candidates
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
@@ -52,7 +52,7 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
                     seen_local_degree = local_degree
                     pivot = v
     else:
-        pivot = initial_pivot_choice(graph=graph, candidates=candidates)
+        pivot = initial_pivot_choice(graph, candidates)
         remaining_candidates = list(candidates)
 
     for v in remaining_candidates:
@@ -96,9 +96,11 @@ def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
     return max(candidates, key=graph.degree)
 
 
-def pick_max_degree_local():
-    pass
+def pick_max_degree_local(graph: UndirectedGraph,
+                          candidates: Set[Vertex]) -> Vertex:
+    raise NotImplementedError("only used as enum")
 
 
-def pick_max_degree_localX():
-    pass
+def pick_max_degree_localX(graph: UndirectedGraph,
+                           candidates: Set[Vertex]) -> Vertex:
+    raise NotImplementedError("only used as enum")
