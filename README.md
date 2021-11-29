@@ -15,14 +15,21 @@ Compared to the original project this is forked from, the code is:
 * extended with unit tests, property based testing, and a performance test on random graphs
 * most of in Rust, Java, Go, C++ and partly in C# and Scala
 
-All charts below show the amount of time spent on the same particular machine with 6 core CPU, all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
+Beware that my Scala knowledge and code is the least developed of all languages.
+
+All charts below show the amount of time spent on the same particular machine with 6 core CPU,
+all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
 Order of a graph = number of vertices.
 
 ## Executive summary
 * Better algorithms invented to counter treacherous cases stand their ground on a vanilla random graph.
-* Programming language doesn't boost more than a factor 2.
-* Multi-threading helps more, and how programming languages accommodate for it makes a huge difference.
-* Collection libraries don't matter much either, though hashing reaches sizes a B-tree can only dream of.
+* Programming language makes a difference, as in factor 2 up to 8.
+  - Rust is clearly the fastest, but beware I contributed some performance improvements to its collection library, more than I invested in the other, more established languages.
+  - C# is the runner up, surpringly (to me).
+  - Python is the slowest, not surprisingly.
+  - C++ is clearly not the fastest (and I claim this with the confidence of 20 years of professional C++ development).
+* Multi-threading helps a lot too, and how programming languages accommodate for it makes a huge difference. Python is the worst in that respect, I couldn't get any multi-threading code to work faster than the single-threaded code.
+* Collection libraries don't matter much, though hashing reaches sizes a B-tree can only dream of.
 
 ## Local optimization
 
