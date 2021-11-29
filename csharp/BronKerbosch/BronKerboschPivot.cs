@@ -22,11 +22,10 @@ namespace BronKerbosch
                                  ISet<Vertex> candidates, ISet<Vertex> excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
-            Debug.Assert(candidates.Any());
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
             Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
             Debug.Assert(!candidates.Overlaps(excluded));
-
+            Debug.Assert(candidates.Count >= 1);
             if (candidates.Count == 1)
             {
                 // Same logic as below, stripped down
@@ -106,10 +105,9 @@ namespace BronKerbosch
                           neighbouringCandidates, neighbouringExcluded,
                           CollectionsUtil.Append(cliqueInProgress, v));
                 }
-                else
+                else if (CollectionsUtil.AreDisjoint(excluded, neighbours))
                 {
-                    if (CollectionsUtil.AreDisjoint(excluded, neighbours))
-                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 }
                 excluded.Add(v);
             }

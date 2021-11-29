@@ -20,14 +20,15 @@ class bron_kerbosch1[Vertex] extends bron_kerbosch_algorithm[Vertex] {
     var excluded = initial_excluded
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
-
+    assert(util.are_disjoint(candidates, excluded))
+    assert(candidates.nonEmpty)
     while (candidates.nonEmpty) {
       val v = candidates.head
       candidates = candidates.tail
       val neighbours = graph.neighbours(v)
-      val neighbouring_candidates = util.intersect(neighbours, candidates)
+      val neighbouring_candidates = util.intersect(candidates, neighbours)
       if (neighbouring_candidates.nonEmpty) {
-        val neighbouring_excluded = util.intersect(neighbours, excluded)
+        val neighbouring_excluded = util.intersect(excluded, neighbours)
         visit(
           graph,
           reporter,
@@ -35,10 +36,8 @@ class bron_kerbosch1[Vertex] extends bron_kerbosch_algorithm[Vertex] {
           neighbouring_excluded,
           v :: clique_in_progress
         )
-      } else {
-        if (util.are_disjoint(neighbours, excluded)) {
-          reporter(v :: clique_in_progress)
-        }
+      } else if (util.are_disjoint(excluded, neighbours)) {
+        reporter(v :: clique_in_progress)
       }
       excluded += v
     }

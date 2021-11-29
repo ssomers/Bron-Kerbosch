@@ -112,21 +112,17 @@ class BronKerboschPivot implements BronKerboschAlgorithm {
                     mut_candidates.remove(v);
                     var neighbouringCandidates = util.Intersect(mut_candidates, neighbours)
                             .collect(Collectors.toCollection(HashSet::new));
-                    if (neighbouringCandidates.isEmpty()) {
-                        if (util.AreDisjoint(neighbours, mut_excluded)) {
-                            cliqueConsumer.accept(util.Append(cliqueInProgress, v));
-                        }
-                    } else {
+                    if (!neighbouringCandidates.isEmpty()) {
                         var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
                                 .collect(Collectors.toCollection(HashSet::new));
-                        visit(
-                                graph, cliqueConsumer,
+                        visit(graph, cliqueConsumer,
                                 furtherPivotChoice,
                                 furtherPivotChoice,
                                 neighbouringCandidates,
                                 neighbouringExcluded,
-                                util.Append(cliqueInProgress, v)
-                        );
+                                util.Append(cliqueInProgress, v));
+                    } else if (util.AreDisjoint(mut_excluded, neighbours)) {
+                        cliqueConsumer.accept(util.Append(cliqueInProgress, v));
                     }
                     mut_excluded.add(v);
                 }

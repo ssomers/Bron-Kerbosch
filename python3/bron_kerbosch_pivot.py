@@ -13,10 +13,10 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
           initial_pivot_choice: PivotChoice, further_pivot_choice: PivotChoice,
           candidates: Set[Vertex], excluded: Set[Vertex],
           clique: List[Vertex]) -> None:
-    assert candidates
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
-
+    assert candidates.isdisjoint(excluded)
+    assert len(candidates) >= 1
     if len(candidates) == 1:
         # Same logic as below, stripped down for this common case
         for v in candidates:

@@ -26,24 +26,25 @@ internal static class BronKerbosch1
     private static void Visit(UndirectedGraph graph, IReporter reporter,
         ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
-        while (true)
+        Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
+        Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
+        Debug.Assert(!candidates.Overlaps(excluded));
+        Debug.Assert(candidates.Any());
+        while (candidates.Any())
         {
             var v = CollectionsUtil.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
-            Debug.Assert(neighbours.Any());
             var neighbouringCandidates = CollectionsUtil.Intersection(candidates, neighbours);
             if (neighbouringCandidates.Any())
             {
                 var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
-                Visit(graph, reporter, neighbouringCandidates, neighbouringExcluded,
+                Visit(graph, reporter,
+                    neighbouringCandidates, neighbouringExcluded,
                     CollectionsUtil.Append(cliqueInProgress, v));
             }
-            else
+            else if (CollectionsUtil.AreDisjoint(excluded, neighbours))
             {
-                if (CollectionsUtil.AreDisjoint(excluded, neighbours))
-                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
-                if (!candidates.Any())
-                    break;
+                reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
             }
             excluded.Add(v);
         }

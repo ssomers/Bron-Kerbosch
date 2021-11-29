@@ -30,11 +30,10 @@ pub fn visit<VertexSet, Graph, Rprtr>(
     Graph: UndirectedGraph<VertexSet = VertexSet>,
     Rprtr: Reporter,
 {
-    debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
-
+    debug_assert!(candidates.len() >= 1);
     if candidates.len() == 1 {
         // Same logic as below, but stripped down for this common case
         candidates.for_each(|v| {
@@ -96,22 +95,19 @@ pub fn visit<VertexSet, Graph, Rprtr>(
             continue;
         }
         candidates.remove(v);
-        let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
-        if neighbouring_candidates.is_empty() {
-            if neighbours.is_disjoint(&excluded) {
-                reporter.record(Pile::on(clique, v).collect());
-            }
-        } else {
-            let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
+        let neighbouring_candidates: VertexSet = candidates.intersection_collect(neighbours);
+        if !neighbouring_candidates.is_empty() {
             visit(
                 graph,
                 reporter,
                 further_pivot_selection,
                 further_pivot_selection,
                 neighbouring_candidates,
-                neighbouring_excluded,
+                excluded.intersection_collect(neighbours),
                 Some(&Pile::on(clique, v)),
             );
+        } else if excluded.is_disjoint(neighbours) {
+            reporter.record(Pile::on(clique, v).collect());
         }
         excluded.insert(v);
     }

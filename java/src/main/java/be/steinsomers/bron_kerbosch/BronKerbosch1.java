@@ -22,23 +22,24 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
     private static void visit(UndirectedGraph graph, Consumer<int[]> cliqueConsumer,
                               Set<Integer> mut_candidates, Set<Integer> mut_excluded,
                               int[] cliqueInProgress) {
+        assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
+        assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);
+        assert util.AreDisjoint(mut_candidates, mut_excluded);
+        assert !mut_candidates.isEmpty();
         while (!mut_candidates.isEmpty()) {
             var v = util.PopArbitrary(mut_candidates);
             var neighbours = graph.neighbours(v);
-            assert !neighbours.isEmpty();
             var neighbouringCandidates = util.Intersect(mut_candidates, neighbours)
                     .collect(Collectors.toCollection(HashSet::new));
-            if (neighbouringCandidates.isEmpty()) {
-                if (util.AreDisjoint(mut_excluded, neighbours))
-                    cliqueConsumer.accept(util.Append(cliqueInProgress, v));
-            } else {
+            if (!neighbouringCandidates.isEmpty()) {
                 var neighbouringExcluded = util.Intersect(mut_excluded, neighbours)
                         .collect(Collectors.toCollection(HashSet::new));
-                visit(
-                        graph, cliqueConsumer,
+                visit(graph, cliqueConsumer,
                         neighbouringCandidates,
                         neighbouringExcluded,
                         util.Append(cliqueInProgress, v));
+            } else if (util.AreDisjoint(mut_excluded, neighbours)) {
+                cliqueConsumer.accept(util.Append(cliqueInProgress, v));
             }
             mut_excluded.add(v);
         }

@@ -1,5 +1,5 @@
-//! Bron-Kerbosch algorithm with degeneracy ordering,
-//! recursing with pivot of highest degree (IK_GP)
+//! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
+//! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
 use crate::bron_kerbosch_pivot::{visit, PivotChoice};

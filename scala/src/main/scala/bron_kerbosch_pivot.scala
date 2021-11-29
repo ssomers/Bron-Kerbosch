@@ -12,20 +12,20 @@ object bron_kerbosch_pivot {
       reporter: immutable.Iterable[Vertex] => Unit,
       initial_pivot_choice: PivotChoice,
       further_pivot_choice: PivotChoice,
-      candidates: Set[Vertex],
-      excluded: Set[Vertex],
+      initial_candidates: Set[Vertex],
+      initial_excluded: Set[Vertex],
       clique_in_progress: immutable.List[Vertex]
   ): Unit = {
-    assert(candidates.nonEmpty)
+    var candidates = initial_candidates
+    var excluded = initial_excluded
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
     assert(util.are_disjoint(candidates, excluded))
-
+    assert(candidates.nonEmpty)
     if (candidates.size == 1) {
       // Same logic as below, stripped down for this common case
       val v = candidates.head
-      val neighbours = graph.neighbours(v)
-      if (util.are_disjoint(neighbours, excluded)) {
+      if (util.are_disjoint(excluded, graph.neighbours(v))) {
         reporter(v :: clique_in_progress)
       }
     } else {
@@ -41,10 +41,10 @@ object bron_kerbosch_pivot {
             var seen_local_degree = 0
             for (v <- candidates) {
               val neighbours = graph.neighbours(v)
-              val local_degree = util.intersection_size(neighbours, candidates)
+              val local_degree = util.intersection_size(candidates, neighbours)
               if (local_degree == 0) {
                 // Same logic as below, stripped down
-                if (util.are_disjoint(neighbours, excluded)) {
+                if (util.are_disjoint(excluded, neighbours)) {
                   reporter(v :: clique_in_progress)
                 }
               } else {
@@ -62,7 +62,7 @@ object bron_kerbosch_pivot {
               for (v <- excluded) {
                 val neighbours = graph.neighbours(v)
                 val local_degree =
-                  util.intersection_size(neighbours, candidates)
+                  util.intersection_size(candidates, neighbours)
                 if (seen_local_degree < local_degree) {
                   seen_local_degree = local_degree
                   pivot = Some(v)
@@ -72,20 +72,13 @@ object bron_kerbosch_pivot {
             (remaining_candidates, pivot.get)
         }
       assert(remaining_candidates.nonEmpty)
-      var mut_candidates = candidates
-      var mut_excluded = excluded
       for (v <- remaining_candidates) {
         val neighbours = graph.neighbours(v)
         if (!neighbours.contains(pivot)) {
-          mut_candidates -= v
-          val neighbouring_candidates =
-            util.intersect(neighbours, mut_candidates)
-          if (neighbouring_candidates.isEmpty) {
-            if (util.are_disjoint(neighbours, mut_excluded)) {
-              reporter(v :: clique_in_progress)
-            }
-          } else {
-            val neighbouring_excluded = util.intersect(neighbours, mut_excluded)
+          candidates -= v
+          val neighbouring_candidates = util.intersect(candidates, neighbours)
+          if (neighbouring_candidates.nonEmpty) {
+            val neighbouring_excluded = util.intersect(excluded, neighbours)
             visit(
               graph,
               reporter,
@@ -95,8 +88,10 @@ object bron_kerbosch_pivot {
               neighbouring_excluded,
               v :: clique_in_progress
             )
+          } else if (util.are_disjoint(excluded, neighbours)) {
+            reporter(v :: clique_in_progress)
           }
-          mut_excluded += v
+          excluded += v
         }
       }
     }

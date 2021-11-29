@@ -36,27 +36,24 @@ fn visit<VertexSet, Graph, Rprtr>(
     Graph: UndirectedGraph<VertexSet = VertexSet>,
     Rprtr: Reporter,
 {
-    debug_assert!(!candidates.is_empty());
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
     debug_assert!(candidates.is_disjoint(&excluded));
+    debug_assert!(!candidates.is_empty());
 
     while let Some(v) = candidates.pop_arbitrary() {
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
+        let neighbouring_candidates: VertexSet = candidates.intersection_collect(neighbours);
         if !neighbouring_candidates.is_empty() {
-            let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
             visit(
                 graph,
                 reporter,
                 neighbouring_candidates,
-                neighbouring_excluded,
-                Some(&Clique::on(clique, v)),
+                excluded.intersection_collect(neighbours),
+                Some(&Pile::on(clique, v)),
             );
-        } else {
-            if neighbours.is_disjoint(&excluded) {
-                reporter.record(Clique::on(clique, v).collect());
-            }
+        } else if excluded.is_disjoint(neighbours) {
+            reporter.record(Pile::on(clique, v).collect());
         }
         excluded.insert(v);
     }

@@ -17,20 +17,21 @@ def bron_kerbosch1(graph: UndirectedGraph, reporter: Reporter) -> None:
 
 def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
           excluded: Set[Vertex], clique: List[Vertex]) -> None:
+    assert all(graph.degree(v) > 0 for v in candidates)
+    assert all(graph.degree(v) > 0 for v in excluded)
+    assert candidates.isdisjoint(excluded)
     assert candidates
-
     while candidates:
         v = candidates.pop()
         neighbours = graph.adjacencies[v]
-        assert neighbours
         neighbouring_candidates = candidates.intersection(neighbours)
         if neighbouring_candidates:
-            visit(graph=graph,
-                  reporter=reporter,
+            neighbouring_excluded = excluded.intersection(neighbours)
+            visit(graph,
+                  reporter,
                   candidates=neighbouring_candidates,
-                  excluded=excluded.intersection(neighbours),
+                  excluded=neighbouring_excluded,
                   clique=clique + [v])
-        else:
-            if excluded.isdisjoint(neighbours):
-                reporter.record(clique + [v])
+        elif excluded.isdisjoint(neighbours):
+            reporter.record(clique + [v])
         excluded.add(v)

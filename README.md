@@ -18,6 +18,12 @@ Compared to the original project this is forked from, the code is:
 All charts below show the amount of time spent on the same particular machine with 6 core CPU, all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
 Order of a graph = number of vertices.
 
+## Executive summary
+* Better algorithms invented to counter treacherous cases stand their ground on a vanilla random graph.
+* Programming language doesn't boost more than a factor 2.
+* Multi-threading helps more, and how programming languages accommodate for it makes a huge difference.
+* Collection libraries don't matter much either, though hashing reaches sizes a B-tree can only dream of.
+
 ## Local optimization
 
 Let's first get one thing out of the way: what does some local optimization yield in the simplest, naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimization or low hanging fruit?
@@ -32,7 +38,7 @@ In particular:
 ### Results
 
 * We gain almost as much as through switching programming languages:
-![Time spent on graphs of order 100](images/report_1.png)
+![Time spent on graphs of order 100](doc/report_1.png)
 
 Therefore, all the other implementations will contain similar tweaks.
 
@@ -53,38 +59,38 @@ These are all single-threaded implementations (using only one CPU core).
 ### Results
 
 * Ver1 indeed struggles with dense graphs, when it has to deal with more than half of the 4950 possible edges
-![Time spent on graphs of order 100](images/report_2.png)
+![Time spent on graphs of order 100](doc/report_2.png)
 
 * Among Ver2 variants, GP and GPX are indeed best…
-![Time spent on graphs of order 100](images/report_3_python3_100.png)
-![Time spent on graphs of order 100](images/report_3_java_100.png)
+![Time spent on graphs of order 100](doc/report_3_python3_100.png)
+![Time spent on graphs of order 100](doc/report_3_java_100.png)
 
 * …but GPX looses ground in big graphs
-![Time spent on graphs of order 10k](images/report_3_python3_10k.png)
-![Time spent on graphs of order 10k](images/report_3_java_10k.png)
+![Time spent on graphs of order 10k](doc/report_3_python3_10k.png)
+![Time spent on graphs of order 10k](doc/report_3_java_10k.png)
 
 * Ver3 isn't better than Ver2 in Python…
-![Time spent on graphs of order 100](images/report_4_python3_100.png)
-![Time spent on graphs of order 10k](images/report_4_python3_10k.png)
-![Time spent on graphs of order 1M](images/report_4_python3_1M.png)
+![Time spent on graphs of order 100](doc/report_4_python3_100.png)
+![Time spent on graphs of order 10k](doc/report_4_python3_10k.png)
+![Time spent on graphs of order 1M](doc/report_4_python3_1M.png)
 
 * …nor in Rust…
-![Time spent on graphs of order 100](images/report_4_rust_100.png)
-![Time spent on graphs of order 10k](images/report_4_rust_10k.png)
+![Time spent on graphs of order 100](doc/report_4_rust_100.png)
+![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
 
 * …but Ver3-GP seems better in Java, at least in bigger graphs…
-![Time spent on graphs of order 100](images/report_4_java_100.png)
-![Time spent on graphs of order 10k](images/report_4_java_10k.png)
-![Time spent on graphs of order 1M](images/report_4_java_1M.png)
+![Time spent on graphs of order 100](doc/report_4_java_100.png)
+![Time spent on graphs of order 10k](doc/report_4_java_10k.png)
+![Time spent on graphs of order 1M](doc/report_4_java_1M.png)
 
 * …and in Go…
-![Time spent on graphs of order 100](images/report_4_go_100.png)
-![Time spent on graphs of order 10k](images/report_4_go_10k.png)
+![Time spent on graphs of order 100](doc/report_4_go_100.png)
+![Time spent on graphs of order 10k](doc/report_4_go_10k.png)
 
 * …as well as in C#
-![Time spent on graphs of order 100](images/report_4_rust_100.png)
-![Time spent on graphs of order 10k](images/report_4_rust_10k.png)
-![Time spent on graphs of order 1M](images/report_4_rust_1M.png)
+![Time spent on graphs of order 100](doc/report_4_rust_100.png)
+![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
+![Time spent on graphs of order 1M](doc/report_4_rust_1M.png)
 
 ## Introducing parallelism
 
@@ -104,31 +110,31 @@ We can run 2 + N jobs in parallel:
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
-![Time spent on graphs of order 100](images/report_5_java_100.png)
-![Time spent on graphs of order 10k](images/report_5_java_10k.png)
-![Time spent on graphs of order 1M](images/report_5_java_1M.png)
+![Time spent on graphs of order 100](doc/report_5_java_100.png)
+![Time spent on graphs of order 10k](doc/report_5_java_10k.png)
+![Time spent on graphs of order 1M](doc/report_5_java_1M.png)
 
 * In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel; and there's no need to severely limit the number of goroutines
-![Time spent on graphs of order 100](images/report_5_go_100.png)
-![Time spent on graphs of order 10k](images/report_5_go_10k.png)
-![Time spent on graphs of order 1M](images/report_5_go_1M.png)
+![Time spent on graphs of order 100](doc/report_5_go_100.png)
+![Time spent on graphs of order 10k](doc/report_5_go_10k.png)
+![Time spent on graphs of order 1M](doc/report_5_go_1M.png)
 
 ## Comparing languages
 
 * Plain single-threaded
-![Time spent on graphs of order 100](images/report_6_100.png)
-![Time spent on graphs of order 10k](images/report_6_10k.png)
-![Time spent on graphs of order 1M](images/report_6_1M.png)
+![Time spent on graphs of order 100](doc/report_6_100.png)
+![Time spent on graphs of order 10k](doc/report_6_10k.png)
+![Time spent on graphs of order 1M](doc/report_6_1M.png)
 
 * Simple multi-threaded
-![Time spent on graphs of order 100](images/report_6_parallel_100.png)
-![Time spent on graphs of order 10k](images/report_6_parallel_10k.png)
-![Time spent on graphs of order 1M](images/report_6_parallel_1M.png)
+![Time spent on graphs of order 100](doc/report_6_parallel_100.png)
+![Time spent on graphs of order 10k](doc/report_6_parallel_10k.png)
+![Time spent on graphs of order 1M](doc/report_6_parallel_1M.png)
 
 * Multi-thread using something resembling channels
-![Time spent on graphs of order 100](images/report_6_channels_100.png)
-![Time spent on graphs of order 10k](images/report_6_channels_10k.png)
-![Time spent on graphs of order 1M](images/report_6_channels_1M.png)
+![Time spent on graphs of order 100](doc/report_6_channels_100.png)
+![Time spent on graphs of order 10k](doc/report_6_channels_10k.png)
+![Time spent on graphs of order 1M](doc/report_6_channels_1M.png)
 
 ## Set data structures
 
@@ -150,19 +156,19 @@ various generic set implementations and compare their performance.
 ### Results
 
 * Rust (multi-threaded use shows very similar results, but less consistent runs)
-![Time spent on graphs of order 100](images/report_7_rust_100.png)
-![Time spent on graphs of order 10k](images/report_7_rust_10k.png)
-![Time spent on graphs of order 1M](images/report_7_rust_1M.png)
+![Time spent on graphs of order 100](doc/report_7_rust_100.png)
+![Time spent on graphs of order 10k](doc/report_7_rust_10k.png)
+![Time spent on graphs of order 1M](doc/report_7_rust_1M.png)
 
 * C++
-![Time spent on graphs of order 100](images/report_7_c++_100.png)
-![Time spent on graphs of order 10k](images/report_7_c++_10k.png)
+![Time spent on graphs of order 100](doc/report_7_c++_100.png)
+![Time spent on graphs of order 10k](doc/report_7_c++_10k.png)
 
 ## Detailed Results
 
-* [Dense graphs of order 100](results_100.md)
-* [Graphs of order 10k](results_10k.md)
-* [Graphs of order 1M](results_1M.md)
+* [Dense graphs of order 100](doc/results_100.md)
+* [Graphs of order 10k](doc/results_10k.md)
+* [Graphs of order 1M](doc/results_1M.md)
 
 ## Run & Test
 
