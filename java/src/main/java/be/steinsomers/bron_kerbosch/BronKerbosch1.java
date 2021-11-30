@@ -11,11 +11,13 @@ import java.util.stream.Stream;
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
     @Override
     public Stream<int[]> explore(UndirectedGraph graph) {
+        Stream.Builder<int[]> cliqueStream = Stream.builder();
         Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
-        Set<Integer> excluded = new HashSet<>(candidates.size());
-        Stream.Builder<int[]> cliqueStream = Stream.builder();
-        visit(graph, cliqueStream, candidates, excluded, EMPTY_CLIQUE);
+        if (!candidates.isEmpty()) {
+            Set<Integer> excluded = new HashSet<>(candidates.size());
+            visit(graph, cliqueStream, candidates, excluded, EMPTY_CLIQUE);
+        }
         return cliqueStream.build();
     }
 

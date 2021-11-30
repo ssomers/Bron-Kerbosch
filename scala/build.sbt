@@ -11,4 +11,4 @@ scalacOptions ++= Seq(
   "-feature",
   "-Xfatal-warnings"
 )
-//scalacOptions += "-Xdisable-assertions"
+scalacOptions += "-Xdisable-assertions"

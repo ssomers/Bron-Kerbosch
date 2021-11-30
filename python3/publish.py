@@ -3,7 +3,7 @@ import csv
 import math
 import os
 import sys
-from typing import Callable, Dict, List, Mapping, Optional, Tuple
+from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 figsize = (8, 6)  # in hectopixels
 
@@ -79,7 +79,7 @@ class Measurement(object):
 
 
 def publish(
-        language: str, orderstr: str, case_names: List[str],
+        language: str, orderstr: str, case_names: Sequence[str],
         stats_per_func_by_size: Mapping[int, List[SampleStatistics]]) -> None:
     num_cases = len(case_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
@@ -89,9 +89,9 @@ def publish(
         w.writerow(["Size"] + [(f"{name} {t}") for name in case_names
                                for t in ["min", "mean", "max"]])
         for size, stats in stats_per_func_by_size.items():
-            w.writerow([float(size)] +
-                       [f for s in stats
-                        for f in [s.min, s.mean(), s.max]])
+            w.writerow(
+                [str(size)] +
+                [str(f) for s in stats for f in [s.min, s.mean(), s.max]])
     publish_whole_csv(language=language, orderstr=orderstr)
 
 
@@ -238,8 +238,8 @@ def publish_measurements(
         plt.close(fig)
 
 
-def publish_report(orderstr: str, filename: str, langlibs: List[str],
-                   versions: List[str]) -> None:
+def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
+                   versions: Sequence[str]) -> None:
     sizes: List[int] = []
     measurements: Dict[str, List[Measurement]] = {}
     languages = set(langlib.split('@', 1)[0] for langlib in langlibs)
@@ -266,7 +266,10 @@ def publish_report(orderstr: str, filename: str, langlibs: List[str],
 
     dash_by_case = None
     if len(versions) == 2:
-        dash_by_case = lambda case_name: "dotted" if f" {versions[0]}" in case_name else "solid"
+
+        def dash_by_case(case_name: str) -> str:
+            return "dotted" if f" {versions[0]}" in case_name else "solid"
+
     publish_measurements(
         language=single_language,
         orderstr=orderstr,

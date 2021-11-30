@@ -5,12 +5,12 @@ import (
 	"sort"
 )
 
-const NumFuncs = 11
+const NumFuncs = 10
 
 var Funcs = [NumFuncs]func(*UndirectedGraph, Reporter){
 	bronKerbosch1,
 	bronKerbosch2g, bronKerbosch2gp, bronKerbosch2gpx,
-	bronKerbosch3gp, bronKerbosch3gpx,
+	bronKerbosch3gp,
 	bronKerbosch3gp0,
 	bronKerbosch3gp1,
 	bronKerbosch3gp2,
@@ -21,7 +21,7 @@ var Funcs = [NumFuncs]func(*UndirectedGraph, Reporter){
 var FuncNames = [NumFuncs]string{
 	"Ver1",
 	"Ver2-G", "Ver2-GP", "Ver2-GPX",
-	"Ver3-GP", "Ver3-GPX", "Ver3=GP0", "Ver3=GP1", "Ver3=GP2", "Ver3=GP3", "Ver3=GP4",
+	"Ver3-GP", "Ver3=GP0", "Ver3=GP1", "Ver3=GP2", "Ver3=GP3", "Ver3=GP4",
 }
 
 func SortCliques(cliques [][]Vertex) {

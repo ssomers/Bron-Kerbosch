@@ -6,7 +6,7 @@ from reporter import Reporter
 
 
 def bron_kerbosch2(graph: UndirectedGraph, reporter: Reporter) -> None:
-    '''Bron-Kerbosch algorithm with arbitrarily chosen pivot'''
+    """Bron-Kerbosch algorithm with arbitrarily chosen pivot"""
     if candidates := graph.connected_vertices():
         visit(graph=graph,
               reporter=reporter,

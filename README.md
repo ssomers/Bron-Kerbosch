@@ -173,9 +173,9 @@ various generic set implementations and compare their performance.
 
 ## Detailed Results
 
-* [Dense graphs of order 100](doc/results_100.md)
-* [Graphs of order 10k](doc/results_10k.md)
-* [Graphs of order 1M](doc/results_1M.md)
+* [Dense graph of order 100](doc/results_100.md)
+* [Graph of order 10k](doc/results_10k.md)
+* [Sparse graph of order 1M](doc/results_1M.md)
 
 ## Run & Test
 
@@ -185,7 +185,7 @@ various generic set implementations and compare their performance.
     (once) python -m venv venv
     venv\Scripts\activate.bat
     (once) pip install pytest chart-studio hypothesis mypy
-    mypy . --strict
+    mypy .
     pytest
     python -O test_maximal_cliques.py
 

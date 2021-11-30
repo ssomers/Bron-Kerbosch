@@ -15,18 +15,18 @@ class BronKerboschOrder implements BronKerboschAlgorithm {
 
     @Override
     public final Stream<int[]> explore(UndirectedGraph graph) {
+        // In this initial iteration, we don't need to represent the set of candidates
+        // because all neighbours are candidates until excluded.
         Set<Integer> mut_excluded = new HashSet<>(graph.order());
         Stream.Builder<int[]> cliqueStream = Stream.builder();
         Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
         for (var v : vertices) {
             var neighbours = graph.neighbours(v);
             assert !neighbours.isEmpty();
-            var neighbouringCandidates = util.Difference(neighbours, mut_excluded)
+            var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
                     .collect(Collectors.toCollection(HashSet::new));
-            if (neighbouringCandidates.isEmpty()) {
-                assert !util.AreDisjoint(neighbours, mut_excluded);
-            } else {
-                var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
+            if (neighbouringExcluded.size() < neighbours.size()) {
+                var neighbouringCandidates = util.Difference(neighbours, neighbouringExcluded)
                         .collect(Collectors.toCollection(HashSet::new));
                 BronKerboschPivot.visit(
                         graph, cliqueStream,

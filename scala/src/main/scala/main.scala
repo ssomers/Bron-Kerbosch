@@ -9,9 +9,7 @@ object main {
       "Ver2-G",
       "Ver2-GP",
       "Ver2-GPX",
-      "Ver3",
       "Ver3-GP",
-      "Ver3-GPX",
       "Ver3=GPs"
     )
   val FUNCS: IndexedSeq[bron_kerbosch_algorithm[Vertex]] = IndexedSeq(
@@ -20,9 +18,7 @@ object main {
     new bron_kerbosch2_g,
     new bron_kerbosch2_gp,
     new bron_kerbosch2_gpx,
-    new bron_kerbosch3,
     new bron_kerbosch3_gp,
-    new bron_kerbosch3_gpx,
     new bron_kerbosch3_st
   )
 
@@ -143,7 +139,7 @@ object main {
 
     val all_func_indices = FUNCS.indices.toArray
     val most_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
-    val mt_func_indices = Array(6, 8)
+    val mt_func_indices = Array(5, 6)
     val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
     val sizes_10k = Array(
       (i"1k" until i"10k" by i"1k")

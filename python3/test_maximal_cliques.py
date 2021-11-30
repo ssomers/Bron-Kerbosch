@@ -211,7 +211,7 @@ def test_order_4_size_5(func: FUNC) -> None:
                                        {0, 2}]) == [
                                            [0, 1, 2],
                                            [0, 2, 3],
-                                       ]
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -224,7 +224,7 @@ def test_order_4_size_6(func: FUNC) -> None:
                    {0, 1, 2},
                ]) == [
                    [0, 1, 2, 3],
-               ]
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -239,7 +239,7 @@ def test_order_5_penultimate(func: FUNC) -> None:
                ]) == [
                    [0, 1, 2, 3],
                    [0, 1, 2, 4],
-               ]
+    ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -286,7 +286,7 @@ def test_bigger(func: FUNC) -> None:
                    [4, 6, 9],
                    [4, 7, 9],
                    [5, 6],
-               ]
+    ]
 
 
 def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],

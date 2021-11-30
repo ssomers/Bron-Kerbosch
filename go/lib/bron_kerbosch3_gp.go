@@ -5,12 +5,14 @@ func bronKerbosch3gp(graph *UndirectedGraph, reporter Reporter) {
 	// choosing a pivot from candidates only (IK_GP).
 	var ordering SimpleVertexVisitor
 	degeneracyOrdering(graph, &ordering, -1)
+	// In this initial iteration, we don't need to represent the set of candidates
+	// because all neighbours are candidates until excluded.
 	excluded := make(VertexSet, len(ordering.vertices))
 	for _, v := range ordering.vertices {
 		neighbours := graph.neighbours(v)
-		neighbouringCandidates := neighbours.Difference(excluded)
-		if !neighbouringCandidates.IsEmpty() {
-			neighbouringExcluded := neighbours.Intersection(excluded)
+		neighbouringExcluded := neighbours.Intersection(excluded)
+		if len(neighbouringExcluded) < len(neighbours) {
+			neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 			visit(
 				graph, reporter,
 				MaxDegree, MaxDegreeLocal,

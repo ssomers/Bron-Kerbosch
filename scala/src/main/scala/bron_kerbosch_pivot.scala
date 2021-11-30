@@ -12,12 +12,10 @@ object bron_kerbosch_pivot {
       reporter: immutable.Iterable[Vertex] => Unit,
       initial_pivot_choice: PivotChoice,
       further_pivot_choice: PivotChoice,
-      initial_candidates: Set[Vertex],
-      initial_excluded: Set[Vertex],
+      candidates: mutable.Set[Vertex],
+      excluded: mutable.Set[Vertex],
       clique_in_progress: immutable.List[Vertex]
   ): Unit = {
-    var candidates = initial_candidates
-    var excluded = initial_excluded
     assert(candidates.forall(v => graph.degree(v) > 0))
     assert(excluded.forall(v => graph.degree(v) > 0))
     assert(util.are_disjoint(candidates, excluded))
@@ -84,8 +82,8 @@ object bron_kerbosch_pivot {
               reporter,
               further_pivot_choice,
               further_pivot_choice,
-              neighbouring_candidates,
-              neighbouring_excluded,
+              neighbouring_candidates.to(mutable.Set),
+              neighbouring_excluded.to(mutable.Set),
               v :: clique_in_progress
             )
           } else if (util.are_disjoint(excluded, neighbours)) {

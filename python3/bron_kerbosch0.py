@@ -6,7 +6,7 @@ from typing import List, Set
 
 
 def bron_kerbosch0(graph: UndirectedGraph, reporter: Reporter) -> None:
-    '''Naive Bron-Kerbosch algorithm'''
+    """Naive Bron-Kerbosch algorithm"""
     if candidates := graph.connected_vertices():
         visit(graph=graph,
               reporter=reporter,

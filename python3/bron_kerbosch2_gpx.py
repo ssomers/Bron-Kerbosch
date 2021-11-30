@@ -6,8 +6,8 @@ from reporter import Reporter
 
 
 def bron_kerbosch2_gpx(graph: UndirectedGraph, reporter: Reporter) -> None:
-    '''Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
-       chosen from both candidates and excluded vertices (IK_GPX)'''
+    """Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
+       chosen from both candidates and excluded vertices (IK_GPX)"""
     if candidates := graph.connected_vertices():
         visit(graph=graph,
               reporter=reporter,
