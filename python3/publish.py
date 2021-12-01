@@ -310,7 +310,7 @@ def publish_reports() -> None:
                        orderstr=orderstr,
                        langlibs=["python3"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"report_4_c#_{orderstr}",
+        publish_report(filename=f"report_4_csharp_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["c#"],
                        versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
@@ -334,7 +334,7 @@ def publish_reports() -> None:
                        orderstr=orderstr,
                        langlibs=["rust@fnv"],
                        versions=["Ver3-GP", "Ver3=GPc"])
-        publish_report(filename=f"report_5_c#_{orderstr}",
+        publish_report(filename=f"report_5_csharp_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["c#"],
                        versions=["Ver3-GP", "Ver3=GPs"])

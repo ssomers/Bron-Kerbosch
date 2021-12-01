@@ -76,36 +76,54 @@ These are all single-threaded implementations (using only one CPU core).
 ![Time spent on graphs of order 10k](doc/report_3_python3_10k.png)
 ![Time spent on graphs of order 10k](doc/report_3_java_10k.png)
 
-* Ver3 isn't better than Ver2 in Python…
-![Time spent on graphs of order 100](doc/report_4_python3_100.png)
+* Ver3-GP wins somewhat from Ver2-GP in big graphs…
+![Time spent on graphs of order 10k](doc/report_4_java_10k.png)
+![Time spent on graphs of order 10k](doc/report_4_go_10k.png)
+![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
+![Time spent on graphs of order 10k](doc/report_4_csharp_10k.png)
+![Time spent on graphs of order 1M](doc/report_4_csharp_1M.png)
+
+* …except in Python…
 ![Time spent on graphs of order 10k](doc/report_4_python3_10k.png)
 ![Time spent on graphs of order 1M](doc/report_4_python3_1M.png)
 
-* …nor in Rust…
-![Time spent on graphs of order 100](doc/report_4_rust_100.png)
-![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
-
-* …but Ver3-GP seems better in Java, at least in bigger graphs…
+* …and not in a dense, small graph
+![Time spent on graphs of order 100](doc/report_4_python3_100.png)
 ![Time spent on graphs of order 100](doc/report_4_java_100.png)
-![Time spent on graphs of order 10k](doc/report_4_java_10k.png)
-![Time spent on graphs of order 1M](doc/report_4_java_1M.png)
-
-* …and in Go…
 ![Time spent on graphs of order 100](doc/report_4_go_100.png)
-![Time spent on graphs of order 10k](doc/report_4_go_10k.png)
-
-* …as well as in C#
+![Time spent on graphs of order 100](doc/report_4_csharp_100.png)
 ![Time spent on graphs of order 100](doc/report_4_rust_100.png)
-![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
-![Time spent on graphs of order 1M](doc/report_4_rust_1M.png)
+
 
 ## Introducing parallelism
 
-These are all implementations of **Ver3-GP** that also exploit parallellism (using all CPU cores).
-We can run 2 + N jobs in parallel:
+Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How does Ver3 operate?
+
+![Ver3 structure](https://g.gravizo.com/svg?digraph G {
+    { 
+      a [shape=box label="degeneracy order"]
+      b [shape=box label="first iteration"]
+      c [shape=box label="nested iteration"]
+      d [shape=box label="nested iteration"]
+      e [shape=box label="nested iteration"]
+      f [shape=box label="nested iteration"]
+      g [shape=box label="nested iteration"]
+      h [shape=box label="nested iteration"]
+    }
+    a -> {b}
+    b -> {c, d}
+    c -> {e, f, g, h}
+    d -> {e, f, g, h}
+})
+
+The first iteration is different from the nested iterations, because:
+- the order in which it visits vertices is the degenaracy order, not the GP order;
+- the set of candidates starts off being huge, but doesn't have to be represented at all because every visited vertex is a candidate until excluded.
+
+Thus we can easily run 2 + N jobs in parallel:
 - 1 stage of degeneracy ordering
-- 1 stage with the base iteration
-- many stages of recursive calls
+- 1 stage with the first iteration
+- many stages of nested iterations
 
 * **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
 * **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
@@ -149,16 +167,16 @@ All algorithms work heavily with sets. Some languages allow picking at compile t
 various generic set implementations and compare their performance.
 
 ### Rust
-* **BTree:** std::collections::BTreeSet
-* **Hash:** std::collections::HashSet, a wrapper around hashbrown
-* **hashbrown:** HashSet from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
-* **fnv:** FnvHashSet from [crate fnv](https://crates.io/crates/fnv) 1.0
-* **ord_vec:** ordered std::collections::Vec (obviously, this can only work well on small graphs)
+* **BTree:** `std::collections::BTreeSet`
+* **Hash:** `std::collections::HashSet`, a wrapper around hashbrown
+* **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
+* **fnv:** `FnvHashSet` from [crate fnv](https://crates.io/crates/fnv) 1.0
+* **ord_vec:** ordered `std::collections::Vec` (obviously, this can only work well on small graphs)
 
 ### C++
-* **std_set:** std::set
-* **hashset:** std::unordered_set
-* **ord_vec:** ordered std::vector (obviously, this can only work well on small graphs)
+* **std_set:** `std::set`
+* **hashset:** `std::unordered_set`
+* **ord_vec:** ordered `std::vector` (obviously, this can only work well on small graphs)
 
 ### Results
 
@@ -167,17 +185,19 @@ various generic set implementations and compare their performance.
 ![Time spent on graphs of order 10k](doc/report_7_rust_10k.png)
 ![Time spent on graphs of order 1M](doc/report_7_rust_1M.png)
 
+In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
+
 * C++
 ![Time spent on graphs of order 100](doc/report_7_c++_100.png)
 ![Time spent on graphs of order 10k](doc/report_7_c++_10k.png)
 
-## Detailed Results
+## Complete results
 
 * [Dense graph of order 100](doc/results_100.md)
 * [Graph of order 10k](doc/results_10k.md)
 * [Sparse graph of order 1M](doc/results_1M.md)
 
-## Run & Test
+## Hpw tp run & test
 
 ### Python 3
 

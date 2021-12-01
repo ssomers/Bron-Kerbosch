@@ -1,14 +1,8 @@
 [![Time spent in Rust on graphs of order 1M](https://plot.ly/~stein.somers/155.png?share_key=n5CnokKbHg9fwfBXyyUMOU "View interactively")](https://plot.ly/~stein.somers/155/?share_key=n5CnokKbHg9fwfBXyyUMOU)
-
-Also shows that in very sparse graphs, only BTreeSet allows Ver1+ to scale up.
-
 ---
 [![Time spent in C# on graphs of order 1M](https://plot.ly/~stein.somers/261.png?share_key=DSsVRnQJEqbKPxQn8RyaSX "View interactively")](https://plot.ly/~stein.somers/261/?share_key=DSsVRnQJEqbKPxQn8RyaSX)
 ---
 [![Time spent in C++17 on graphs of order 1M](https://plot.ly/~stein.somers/449.png?share_key=FEqMZOJ9jKIgonIjknmmdG "View interactively")](https://plot.ly/~stein.somers/449/?share_key=FEqMZOJ9jKIgonIjknmmdG)
-
-Also shows that in very sparse graphs, only std::unordered_set allows Ver1+ to scale up.
-
 ---
 [![Time spent in Go on graphs of order 1M](https://plot.ly/~stein.somers/189.png?share_key=55O2tqyLcqoFVfH89tWesI "View interactively")](https://plot.ly/~stein.somers/189/?share_key=55O2tqyLcqoFVfH89tWesI)
 ---
