@@ -1,0 +1,14 @@
+digraph G {
+  a [shape=box label="degeneracy order"]
+  b [shape=box label="first iteration"]
+  c [shape=box label="nested iteration"]
+  d [shape=box label="nested iteration"]
+  e [shape=box label="nested iteration"]
+  f [shape=box label="nested iteration"]
+  g [shape=box label="nested iteration"]
+  h [shape=box label="nested iteration"]
+  a -> {b}
+  b -> {c, d}
+  c -> {e, f, g, h}
+  d -> {e, f, g, h}
+}

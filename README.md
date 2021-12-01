@@ -99,22 +99,7 @@ These are all single-threaded implementations (using only one CPU core).
 
 Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How does Ver3 operate?
 
-![Ver3 structure](https://g.gravizo.com/svg?digraph G {
-    { 
-      a [shape=box label="degeneracy order"]
-      b [shape=box label="first iteration"]
-      c [shape=box label="nested iteration"]
-      d [shape=box label="nested iteration"]
-      e [shape=box label="nested iteration"]
-      f [shape=box label="nested iteration"]
-      g [shape=box label="nested iteration"]
-      h [shape=box label="nested iteration"]
-    }
-    a -> {b}
-    b -> {c, d}
-    c -> {e, f, g, h}
-    d -> {e, f, g, h}
-})
+![Ver3 structure](doc/Ver3.svg)
 
 The first iteration is different from the nested iterations, because:
 - the order in which it visits vertices is the degenaracy order, not the GP order;
