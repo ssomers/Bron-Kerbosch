@@ -228,13 +228,14 @@ def publish_measurements(
                         yerr=[[m.error_minus() for m in m_per_size],
                               [m.error_plus() for m in m_per_size]],
                         label=case_name,
+                        capsize=3,
                         color=(None if color_by_case is None else
                                color_by_case(case_name)),
                         linestyle=(None if dash_by_case is None else
                                    dash_by_case(case_name)))
         ax.legend(loc="upper left")
         fig.tight_layout()
-        fig.savefig(filename, bbox_inches=0, pad_inches=0)
+        fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
         plt.close(fig)
 
 

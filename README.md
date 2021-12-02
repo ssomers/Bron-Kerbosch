@@ -1,6 +1,6 @@
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/ssomers/bron-kerbosch?svg=true&branch=master)](https://ci.appveyor.com/project/ssomers/bron-kerbosch)
 
-## What is this?
+# What is this?
 
 Performance comparison of various implementations of three
 [Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
@@ -27,7 +27,7 @@ all on the same predetermined random graph, with error bars showing the minimum 
 over 5 or 3 samples.
 Order of a graph = number of vertices.
 
-## Executive summary
+# Executive summary
 * Better algorithms invented to counter treacherous cases stand their ground on a vanilla random graph.
 * Programming language makes a difference, as in factor 2 up to 8.
   - Rust is clearly the fastest, but beware I contributed some performance improvements to its
@@ -39,6 +39,7 @@ Order of a graph = number of vertices.
   Python is the worst in that respect, I couldn't get any multi-threading code to work faster than the single-threaded code.
 * Collection libraries don't matter much, though hashing reaches sizes a B-tree can only dream of.
 
+# Report of results
 ## Local optimization
 
 Let's first get one thing out of the way: what does some local optimization yield in the simplest,
@@ -55,7 +56,7 @@ In particular:
 ### Results
 
 We gain almost as much as through switching programming languages:
-![Time spent on graphs of order 100](doc/report_1.png)
+![Time spent on graphs of order 100](doc/report_1.svg)
 
 Therefore, all the other implementations will contain similar tweaks.
 
@@ -76,33 +77,33 @@ These are all single-threaded implementations (using only one CPU core).
 ### Results
 
 * Ver1 indeed struggles with dense graphs, when it has to cover more than half of the 4950 possible edges
-![Time spent on graphs of order 100](doc/report_2.png)
+![Time spent on graphs of order 100](doc/report_2.svg)
 
 * Among Ver2 variants, GP and GPX are indeed best…
-![Time spent on graphs of order 100](doc/report_3_python3_100.png)
-![Time spent on graphs of order 100](doc/report_3_java_100.png)
+![Time spent on graphs of order 100](doc/report_3_python3_100.svg)
+![Time spent on graphs of order 100](doc/report_3_java_100.svg)
 
 * …but GPX looses ground in big graphs
-![Time spent on graphs of order 10k](doc/report_3_python3_10k.png)
-![Time spent on graphs of order 10k](doc/report_3_java_10k.png)
+![Time spent on graphs of order 10k](doc/report_3_python3_10k.svg)
+![Time spent on graphs of order 10k](doc/report_3_java_10k.svg)
 
 * Ver3-GP wins somewhat from Ver2-GP in big graphs…
-![Time spent on graphs of order 10k](doc/report_4_java_10k.png)
-![Time spent on graphs of order 10k](doc/report_4_go_10k.png)
-![Time spent on graphs of order 10k](doc/report_4_rust_10k.png)
-![Time spent on graphs of order 10k](doc/report_4_csharp_10k.png)
-![Time spent on graphs of order 1M](doc/report_4_csharp_1M.png)
+![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
+![Time spent on graphs of order 10k](doc/report_4_go_10k.svg)
+![Time spent on graphs of order 10k](doc/report_4_rust_10k.svg)
+![Time spent on graphs of order 10k](doc/report_4_csharp_10k.svg)
+![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 
 * …except in Python…
-![Time spent on graphs of order 10k](doc/report_4_python3_10k.png)
-![Time spent on graphs of order 1M](doc/report_4_python3_1M.png)
+![Time spent on graphs of order 10k](doc/report_4_python3_10k.svg)
+![Time spent on graphs of order 1M](doc/report_4_python3_1M.svg)
 
-* …and not in a dense, small graph
-![Time spent on graphs of order 100](doc/report_4_python3_100.png)
-![Time spent on graphs of order 100](doc/report_4_java_100.png)
-![Time spent on graphs of order 100](doc/report_4_go_100.png)
-![Time spent on graphs of order 100](doc/report_4_csharp_100.png)
-![Time spent on graphs of order 100](doc/report_4_rust_100.png)
+* …and not in a dense, small graph either
+![Time spent on graphs of order 100](doc/report_4_python3_100.svg)
+![Time spent on graphs of order 100](doc/report_4_java_100.svg)
+![Time spent on graphs of order 100](doc/report_4_go_100.svg)
+![Time spent on graphs of order 100](doc/report_4_csharp_100.svg)
+![Time spent on graphs of order 100](doc/report_4_rust_100.svg)
 
 
 ## Introducing parallelism
@@ -131,32 +132,32 @@ Thus we can easily run 2 + N jobs in parallel:
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
-![Time spent on graphs of order 100](doc/report_5_java_100.png)
-![Time spent on graphs of order 10k](doc/report_5_java_10k.png)
-![Time spent on graphs of order 1M](doc/report_5_java_1M.png)
+![Time spent on graphs of order 100](doc/report_5_java_100.svg)
+![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_java_1M.svg)
 
 * In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel;
   and there's no need to severely limit the number of goroutines
-![Time spent on graphs of order 100](doc/report_5_go_100.png)
-![Time spent on graphs of order 10k](doc/report_5_go_10k.png)
-![Time spent on graphs of order 1M](doc/report_5_go_1M.png)
+![Time spent on graphs of order 100](doc/report_5_go_100.svg)
+![Time spent on graphs of order 10k](doc/report_5_go_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_go_1M.svg)
 
 ## Comparing languages
 
 * Plain single-threaded
-![Time spent on graphs of order 100](doc/report_6_100.png)
-![Time spent on graphs of order 10k](doc/report_6_10k.png)
-![Time spent on graphs of order 1M](doc/report_6_1M.png)
+![Time spent on graphs of order 100](doc/report_6_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_1M.svg)
 
 * Simple multi-threaded
-![Time spent on graphs of order 100](doc/report_6_parallel_100.png)
-![Time spent on graphs of order 10k](doc/report_6_parallel_10k.png)
-![Time spent on graphs of order 1M](doc/report_6_parallel_1M.png)
+![Time spent on graphs of order 100](doc/report_6_parallel_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_parallel_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_parallel_1M.svg)
 
 * Multi-thread using something resembling channels
-![Time spent on graphs of order 100](doc/report_6_channels_100.png)
-![Time spent on graphs of order 10k](doc/report_6_channels_10k.png)
-![Time spent on graphs of order 1M](doc/report_6_channels_1M.png)
+![Time spent on graphs of order 100](doc/report_6_channels_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_channels_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_channels_1M.svg)
 
 ## Set data structures
 
@@ -178,20 +179,25 @@ various generic set implementations and compare their performance.
 ### Results
 
 * Rust (multi-threaded use shows very similar results, but less consistent runs)
-![Time spent on graphs of order 100](doc/report_7_rust_100.png)
-![Time spent on graphs of order 10k](doc/report_7_rust_10k.png)
-![Time spent on graphs of order 1M](doc/report_7_rust_1M.png)
+![Time spent on graphs of order 100](doc/report_7_rust_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_rust_10k.svg)
+![Time spent on graphs of order 1M](doc/report_7_rust_1M.svg)
 
 In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 
 * C++
-![Time spent on graphs of order 100](doc/report_7_c++_100.png)
-![Time spent on graphs of order 10k](doc/report_7_c++_10k.png)
+![Time spent on graphs of order 100](doc/report_7_c++_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_c++_10k.svg)
 
-## How to run & test
-Title links to complete benchmark results.
+# How to run & test
 
-### [Python 3](doc/results_python3.md)
+## [Python 3](doc/results_python3.md)
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/157/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/128/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/213/)
+
+Perform
 
     cd python3
     (once) python -m venv venv
@@ -201,14 +207,26 @@ Title links to complete benchmark results.
     pytest
     python -O test_maximal_cliques.py
 
-### [Rust](doc/results_rust.md)
+## Rust
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/153/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/124/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/155/)
+
+Perform
 
     cd rust
     cargo clippy --workspace
     cargo test --workspace
     cargo run --release
 
-### [Go](doc/results_go.md)
+## Go
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/183/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/187/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/189/)
+
+Perform
 
     cd go
     go vet BronKerbosch/...
@@ -217,18 +235,26 @@ Title links to complete benchmark results.
     go run BronKerbosch/main
     python ..\python3\publish.py go 100 10k 1M
 
-### [C#](doc/results_csharp.md)
+## C#
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/237/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/239/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/261/)
+
+Perform
   - open csharp\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
   - Debug > Start Without Debugging
 
-and finally
 
-    python python3\publish.py c# 100 10k 1M
+## C++ 17
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/418/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/422/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/449/)
 
-### [C++ 17](doc/results_cpp.md)
 Either:
   - open cpp17\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
@@ -243,23 +269,29 @@ or in Mingw-64:
     g++ -DNDEBUG -I. -O -std=c++17 -Wall -Wno-maybe-uninitialized BronKerbosch/*.cpp BronKerboschStudy/*.cpp
     ./a
 
-and finally
 
-    python python3\publish.py c++ 100 10k 1M
+## Java
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/275/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/277/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/279/)
 
-### [Java](doc/results_java.md)
-  - open folder java with IntelliJ IDEA 2020.2 (Community Edition)
+Perform
+  - open folder java with IntelliJ IDEA 2021 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
   - set run configuration to "Main"
   - Run > Run 'Main'
 
-and finally
 
-    python python3\publish.py java 100 10k 1M
+## Scala
+To obtain these results:
+  - [dense graph of order 100](https://plotly.com/~stein.somers/197/)
+  - [plain graph of order 10k](https://plotly.com/~stein.somers/199/)
+  - [sparse graph of order 1M](https://plotly.com/~stein.somers/201/)
 
-### [Scala](doc/results_scala.md)
-  - open folder scala with IntelliJ IDEA 2021.1 (Community Edition)
+Perform
+  - open folder scala with IntelliJ IDEA 2021 (Community Edition)
   - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
   - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
   - Build > Rebuild Project
@@ -270,9 +302,20 @@ and finally
   - set run configuration to main
   - Run > Run 'main'
 
-and finally
 
+## Finally
+
+Python and Rust publish results to the cloud automatically, the others need a push:
+
+    python python3\publish.py c# 100 10k 1M
+    python python3\publish.py c++ 100 10k 1M
+    python python3\publish.py java 100 10k 1M
     python python3\publish.py scala 100 10k 1M
+
+And finally, generate images locally:
+
+    python python3\publish.py
+    dot -Tsvg doc\Ver3.dot > doc\Ver3.svg
 
 ## License
 

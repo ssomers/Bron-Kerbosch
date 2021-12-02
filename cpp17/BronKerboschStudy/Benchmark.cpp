@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
             [&](SetType set_type, unsigned size) {
                 switch (set_type) {
                     case SetType::std_set:
-                        if (size > 10'000)
+                        if (size > 7'000)
                             return std::vector<int>{};
                         else
                             [[fallthrough]];
