@@ -2,11 +2,16 @@
 
 ## What is this?
 
-Performance comparison of various implementations of three [Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm) to find all maximal cliques in a graph.
+Performance comparison of various implementations of three
+[Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
+to find all maximal cliques in a graph.
 
-Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande, “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
+“A note on the problem of reporting maximal cliques”,
+Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
-The purpose of this fork is not only to compare the algorithms, but also programming languages, library choices, and the effect of optimization, chiefly parallelism.
+The purpose of this fork is not only to compare the algorithms, but also programming languages,
+ library choices, and the effect of optimization, chiefly parallelism.
 
 Compared to the original project this is forked from, the code is:
 * converted from python 2 to python 3.9
@@ -17,34 +22,39 @@ Compared to the original project this is forked from, the code is:
 
 Beware that my Scala knowledge and code is the least developed of all languages.
 
-All charts below show the amount of time spent on the same particular machine with 6 core CPU,
-all on the same predetermined random graph, with error bars showing the minimum and maximum over 5 or 3 samples.
+All charts below show the amount of time spent on the same particular Windows machine with 6 core CPU,
+all on the same predetermined random graph, with error bars showing the minimum and maximum
+over 5 or 3 samples.
 Order of a graph = number of vertices.
 
 ## Executive summary
 * Better algorithms invented to counter treacherous cases stand their ground on a vanilla random graph.
 * Programming language makes a difference, as in factor 2 up to 8.
-  - Rust is clearly the fastest, but beware I contributed some performance improvements to its collection library, more than I invested in the other, more established languages.
+  - Rust is clearly the fastest, but beware I contributed some performance improvements to its
+    collection library, more than I invested in the other, more established languages.
   - C# is the runner up, surpringly (to me).
   - Python is the slowest, not surprisingly.
   - C++ is clearly not the fastest (and I claim this with the confidence of 20 years of professional C++ development).
-* Multi-threading helps a lot too, and how programming languages accommodate for it makes a huge difference. Python is the worst in that respect, I couldn't get any multi-threading code to work faster than the single-threaded code.
+* Multi-threading helps a lot too, and how programming languages accommodate for it makes a huge difference.
+  Python is the worst in that respect, I couldn't get any multi-threading code to work faster than the single-threaded code.
 * Collection libraries don't matter much, though hashing reaches sizes a B-tree can only dream of.
 
 ## Local optimization
 
-Let's first get one thing out of the way: what does some local optimization yield in the simplest, naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimization or low hanging fruit?
+Let's first get one thing out of the way: what does some local optimization yield in the simplest,
+naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimization or low hanging fruit?
 
 * **Ver0:** Ver1 in the original project
 * **Ver1:** Same locally optimized, without changing the algorithm as such.
-
 In particular:
-  - In the loop, don't calculate the intersection of excluded vertices when we see the intersection of candidates is empty.
-  - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap. Basically just showing off Rust's ability to guarantee, at compile time, this can be done safely.
+  - In the (many) deepest iterations, when we see the intersection of candidates is empty, don't
+    calculate all the nearby excluded vertices, just check if that set is empty or not.
+  - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap.
+    Basically showing off Rust's ability to guarantee, at compile time, this can be done safely.
 
 ### Results
 
-* We gain almost as much as through switching programming languages:
+We gain almost as much as through switching programming languages:
 ![Time spent on graphs of order 100](doc/report_1.png)
 
 Therefore, all the other implementations will contain similar tweaks.
@@ -53,8 +63,8 @@ Therefore, all the other implementations will contain similar tweaks.
 
 * **Ver1:** Naive but optimized Bron-Kerbosch algorithm
 * **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
-* **Ver2-G:** Ver2 but pivot chosen to be the candidate of the highest degree in the whole graph
-* **Ver2-GP:** Ver2 but pivot chosen to be the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
+* **Ver2-G:** Ver2 but pivot is the candidate of the highest degree in the whole graph
+* **Ver2-GP:** Ver2 but pivot is the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
 * **Ver2-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
 * **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
 * **Ver3:** Ver2 with degeneracy ordering
@@ -65,7 +75,7 @@ These are all single-threaded implementations (using only one CPU core).
 
 ### Results
 
-* Ver1 indeed struggles with dense graphs, when it has to deal with more than half of the 4950 possible edges
+* Ver1 indeed struggles with dense graphs, when it has to cover more than half of the 4950 possible edges
 ![Time spent on graphs of order 100](doc/report_2.png)
 
 * Among Ver2 variants, GP and GPX are indeed best…
@@ -102,8 +112,9 @@ Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How d
 ![Ver3 structure](doc/Ver3.svg)
 
 The first iteration is different from the nested iterations, because:
-- the order in which it visits vertices is the degenaracy order, not the GP order;
-- the set of candidates starts off being huge, but doesn't have to be represented at all because every visited vertex is a candidate until excluded.
+- the order in which it visits vertices is the degeneracy order, not the GP order;
+- the set of candidates starts off being huge, but doesn't have to be represented at all
+  because every visited vertex is a candidate until excluded.
 
 Thus we can easily run 2 + N jobs in parallel:
 - 1 stage of degeneracy ordering
@@ -124,7 +135,8 @@ Thus we can easily run 2 + N jobs in parallel:
 ![Time spent on graphs of order 10k](doc/report_5_java_10k.png)
 ![Time spent on graphs of order 1M](doc/report_5_java_1M.png)
 
-* In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel; and there's no need to severely limit the number of goroutines
+* In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel;
+  and there's no need to severely limit the number of goroutines
 ![Time spent on graphs of order 100](doc/report_5_go_100.png)
 ![Time spent on graphs of order 10k](doc/report_5_go_10k.png)
 ![Time spent on graphs of order 1M](doc/report_5_go_1M.png)
@@ -176,15 +188,10 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 ![Time spent on graphs of order 100](doc/report_7_c++_100.png)
 ![Time spent on graphs of order 10k](doc/report_7_c++_10k.png)
 
-## Complete results
+## How to run & test
+Title links to complete benchmark results.
 
-* [Dense graph of order 100](doc/results_100.md)
-* [Graph of order 10k](doc/results_10k.md)
-* [Sparse graph of order 1M](doc/results_1M.md)
-
-## Hpw tp run & test
-
-### Python 3
+### [Python 3](doc/results_python3.md)
 
     cd python3
     (once) python -m venv venv
@@ -194,14 +201,14 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
     pytest
     python -O test_maximal_cliques.py
 
-### Rust
+### [Rust](doc/results_rust.md)
 
     cd rust
     cargo clippy --workspace
     cargo test --workspace
     cargo run --release
 
-### Go
+### [Go](doc/results_go.md)
 
     cd go
     go vet BronKerbosch/...
@@ -210,7 +217,7 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
     go run BronKerbosch/main
     python ..\python3\publish.py go 100 10k 1M
 
-### C#
+### [C#](doc/results_csharp.md)
   - open csharp\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
   - Test > Run > All Tests
@@ -221,7 +228,7 @@ and finally
 
     python python3\publish.py c# 100 10k 1M
 
-### C++ 17
+### [C++ 17](doc/results_cpp.md)
 Either:
   - open cpp17\BronKerboschStudy.sln with Visual Studio 2019
   - set configuration to Debug
@@ -240,7 +247,7 @@ and finally
 
     python python3\publish.py c++ 100 10k 1M
 
-### Java
+### [Java](doc/results_java.md)
   - open folder java with IntelliJ IDEA 2020.2 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
@@ -251,7 +258,7 @@ and finally
 
     python python3\publish.py java 100 10k 1M
 
-### Scala
+### [Scala](doc/results_scala.md)
   - open folder scala with IntelliJ IDEA 2021.1 (Community Edition)
   - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
   - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
