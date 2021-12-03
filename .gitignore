@@ -10,8 +10,7 @@ target
 /cpp17/a.exe
 /cpp17/x64
 /cpp17/*/x64
-/csharp/.vs/BronKerboschStudy/DesignTimeBuild
-/csharp/.vs/BronKerboschStudy/v16/TestStore
+/csharp/.vs
 /csharp/*/bin
 /csharp/*/obj
 /csharp/*/*.user
@@ -40,3 +39,4 @@ target
 /scala/.idea/workspace.xml
 /scala/.idea/.name
 /scala/target
+/.vs

@@ -242,10 +242,11 @@ To obtain these results:
   - [sparse graph of order 1M](https://plotly.com/~stein.somers/261/)
 
 Perform
-  - open csharp\BronKerboschStudy.sln with Visual Studio 2019
+  - open csharp\BronKerboschStudy.sln with Visual Studio 2022
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
+  - Solution Explorer > BronKerboschStudy > Set as Startup Project
   - Debug > Start Without Debugging
 
 
@@ -256,7 +257,7 @@ To obtain these results:
   - [sparse graph of order 1M](https://plotly.com/~stein.somers/449/)
 
 Either:
-  - open cpp17\BronKerboschStudy.sln with Visual Studio 2019
+  - open cpp17\BronKerboschStudy.sln with Visual Studio 2022
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
