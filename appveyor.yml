@@ -1,15 +1,15 @@
 image:
-  - Visual Studio 2019
+  - Visual Studio 2022
 platform:
   - Any CPU
 configuration:
   - Debug
 environment:
   matrix:
-    - python: "C:\\Python37-x64"
+    - python: "C:\\Python39-x64"
 install: 
   - nuget restore csharp\BronKerboschStudy.sln
-  - PATH C:\python38-x64;C:\python38-x64\Scripts;%PATH%
+  - PATH C:\python39-x64;C:\python39-x64\Scripts;%PATH%
   - python -V
   - pip install hypothesis mypy pytest --disable-pip-version-check
 build_script:
