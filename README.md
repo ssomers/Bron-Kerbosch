@@ -257,7 +257,12 @@ To obtain these results:
   - [sparse graph of order 1M](https://plotly.com/~stein.somers/449/)
 
 Either:
+  - clone/export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
   - open cpp17\BronKerboschStudy.sln with Visual Studio 2022
+  - set directory to cppcoro:
+    - View > Other Windows > Property Manager
+    - in the tree, descend to any project and configuration, open propery page "BronKerboschStudyGeneral"
+    - in User Macros, set `CppcoroDir` (default `..\..\..\cppcoro`)
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release

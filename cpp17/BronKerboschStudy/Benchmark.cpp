@@ -204,12 +204,8 @@ int main(int argc, char** argv) {
 
     std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
     std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
-#ifdef CPPCORO_WORKS
     std::vector<int> most_func_indices(Portfolio::NUM_FUNCS - 1);
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
-#else
-    std::vector<int> const& most_func_indices = all_func_indices;
-#endif
     if (argc == 1) {
         Benchmark::bk(
             "100", range(2'000u, 3'000u, 50u), [&](SetType, unsigned) { return all_func_indices; },
@@ -240,13 +236,7 @@ int main(int argc, char** argv) {
                     case SetType::std_set: [[fallthrough]];
                     case SetType::ord_vec: return std::vector<int>{};
                     case SetType::hashset:
-                        return size > 1'000'000 ? std::vector<int>{5
-#ifdef CPPCORO_WORKS
-                                                                   ,
-                                                                   7
-#endif
-                                                  }
-                                                : most_func_indices;
+                        return size > 1'000'000 ? std::vector<int>{5, 7} : most_func_indices;
                 }
                 throw std::logic_error("unreachable");
             },

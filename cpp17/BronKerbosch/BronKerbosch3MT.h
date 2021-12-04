@@ -7,7 +7,7 @@
 #include "CliqueList.h"
 #include "GraphDegeneracy.h"
 #pragma warning(push)
-#pragma warning(disable : 4265 5204 26495)
+#pragma warning(disable : 4189 4265 5204 26495)
 #include "cppcoro/async_generator.hpp"
 #include "cppcoro/multi_producer_sequencer.hpp"
 #include "cppcoro/sequence_barrier.hpp"
@@ -33,7 +33,7 @@ namespace BronKerbosch {
             VertexSet candidates;
             VertexSet excluded;
 #ifndef NDEBUG
-            std::atomic_bool waiting;
+            std::atomic_bool busy, full;
 #endif
 
             VisitJob() noexcept = default;
@@ -45,12 +45,13 @@ namespace BronKerbosch {
             void schedule(Vertex new_start,
                           VertexSet&& new_candidates,
                           VertexSet&& new_excluded) noexcept {
+                assert(!busy.exchange(true));
+                assert(!full.exchange(false));  // but keep empty
                 start = new_start;
                 candidates = std::move(new_candidates);
                 excluded = std::move(new_excluded);
-#ifndef NDEBUG
-                waiting.store(true);
-#endif
+                assert(!full.exchange(true));
+                assert(busy.exchange(false));
             }
         };
 
@@ -97,11 +98,10 @@ namespace BronKerbosch {
                     } else {
                         auto const& neighbours = graph.neighbours(start);
                         assert(!neighbours.empty());
-                        auto neighbouring_candidates = Util::difference(neighbours, excluded);
-                        if (neighbouring_candidates.empty()) {
-                            assert(!Util::are_disjoint(neighbours, excluded));
-                        } else {
-                            auto neighbouring_excluded = Util::intersection(neighbours, excluded);
+                        auto neighbouring_excluded = Util::intersection(neighbours, excluded);
+                        if (neighbouring_excluded.size() < neighbours.size()) {
+                            auto neighbouring_candidates =
+                                Util::difference(neighbours, neighbouring_excluded);
 
                             auto visit_sequencer = (*visit_sequencers)[visitor].get();
                             size_t seq = co_await visit_sequencer->claim_one(tp);
@@ -139,20 +139,23 @@ namespace BronKerbosch {
             size_t producers = 1;
             std::size_t nextToRead = 0;
             while (producers > 0) {
-                const std::size_t available =
+                std::size_t const available =
                     co_await visit_sequencer.wait_until_published(nextToRead, tp);
                 do {
                     assert(producers > 0);
                     if (visit_job.start == SENTINEL_VTX) {
                         --producers;
                     } else {
-                        assert(visit_job.waiting.exchange(false));
+                        assert(!visit_job.busy.exchange(true));
+                        assert(visit_job.full.exchange(true));  // but keep full
                         auto pile = VertexPile{visit_job.start};
                         size_t seq = co_await clique_sequencer.claim_one(tp);
                         (*cliques)[seq % CLIQUES] = BronKerboschPivot::visit<VertexSet>(
                             graph, PivotChoice::MaxDegreeLocal, PivotChoice::MaxDegreeLocal,
                             std::move(visit_job.candidates), std::move(visit_job.excluded), &pile);
                         clique_sequencer.publish(seq);
+                        assert(visit_job.full.exchange(false));
+                        assert(visit_job.busy.exchange(false));
                     }
                     ++nextToRead;
                 } while (nextToRead <= available);
@@ -220,8 +223,9 @@ namespace BronKerbosch {
             tasks.reserve(2 + VISITORS + 1);
             auto all_cliques = CliqueList{};
             tasks.push_back(BronKerbosch3MT::start_producer(graph, start_sequencer, &starts, tp));
-            tasks.push_back(BronKerbosch3MT::visit_producer(
-                graph, start_barrier, start_sequencer, &visit_sequencers, &starts, &visit_jobs, tp));
+            tasks.push_back(BronKerbosch3MT::visit_producer(graph, start_barrier, start_sequencer,
+                                                            &visit_sequencers, &starts, &visit_jobs,
+                                                            tp));
             for (auto i = 0; i < VISITORS; ++i) {
                 tasks.push_back(BronKerbosch3MT::clique_producer(
                     graph, visit_barriers[i], *visit_sequencers[i], clique_sequencer, visit_jobs[i],

@@ -163,11 +163,11 @@ def publish_whole_csv(language: str, orderstr: str) -> None:
     try:
         from chart_studio import plotly  # type: ignore
         from plotly import io as plotly_io  # type: ignore
+        from plotly import graph_objects
     except ImportError as e:
         print(f"{e} (maybe you want to pip install chart-studio?)")
     else:
         plotly_io.templates.default = "none"  # disable default 4.0 theme
-        from plotly import graph_objects
         traces = [
             graph_objects.Scatter(
                 x=sizes,
@@ -210,11 +210,13 @@ def publish_measurements(
     assert sizes
     assert measurement_per_size_by_case_name
     try:
-        from matplotlib import pyplot as plt  # type: ignore
+        import matplotlib  # type: ignore
+        from matplotlib import pyplot
     except ImportError as e:
         print(f"{e} (maybe you want to pip install matplotlib?)")
     else:
-        fig, ax = plt.subplots(figsize=figsize)
+        matplotlib.rcParams['svg.hashsalt'] = "Bron-Kerbosch"
+        fig, ax = pyplot.subplots(figsize=figsize)
         ax.set_title((f"{language.capitalize()} implementations"
                       if language else "Implementations") +
                      " of Bron-Kerbosch" + (f" {version}" if version else "") +
@@ -236,7 +238,7 @@ def publish_measurements(
         ax.legend(loc="upper left")
         fig.tight_layout()
         fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
-        plt.close(fig)
+        pyplot.close(fig)
 
 
 def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
@@ -360,10 +362,11 @@ def publish_reports() -> None:
                            "c++@hashset", "rust@fnv"
                        ],
                        versions=["Ver3-GP"])
-        publish_report(filename=f"report_6_channels_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["java", "go", "c#", "rust@fnv"],
-                       versions=["Ver3=GPc"])
+        publish_report(
+            filename=f"report_6_channels_{orderstr}",
+            orderstr=orderstr,
+            langlibs=["java", "go", "c#", "c++@hashset", "rust@fnv"],
+            versions=["Ver3=GPc"])
         publish_report(filename=f"report_6_parallel_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java", "scala"],
