@@ -27,6 +27,11 @@ all on the same predetermined random graph, with error bars showing the minimum 
 over 5 or 3 samples.
 Order of a graph = number of vertices.
 
+A random graph is easy to generate and objective, but not ideal to test the performance of the
+algorithm itself, because when you're looking for maximal cliques, the actual data most likely
+comes in cliques, some of which are near-maximal and cause the heartaches described in the paper.
+
+
 # Executive summary
 * Better algorithms invented to counter treacherous cases stand their ground on a vanilla random graph.
 * Programming language makes a difference, as in factor 2 up to 8.
@@ -38,6 +43,7 @@ Order of a graph = number of vertices.
 * Multi-threading helps a lot too, and how programming languages accommodate for it makes a huge difference.
   Python is the worst in that respect, I couldn't get any multi-threading code to work faster than the single-threaded code.
 * Collection libraries don't matter much, though hashing reaches sizes a B-tree can only dream of.
+
 
 # Report of results
 ## Local optimization
@@ -55,20 +61,25 @@ In particular:
 
 ### Results
 
-We gain almost as much as through switching programming languages:
+We gain as much as through switching to the best performing programming language
 ![Time spent on graphs of order 100](doc/report_1.svg)
 
 Therefore, all the other implementations will contain similar tweaks.
 
 ## Comparing algorithms
 
-* **Ver2½:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
-* **Ver2½-GP:** Ver2 but pivot is the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
-* **Ver2½½-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
-* **Ver2½-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
-* **Ver3½:** Ver2 with degeneracy ordering
-* **Ver3½-GP:** Ver2-GP with degeneracy ordering
-* **Ver3½-GPX:** Ver2-GPX with degeneracy ordering
+* **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily
+* **Ver2-GP:** Ver2 but pivot is the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
+* **Ver2-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
+* **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
+* **Ver3:** Ver2 with degeneracy ordering
+* **Ver3-GP:** Ver2-GP with degeneracy ordering
+* **Ver3-GPX:** Ver2-GPX with degeneracy ordering
+
+As per the previous paragraph, we mostly implement locally optimized **½** versions of these.
+In particular, we write out the first iteration separately, because in that the set of candidate
+vertices starts off being huge, i.e., every reachable vertex, but that set doesn't have to be
+represented at all because every reachable vertex is a candidate until excluded.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -102,24 +113,22 @@ Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How d
 
 ![Ver3 structure](doc/Ver3.svg)
 
-THe only difference with Ver2 is the order of the first iteration
-- the order in which it visits vertices is the degeneracy order, not the arbitrary/G/GP/GPX/random order;
-- the set of candidates starts off being huge, i.e., every reachable vertex, but that set doesn't
-  have to be represented because every reachable vertex is a candidate until excluded.
-
-Because of that, we already write [the first iteration separately](python3/bron_kerbosch3_gp.py).
+We already specialized the first iteration in Ver2, and Ver3 changes the order in the first iteration
+to the graph's degeneracy order.
+So we definitely write [the first iteration separately](python3/bron_kerbosch3_gp.py).
 Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
 - 1 task generating the degeneracy order of the graph,
 - 1 task performing the first iteration in that order,
 - 1 or more tasks performing nested iterations.
 
-* **Ver3=GPs:** (C#, Java, Scala) using relatively simple composition (async, stream, future)
-* **Ver3=GPc:** (Rust, C++, Java) using something complex resembling channels
-* **Ver3=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
-* **Ver3=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
-* **Ver3=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
-* **Ver3=GPc:** (Go only) using channels and providing 64 goroutines for the nested iterations
-* **Ver3=GP4:** (Go only) using channels and providing 256 goroutines for the nested iterations
+Ways to implement parallelism varies per language:
+* **Ver3½=GPs:** (C#, Java, Scala) using relatively simple composition (async, stream, future)
+* **Ver3½=GPc:** (Rust, C++, Java) using something complex resembling channels
+* **Ver3½=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
+* **Ver3½=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
+* **Ver3½=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
+* **Ver3½=GPc:** (Go only) using channels and providing 64 goroutines for the nested iterations
+* **Ver3½=GP4:** (Go only) using channels and providing 256 goroutines for the nested iterations
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
@@ -132,6 +141,7 @@ Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
 ![Time spent on graphs of order 100](doc/report_5_go_100.svg)
 ![Time spent on graphs of order 10k](doc/report_5_go_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_5_go_1M.svg)
+
 
 ## Comparing languages
 
@@ -150,24 +160,20 @@ Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
 ![Time spent on graphs of order 10k](doc/report_6_channels_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_6_channels_1M.svg)
 
-## Set data structures
+
+## Comparing implementations of the set data structure
 
 All algorithms work heavily with sets. Some languages allow picking at compile time among
-various generic set implementations and compare their performance.
+various generic set implementations.
 
 ### Rust
 * **BTree:** `std::collections::BTreeSet`
-* **Hash:** `std::collections::HashSet`, a wrapper around hashbrown
+* **Hash:** `std::collections::HashSet`, a wrapper around a version of hashbrown
 * **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
 * **fnv:** `FnvHashSet` from [crate fnv](https://crates.io/crates/fnv) 1.0
 * **ord_vec:** ordered `std::collections::Vec` (obviously, this can only work well on small graphs)
 
-### C++
-* **std_set:** `std::set`
-* **hashset:** `std::unordered_set`
-* **ord_vec:** ordered `std::vector` (obviously, this can only work well on small graphs)
-
-### Results
+#### Results
 
 * Rust (multi-threaded use shows very similar results, but less consistent runs)
 ![Time spent on graphs of order 100](doc/report_7_rust_100.svg)
@@ -176,13 +182,19 @@ various generic set implementations and compare their performance.
 
 In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 
-* C++
+### C++
+* **std_set:** `std::set`
+* **hashset:** `std::unordered_set`
+* **ord_vec:** ordered `std::vector` (obviously, this can only work well on small graphs)
+
+#### Results
 ![Time spent on graphs of order 100](doc/report_7_c++_100.svg)
 ![Time spent on graphs of order 10k](doc/report_7_c++_10k.svg)
 
+
 # How to run & test
 
-## [Python 3](doc/results_python3.md)
+## Python 3
 To obtain these results:
   - [dense graph of order 100](https://plotly.com/~stein.somers/157/)
   - [plain graph of order 10k](https://plotly.com/~stein.somers/128/)
