@@ -5,11 +5,11 @@ __pycache__
 target
 .vs
 /*.csv
-/cpp17/*/*.user
-/cpp17/*/*.vcxproj.filters
-/cpp17/a.exe
-/cpp17/x64
-/cpp17/*/x64
+/cpp/*/*.user
+/cpp/*/*.vcxproj.filters
+/cpp/a.exe
+/cpp/x64
+/cpp/*/x64
 /csharp/*/bin
 /csharp/*/obj
 /csharp/*/*.user

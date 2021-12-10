@@ -248,7 +248,7 @@ To obtain these results:
 
 Either:
   - clone/export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
-  - open cpp17\BronKerboschStudy.sln with Visual Studio 2022
+  - open cpp\BronKerboschStudy.sln with Visual Studio 2022
   - set directory to cppcoro:
     - View > Other Windows > Property Manager
     - in the tree, descend to any project and configuration, open propery page "BronKerboschStudyGeneral"
