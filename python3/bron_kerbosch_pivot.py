@@ -9,8 +9,7 @@ import random
 PivotChoice = Callable[[UndirectedGraph, Set[Vertex]], Vertex]
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter,
-          initial_pivot_choice: PivotChoice, further_pivot_choice: PivotChoice,
+def visit(graph: UndirectedGraph, reporter: Reporter, pivot_choice_X: bool,
           candidates: Set[Vertex], excluded: Set[Vertex],
           clique: List[Vertex]) -> None:
     assert all(graph.degree(v) > 0 for v in candidates)
@@ -26,81 +25,44 @@ def visit(graph: UndirectedGraph, reporter: Reporter,
                 reporter.record(clique + [v])
         return
 
-    if initial_pivot_choice in [pick_max_degree_local, pick_max_degree_localX]:
-        # Quickly handle locally unconnected candidates while finding pivot
-        remaining_candidates = []
-        seen_local_degree = 0
-        for v in candidates:
+    # Quickly handle locally unconnected candidates while finding pivot
+    remaining_candidates = []
+    seen_local_degree = 0
+    for v in candidates:
+        neighbours = graph.adjacencies[v]
+        local_degree = len(candidates.intersection(neighbours))
+        if local_degree == 0:
+            # Same logic as below, stripped down
+            if neighbours.isdisjoint(excluded):
+                reporter.record(clique + [v])
+        else:
+            if seen_local_degree < local_degree:
+                seen_local_degree = local_degree
+                pivot = v
+            remaining_candidates.append(v)
+    if seen_local_degree == 0:
+        return
+    if pivot_choice_X:
+        for v in excluded:
             neighbours = graph.adjacencies[v]
-            local_degree = len(neighbours.intersection(candidates))
-            if local_degree == 0:
-                # Same logic as below, stripped down
-                if neighbours.isdisjoint(excluded):
-                    reporter.record(clique + [v])
-            else:
-                if seen_local_degree < local_degree:
-                    seen_local_degree = local_degree
-                    pivot = v
-                remaining_candidates.append(v)
-        if seen_local_degree == 0:
-            return
-        if initial_pivot_choice == pick_max_degree_localX:
-            for v in excluded:
-                neighbours = graph.adjacencies[v]
-                local_degree = len(neighbours.intersection(candidates))
-                if seen_local_degree < local_degree:
-                    seen_local_degree = local_degree
-                    pivot = v
-    else:
-        pivot = initial_pivot_choice(graph, candidates)
-        remaining_candidates = list(candidates)
+            local_degree = len(candidates.intersection(neighbours))
+            if seen_local_degree < local_degree:
+                seen_local_degree = local_degree
+                pivot = v
 
     for v in remaining_candidates:
         neighbours = graph.adjacencies[v]
         assert neighbours
-        if pivot in neighbours:
-            continue
-        candidates.remove(v)
-        if neighbouring_candidates := candidates.intersection(neighbours):
-            neighbouring_excluded = excluded.intersection(neighbours)
-            visit(graph=graph,
-                  reporter=reporter,
-                  initial_pivot_choice=further_pivot_choice,
-                  further_pivot_choice=further_pivot_choice,
-                  candidates=neighbouring_candidates,
-                  excluded=neighbouring_excluded,
-                  clique=clique + [v])
-        else:
-            if excluded.isdisjoint(neighbours):
+        if pivot not in neighbours:
+            candidates.remove(v)
+            if neighbouring_candidates := candidates.intersection(neighbours):
+                neighbouring_excluded = excluded.intersection(neighbours)
+                visit(graph=graph,
+                      reporter=reporter,
+                      pivot_choice_X=pivot_choice_X,
+                      candidates=neighbouring_candidates,
+                      excluded=neighbouring_excluded,
+                      clique=clique + [v])
+            elif excluded.isdisjoint(neighbours):
                 reporter.record(clique + [v])
-        excluded.add(v)
-
-
-def pick_arbitrary(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
-    return next(iter(candidates))
-
-
-def pick_random(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
-    return random.choice(tuple(candidates))
-    """
-    return random.sample(
-        random.choices(
-            population=[candidates, excluded],
-            weights=[len(candidates), len(excluded)],
-            k=1)[0],
-        k=1)[0]
-    """
-
-
-def pick_max_degree(graph: UndirectedGraph, candidates: Set[Vertex]) -> Vertex:
-    return max(candidates, key=graph.degree)
-
-
-def pick_max_degree_local(graph: UndirectedGraph,
-                          candidates: Set[Vertex]) -> Vertex:
-    raise NotImplementedError("only used as enum")
-
-
-def pick_max_degree_localX(graph: UndirectedGraph,
-                           candidates: Set[Vertex]) -> Vertex:
-    raise NotImplementedError("only used as enum")
+            excluded.add(v)

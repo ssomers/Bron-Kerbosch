@@ -1,10 +1,6 @@
 using BronKerbosch;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 namespace BronKerboschStudy
 {
@@ -36,8 +32,8 @@ namespace BronKerboschStudy
             if (size > fullyMeshedSize)
                 throw new ArgumentException($"{order} nodes accommodate at most {fullyMeshedSize} edges");
 
-            string edgesPath = $"..\\random_edges_order_{orderstr}.txt";
-            const string statsPath = "..\\random_stats.txt";
+            string edgesPath = $"..\\data\\random_edges_order_{orderstr}.txt";
+            const string statsPath = "..\\data\\random_stats.txt";
             var adjacencies = ReadEdges(edgesPath, orderstr, size);
             var cliqueCount = ReadStats(statsPath, orderstr, size);
             var g = new UndirectedGraph(adjacencies);

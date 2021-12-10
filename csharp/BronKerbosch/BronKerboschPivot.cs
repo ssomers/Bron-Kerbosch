@@ -1,6 +1,5 @@
 // Bron-Kerbosch algorithm with pivot picked arbitrarily
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -12,13 +11,38 @@ namespace BronKerbosch
     {
         public enum Choice
         {
-            MaxDegree,
             MaxDegreeLocal,
             MaxDegreeLocalX
         }
 
-        public static void Visit(UndirectedGraph graph, IReporter reporter,
-                                 Choice initialChoice, Choice furtherChoice,
+        public static void Explore(UndirectedGraph graph, IReporter reporter, Pivot.Choice pivotChoice)
+        {
+            var order = graph.Order;
+            if (order == 0)
+                return;
+            var pivot = graph.MaxDegreeVertex();
+            // In this initial iteration, we don't need to represent the set of candidates
+            // because all neighbours are candidates until excluded.
+            var excluded = new HashSet<Vertex>(capacity: order);
+            foreach (var v in Enumerable.Range(0, order).Select(Vertex.nth))
+            {
+                var neighbours = graph.Neighbours(v);
+                if (neighbours.Any() && !neighbours.Contains(pivot))
+                {
+                    var neighbouringExcluded = CollectionsUtil.Intersection(neighbours, excluded);
+                    if (neighbouringExcluded.Count < neighbours.Count)
+                    {
+                        var neighbouringCandidates = CollectionsUtil.Difference(neighbours, neighbouringExcluded);
+                        Visit(graph, reporter, pivotChoice,
+                              neighbouringCandidates, neighbouringExcluded,
+                              ImmutableArray.Create<Vertex>(v));
+                    }
+                    excluded.Add(v);
+                }
+            }
+        }
+
+        public static void Visit(UndirectedGraph graph, IReporter reporter, Choice choice,
                                  ISet<Vertex> candidates, ISet<Vertex> excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
@@ -31,7 +55,7 @@ namespace BronKerbosch
                 // Same logic as below, stripped down
                 var v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+                if (CollectionsUtil.AreDisjoint(neighbours, excluded))
                     reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 return;
             }
@@ -39,87 +63,71 @@ namespace BronKerbosch
             Vertex pivot;
             var remainingCandidates = new Vertex[candidates.Count];
             var remainingCandidateCount = 0;
-            if (initialChoice >= Choice.MaxDegreeLocal)
+            // Quickly handle locally unconnected candidates while finding pivot
+            const int INVALID = int.MaxValue;
+            pivot = Vertex.nth(INVALID);
+            var seenLocalDegree = 0;
+            foreach (var v in candidates)
             {
-                // Quickly handle locally unconnected candidates while finding pivot
-                const int INVALID = int.MaxValue;
-                pivot = Vertex.nth(INVALID);
-                var seenLocalDegree = 0;
-                foreach (var v in candidates)
+                var neighbours = graph.Neighbours(v);
+                var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
+                if (localDegree == 0)
+                {
+                    // Same logic as below, stripped down
+                    if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                }
+                else
+                {
+                    if (seenLocalDegree < localDegree)
+                    {
+                        seenLocalDegree = localDegree;
+                        pivot = v;
+                    }
+                    remainingCandidates[remainingCandidateCount] = v;
+                    remainingCandidateCount += 1;
+                }
+            }
+            if (seenLocalDegree == 0)
+                return;
+            Debug.Assert(pivot.index != INVALID);
+            if (choice == Choice.MaxDegreeLocalX)
+            {
+                foreach (var v in excluded)
                 {
                     var neighbours = graph.Neighbours(v);
                     var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
-                    if (localDegree == 0)
+                    if (seenLocalDegree < localDegree)
                     {
-                        // Same logic as below, stripped down
-                        if (CollectionsUtil.AreDisjoint(excluded, neighbours))
-                            reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
-                    }
-                    else
-                    {
-                        if (seenLocalDegree < localDegree)
-                        {
-                            seenLocalDegree = localDegree;
-                            pivot = v;
-                        }
-                        remainingCandidates[remainingCandidateCount] = v;
-                        remainingCandidateCount += 1;
+                        seenLocalDegree = localDegree;
+                        pivot = v;
                     }
                 }
-                if (seenLocalDegree == 0)
-                    return;
-                Debug.Assert(pivot.index != INVALID);
-                if (initialChoice == Choice.MaxDegreeLocalX)
-                {
-                    foreach (var v in excluded)
-                    {
-                        var neighbours = graph.Neighbours(v);
-                        var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
-                        if (seenLocalDegree < localDegree)
-                        {
-                            seenLocalDegree = localDegree;
-                            pivot = v;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                pivot = Choose(initialChoice, candidates, graph);
-                candidates.CopyTo(remainingCandidates, 0);
-                remainingCandidateCount = candidates.Count;
             }
 
             for (var i = 0; i < remainingCandidateCount; ++i)
             {
                 var v = remainingCandidates[i];
                 var neighbours = graph.Neighbours(v);
-                if (neighbours.Contains(pivot))
-                    continue;
-                candidates.Remove(v);
-                var neighbouringCandidates = CollectionsUtil.Intersection(candidates, neighbours);
-                if (neighbouringCandidates.Any())
+                Debug.Assert(neighbours.Any());
+                if (!neighbours.Contains(pivot))
                 {
-                    var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
-                    Visit(graph, reporter, furtherChoice, furtherChoice,
-                          neighbouringCandidates, neighbouringExcluded,
-                          CollectionsUtil.Append(cliqueInProgress, v));
+                    candidates.Remove(v);
+                    var neighbouringCandidates = CollectionsUtil.Intersection(neighbours, candidates);
+                    if (neighbouringCandidates.Any())
+                    {
+                        var neighbouringExcluded = CollectionsUtil.Intersection(neighbours, excluded);
+                        Visit(graph, reporter, choice,
+                              neighbouringCandidates, neighbouringExcluded,
+                              CollectionsUtil.Append(cliqueInProgress, v));
+                    }
+                    else if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                    {
+                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                    }
+                    excluded.Add(v);
                 }
-                else if (CollectionsUtil.AreDisjoint(excluded, neighbours))
-                {
-                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
-                }
-                excluded.Add(v);
             }
-        }
-
-        private static Vertex Choose(Choice choice, ISet<Vertex> candidates, UndirectedGraph graph)
-        {
-            return choice switch
-            {
-                Choice.MaxDegree => candidates.OrderByDescending(graph.Degree).First(),
-                _ => throw new ArgumentException("implemented differently")
-            };
         }
     }
 }

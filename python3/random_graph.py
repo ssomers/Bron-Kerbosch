@@ -97,8 +97,8 @@ def read_random_graph(orderstr: str,
             f"{order} nodes accommodate at most {fully_meshed_size} edges")
     edges_name = f"random_edges_order_{orderstr}"
     stats_name = f"random_stats"
-    edges_path = os.path.join(os.pardir, edges_name + ".txt")
-    stats_path = os.path.join(os.pardir, stats_name + ".txt")
+    edges_path = os.path.join(os.pardir, "data", edges_name + ".txt")
+    stats_path = os.path.join(os.pardir, "data", stats_name + ".txt")
     adjacencies = read_edges(edges_path, orderstr, order, size)
     clique_count = read_stats(stats_path, orderstr, size)
     g = UndirectedGraph(adjacencies=adjacencies)

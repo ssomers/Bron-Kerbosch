@@ -294,7 +294,7 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |_set_type: SetType, _size: usize| -> Vec<usize> {
                 // Skip Ver1 (already rejected) and Ver2-RP (not interesting in random graph)
-                vec![2, 3, 4, 6, 7, 8, 9]
+                vec![2, 3, 4, 5, 7, 8, 9]
             },
         )?;
         thread::sleep(Duration::from_secs(7));
@@ -308,8 +308,8 @@ fn main() -> Result<(), std::io::Error> {
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match set_type {
                     SetType::OrdVec if size > 100_000 => vec![],
-                    SetType::BTreeSet if size > 2_000_000 => vec![],
-                    _ => vec![7, 9],
+                    SetType::BTreeSet if size > 3_000_000 => vec![],
+                    _ => vec![4, 7, 9],
                 }
             },
         )?;

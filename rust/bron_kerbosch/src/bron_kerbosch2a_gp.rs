@@ -1,4 +1,4 @@
-//! Bron-Kerbosch algorithm with pivot picked arbitrarily
+//! Bron-Kerbosch algorithm with pivot of highest degree (IK_GP)
 
 use crate::bron_kerbosch_pivot::{visit, PivotChoice};
 use crate::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
@@ -14,8 +14,7 @@ where
         visit(
             graph,
             reporter,
-            PivotChoice::Arbitrary,
-            PivotChoice::Arbitrary,
+            PivotChoice::MaxDegreeLocal,
             candidates,
             Graph::VertexSet::new(),
             None,

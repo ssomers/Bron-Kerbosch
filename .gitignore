@@ -3,14 +3,13 @@ Project.xml
 .mypy_cache
 __pycache__
 target
+.vs
 /*.csv
 /cpp17/*/*.user
 /cpp17/*/*.vcxproj.filters
-/cpp17/.vs
 /cpp17/a.exe
 /cpp17/x64
 /cpp17/*/x64
-/csharp/.vs
 /csharp/*/bin
 /csharp/*/obj
 /csharp/*/*.user
@@ -23,7 +22,6 @@ target
 /python3/.idea
 /python3/activate.bat
 /python3/venv*
-/rust/.vs
 /rust/*.psess
 /rust/*.vspx
 /rust/measure/measure.vcxproj.filters
@@ -39,4 +37,3 @@ target
 /scala/.idea/workspace.xml
 /scala/.idea/.name
 /scala/target
-/.vs

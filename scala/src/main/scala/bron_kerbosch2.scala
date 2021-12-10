@@ -14,7 +14,6 @@ class bron_kerbosch2[Vertex] extends bron_kerbosch_algorithm[Vertex] {
         graph,
         reporter,
         Arbitrary,
-        Arbitrary,
         candidates,
         mutable.Set(),
         immutable.List()

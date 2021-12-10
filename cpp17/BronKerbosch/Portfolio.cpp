@@ -1,12 +1,12 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 #include "Portfolio.h"
 
 #include <stdexcept>
 
 const char* const BronKerbosch::Portfolio::FUNC_NAMES[NUM_FUNCS] = {
-    "Ver1", "Ver2", "Ver2-GP", "Ver2-GPX", "Ver3", "Ver3-GP", "Ver3-GPX",
-    "Ver3=GPc",
+    "Ver1\xc2\xbd",    "Ver2\xc2\xbd-GP",  "Ver2\xc2\xbd-GPX",
+    "Ver3\xc2\xbd-GP", "Ver3\xc2\xbd-GPX", "Ver3\xc2\xbd=GPc",
 };
 
 void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cliques) {

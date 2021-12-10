@@ -4,13 +4,10 @@ use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use crate::pile::Pile;
 use crate::reporter::Reporter;
 
-use rand::seq::SliceRandom;
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
     Arbitrary,
     Random,
-    MaxDegree,
     MaxDegreeLocal,
     MaxDegreeLocalX,
 }
@@ -20,8 +17,7 @@ type Clique<'a> = Pile<'a, Vertex>;
 pub fn visit<VertexSet, Graph, Rprtr>(
     graph: &Graph,
     reporter: &mut Rprtr,
-    initial_pivot_selection: PivotChoice,
-    further_pivot_selection: PivotChoice,
+    pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Option<&Clique>,
@@ -47,7 +43,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
 
     let mut pivot: Option<Vertex> = None;
     let mut remaining_candidates: Vec<Vertex> = Vec::with_capacity(candidates.len());
-    match initial_pivot_selection {
+    match pivot_selection {
         PivotChoice::MaxDegreeLocal | PivotChoice::MaxDegreeLocalX => {
             // Quickly handle locally unconnected candidates while finding pivot
             let mut seen_local_degree = 0;
@@ -70,7 +66,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
             if remaining_candidates.is_empty() {
                 return;
             }
-            if initial_pivot_selection == PivotChoice::MaxDegreeLocalX {
+            if pivot_selection == PivotChoice::MaxDegreeLocalX {
                 excluded.for_each(|v| {
                     let neighbours = graph.neighbours(v);
                     let local_degree = neighbours.intersection_size(&candidates);
@@ -81,9 +77,14 @@ pub fn visit<VertexSet, Graph, Rprtr>(
                 });
             }
         }
-        _ => {
+        PivotChoice::Arbitrary => {
             candidates.for_each(|v| remaining_candidates.push(v));
-            pivot = choose(initial_pivot_selection, &remaining_candidates, graph).copied();
+            pivot = candidates.choose_arbitrary().copied();
+        }
+        PivotChoice::Random => {
+            candidates.for_each(|v| remaining_candidates.push(v));
+            let mut rng = rand::thread_rng();
+            pivot = candidates.choose(&mut rng).copied();
         }
     }
 
@@ -91,43 +92,23 @@ pub fn visit<VertexSet, Graph, Rprtr>(
     let pivot = pivot.unwrap();
     for v in remaining_candidates {
         let neighbours = graph.neighbours(v);
-        if neighbours.contains(pivot) {
-            continue;
+        if !neighbours.contains(pivot) {
+            candidates.remove(v);
+            let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
+            if !neighbouring_candidates.is_empty() {
+                let neighbouring_excluded = neighbours.intersection_collect(&excluded);
+                visit(
+                    graph,
+                    reporter,
+                    pivot_selection,
+                    neighbouring_candidates,
+                    neighbouring_excluded,
+                    Some(&Pile::on(clique, v)),
+                );
+            } else if excluded.is_disjoint(neighbours) {
+                reporter.record(Pile::on(clique, v).collect());
+            }
+            excluded.insert(v);
         }
-        candidates.remove(v);
-        let neighbouring_candidates: VertexSet = candidates.intersection_collect(neighbours);
-        if !neighbouring_candidates.is_empty() {
-            visit(
-                graph,
-                reporter,
-                further_pivot_selection,
-                further_pivot_selection,
-                neighbouring_candidates,
-                excluded.intersection_collect(neighbours),
-                Some(&Pile::on(clique, v)),
-            );
-        } else if excluded.is_disjoint(neighbours) {
-            reporter.record(Pile::on(clique, v).collect());
-        }
-        excluded.insert(v);
-    }
-}
-
-fn choose<'a, Graph>(
-    pivot_choice: PivotChoice,
-    candidates: &'a [Vertex],
-    graph: &Graph,
-) -> Option<&'a Vertex>
-where
-    Graph: UndirectedGraph,
-{
-    match pivot_choice {
-        PivotChoice::Arbitrary => candidates.first(),
-        PivotChoice::Random => {
-            let mut rng = rand::thread_rng();
-            candidates.choose(&mut rng)
-        }
-        PivotChoice::MaxDegree => candidates.iter().max_by_key(|&&v| graph.degree(v) as usize),
-        _ => panic!("Implemented separately"),
     }
 }

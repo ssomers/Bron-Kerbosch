@@ -121,10 +121,10 @@ class Benchmark {
             auto fo = std::ofstream{tmpfname};
             fo << "Size";
             for (int set_type_index = 0; set_type_index < SET_TYPES; ++set_type_index) {
-                for (auto func_name : Portfolio::FUNC_NAMES) {
-                    auto name =
-                        std::string(func_name) + "@" + set_type_name(SetType(set_type_index));
-                    fo << "," << name << "  min," << name << " mean," << name << " max";
+                for (auto name : Portfolio::FUNC_NAMES) {
+                    fo << "," << name << "@" << set_type_name(SetType(set_type_index)) << " min";
+                    fo << "," << name << "@" << set_type_name(SetType(set_type_index)) << " mean";
+                    fo << "," << name << "@" << set_type_name(SetType(set_type_index)) << " max";
                 }
             }
             fo << "\n";
@@ -236,7 +236,7 @@ int main(int argc, char** argv) {
                     case SetType::std_set: [[fallthrough]];
                     case SetType::ord_vec: return std::vector<int>{};
                     case SetType::hashset:
-                        return size > 1'000'000 ? std::vector<int>{5, 7} : most_func_indices;
+                        return size > 1'000'000 ? std::vector<int>{1, 3, 5} : most_func_indices;
                 }
                 throw std::logic_error("unreachable");
             },

@@ -67,3 +67,18 @@ func (g *UndirectedGraph) connectedVertexCount() int {
 	}
 	return count
 }
+
+func (g *UndirectedGraph) maxDegreeVertex() Vertex {
+	order := g.Order()
+	maxDegree := 0
+	var maxVertex Vertex
+	for i := 0; i < order; i++ {
+		v := Vertex(i)
+		degree := g.degree(v)
+		if maxDegree < degree {
+			maxDegree = degree
+			maxVertex = v
+		}
+	}
+	return maxVertex
+}

@@ -11,6 +11,8 @@
 
 void console_init() {
 #ifdef _MSC_VER
-    SetConsoleOutputCP(65001);  // UTF-8
+    SetConsoleOutputCP(CP_UTF8);
+    // Enable buffering to prevent VS from chopping up UTF-8 byte sequences
+    setvbuf(stdout, nullptr, _IOFBF, 512);
 #endif
 }

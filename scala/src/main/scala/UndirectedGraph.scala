@@ -8,4 +8,6 @@ trait UndirectedGraph[Vertex] {
   def neighbours(node: Vertex): Set[Vertex]
 
   def connected_vertices(): Iterable[Vertex]
+
+  def max_degree_vertex(): Vertex
 }

@@ -39,8 +39,8 @@ def test_degeneracy_ordering_empty() -> None:
         integers(min_value=1,
                  max_value=99).flatmap(lambda order: lists(sets(
                      integers(min_value=0, max_value=order - 1)),
-                     min_size=order,
-                     max_size=order))))
+                                                           min_size=order,
+                                                           max_size=order))))
 def test_degeneracy_ordering_nonempty(adjacencies: List[Set[Vertex]]) -> None:
     g = UndirectedGraph(adjacencies=adjacencies)
     connected_vertices = g.connected_vertices()

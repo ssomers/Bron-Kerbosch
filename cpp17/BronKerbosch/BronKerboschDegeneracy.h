@@ -26,7 +26,8 @@ namespace BronKerbosch {
                 assert(!neighbours.empty());
                 auto neighbouring_excluded = Util::intersection(neighbours, excluded);
                 if (neighbouring_excluded.size() < neighbours.size()) {
-                    auto neighbouring_candidates = Util::difference(neighbours, neighbouring_excluded);
+                    auto neighbouring_candidates =
+                        Util::difference(neighbours, neighbouring_excluded);
                     auto pile = VertexPile{v};
                     cliques.splice(cliques.end(), BronKerboschPivot::visit(
                                                       graph, pivot_choice, pivot_choice,

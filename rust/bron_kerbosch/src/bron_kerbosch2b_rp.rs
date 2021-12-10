@@ -15,7 +15,6 @@ where
             graph,
             reporter,
             PivotChoice::Random,
-            PivotChoice::Random,
             candidates,
             Graph::VertexSet::new(),
             None,

@@ -27,8 +27,8 @@ namespace BronKerboschStudy {
                 std::exit(EXIT_FAILURE);
             }
 
-            auto edges_path = std::string("..\\random_edges_order_") + orderstr + ".txt";
-            auto stats_path = std::string("..\\random_stats.txt");
+            auto edges_path = std::string("..\\data\\random_edges_order_") + orderstr + ".txt";
+            auto stats_path = std::string("..\\data\\random_stats.txt");
             auto adjacencies = readEdges(edges_path, orderstr, size);
             auto expected_clique_count = readStats(stats_path, orderstr, size);
             auto g = RandomGraph<VertexSet>{std::move(adjacencies), expected_clique_count};

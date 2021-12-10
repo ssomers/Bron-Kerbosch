@@ -45,8 +45,7 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
         Stream<int[]> visit(VisitJob job) {
             Stream.Builder<int[]> cliqueStream = Stream.builder();
             BronKerboschPivot.visit(graph, cliqueStream,
-                    PivotChoice.MaxDegree,
-                    PivotChoice.MaxDegree,
+                    PivotChoice.MaxDegreeLocal,
                     job.mut_candidates,
                     job.mut_excluded,
                     new int[]{job.startVertex});

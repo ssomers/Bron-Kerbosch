@@ -15,7 +15,7 @@ func bronKerbosch3gp(graph *UndirectedGraph, reporter Reporter) {
 			neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 			visit(
 				graph, reporter,
-				MaxDegree, MaxDegreeLocal,
+				MaxDegreeLocal,
 				neighbouringCandidates,
 				neighbouringExcluded,
 				[]Vertex{v})

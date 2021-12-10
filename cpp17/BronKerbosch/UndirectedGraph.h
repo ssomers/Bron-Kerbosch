@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <vector>
 #include "Util.h"
 #include "Vertex.h"
@@ -44,6 +45,12 @@ namespace BronKerbosch {
                 }
             }
             return result;
+        }
+
+        Vertex max_degree_vertex() const {
+            return *std::ranges::max_element(
+                std::ranges::iota_view{Vertex{0}, Vertex{order()}},
+                [&](Vertex v, Vertex w) { return degree(v) < degree(w); });
         }
 
         static bool are_valid_adjacencies(Adjacencies const& adjacencies) {

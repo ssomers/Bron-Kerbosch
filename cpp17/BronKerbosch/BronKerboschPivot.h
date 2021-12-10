@@ -10,14 +10,41 @@
 
 namespace BronKerbosch {
     enum class PivotChoice {
-        Arbitrary,
-        MaxDegree,
         MaxDegreeLocal,
         MaxDegreeLocalX,
     };
 
     class BronKerboschPivot {
        public:
+        template <typename VertexSet>
+        static CliqueList explore(UndirectedGraph<VertexSet> const& graph,
+                                  PivotChoice pivot_choice) {
+            auto cliques = CliqueList{};
+            if (auto const order = graph.order()) {
+                // In this initial iteration, we don't need to represent the set of candidates
+                // because all neighbours are candidates until excluded.
+                auto excluded = Util::with_capacity<VertexSet>(order);
+                Vertex const pivot = graph.max_degree_vertex();
+                for (Vertex v = 0; v < order; ++v) {
+                    auto const& neighbours = graph.neighbours(v);
+                    if (!neighbours.empty() && neighbours.count(pivot) == 0) {
+                        auto neighbouring_excluded = Util::intersection(neighbours, excluded);
+                        if (neighbouring_excluded.size() < neighbours.size()) {
+                            auto neighbouring_candidates =
+                                Util::difference(neighbours, neighbouring_excluded);
+                            auto newclique = VertexPile(v);
+                            cliques.splice(cliques.end(),
+                                           visit(graph, pivot_choice, pivot_choice,
+                                                 std::move(neighbouring_candidates),
+                                                 std::move(neighbouring_excluded), &newclique));
+                        }
+                        excluded.insert(v);
+                    }
+                }
+            }
+            return cliques;
+        }
+
         template <typename VertexSet>
         static CliqueList visit(UndirectedGraph<VertexSet> const& graph,
                                 PivotChoice initial_pivot_choice,
@@ -44,90 +71,60 @@ namespace BronKerbosch {
             auto pivot = std::numeric_limits<Vertex>::max();
             std::vector<Vertex> remaining_candidates;
             remaining_candidates.reserve(candidates.size());
-            switch (initial_pivot_choice) {
-                case PivotChoice::MaxDegreeLocal:
-                case PivotChoice::MaxDegreeLocalX: {
-                    // Quickly handle locally unconnected candidates while finding pivot
-                    size_t seen_local_degree = 0;
-                    for (Vertex v : candidates) {
-                        auto const& neighbours = graph.neighbours(v);
-                        auto local_degree = Util::intersection_size(neighbours, candidates);
-                        if (local_degree == 0) {
-                            // Same logic as below, but stripped down
-                            if (Util::are_disjoint(neighbours, excluded)) {
-                                cliques.push_back(VertexPile(v, clique).collect());
-                            }
-                        } else {
-                            if (seen_local_degree < local_degree) {
-                                seen_local_degree = local_degree;
-                                pivot = v;
-                            }
-                            remaining_candidates.push_back(v);
-                        }
+            // Quickly handle locally unconnected candidates while finding pivot
+            size_t seen_local_degree = 0;
+            for (Vertex v : candidates) {
+                auto const& neighbours = graph.neighbours(v);
+                auto local_degree = Util::intersection_size(neighbours, candidates);
+                if (local_degree == 0) {
+                    // Same logic as below, but stripped down
+                    if (Util::are_disjoint(neighbours, excluded)) {
+                        cliques.push_back(VertexPile(v, clique).collect());
                     }
-                    if (remaining_candidates.empty()) {
-                        return cliques;
+                } else {
+                    if (seen_local_degree < local_degree) {
+                        seen_local_degree = local_degree;
+                        pivot = v;
                     }
-                    if (initial_pivot_choice == PivotChoice::MaxDegreeLocalX) {
-                        for (Vertex v : excluded) {
-                            auto const& neighbours = graph.neighbours(v);
-                            auto local_degree = Util::intersection_size(neighbours, candidates);
-                            if (seen_local_degree < local_degree) {
-                                seen_local_degree = local_degree;
-                                pivot = v;
-                            }
-                        }
-                    }
-                    break;
+                    remaining_candidates.push_back(v);
                 }
-                case PivotChoice::Arbitrary:
-                case PivotChoice::MaxDegree: {
-                    std::copy(candidates.begin(), candidates.end(),
-                              std::back_inserter(remaining_candidates));
-                    pivot = choose(initial_pivot_choice, remaining_candidates, graph);
+            }
+            if (remaining_candidates.empty()) {
+                return cliques;
+            }
+            if (initial_pivot_choice == PivotChoice::MaxDegreeLocalX) {
+                for (Vertex v : excluded) {
+                    auto const& neighbours = graph.neighbours(v);
+                    auto local_degree = Util::intersection_size(neighbours, candidates);
+                    if (seen_local_degree < local_degree) {
+                        seen_local_degree = local_degree;
+                        pivot = v;
+                    }
                 }
             }
 
             assert(!remaining_candidates.empty());
             for (Vertex v : remaining_candidates) {
                 auto const& neighbours = graph.neighbours(v);
-                if (neighbours.count(pivot)) {
-                    continue;
-                }
-                candidates.erase(v);
-                auto neighbouring_candidates = Util::intersection(neighbours, candidates);
-                if (neighbouring_candidates.empty()) {
-                    if (Util::are_disjoint(neighbours, excluded)) {
-                        cliques.push_back(VertexPile(v, clique).collect());
+                if (neighbours.count(pivot) == 0) {
+                    candidates.erase(v);
+                    auto neighbouring_candidates = Util::intersection(neighbours, candidates);
+                    if (neighbouring_candidates.empty()) {
+                        if (Util::are_disjoint(neighbours, excluded)) {
+                            cliques.push_back(VertexPile(v, clique).collect());
+                        }
+                    } else {
+                        auto neighbouring_excluded = Util::intersection(neighbours, excluded);
+                        auto newclique = VertexPile(v, clique);
+                        cliques.splice(cliques.end(),
+                                       visit(graph, further_pivot_choice, further_pivot_choice,
+                                             std::move(neighbouring_candidates),
+                                             std::move(neighbouring_excluded), &newclique));
                     }
-                } else {
-                    auto neighbouring_excluded = Util::intersection(neighbours, excluded);
-                    auto newclique = VertexPile(v, clique);
-                    cliques.splice(cliques.end(),
-                                   visit(graph, further_pivot_choice, further_pivot_choice,
-                                         std::move(neighbouring_candidates),
-                                         std::move(neighbouring_excluded), &newclique));
+                    excluded.insert(v);
                 }
-                excluded.insert(v);
             }
             return cliques;
-        }
-
-       private:
-        template <typename VertexSet>
-        static Vertex choose(PivotChoice pivot_choice,
-                             std::vector<Vertex> const& candidates,
-                             UndirectedGraph<VertexSet> const& graph) {
-            switch (pivot_choice) {
-                case PivotChoice::Arbitrary: return *candidates.begin();
-                case PivotChoice::MaxDegree:
-                    return *std::max_element(
-                        candidates.begin(), candidates.end(),
-                        [&graph](Vertex v, Vertex w) { return graph.degree(v) < graph.degree(w); });
-                case PivotChoice::MaxDegreeLocal:
-                case PivotChoice::MaxDegreeLocalX: break;
-            }
-            throw std::logic_error("unreachable");
         }
     };
 }

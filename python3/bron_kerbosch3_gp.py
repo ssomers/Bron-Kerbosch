@@ -1,13 +1,13 @@
 # coding: utf-8
 
-from bron_kerbosch_pivot import pick_max_degree_local, visit
+from bron_kerbosch_pivot import visit
 from graph import UndirectedGraph, Vertex
 from graph_degeneracy import degeneracy_ordering
 from reporter import Reporter
 from typing import Set
 
 
-def bron_kerbosch3_gp(graph: UndirectedGraph, reporter: Reporter) -> None:
+def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
     """Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
        choosing a pivot from candidates only (IK_GP)"""
     # In this initial iteration, we don't need to represent the set of candidates
@@ -22,8 +22,7 @@ def bron_kerbosch3_gp(graph: UndirectedGraph, reporter: Reporter) -> None:
                 neighbouring_excluded)
             visit(graph=graph,
                   reporter=reporter,
-                  initial_pivot_choice=pick_max_degree_local,
-                  further_pivot_choice=pick_max_degree_local,
+                  pivot_choice_X=False,
                   candidates=neighbouring_candidates,
                   excluded=neighbouring_excluded,
                   clique=[v])

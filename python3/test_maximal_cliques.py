@@ -1,15 +1,12 @@
 # coding: utf-8
 
-from bron_kerbosch0 import bron_kerbosch0
-from bron_kerbosch1 import bron_kerbosch1
-from bron_kerbosch2 import bron_kerbosch2
-from bron_kerbosch2_g import bron_kerbosch2_g
-from bron_kerbosch2_gp import bron_kerbosch2_gp
-from bron_kerbosch2_gpx import bron_kerbosch2_gpx
-from bron_kerbosch2_rp import bron_kerbosch2_rp
-from bron_kerbosch3 import bron_kerbosch3
-from bron_kerbosch3_gp import bron_kerbosch3_gp
-from bron_kerbosch3_gpx import bron_kerbosch3_gpx
+import bron_kerbosch1a
+import bron_kerbosch1b
+import bron_kerbosch2a_gp
+import bron_kerbosch2b_gp
+import bron_kerbosch2b_gpx
+import bron_kerbosch3_gp
+import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, Vertex
 from random_graph import to_int, read_random_graph
@@ -28,29 +25,23 @@ from typing import Callable, Iterable, List, Set
 FUNC = Callable[[Graph, Reporter], None]
 
 FUNCS: List[FUNC] = [
-    bron_kerbosch0,
-    bron_kerbosch1,
-    bron_kerbosch2,
-    bron_kerbosch2_g,
-    bron_kerbosch2_gp,
-    bron_kerbosch2_gpx,
-    bron_kerbosch2_rp,
-    bron_kerbosch3,
-    bron_kerbosch3_gp,
-    bron_kerbosch3_gpx,
+    bron_kerbosch1a.explore,
+    bron_kerbosch1b.explore,
+    bron_kerbosch2a_gp.explore,
+    bron_kerbosch2b_gp.explore,
+    bron_kerbosch2b_gpx.explore,
+    bron_kerbosch3_gp.explore,
+    bron_kerbosch3_gpx.explore,
 ]
 
 FUNC_NAMES = [
-    "Ver0",
     "Ver1",
-    "Ver2",
-    "Ver2-G",
+    "Ver1½",
     "Ver2-GP",
-    "Ver2-GPX",
-    "Ver2-RP",
-    "Ver3",
-    "Ver3-GP",
-    "Ver3-GPX",
+    "Ver2½-GP",
+    "Ver2½-GPX",
+    "Ver3½-GP",
+    "Ver3½-GPX",
 ]
 
 
@@ -211,7 +202,7 @@ def test_order_4_size_5(func: FUNC) -> None:
                                        {0, 2}]) == [
                                            [0, 1, 2],
                                            [0, 2, 3],
-    ]
+                                       ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -224,7 +215,7 @@ def test_order_4_size_6(func: FUNC) -> None:
                    {0, 1, 2},
                ]) == [
                    [0, 1, 2, 3],
-    ]
+               ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -239,7 +230,7 @@ def test_order_5_penultimate(func: FUNC) -> None:
                ]) == [
                    [0, 1, 2, 3],
                    [0, 1, 2, 4],
-    ]
+               ]
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -286,7 +277,7 @@ def test_bigger(func: FUNC) -> None:
                    [4, 6, 9],
                    [4, 7, 9],
                    [5, 6],
-    ]
+               ]
 
 
 def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
@@ -301,7 +292,7 @@ def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
         if order < 10:
             print(f"{name} {g.adjacencies}")
         else:
-            print(f"{name} (generating took {secs:.3f}s)")
+            print(f"{name} (creating took {secs:.3f}s)")
         stats = bron_kerbosch_timed(g,
                                     clique_count=clique_count,
                                     func_indices=func_indices,
@@ -333,7 +324,7 @@ if __name__ == '__main__':
         seed = 19680516
     all_func_indices = list(range(len(FUNCS)))
     most_func_indices = list(range(2, len(FUNCS)))
-    mt_func_indices = [4, 5, 8, 9]
+    mt_func_indices = list(range(2, len(FUNCS)))
     if args.order is not None and args.size is not None:
         bk(orderstr=args.order,
            sizes=[int(size) for size in args.size],

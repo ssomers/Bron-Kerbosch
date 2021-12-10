@@ -3,6 +3,7 @@ use bron_kerbosch::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSe
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
+use std::path::PathBuf;
 
 pub enum Size {
     Of(usize),
@@ -115,13 +116,12 @@ where
         ));
     }
 
-    let dir = Path::new("..");
-    let edges_name = &format!("random_edges_order_{}", orderstr);
-    let stats_name = "random_stats";
-    let edges_path = Path::join(dir, Path::new(edges_name).with_extension("txt"));
-    let stats_path = Path::join(dir, Path::new(stats_name).with_extension("txt"));
-    let adjacency_sets = read_edges(&edges_path, orderstr, size)?;
-    let clique_count = read_clique_count(&stats_path, orderstr, size)?;
+    let edges_name = &format!("random_edges_order_{}.txt", orderstr);
+    let stats_name = "random_stats.txt";
+    let edges_pbuf: PathBuf = ["..", "data", edges_name].iter().collect();
+    let stats_pbuf: PathBuf = ["..", "data", stats_name].iter().collect();
+    let adjacency_sets = read_edges(edges_pbuf.as_path(), orderstr, size)?;
+    let clique_count = read_clique_count(stats_pbuf.as_path(), orderstr, size)?;
 
     let g = G::new(adjacency_sets);
     assert_eq!(g.order(), order);

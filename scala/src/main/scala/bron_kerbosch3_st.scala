@@ -38,14 +38,13 @@ class bron_kerbosch3_st[Vertex: Integral]
     for (v <- degeneracy_ordering(graph, -1)) {
       val neighbours = graph.neighbours(v)
       assert(neighbours.nonEmpty)
-      val neighbouring_excluded = util.intersect(excluded, neighbours)
+      val neighbouring_excluded = util.intersect(neighbours, excluded)
       if (neighbouring_excluded.size < neighbours.size) {
         val neighbouring_candidates = neighbours diff neighbouring_excluded
         val f = Future {
           visit(
             graph,
             reporter,
-            MaxDegreeLocal,
             MaxDegreeLocal,
             neighbouring_candidates.to(mutable.Set),
             neighbouring_excluded.to(mutable.Set),

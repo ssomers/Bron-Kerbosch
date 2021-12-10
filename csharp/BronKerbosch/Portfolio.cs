@@ -8,10 +8,10 @@ namespace BronKerbosch
     {
         public static readonly string[] FuncNames =
         {
-            "Ver1",
-            "Ver2-GP", "Ver2-GPX",
-            "Ver3-GP", "Ver3-GPX",
-            "Ver3=GPc"
+            "Ver1½",
+            "Ver2-GP", "Ver2½-GP", "Ver2½-GPX",
+            "Ver3½-GP", "Ver3½-GPX",
+            "Ver3½=GPc"
         };
 
         public static void Explore(int funcIndex, UndirectedGraph graph, IReporter reporter)
@@ -19,11 +19,12 @@ namespace BronKerbosch
             switch (funcIndex)
             {
                 case 0: BronKerbosch1.Explore(graph, reporter); break;
-                case 1: BronKerbosch2GP.Explore(graph, reporter); break;
-                case 2: BronKerbosch2GPX.Explore(graph, reporter); break;
-                case 3: BronKerbosch3GP.Explore(graph, reporter); break;
-                case 4: BronKerbosch3GPX.Explore(graph, reporter); break;
-                case 5: BronKerbosch3ST.Explore(graph, reporter); break;
+                case 1: BronKerbosch2aGP.Explore(graph, reporter); break;
+                case 2: BronKerbosch2bGP.Explore(graph, reporter); break;
+                case 3: BronKerbosch2bGPX.Explore(graph, reporter); break;
+                case 4: BronKerbosch3GP.Explore(graph, reporter); break;
+                case 5: BronKerbosch3GPX.Explore(graph, reporter); break;
+                case 6: BronKerbosch3ST.Explore(graph, reporter); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

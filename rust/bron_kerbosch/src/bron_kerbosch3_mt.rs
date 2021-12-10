@@ -78,7 +78,6 @@ where
                         graph,
                         &mut thread_reporter,
                         PivotChoice::MaxDegreeLocal,
-                        PivotChoice::MaxDegreeLocal,
                         job.candidates,
                         job.excluded,
                         Some(&Pile::from(job.start)),

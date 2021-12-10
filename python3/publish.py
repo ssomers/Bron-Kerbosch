@@ -9,7 +9,7 @@ figsize = (8, 6)  # in hectopixels
 
 
 def lang_name(case_name: str) -> str:
-    return case_name.split(' ')[0]
+    return case_name.split(' ', 1)[0].split('@', 1)[0]
 
 
 def func_name(case_name: str) -> str:
@@ -18,23 +18,24 @@ def func_name(case_name: str) -> str:
 
 def color_by_func_name(case_name: str) -> str:
     return {
-        "Ver0": "#000099",
-        "Ver1": "#3333CC",
-        "Ver2": "#990000",
-        "Ver2-G": "#FF3300",
-        "Ver2-GP": "#FF6666",
-        "Ver2-GPX": "#FF9966",
-        "Ver2-RP": "#CC00CC",
-        "Ver3": "#006600",
-        "Ver3-GP": "#339900",
-        "Ver3-GPX": "#33CC00",
-        "Ver3=GPc": "#669999",
-        "Ver3=GPs": "#669966",
-        "Ver3=GP0": "#3399CC",
-        "Ver3=GP1": "#669999",
-        "Ver3=GP2": "#669966",
-        "Ver3=GP3": "#669933",
-        "Ver3=GP4": "#669900",
+        "Ver1": "#000099",
+        "Ver1½": "#3333CC",
+        "Ver2": "#660000",
+        "Ver2½": "#990000",
+        "Ver2-GP": "#996600",
+        "Ver2½-GP": "#FF3300",
+        "Ver2½-GPX": "#FF9933",
+        "Ver2½-RP": "#FF00CC",
+        "Ver3½": "#006600",
+        "Ver3½-GP": "#339900",
+        "Ver3½-GPX": "#33CC00",
+        "Ver3½=GPc": "#669999",
+        "Ver3½=GPs": "#669966",
+        "Ver3½=GP0": "#3399CC",
+        "Ver3½=GP1": "#669999",
+        "Ver3½=GP2": "#669966",
+        "Ver3½=GP3": "#669933",
+        "Ver3½=GP4": "#669900",
     }[func_name(case_name)]
 
 
@@ -84,7 +85,7 @@ def publish(
     num_cases = len(case_names)
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = os.path.join(os.pardir, filename + ".csv")
-    with open(path, 'w', newline='') as csvfile:
+    with open(path, 'w', newline='', encoding='utf-8') as csvfile:
         w = csv.writer(csvfile)
         w.writerow(["Size"] + [(f"{name} {t}") for name in case_names
                                for t in ["min", "mean", "max"]])
@@ -106,7 +107,7 @@ def read_csv(
         path = os.path.join(os.pardir, path)
     sizes = []
     measurement_per_size_by_case_name: Dict[str, List[Measurement]] = {}
-    with open(path, newline='') as csvfile:
+    with open(path, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         head = next(reader)
         num_cases = (len(head) - 1) // 3
@@ -208,7 +209,7 @@ def publish_measurements(
         color_by_case: Optional[Callable[[str], str]] = None,
         dash_by_case: Optional[Callable[[str], str]] = None) -> None:
     assert sizes
-    assert measurement_per_size_by_case_name
+    assert measurement_per_size_by_case_name, filename
     try:
         import matplotlib  # type: ignore
         from matplotlib import pyplot
@@ -258,7 +259,7 @@ def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
             case_name_selector={
                 f"{ver}{lib}":
                 (f"{ver}{lib}" if single_language else
-                 f"{lang}" if single_version else f"{lang} {ver}{lib}")
+                 f"{lang}" if single_version else f"{lang}{lib} {ver}")
                 for ver in versions
             })
         if sizes[:len(sizes1)] != sizes1[:len(sizes)]:
@@ -271,7 +272,8 @@ def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
     if len(versions) == 2:
 
         def dash_by_case(case_name: str) -> str:
-            return "dotted" if f" {versions[0]}" in case_name else "solid"
+            return "dotted" if case_name.endswith(
+                f" {versions[0]}") else "solid"
 
     publish_measurements(
         language=single_language,
@@ -285,73 +287,55 @@ def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
 
 
 def publish_reports() -> None:
-    # 1. Ver0 vs. Ver1
+    # 1. Ver1 vs. Ver1½
     publish_report(filename="report_1",
                    orderstr="100",
-                   langlibs=["python3", "rust@fnv"],
-                   versions=["Ver0", "Ver1"])
+                   langlibs=["python3", "rust@Hash"],
+                   versions=["Ver1", "Ver1½"])
     # 2. Ver1 vs. Ver2
-    publish_report(
-        filename="report_2",
-        orderstr="100",
-        langlibs=["c++@hashset", "scala", "python3", "java", "rust@fnv"],
-        versions=["Ver1", "Ver2"])
+    publish_report(filename="report_2",
+                   orderstr="100",
+                   langlibs=["java", "scala", "rust@Hash"],
+                   versions=["Ver1½", "Ver2½"])
     # 3. Ver2 variants
     for orderstr in ["100", "10k"]:
-        publish_report(
-            filename=f"report_3_python3_{orderstr}",
-            orderstr=orderstr,
-            langlibs=["python3"],
-            versions=["Ver2", "Ver2-G", "Ver2-GP", "Ver2-GPX", "Ver2-RP"])
-        publish_report(filename=f"report_3_java_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["java"],
-                       versions=["Ver2", "Ver2-G", "Ver2-GP", "Ver2-GPX"])
+        for langlib in ["rust@Hash", "java"]:
+            lang = langlib.split('@', 1)[0]
+            publish_report(
+                filename=f"report_3_{lang}_{orderstr}",
+                orderstr=orderstr,
+                langlibs=[langlib],
+                versions=["Ver2½", "Ver2½-RP", "Ver2½-GP", "Ver2½-GPX"])
     # 4. Ver2 vs. Ver3
-    for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"report_4_python3_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["python3"],
-                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"report_4_csharp_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["c#"],
-                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-    for orderstr in ["100", "10k"]:
-        publish_report(filename=f"report_4_rust_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["rust@fnv"],
-                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"report_4_java_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["java"],
-                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
-        publish_report(filename=f"report_4_go_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["go"],
-                       versions=["Ver2-GP", "Ver2-GPX", "Ver3-GP", "Ver3-GPX"])
+    for orderstr in ["10k", "1M"]:
+        for langlib in ["python3", "c#"]:
+            lang = langlib.split('@', 1)[0]
+            lang = langlib.split('@', 1)[0].replace("c#", "csharp")
+            publish_report(
+                filename=f"report_4_{lang}_{orderstr}",
+                orderstr=orderstr,
+                langlibs=[langlib],
+                versions=["Ver2½-GP", "Ver2½-GPX", "Ver3½-GP", "Ver3½-GPX"])
+    for orderstr in ["10k"]:
+        for langlib in ["rust@Hash", "java"]:
+            lang = langlib.split('@', 1)[0]
+            publish_report(
+                filename=f"report_4_{lang}_{orderstr}",
+                orderstr=orderstr,
+                langlibs=[langlib],
+                versions=["Ver2½-GP", "Ver2½-GPX", "Ver3½-GP", "Ver3½-GPX"])
     # 5. Parallelism
     for orderstr in ["100", "10k", "1M"]:
-        '''
-        publish_report(filename=f"report_5_rust_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["rust@fnv"],
-                       versions=["Ver3-GP", "Ver3=GPc"])
-        publish_report(filename=f"report_5_csharp_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["c#"],
-                       versions=["Ver3-GP", "Ver3=GPs"])
-        '''
         publish_report(filename=f"report_5_java_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java"],
-                       versions=["Ver3-GP", "Ver3=GPs", "Ver3=GPc"])
+                       versions=["Ver3½-GP", "Ver3½=GPs", "Ver3½=GPc"])
         publish_report(filename=f"report_5_go_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["go"],
                        versions=[
-                           "Ver3-GP", "Ver3=GP0", "Ver3=GP1", "Ver3=GP2",
-                           "Ver3=GP3", "Ver3=GP4"
+                           "Ver3½-GP", "Ver3½=GP0", "Ver3½=GP1", "Ver3½=GP2",
+                           "Ver3½=GP3", "Ver3½=GP4"
                        ])
     # 6. Languages
     for orderstr in ["100", "10k", "1M"]:
@@ -361,16 +345,16 @@ def publish_reports() -> None:
                            "python3", "scala", "java", "go", "c#",
                            "c++@hashset", "rust@fnv"
                        ],
-                       versions=["Ver3-GP"])
+                       versions=["Ver3½-GP"])
         publish_report(
             filename=f"report_6_channels_{orderstr}",
             orderstr=orderstr,
             langlibs=["java", "go", "c#", "c++@hashset", "rust@fnv"],
-            versions=["Ver3=GPc"])
+            versions=["Ver3½=GPc"])
         publish_report(filename=f"report_6_parallel_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java", "scala"],
-                       versions=["Ver3=GPs"])
+                       versions=["Ver3½=GPs"])
     # 7. Libraries
     for orderstr in ["100", "10k", "1M"]:
         publish_report(filename=f"report_7_rust_{orderstr}",
@@ -382,7 +366,7 @@ def publish_reports() -> None:
                            "rust@fnv",
                            "rust@ord_vec",
                        ],
-                       versions=["Ver3-GP"])
+                       versions=["Ver3½-GP"])
     for orderstr in ["100", "10k"]:
         publish_report(filename=f"report_7_c++_{orderstr}",
                        orderstr=orderstr,
@@ -391,7 +375,7 @@ def publish_reports() -> None:
                            "c++@std_set",
                            "c++@ord_vec",
                        ],
-                       versions=["Ver3-GP"])
+                       versions=["Ver3½-GP"])
 
 
 if __name__ == '__main__':

@@ -2,7 +2,6 @@ package be.steinsomers.bron_kerbosch.study;
 
 import be.steinsomers.bron_kerbosch.BronKerbosch1;
 import be.steinsomers.bron_kerbosch.BronKerbosch2;
-import be.steinsomers.bron_kerbosch.BronKerbosch2_g;
 import be.steinsomers.bron_kerbosch.BronKerbosch2_gp;
 import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
 import be.steinsomers.bron_kerbosch.BronKerbosch3;
@@ -26,21 +25,19 @@ import java.util.stream.IntStream;
 
 final class Main {
     static final String[] FUNC_NAMES = {
-            "Ver1",
-            "Ver2",
-            "Ver2-G",
-            "Ver2-GP",
-            "Ver2-GPX",
-            "Ver3",
-            "Ver3-GP",
-            "Ver3-GPX",
-            "Ver3=GPc",
-            "Ver3=GPs",
+            "Ver1½",
+            "Ver2½",
+            "Ver2½-GP",
+            "Ver2½-GPX",
+            "Ver3½",
+            "Ver3½-GP",
+            "Ver3½-GPX",
+            "Ver3½=GPc",
+            "Ver3½=GPs",
     };
     static final BronKerboschAlgorithm[] FUNCS = {
             new BronKerbosch1(),
             new BronKerbosch2(),
-            new BronKerbosch2_g(),
             new BronKerbosch2_gp(),
             new BronKerbosch2_gpx(),
             new BronKerbosch3(),
@@ -74,7 +71,7 @@ final class Main {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
         var times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
-        for (int sample = samples == 1 ?  1 : 0; sample <= samples; ++sample) {
+        for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
                 if (sample == 0) {
                     var cliques = FUNCS[funcIndex].explore(graph)
@@ -111,8 +108,8 @@ final class Main {
                            int samples,
                            int[] funcIndices) {
         var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
-        var path = Paths.get("..").resolve(name + ".csv");
-        try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.US_ASCII)) {
+        var path = Paths.get("..", name + ".csv");
+        try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fo.write("Size");
             for (var funcIndex : funcIndices) {
                 var fn = FUNC_NAMES[funcIndex];
@@ -163,7 +160,7 @@ final class Main {
         Thread.sleep(3210); // give IntelliJ launcher some time to cool down
         bk(true, "100", 100, sizes100, 5, allFuncIndices);
         bk(true, "10k", 10_000, sizes10K, 3, mostFuncIndices);
-        bk(true, "1M", 1_000_000, sizes1M, 3, new int[]{6, 8, 9});
+        bk(true, "1M", 1_000_000, sizes1M, 3, new int[]{2, 5, 7, 8});
         /*
         int[] sizesT = {500_000};
         int[] funcIndices = {8};

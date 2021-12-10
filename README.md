@@ -45,8 +45,8 @@ Order of a graph = number of vertices.
 Let's first get one thing out of the way: what does some local optimization yield in the simplest,
 naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimization or low hanging fruit?
 
-* **Ver0:** Ver1 in the original project
-* **Ver1:** Same locally optimized, without changing the algorithm as such.
+* **Ver1:** Same as in the original project
+* **Ver1½:** Same locally optimized, without changing the algorithm as such.
 In particular:
   - In the (many) deepest iterations, when we see the intersection of candidates is empty, don't
     calculate all the nearby excluded vertices, just check if that set is empty or not.
@@ -62,15 +62,13 @@ Therefore, all the other implementations will contain similar tweaks.
 
 ## Comparing algorithms
 
-* **Ver1:** Naive but optimized Bron-Kerbosch algorithm
-* **Ver2:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
-* **Ver2-G:** Ver2 but pivot is the candidate of the highest degree in the whole graph
-* **Ver2-GP:** Ver2 but pivot is the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
-* **Ver2-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
-* **Ver2-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
-* **Ver3:** Ver2 with degeneracy ordering
-* **Ver3-GP:** Ver2-GP with degeneracy ordering
-* **Ver3-GPX:** Ver2-GPX with degeneracy ordering
+* **Ver2½:** Ver1 excluding neighbours of a pivot that is chosen arbitrarily (optimized original Ver2)
+* **Ver2½-GP:** Ver2 but pivot is the candidate of the highest degree towards the remaining candidates (IK\_GP in the paper)
+* **Ver2½½-GPX:** Ver2-GP but pivot also chosen from excluded vertices (IK\_GPX in the paper)
+* **Ver2½-RP:** Similar but but with pivot randomly chosen from candidates (IK\_RP in the paper)
+* **Ver3½:** Ver2 with degeneracy ordering
+* **Ver3½-GP:** Ver2-GP with degeneracy ordering
+* **Ver3½-GPX:** Ver2-GPX with degeneracy ordering
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -80,30 +78,22 @@ These are all single-threaded implementations (using only one CPU core).
 ![Time spent on graphs of order 100](doc/report_2.svg)
 
 * Among Ver2 variants, GP and GPX are indeed best…
-![Time spent on graphs of order 100](doc/report_3_python3_100.svg)
 ![Time spent on graphs of order 100](doc/report_3_java_100.svg)
+![Time spent on graphs of order 100](doc/report_3_rust_100.svg)
 
 * …but GPX looses ground in big graphs
-![Time spent on graphs of order 10k](doc/report_3_python3_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_3_java_10k.svg)
+![Time spent on graphs of order 10k](doc/report_3_rust_10k.svg)
 
 * Ver3-GP wins somewhat from Ver2-GP in big graphs…
 ![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
-![Time spent on graphs of order 10k](doc/report_4_go_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_4_rust_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_4_csharp_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 
-* …except in Python…
+* …except in Python
 ![Time spent on graphs of order 10k](doc/report_4_python3_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_4_python3_1M.svg)
-
-* …and not in a dense, small graph either
-![Time spent on graphs of order 100](doc/report_4_python3_100.svg)
-![Time spent on graphs of order 100](doc/report_4_java_100.svg)
-![Time spent on graphs of order 100](doc/report_4_go_100.svg)
-![Time spent on graphs of order 100](doc/report_4_csharp_100.svg)
-![Time spent on graphs of order 100](doc/report_4_rust_100.svg)
 
 
 ## Introducing parallelism
@@ -112,23 +102,24 @@ Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How d
 
 ![Ver3 structure](doc/Ver3.svg)
 
-The first iteration is different from the nested iterations, because:
-- the order in which it visits vertices is the degeneracy order, not the GP order;
-- the set of candidates starts off being huge, but doesn't have to be represented at all
-  because every visited vertex is a candidate until excluded.
+THe only difference with Ver2 is the order of the first iteration
+- the order in which it visits vertices is the degeneracy order, not the arbitrary/G/GP/GPX/random order;
+- the set of candidates starts off being huge, i.e., every reachable vertex, but that set doesn't
+  have to be represented because every reachable vertex is a candidate until excluded.
 
-Thus we can easily run 2 + N jobs in parallel:
-- 1 stage of degeneracy ordering
-- 1 stage with the first iteration
-- many stages of nested iterations
+Because of that, we already write [the first iteration separately](python3/bron_kerbosch3_gp.py).
+Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
+- 1 task generating the degeneracy order of the graph,
+- 1 task performing the first iteration in that order,
+- 1 or more tasks performing nested iterations.
 
-* **Ver3=GPs:** (C#, Java, Scala) using simple composition (async, stream, future)
-* **Ver3=GPc:** (Rust, C++, Java) using something resembling channels
-* **Ver3=GP0:** (Go only) using channels and providing 1 goroutine for the recursive calls
-* **Ver3=GP1:** (Go only) using channels and providing 4 goroutines for the recursive calls
-* **Ver3=GP2:** (Go only) using channels and providing 16 goroutines for the recursive calls
-* **Ver3=GPc:** (Go only) using channels and providing 64 goroutines for the recursive calls
-* **Ver3=GP4:** (Go only) using channels and providing 256 goroutines for the recursive calls
+* **Ver3=GPs:** (C#, Java, Scala) using relatively simple composition (async, stream, future)
+* **Ver3=GPc:** (Rust, C++, Java) using something complex resembling channels
+* **Ver3=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
+* **Ver3=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
+* **Ver3=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
+* **Ver3=GPc:** (Go only) using channels and providing 64 goroutines for the nested iterations
+* **Ver3=GP4:** (Go only) using channels and providing 256 goroutines for the nested iterations
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
@@ -233,7 +224,6 @@ Perform
     go test BronKerbosch/...
     go test -race BronKerbosch/lib
     go run BronKerbosch/main
-    python ..\python3\publish.py go 100 10k 1M
 
 ## C#
 To obtain these results:
@@ -250,7 +240,7 @@ Perform
   - Debug > Start Without Debugging
 
 
-## C++ 17
+## C++ 20
 To obtain these results:
   - [dense graph of order 100](https://plotly.com/~stein.somers/418/)
   - [plain graph of order 10k](https://plotly.com/~stein.somers/422/)
@@ -267,13 +257,6 @@ Either:
   - Test > Run > All Tests
   - set configuration to Release
   - Debug > Start Without Debugging
-
-or in Mingw-64:
-
-    pacman -S mingw-w64-x86_64-gcc
-    PATH="/mingw64/bin:$PATH"
-    g++ -DNDEBUG -I. -O -std=c++17 -Wall -Wno-maybe-uninitialized BronKerbosch/*.cpp BronKerboschStudy/*.cpp
-    ./a
 
 
 ## Java
@@ -313,6 +296,7 @@ Perform
 
 Python and Rust publish results to the cloud automatically, the others need a push:
 
+    python python3\publish.py go 100 10k 1M
     python python3\publish.py c# 100 10k 1M
     python python3\publish.py c++ 100 10k 1M
     python python3\publish.py java 100 10k 1M

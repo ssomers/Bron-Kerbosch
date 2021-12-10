@@ -24,4 +24,10 @@ class SlimUndirectedGraph[Vertex: Integral](
       .filter { case (n, _) => n.nonEmpty }
       .map { case (_, v) => implicitly[Integral[Vertex]].fromInt(v) }
   }
+
+  override def max_degree_vertex(): Vertex = {
+    val (_, v) = neighboursByNode.zipWithIndex.maxBy { case (n, _) => n.size }
+    implicitly[Integral[Vertex]].fromInt(v)
+  }
+
 }

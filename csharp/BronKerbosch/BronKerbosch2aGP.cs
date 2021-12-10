@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-internal static class BronKerbosch2GP
+internal static class BronKerbosch2aGP
 {
     public static void Explore(UndirectedGraph graph, IReporter reporter)
     {
@@ -15,10 +15,9 @@ internal static class BronKerbosch2GP
             Pivot.Visit(
                 graph,
                 reporter,
-                Pivot.Choice.MaxDegree,
                 Pivot.Choice.MaxDegreeLocal,
                 candidates,
-                new HashSet<Vertex>(capacity: candidates.Count),
+                new HashSet<Vertex>(),
                 ImmutableArray.Create<Vertex>());
         }
     }

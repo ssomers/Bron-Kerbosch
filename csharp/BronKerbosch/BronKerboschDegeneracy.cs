@@ -13,7 +13,7 @@ internal static class BronKerboschDegeneracy
     {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
-        var excluded = new HashSet<Vertex>();
+        var excluded = new HashSet<Vertex>(capacity: graph.Order);
         foreach (var v in Degeneracy.Ordering(graph, drop: 1))
         {
             var neighbours = graph.Neighbours(v);
@@ -22,8 +22,7 @@ internal static class BronKerboschDegeneracy
             if (neighbouringExcluded.Count < neighbours.Count)
             {
                 var neighbouringCandidates = CollectionsUtil.Difference(neighbours, neighbouringExcluded);
-                Pivot.Visit(graph, reporter,
-                    pivotChoice, pivotChoice,
+                Pivot.Visit(graph, reporter, pivotChoice,
                     neighbouringCandidates, neighbouringExcluded,
                     ImmutableArray.Create(v));
             }

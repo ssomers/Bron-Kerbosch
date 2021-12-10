@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 
 namespace BronKerbosch
 {
@@ -28,9 +29,7 @@ namespace BronKerbosch
         {
             get
             {
-                var total = 0;
-                for (int i = 0; i < Order; ++i)
-                    total += Degree(Vertex.nth(i));
+                var total = Enumerable.Range(0, Order).Select(Vertex.nth).Sum(Degree);
                 Debug.Assert(total % 2 == 0);
                 return total / 2;
             }
@@ -40,14 +39,10 @@ namespace BronKerbosch
 
         public int Degree(Vertex node) => itsAdjacencies[node.index].Count;
 
-        public IEnumerable<Vertex> ConnectedVertices()
-        {
-            for (int i = 0; i < Order; ++i)
-            {
-                var v = Vertex.nth(i);
-                if (Degree(v) > 0)
-                    yield return v;
-            }
-        }
+        public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.nth);
+
+        public IEnumerable<Vertex> ConnectedVertices() => Vertices().Where(v => Degree(v) > 0);
+
+        public Vertex MaxDegreeVertex() => Vertices().MaxBy(Degree);
     }
 }

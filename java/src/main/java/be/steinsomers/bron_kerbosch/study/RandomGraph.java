@@ -36,8 +36,8 @@ final class RandomGraph extends UndirectedGraph {
                     "%d nodes accommodate at most %d edges", order, fullyMeshedSize));
         }
 
-        var edgesPath = Paths.get("..").resolve("random_edges_order_" + orderStr + ".txt");
-        var statsPath = Paths.get("..").resolve("random_stats.txt");
+        var edgesPath = Paths.get("..", "data", "random_edges_order_" + orderStr + ".txt");
+        var statsPath = Paths.get("..", "data", "random_stats.txt");
         var adjacencies = readEdges(edgesPath, order, size);
         var cliqueCount = readStats(statsPath, orderStr, size);
 

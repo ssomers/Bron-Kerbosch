@@ -25,9 +25,9 @@ class bron_kerbosch1[Vertex] extends bron_kerbosch_algorithm[Vertex] {
       val v = candidates.head
       candidates -= v
       val neighbours = graph.neighbours(v)
-      val neighbouring_candidates = util.intersect(candidates, neighbours)
+      val neighbouring_candidates = util.intersect(neighbours, candidates)
       if (neighbouring_candidates.nonEmpty) {
-        val neighbouring_excluded = util.intersect(excluded, neighbours)
+        val neighbouring_excluded = util.intersect(neighbours, excluded)
         visit(
           graph,
           reporter,
@@ -35,7 +35,7 @@ class bron_kerbosch1[Vertex] extends bron_kerbosch_algorithm[Vertex] {
           neighbouring_excluded.to(mutable.Set),
           v :: clique_in_progress
         )
-      } else if (util.are_disjoint(excluded, neighbours)) {
+      } else if (util.are_disjoint(neighbours, excluded)) {
         reporter(v :: clique_in_progress)
       }
       excluded += v

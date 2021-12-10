@@ -1,10 +1,10 @@
-mod bron_kerbosch0;
-mod bron_kerbosch1;
-mod bron_kerbosch2;
-mod bron_kerbosch2_gp;
-mod bron_kerbosch2_gpx;
-mod bron_kerbosch2_rp;
-mod bron_kerbosch3;
+mod bron_kerbosch1a;
+mod bron_kerbosch1b;
+mod bron_kerbosch2a_gp;
+mod bron_kerbosch2b;
+mod bron_kerbosch2b_gp;
+mod bron_kerbosch2b_gpx;
+mod bron_kerbosch2b_rp;
 mod bron_kerbosch3_gp;
 mod bron_kerbosch3_gpx;
 mod bron_kerbosch3_mt;
@@ -26,8 +26,16 @@ pub const NUM_FUNCS: usize = 10;
 #[cfg(miri)]
 pub const NUM_FUNCS: usize = 9;
 pub static FUNC_NAMES: &[&str; 10] = &[
-    "Ver0", "Ver1", "Ver2", "Ver2-GP", "Ver2-GPX", "Ver2-RP", "Ver3", "Ver3-GP", "Ver3-GPX",
-    "Ver3=GPc",
+    "Ver1",
+    "Ver1½",
+    "Ver2-GP",
+    "Ver2½",
+    "Ver2½-GP",
+    "Ver2½-GPX",
+    "Ver2½-RP",
+    "Ver3½-GP",
+    "Ver3½-GPX",
+    "Ver3½=GPc",
 ];
 
 pub fn explore<Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
@@ -37,13 +45,13 @@ where
     Rprtr: Reporter,
 {
     match func_index {
-        0 => bron_kerbosch0::explore(graph, reporter),
-        1 => bron_kerbosch1::explore(graph, reporter),
-        2 => bron_kerbosch2::explore(graph, reporter),
-        3 => bron_kerbosch2_gp::explore(graph, reporter),
-        4 => bron_kerbosch2_gpx::explore(graph, reporter),
-        5 => bron_kerbosch2_rp::explore(graph, reporter),
-        6 => bron_kerbosch3::explore(graph, reporter),
+        0 => bron_kerbosch1a::explore(graph, reporter),
+        1 => bron_kerbosch1b::explore(graph, reporter),
+        2 => bron_kerbosch2a_gp::explore(graph, reporter),
+        3 => bron_kerbosch2b::explore(graph, reporter),
+        4 => bron_kerbosch2b_gp::explore(graph, reporter),
+        5 => bron_kerbosch2b_gpx::explore(graph, reporter),
+        6 => bron_kerbosch2b_rp::explore(graph, reporter),
         7 => bron_kerbosch3_gp::explore(graph, reporter),
         8 => bron_kerbosch3_gpx::explore(graph, reporter),
         9 => bron_kerbosch3_mt::explore(graph, reporter),

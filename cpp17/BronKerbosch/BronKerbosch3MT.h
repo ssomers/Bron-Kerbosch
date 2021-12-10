@@ -7,7 +7,7 @@
 #include "CliqueList.h"
 #include "GraphDegeneracy.h"
 #pragma warning(push)
-#pragma warning(disable : 4189 4265 5204 26495)
+#pragma warning(disable : 4189 4265 4623 5204 26495)
 #include "cppcoro/async_generator.hpp"
 #include "cppcoro/multi_producer_sequencer.hpp"
 #include "cppcoro/sequence_barrier.hpp"
@@ -17,7 +17,6 @@
 #include "cppcoro/task.hpp"
 #include "cppcoro/when_all.hpp"
 #pragma warning(pop)
-#pragma warning(disable : 4623)
 
 namespace BronKerbosch {
     template <typename VertexSet>
@@ -46,7 +45,7 @@ namespace BronKerbosch {
                           VertexSet&& new_candidates,
                           VertexSet&& new_excluded) noexcept {
                 assert(!busy.exchange(true));
-                assert(!full.exchange(false));  // but keep empty
+                assert(!full.load());
                 start = new_start;
                 candidates = std::move(new_candidates);
                 excluded = std::move(new_excluded);
@@ -147,7 +146,7 @@ namespace BronKerbosch {
                         --producers;
                     } else {
                         assert(!visit_job.busy.exchange(true));
-                        assert(visit_job.full.exchange(true));  // but keep full
+                        assert(visit_job.full.load());
                         auto pile = VertexPile{visit_job.start};
                         size_t seq = co_await clique_sequencer.claim_one(tp);
                         (*cliques)[seq % CLIQUES] = BronKerboschPivot::visit<VertexSet>(

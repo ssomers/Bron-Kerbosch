@@ -41,8 +41,8 @@ object RandomGraph {
       size <= fully_meshed_size,
       f"$order nodes accommodate at most $fully_meshed_size edges"
     )
-    val edges_path = f"..\\random_edges_order_$order_str.txt"
-    val stats_path = f"..\\random_stats.txt"
+    val edges_path = f"..\\data\\random_edges_order_$order_str.txt"
+    val stats_path = f"..\\data\\random_stats.txt"
     val adjacencies = read_edges[Vertex](edges_path, order, size)
     val clique_count = read_stats(stats_path, order_str, size)
     val graph = new SlimUndirectedGraph(adjacencies)

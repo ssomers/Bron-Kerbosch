@@ -91,7 +91,6 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
                 while ((job = visitQueue.take()).startVertex >= 0) {
                     BronKerboschPivot.visit(graph, clique -> cliques.add(clique),
                             PivotChoice.MaxDegreeLocal,
-                            PivotChoice.MaxDegreeLocal,
                             job.mut_candidates,
                             job.mut_excluded,
                             new int[]{job.startVertex});

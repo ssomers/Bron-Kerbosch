@@ -1,6 +1,7 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -39,5 +40,11 @@ public class UndirectedGraph {
 
     public final Stream<Integer> connectedVertices() {
         return IntStream.range(0, order()).filter(v -> degree(v) > 0).boxed();
+    }
+
+    public final int maxDegreeVertex() {
+        return IntStream.range(0, order()).boxed()
+                .max(Comparator.comparingInt(this::degree))
+                .orElseThrow();
     }
 }
