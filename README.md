@@ -150,7 +150,7 @@ Ways to implement parallelism varies per language:
 ![Time spent on graphs of order 10k](doc/report_6_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_6_1M.svg)
 
-* Simple multi-threaded
+* Relatively simple multi-threaded
 ![Time spent on graphs of order 100](doc/report_6_parallel_100.svg)
 ![Time spent on graphs of order 10k](doc/report_6_parallel_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_6_parallel_1M.svg)
@@ -232,10 +232,14 @@ To obtain these results:
 Perform
 
     cd go
-    go vet BronKerbosch/...
-    go test BronKerbosch/...
-    go test -race BronKerbosch/lib
-    go run BronKerbosch/main
+    go1.18beta1 vet BronKerbosch/...
+    go1.18beta1 test BronKerbosch/...
+    go1.18beta1 run BronKerbosch/main
+
+On MSYS2:
+    PATH=$PATH:$HOME/Documents/go/bin
+    go1.18beta1 test -race BronKerbosch/lib
+
 
 ## C#
 To obtain these results:

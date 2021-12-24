@@ -157,16 +157,16 @@ def read_csv(
 
 
 def publish_whole_csv(language: str, orderstr: str) -> None:
-    filename, sizes, measurement_per_size_by_case_name = read_csv(
-        language, orderstr)
+    m_per_size_by_case_name: Mapping[str, List[Measurement]]
+    filename, sizes, m_per_size_by_case_name = read_csv(language, orderstr)
     assert sizes
-    assert measurement_per_size_by_case_name
+    assert m_per_size_by_case_name
     try:
         from chart_studio import plotly  # type: ignore
         from plotly import io as plotly_io  # type: ignore
         from plotly import graph_objects
     except ImportError as e:
-        print(f"{e} (maybe you want to pip install chart-studio?)")
+        print(f"{e} (maybe you want to `pip install chart-studio`?)")
     else:
         plotly_io.templates.default = "none"  # disable default 4.0 theme
         traces = [
@@ -184,14 +184,12 @@ def publish_whole_csv(language: str, orderstr: str) -> None:
                 marker=dict(color=color_by_func_name(case_name)),
                 mode="lines+markers",
                 name=case_name,
-            ) for case_name, m_per_size in
-            measurement_per_size_by_case_name.items()
+            ) for case_name, m_per_size in m_per_size_by_case_name.items()
         ]
         layout = dict(
-            title=(
-                '<a href="https://github.com/ssomers/Bron-Kerbosch">' +
-                f"{language.capitalize()} implementations of Bron-Kerbosch</a>"
-                + f" on a random graph of order {orderstr}"),
+            title='<a href="https://github.com/ssomers/Bron-Kerbosch">' +
+            f"{language.capitalize()} implementations of Bron-Kerbosch</a>" +
+            f" on a random graph of order {orderstr}",
             xaxis=dict(title="Size (#edges)"),
             yaxis=dict(title="Seconds spent"),
         )
@@ -205,7 +203,7 @@ def publish_measurements(
         filename: str,
         sizes: List[int],
         measurement_per_size_by_case_name: Mapping[str, List[Measurement]],
-        version: Optional[str] = None,
+        suffix: str,
         color_by_case: Optional[Callable[[str], str]] = None,
         dash_by_case: Optional[Callable[[str], str]] = None) -> None:
     assert sizes
@@ -218,11 +216,11 @@ def publish_measurements(
     else:
         matplotlib.rcParams['svg.hashsalt'] = "Bron-Kerbosch"
         fig, ax = pyplot.subplots(figsize=figsize)
-        ax.set_title((f"{language.capitalize()} implementations"
-                      if language else "Implementations") +
-                     " of Bron-Kerbosch" + (f" {version}" if version else "") +
-                     f" on a random graph of order {orderstr}",
-                     loc="left")
+        ax.set_title(
+            (f"{language.capitalize()} implementations of "
+             if language else "") +
+            f"Bron-Kerbosch{suffix} on a random graph of order {orderstr}",
+            loc="left")
         ax.set_xlabel("Size (#edges)")
         ax.set_ylabel("Seconds spent")
         for case_name, m_per_size in measurement_per_size_by_case_name.items():
@@ -242,13 +240,15 @@ def publish_measurements(
         pyplot.close(fig)
 
 
-def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
-                   versions: Sequence[str]) -> None:
+def publish_report(orderstr: str,
+                   filename: str,
+                   langlibs: Sequence[str],
+                   versions: Sequence[str],
+                   single_version: Optional[str] = None) -> None:
     sizes: List[int] = []
     measurements: Dict[str, List[Measurement]] = {}
     languages = set(langlib.split('@', 1)[0] for langlib in langlibs)
     single_language = languages.pop() if len(languages) == 1 else None
-    single_version = versions[0] if len(versions) == 1 else None
     for langlib in langlibs:
         lang_lib = langlib.split('@', 1)
         lang = lang_lib[0].capitalize()
@@ -258,7 +258,8 @@ def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
             orderstr=orderstr,
             case_name_selector={
                 f"{ver}{lib}":
-                (f"{ver}{lib}" if single_language else
+                (f"{lib}" if single_language and single_version else
+                 f"{ver}{lib}" if single_language else
                  f"{lang}" if single_version else f"{lang}{lib} {ver}")
                 for ver in versions
             })
@@ -280,7 +281,7 @@ def publish_report(orderstr: str, filename: str, langlibs: Sequence[str],
         orderstr=orderstr,
         filename=filename,
         sizes=sizes,
-        version=single_version,
+        suffix="" if single_version is None else " " + single_version,
         measurement_per_size_by_case_name=measurements,
         color_by_case=color_by_language if single_language is None else None,
         dash_by_case=dash_by_case)
@@ -350,11 +351,13 @@ def publish_reports() -> None:
             filename=f"report_6_channels_{orderstr}",
             orderstr=orderstr,
             langlibs=["java", "go", "c#", "c++@hashset", "rust@fnv"],
-            versions=["Ver3½=GPc"])
+            versions=["Ver3½=GPc", "Ver3½=GP3"],
+            single_version="parallel Ver3½=GP using channels")
         publish_report(filename=f"report_6_parallel_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java", "scala"],
-                       versions=["Ver3½=GPs"])
+                       versions=["Ver3½=GPs"],
+                       single_version="simple parallel Ver3½=GP")
     # 7. Libraries
     for orderstr in ["100", "10k", "1M"]:
         publish_report(filename=f"report_7_rust_{orderstr}",
@@ -366,7 +369,8 @@ def publish_reports() -> None:
                            "rust@fnv",
                            "rust@ord_vec",
                        ],
-                       versions=["Ver3½-GP"])
+                       versions=["Ver3½-GP"],
+                       single_version="Ver3½-GP")
     for orderstr in ["100", "10k"]:
         publish_report(filename=f"report_7_c++_{orderstr}",
                        orderstr=orderstr,
@@ -375,7 +379,8 @@ def publish_reports() -> None:
                            "c++@std_set",
                            "c++@ord_vec",
                        ],
-                       versions=["Ver3½-GP"])
+                       versions=["Ver3½-GP"],
+                       single_version="Ver3½-GP")
 
 
 if __name__ == '__main__':

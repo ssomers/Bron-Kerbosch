@@ -18,8 +18,3 @@ test_script:
   - dotnet test csharp\BronKerboschStudy.sln
   - mypy --cache-dir=/dev/null python3
   - pytest -p no:cacheprovider python3
-  - cd go
-  - go vet BronKerbosch/...
-  - go test BronKerbosch/...
-  - go test -race BronKerbosch/lib
-  - cd ..

@@ -55,7 +55,7 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 		return
 	}
 
-	var q priorityQueue
+	var q priorityQueue[Vertex]
 	q.init(maxDegree)
 	for c, p := range priorityPerNode {
 		if p > 0 {
@@ -89,19 +89,19 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 	}
 }
 
-type priorityQueue struct {
-	stackPerPriority [][]Vertex
+type priorityQueue [T interface{}] struct {
+	stackPerPriority [][]T
 }
 
-func (q *priorityQueue) init(maxPriority int) {
-	q.stackPerPriority = make([][]Vertex, maxPriority+1)
+func (q *priorityQueue[T]) init(maxPriority int) {
+	q.stackPerPriority = make([][]T, maxPriority+1)
 }
 
-func (q *priorityQueue) put(priority int, element Vertex) {
+func (q *priorityQueue[T]) put(priority int, element T) {
 	q.stackPerPriority[priority] = append(q.stackPerPriority[priority], element)
 }
 
-func (q *priorityQueue) pop() Vertex {
+func (q *priorityQueue[T]) pop() T {
 	for p := 0; ; p++ {
 		l := len(q.stackPerPriority[p])
 		if l > 0 {

@@ -35,7 +35,7 @@ func (g *UndirectedGraph) Size() int {
 		total += neighbours.Cardinality()
 	}
 	if total%2 != 0 {
-		panic("symmetry check should have yielded even total")
+		panic("symmetry check on initialisation should have enforced even total")
 	}
 	return total / 2
 }
