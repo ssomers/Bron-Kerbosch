@@ -111,7 +111,7 @@ These are all single-threaded implementations (using only one CPU core).
 
 Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How does Ver3 operate?
 
-![Ver3 structure](doc/Ver3.svg)
+![Ver3 structure](doc/Ver3.dot.svg)
 
 We already specialized the first iteration in Ver2, and Ver3 changes the order in the first iteration
 to the graph's degeneracy order.
@@ -321,7 +321,7 @@ Python and Rust publish results to the cloud automatically, the others need a pu
 And finally, generate images locally:
 
     python python3\publish.py
-    dot -Tsvg doc\Ver3.dot > doc\Ver3.svg
+    dot doc\Ver3.dot -Tsvg -O
 
 ## License
 
