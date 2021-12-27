@@ -212,7 +212,7 @@ def publish_measurements(
         import matplotlib  # type: ignore
         from matplotlib import pyplot
     except ImportError as e:
-        print(f"{e} (maybe you want to pip install matplotlib?)")
+        print(f"{e} (maybe you want to `pip install matplotlib`?)")
     else:
         matplotlib.rcParams['svg.hashsalt'] = "Bron-Kerbosch"
         fig, ax = pyplot.subplots(figsize=figsize)

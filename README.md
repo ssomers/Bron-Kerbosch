@@ -205,7 +205,7 @@ Perform
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once) pip install pytest chart-studio hypothesis mypy
+    (once) pip install mypy pytest hypothesis chart-studio
     mypy .
     pytest
     python -O test_maximal_cliques.py
