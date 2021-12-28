@@ -233,7 +233,7 @@ def publish_details(
         twin = axes.twinx()
         twin.get_yaxis().set_visible(False)
         for lib, linestyle in linestyles.items():
-            twin.plot([], [], linestyle=linestyle, label=lib, color="black")
+            twin.plot([], linestyle=linestyle, label=lib, color="black")
         twin.legend(loc="lower right")
     fig.tight_layout()
     fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
