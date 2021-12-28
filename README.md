@@ -196,9 +196,9 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 
 ## Python 3
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/157/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/128/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/213/)
+  - [dense graph of order 100](doc/details_python3_100.svg)
+  - [plain graph of order 10k](doc/details_python3_10k.svg)
+  - [very sparse graph of order 1M](doc/details_python3_1M.svg)
 
 Perform
 
@@ -212,9 +212,10 @@ Perform
 
 ## Rust
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/153/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/124/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/155/)
+  - [dense graph of order 100](doc/details_rust_100.svg)
+  - [plain graph of order 10k](doc/details_rust_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_rust_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_rust_1M.svg)
 
 Perform
 
@@ -225,9 +226,10 @@ Perform
 
 ## Go
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/183/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/187/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/189/)
+  - [dense graph of order 100](doc/details_go_100.svg)
+  - [plain graph of order 10k](doc/details_go_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_go_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_go_1M.svg)
 
 Perform
 
@@ -243,9 +245,10 @@ On MSYS2:
 
 ## C#
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/237/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/239/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/261/)
+  - [dense graph of order 100](doc/details_csharp_100.svg)
+  - [plain graph of order 10k](doc/details_csharp_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_csharp_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_csharp_1M.svg)
 
 Perform
   - open csharp\BronKerboschStudy.sln with Visual Studio 2022
@@ -258,17 +261,18 @@ Perform
 
 ## C++ 20
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/418/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/422/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/449/)
+  - [dense graph of order 100](doc/details_c++_100.svg)
+  - [plain graph of order 10k](doc/details_c++_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_c++_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_c++_1M.svg)
 
 Either:
   - clone/export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
   - open cpp\BronKerboschStudy.sln with Visual Studio 2022
-  - set directory to cppcoro:
+  - set directory to cppcoro (if not `..\cppcoro` relative to Bron-Kerbosch):
     - View > Other Windows > Property Manager
     - in the tree, descend to any project and configuration, open propery page "BronKerboschStudyGeneral"
-    - in User Macros, set `CppcoroDir` (default `..\..\..\cppcoro`)
+    - in User Macros, set `CppcoroDir`
   - set configuration to Debug
   - Test > Run > All Tests
   - set configuration to Release
@@ -277,9 +281,10 @@ Either:
 
 ## Java
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/275/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/277/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/279/)
+  - [dense graph of order 100](doc/details_java_100.svg)
+  - [plain graph of order 10k](doc/details_java_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_java_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_java_1M.svg)
 
 Perform
   - open folder java with IntelliJ IDEA 2021 (Community Edition)
@@ -291,9 +296,10 @@ Perform
 
 ## Scala
 To obtain these results:
-  - [dense graph of order 100](https://plotly.com/~stein.somers/197/)
-  - [plain graph of order 10k](https://plotly.com/~stein.somers/199/)
-  - [sparse graph of order 1M](https://plotly.com/~stein.somers/201/)
+  - [dense graph of order 100](doc/details_scala_100.svg)
+  - [plain graph of order 10k](doc/details_scala_10k.svg)
+  - [extremely sparse graph of order 1M](doc/details_scala_1M_initial.svg)
+  - [sparse graph of order 1M](doc/details_scala_1M.svg)
 
 Perform
   - open folder scala with IntelliJ IDEA 2021 (Community Edition)

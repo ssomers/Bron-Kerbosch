@@ -282,7 +282,12 @@ fn main() -> Result<(), std::io::Error> {
             "100",
             (2_000..=3_000).step_by(50), // max 4_950
             5,
-            |_set_type: SetType, _size: usize| -> Vec<usize> { (0..NUM_FUNCS).collect() },
+            |set_type: SetType, _size: usize| -> Vec<usize> {
+                match set_type {
+                    SetType::HashSet => (0..NUM_FUNCS).collect(),
+                    _ => vec![1, 4, 7, 9],
+                }
+            },
         )?;
         thread::sleep(Duration::from_secs(7));
         bk(
@@ -292,22 +297,25 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((10_000..100_000).step_by(10_000))
                 .chain((100_000..=200_000).step_by(25_000)),
             3,
-            |_set_type: SetType, _size: usize| -> Vec<usize> {
-                // Skip Ver1 (already rejected) and Ver2-RP (not interesting in random graph)
-                vec![2, 3, 4, 5, 7, 8, 9]
+            |set_type: SetType, _size: usize| -> Vec<usize> {
+                match set_type {
+                    SetType::HashSet => vec![2, 3, 4, 5, 7, 8, 9],
+                    _ => vec![2, 4, 7, 9],
+                }
             },
         )?;
         thread::sleep(Duration::from_secs(7));
         bk(
             "1M",
             std::iter::empty()
+                .chain((10_000..50_000).step_by(10_000))
                 .chain((50_000..250_000).step_by(50_000))
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::OrdVec if size > 100_000 => vec![],
+                    SetType::OrdVec if size > 100_000 => vec![4],
                     SetType::BTreeSet if size > 3_000_000 => vec![],
                     _ => vec![4, 7, 9],
                 }

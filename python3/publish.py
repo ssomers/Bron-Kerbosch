@@ -1,11 +1,14 @@
+from collections import OrderedDict
 from stats import SampleStatistics
+from bisect import bisect_left
 import csv
 import math
 import os
 import sys
 from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
-figsize = (8, 6)  # in hectopixels
+figsize_inline = (8, 6)  # in hectopixels
+figsize_detail = (12, 9)  # in hectopixels
 
 
 def lang_name(case_name: str) -> str:
@@ -19,12 +22,12 @@ def func_name(case_name: str) -> str:
 def color_by_func_name(case_name: str) -> str:
     return {
         "Ver1": "#000099",
-        "Ver1½": "#3333CC",
+        "Ver1½": "#6666FF",
         "Ver2": "#660000",
-        "Ver2½": "#990000",
-        "Ver2-GP": "#996600",
-        "Ver2½-GP": "#FF3300",
-        "Ver2½-GPX": "#FF9933",
+        "Ver2½": "#CC0000",
+        "Ver2-GP": "#666633",
+        "Ver2½-GP": "#FF6600",
+        "Ver2½-GPX": "#FFCC33",
         "Ver2½-RP": "#FF00CC",
         "Ver3½": "#006600",
         "Ver3½-GP": "#339900",
@@ -51,19 +54,18 @@ def color_by_language(case_name: str) -> str:
     }[lang_name(case_name)]
 
 
-def dash_by_lib(case_name: str) -> str:
-    if case_name.endswith("@BTreeSet") or case_name.endswith("@std_set"):
-        return "dot"
-    if case_name.endswith("@ord_vec"):
-        return "dash"
-    if case_name.endswith("@fnv"):
-        return "dashdot"
-    if case_name.endswith("@hashbrown"):
-        return "longdash"
-    return "solid"
+def linestyle_by_lib(lib: str) -> object:
+    return {
+        "BTree": "dotted",
+        "std_set": "dotted",
+        "ord_vec": "dashed",
+        "hashbrown": "dashdot",
+        "fnv": (0, (4, 2, 1, 1, 1, 2)),
+    }.get(lib)
 
 
 class Measurement(object):
+
     def __init__(self, min: float, mean: float, max: float) -> None:
         self.min = min
         self.mean = mean
@@ -100,13 +102,13 @@ def read_csv(
     language: str,
     orderstr: str,
     case_name_selector: Mapping[str, str] = {}
-) -> Tuple[str, List[int], Mapping[str, List[Measurement]]]:
+) -> Tuple[List[int], Mapping[str, List[Measurement]]]:
     filename = f"bron_kerbosch_{language}_order_{orderstr}"
     path = filename + ".csv"
     if not os.path.exists(path):
         path = os.path.join(os.pardir, path)
     sizes = []
-    measurement_per_size_by_case_name: Dict[str, List[Measurement]] = {}
+    m_per_size_by_case_name: Dict[str, List[Measurement]] = {}
     with open(path, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         head = next(reader)
@@ -145,56 +147,96 @@ def read_csv(
                     m = Measurement(min=float(row[c * 3 + 1]),
                                     mean=float(row[c * 3 + 2]),
                                     max=float(row[c * 3 + 3]))
-                    measurement_per_size_by_case_name.setdefault(
-                        published_name, []).append(m)
+                    m_per_size_by_case_name.setdefault(published_name,
+                                                       []).append(m)
 
-    for case_name in list(measurement_per_size_by_case_name.keys()):
-        if all(measurement_per_size_by_case_name[case_name][s].isnan()
+    for case_name in list(m_per_size_by_case_name.keys()):
+        if all(m_per_size_by_case_name[case_name][s].isnan()
                for s in range(len(sizes))):
             print(f"{filename}: backing out on {case_name}")
-            del measurement_per_size_by_case_name[case_name]
-    return filename, sizes, measurement_per_size_by_case_name
+            del m_per_size_by_case_name[case_name]
+    return sizes, m_per_size_by_case_name
+
+
+def import_matplotlib() -> bool:
+    try:
+        import matplotlib  # type: ignore
+    except ImportError as e:
+        print(f"{e} (maybe you want to `pip install matplotlib`?)")
+        return False
+    else:
+        matplotlib.rcParams['svg.hashsalt'] = "Bron-Kerbosch"
+        return True
 
 
 def publish_whole_csv(language: str, orderstr: str) -> None:
     m_per_size_by_case_name: Mapping[str, List[Measurement]]
-    filename, sizes, m_per_size_by_case_name = read_csv(language, orderstr)
+    sizes, m_per_size_by_case_name = read_csv(language, orderstr)
+    filename = f'details_{language.replace("c#", "csharp")}_{orderstr}'
     assert sizes
     assert m_per_size_by_case_name
-    try:
-        from chart_studio import plotly  # type: ignore
-        from plotly import io as plotly_io  # type: ignore
-        from plotly import graph_objects
-    except ImportError as e:
-        print(f"{e} (maybe you want to `pip install chart-studio`?)")
-    else:
-        plotly_io.templates.default = "none"  # disable default 4.0 theme
-        traces = [
-            graph_objects.Scatter(
-                x=sizes,
-                y=[m.mean for m in m_per_size],
-                error_y=dict(
-                    type="data",
-                    array=[m.error_plus() for m in m_per_size],
-                    arrayminus=[m.error_minus() for m in m_per_size],
-                ),
-                hoverinfo="name",
-                line=dict(color=color_by_func_name(case_name),
-                          dash=dash_by_lib(case_name)),
-                marker=dict(color=color_by_func_name(case_name)),
-                mode="lines+markers",
-                name=case_name,
-            ) for case_name, m_per_size in m_per_size_by_case_name.items()
-        ]
-        layout = dict(
-            title='<a href="https://github.com/ssomers/Bron-Kerbosch">' +
-            f"{language.capitalize()} implementations of Bron-Kerbosch</a>" +
-            f" on a random graph of order {orderstr}",
-            xaxis=dict(title="Size (#edges)"),
-            yaxis=dict(title="Seconds spent"),
-        )
-        plotly.plot(figure_or_data=dict(data=traces, layout=layout),
-                    filename=filename)
+    assert all(
+        len(m_per_size) == len(sizes)
+        for m_per_size in m_per_size_by_case_name.values())
+    if import_matplotlib():
+        if sizes[-1] > 1_000_000:
+            cutoff = bisect_left(sizes, 500_000)
+            publish_details(
+                language, orderstr, filename + "_initial", sizes[:cutoff], {
+                    case_name: m_per_size[:cutoff]
+                    for case_name, m_per_size in
+                    m_per_size_by_case_name.items()
+                })
+            publish_details(
+                language, orderstr, filename, sizes[cutoff:], {
+                    case_name: m_per_size[cutoff:]
+                    for case_name, m_per_size in m_per_size_by_case_name.items(
+                    ) if not all(m.isnan() for m in m_per_size[cutoff:])
+                })
+        else:
+            publish_details(language, orderstr, filename, sizes,
+                            m_per_size_by_case_name)
+
+
+def publish_details(
+        language: str, orderstr: str, filename: str, sizes: List[int],
+        m_per_size_by_case_name: Mapping[str, List[Measurement]]) -> None:
+    assert sizes
+    assert m_per_size_by_case_name
+    assert all(
+        len(m_per_size) == len(sizes)
+        for m_per_size in m_per_size_by_case_name.values())
+    from matplotlib import pyplot
+    fig, axes = pyplot.subplots(figsize=figsize_detail)
+    axes.set_title(f"{language.capitalize()} implementations of " +
+                   f"Bron-Kerbosch on a random graph of order {orderstr}")
+    axes.set_xlabel("Size (#edges)")
+    axes.set_ylabel("Seconds spent")
+    axes.set_yscale("log")
+    linestyles: Dict[str, object] = OrderedDict()
+    for case_name, m_per_size in m_per_size_by_case_name.items():
+        names = case_name.split('@')
+        func_name = names[0]
+        lib = (names + [""])[1]
+        linestyle = linestyle_by_lib(lib)
+        linestyles.setdefault(lib, linestyle)
+        axes.errorbar(x=sizes[:len(m_per_size)],
+                      y=[m.mean for m in m_per_size],
+                      yerr=[[m.error_minus() for m in m_per_size],
+                            [m.error_plus() for m in m_per_size]],
+                      label=func_name if linestyle is None else None,
+                      capsize=3,
+                      color=color_by_func_name(case_name),
+                      linestyle=linestyle)
+    axes.legend(loc="upper left")
+    if len(linestyles) > 1:
+        twin = axes.twinx()
+        twin.get_yaxis().set_visible(False)
+        for lib, linestyle in linestyles.items():
+            twin.plot([], [], linestyle=linestyle, label=lib, color="black")
+        twin.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
 
 
 def publish_measurements(
@@ -208,33 +250,28 @@ def publish_measurements(
         dash_by_case: Optional[Callable[[str], str]] = None) -> None:
     assert sizes
     assert measurement_per_size_by_case_name, filename
-    try:
-        import matplotlib  # type: ignore
+    if import_matplotlib():
         from matplotlib import pyplot
-    except ImportError as e:
-        print(f"{e} (maybe you want to `pip install matplotlib`?)")
-    else:
-        matplotlib.rcParams['svg.hashsalt'] = "Bron-Kerbosch"
-        fig, ax = pyplot.subplots(figsize=figsize)
-        ax.set_title(
+        fig, axes = pyplot.subplots(figsize=figsize_inline)
+        axes.set_title(
             (f"{language.capitalize()} implementations of "
              if language else "") +
             f"Bron-Kerbosch{suffix} on a random graph of order {orderstr}",
             loc="left")
-        ax.set_xlabel("Size (#edges)")
-        ax.set_ylabel("Seconds spent")
+        axes.set_xlabel("Size (#edges)")
+        axes.set_ylabel("Seconds spent")
         for case_name, m_per_size in measurement_per_size_by_case_name.items():
-            ax.errorbar(x=sizes[:len(m_per_size)],
-                        y=[m.mean for m in m_per_size],
-                        yerr=[[m.error_minus() for m in m_per_size],
-                              [m.error_plus() for m in m_per_size]],
-                        label=case_name,
-                        capsize=3,
-                        color=(None if color_by_case is None else
-                               color_by_case(case_name)),
-                        linestyle=(None if dash_by_case is None else
-                                   dash_by_case(case_name)))
-        ax.legend(loc="upper left")
+            axes.errorbar(x=sizes[:len(m_per_size)],
+                          y=[m.mean for m in m_per_size],
+                          yerr=[[m.error_minus() for m in m_per_size],
+                                [m.error_plus() for m in m_per_size]],
+                          label=case_name,
+                          capsize=3,
+                          color=(None if color_by_case is None else
+                                 color_by_case(case_name)),
+                          linestyle=(None if dash_by_case is None else
+                                     dash_by_case(case_name)))
+        axes.legend(loc="upper left")
         fig.tight_layout()
         fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
         pyplot.close(fig)
@@ -253,7 +290,7 @@ def publish_report(orderstr: str,
         lang_lib = langlib.split('@', 1)
         lang = lang_lib[0].capitalize()
         lib = ("@" + lang_lib[1]) if len(lang_lib) > 1 else ""
-        filename1, sizes1, measurements1 = read_csv(
+        sizes1, measurements1 = read_csv(
             language=lang,
             orderstr=orderstr,
             case_name_selector={
@@ -263,8 +300,12 @@ def publish_report(orderstr: str,
                  f"{lang}" if single_version else f"{lang}{lib} {ver}")
                 for ver in versions
             })
+        if orderstr == "1M":
+            cutoff = bisect_left(sizes1, 250_000)
+            sizes1 = sizes1[cutoff:]
+            measurements1 = {n: m[cutoff:] for n, m in measurements1.items()}
         if sizes[:len(sizes1)] != sizes1[:len(sizes)]:
-            raise ImportError(f"{sizes} != {sizes1} in {filename1}")
+            raise ImportError(f"{sizes} != {sizes1} for {lang} {orderstr}")
         if len(sizes) < len(sizes1):
             sizes = sizes1
         measurements.update(measurements1)
@@ -344,13 +385,14 @@ def publish_reports() -> None:
                        orderstr=orderstr,
                        langlibs=[
                            "python3", "scala", "java", "go", "c#",
-                           "c++@hashset", "rust@fnv"
+                           "c++@hashset", "rust@Hash"
                        ],
-                       versions=["Ver3½-GP"])
+                       versions=["Ver3½-GP"],
+                       single_version="Ver3½-GP")
         publish_report(
             filename=f"report_6_channels_{orderstr}",
             orderstr=orderstr,
-            langlibs=["java", "go", "c#", "c++@hashset", "rust@fnv"],
+            langlibs=["java", "go", "c#", "c++@hashset", "rust@Hash"],
             versions=["Ver3½=GPc", "Ver3½=GP3"],
             single_version="parallel Ver3½=GP using channels")
         publish_report(filename=f"report_6_parallel_{orderstr}",
