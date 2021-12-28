@@ -18,7 +18,7 @@ namespace BronKerbosch
             var numLeftToPick = 0;
             foreach (int i in Enumerable.Range(0, graph.Order))
             {
-                var c = Vertex.nth(i);
+                var c = Vertex.Nth(i);
                 var degree = graph.Degree(c);
                 if (degree > 0)
                 {
@@ -33,10 +33,12 @@ namespace BronKerbosch
             //   no_priority: when yielded or if unconnected
             //   0..maxPriority: candidates still queued with priority (degree - #of yielded neighbours)
             var q = new PriorityQueue(maxPriority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => (Vertex.nth(i), p)))
+            foreach (var (c, p) in priorityPerVertex.Select((p, i) => (Vertex.Nth(i), p)))
             {
                 if (p > 0)
+                {
                     q.Put(priority: p, element: c);
+                }
             }
 
             numLeftToPick -= drop;

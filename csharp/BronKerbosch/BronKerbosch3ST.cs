@@ -25,17 +25,23 @@ internal static class BronKerbosch3ST
         public void Record(ImmutableArray<Vertex> clique)
         {
             if (Target is null)
-                throw new Exception("Record after Close");
+            {
+                throw new InvalidOperationException("Record after Close");
+            }
+
             if (!Target.Post(clique))
             {
-                throw new Exception("Record failed");
+                throw new InvalidOperationException("Record failed");
             }
         }
 
         public void Close()
         {
             if (Target is null)
-                throw new Exception("Close after Close");
+            {
+                throw new InvalidOperationException("Close after Close");
+            }
+
             Target = null;
         }
     }
@@ -69,7 +75,7 @@ internal static class BronKerbosch3ST
                 if (neighbouringCandidates.Any())
                 {
                     var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
-                    Interlocked.Increment(ref waitgroup);
+                    _ = Interlocked.Increment(ref waitgroup);
                     _ = Task.Run(delegate
                         {
                             Pivot.Visit(graph, reporter, Pivot.Choice.MaxDegreeLocal,
@@ -81,19 +87,20 @@ internal static class BronKerbosch3ST
                 {
                     Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
                 }
-                excluded.Add(v);
+                var added = excluded.Add(v);
+                Debug.Assert(added);
                 ++received;
             });
-        visit.Completion.ContinueWith(completion, scheduler);
+        _ = visit.Completion.ContinueWith(completion, scheduler);
 
         // Step 1: feed vertices in order.
-        Task.Run(delegate
+        _ = Task.Run(delegate
             {
                 foreach (var v in Degeneracy.Ordering(graph, drop: 1))
                 {
                     while (!visit.Post(v))
                     {
-                        throw new Exception("Post failed");
+                        throw new InvalidOperationException("Post failed");
                     }
                     ++sent;
                 }
@@ -102,6 +109,8 @@ internal static class BronKerbosch3ST
 
         collect.Completion.Wait();
         if (sent != received)
-            throw new Exception($"{sent} sent <> {received} received");
+        {
+            throw new InvalidOperationException($"{sent} sent <> {received} received");
+        }
     }
 }

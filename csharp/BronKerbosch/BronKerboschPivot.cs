@@ -19,12 +19,14 @@ namespace BronKerbosch
         {
             var order = graph.Order;
             if (order == 0)
+            {
                 return;
+            }
             var pivot = graph.MaxDegreeVertex();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             var excluded = new HashSet<Vertex>(capacity: order);
-            foreach (var v in Enumerable.Range(0, order).Select(Vertex.nth))
+            foreach (var v in Enumerable.Range(0, order).Select(Vertex.Nth))
             {
                 var neighbours = graph.Neighbours(v);
                 if (neighbours.Any() && !neighbours.Contains(pivot))
@@ -37,7 +39,8 @@ namespace BronKerbosch
                               neighbouringCandidates, neighbouringExcluded,
                               ImmutableArray.Create<Vertex>(v));
                     }
-                    excluded.Add(v);
+                    var added = excluded.Add(v);
+                    Debug.Assert(added);
                 }
             }
         }
@@ -56,7 +59,10 @@ namespace BronKerbosch
                 var v = candidates.First();
                 var neighbours = graph.Neighbours(v);
                 if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                {
                     reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                }
+
                 return;
             }
 
@@ -65,7 +71,7 @@ namespace BronKerbosch
             var remainingCandidateCount = 0;
             // Quickly handle locally unconnected candidates while finding pivot
             const int INVALID = int.MaxValue;
-            pivot = Vertex.nth(INVALID);
+            pivot = Vertex.Nth(INVALID);
             var seenLocalDegree = 0;
             foreach (var v in candidates)
             {
@@ -75,7 +81,9 @@ namespace BronKerbosch
                 {
                     // Same logic as below, stripped down
                     if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                    {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                    }
                 }
                 else
                 {
@@ -89,7 +97,10 @@ namespace BronKerbosch
                 }
             }
             if (seenLocalDegree == 0)
+            {
                 return;
+            }
+
             Debug.Assert(pivot.index != INVALID);
             if (choice == Choice.MaxDegreeLocalX)
             {
@@ -112,7 +123,8 @@ namespace BronKerbosch
                 Debug.Assert(neighbours.Any());
                 if (!neighbours.Contains(pivot))
                 {
-                    candidates.Remove(v);
+                    var removed = candidates.Remove(v);
+                    Debug.Assert(removed);
                     var neighbouringCandidates = CollectionsUtil.Intersection(neighbours, candidates);
                     if (neighbouringCandidates.Any())
                     {
@@ -125,7 +137,8 @@ namespace BronKerbosch
                     {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }
-                    excluded.Add(v);
+                    var added = excluded.Add(v);
+                    Debug.Assert(added);
                 }
             }
         }

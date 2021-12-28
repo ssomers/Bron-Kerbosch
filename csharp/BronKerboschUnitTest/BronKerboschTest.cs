@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System.Collections.Immutable;
 using System.Linq;
+#pragma warning disable CA1825 // Avoid zero-length array allocations
 
 namespace BronKerboschUnitTest
 {
@@ -9,9 +10,9 @@ namespace BronKerboschUnitTest
     {
         private static void Bk(int[][] adjacencies, int[][] cliques)
         {
-            var adjacencies2 = adjacencies.Select(neighbours => neighbours.Select(i => Vertex.nth(i)).ToHashSet())
+            var adjacencies2 = adjacencies.Select(neighbours => neighbours.Select(i => Vertex.Nth(i)).ToHashSet())
                                  .ToImmutableArray();
-            var cliques2 = cliques.Select(clique => clique.Select(i => Vertex.nth(i)).ToArray()).ToArray();
+            var cliques2 = cliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray()).ToArray();
             var graph = new UndirectedGraph(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {

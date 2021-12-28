@@ -32,22 +32,30 @@ namespace BronKerbosch
         public static void SortCliques(List<ImmutableArray<Vertex>> cliques)
         {
             for (var i = 0; i < cliques.Count; ++i)
+            {
                 cliques[i] = cliques[i].Sort();
+            }
             cliques.Sort(Comparer);
         }
 
         public static void AssertSameCliques(List<ImmutableArray<Vertex>> lhs, List<ImmutableArray<Vertex>> rhs)
         {
             if (lhs.Count != rhs.Count)
-                throw new Exception($"{lhs.Count} cliques <> {rhs.Count} cliques");
+            {
+                throw new ArgumentException($"{lhs.Count} cliques <> {rhs.Count} cliques");
+            }
             for (var i = 0; i < lhs.Count; ++i)
             {
                 if (lhs[i].Length != rhs[i].Length)
-                    throw new Exception($"clique #{i + 1}: length {lhs[i].Length} <> length {rhs[i].Length}");
+                {
+                    throw new ArgumentException($"clique #{i + 1}: length {lhs[i].Length} <> length {rhs[i].Length}");
+                }
                 for (var j = 0; j < lhs[i].Length; ++j)
                 {
                     if (lhs[i][j] != rhs[i][j])
-                        throw new Exception($"clique #{i + 1}, vertex #{j + 1}: {lhs[i][j]} <> {rhs[i][j]}");
+                    {
+                        throw new ArgumentException($"clique #{i + 1}, vertex #{j + 1}: {lhs[i][j]} <> {rhs[i][j]}");
+                    }
                 }
             }
         }

@@ -46,7 +46,8 @@ internal static class BronKerbosch1
             {
                 reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
             }
-            excluded.Add(v);
+            var added = excluded.Add(v);
+            Debug.Assert(added);
         }
     }
 }

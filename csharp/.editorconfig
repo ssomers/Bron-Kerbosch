@@ -3,14 +3,43 @@
 # All files
 [*]
 indent_style = space
+end_of_line=lf
+insert_final_newline=true
+guidelines = 96
 
 # Xml files
 [*.xml]
 indent_size = 2
 
 [*.cs]
-dotnet_diagnostic.CA1062.severity = none
-dotnet_diagnostic.CA1303.severity = none
-dotnet_diagnostic.CA1305.severity = none
-dotnet_diagnostic.CA1307.severity = none
-dotnet_diagnostic.CA1815.severity = none
+dotnet_analyzer_diagnostic.severity = suggestion
+
+# CA1051: Do not declare visible instance fields
+dotnet_diagnostic.CA1051.severity = silent
+
+# CA1305: The behavior of … could vary based on the current user's locale settings. Replace this call in … with a call to ….
+dotnet_diagnostic.CA1305.severity = suggestion
+
+# CA1310: The behavior of … could vary based on the current user's locale settings. Replace this call in … with a call to ….
+dotnet_diagnostic.CA1310.severity = suggestion
+
+# CA1707: Remove the underscores from member name …
+dotnet_diagnostic.CA1707.severity = suggestion
+
+# IDE0008: Use explicit type instead of 'var'
+dotnet_diagnostic.IDE0008.severity = none
+
+# IDE0046: Convert to conditional expression
+dotnet_diagnostic.IDE0046.severity = suggestion
+
+# IDE0065: Using directives must be placed outside of a namespace declaration
+dotnet_diagnostic.IDE0065.severity =silent
+
+csharp_style_expression_bodied_methods =when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors=false:suggestion
+csharp_style_expression_bodied_operators =when_on_single_line:suggestion
+csharp_style_expression_bodied_properties=true:suggestion
+csharp_style_expression_bodied_indexers=true:suggestion
+csharp_style_expression_bodied_accessors=true:suggestion
+csharp_style_expression_bodied_lambdas=true:suggestion
+csharp_style_expression_bodied_local_functions=false:suggestion

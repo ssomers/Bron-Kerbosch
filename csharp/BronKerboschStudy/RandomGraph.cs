@@ -18,11 +18,17 @@ namespace BronKerboschStudy
         public static int ParsePositiveInt(string orderstr)
         {
             if (orderstr.EndsWith("M"))
+            {
                 return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000_000;
+            }
             else if (orderstr.EndsWith("k"))
+            {
                 return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000;
+            }
             else
+            {
                 return int.Parse(orderstr);
+            }
         }
 
         public static RandomUndirectedGraph Read(string orderstr, int size)
@@ -61,8 +67,8 @@ namespace BronKerboschStudy
                     {
                         throw new ArgumentException($"File {path} line {linenum} contains bogus text {line}");
                     }
-                    var added1 = adjacencies[v].Add(Vertex.nth(w));
-                    var added2 = adjacencies[w].Add(Vertex.nth(v));
+                    var added1 = adjacencies[v].Add(Vertex.Nth(w));
+                    var added2 = adjacencies[w].Add(Vertex.Nth(v));
                     Debug.Assert(added1);
                     Debug.Assert(added2);
                 }
@@ -84,7 +90,7 @@ namespace BronKerboschStudy
             {
                 if (line.StartsWith(prefix))
                 {
-                    if (!int.TryParse(line.Substring(prefix.Length), out var c))
+                    if (!int.TryParse(line.AsSpan(prefix.Length), out var c))
                     {
                         throw new ArgumentException($"File {path} has bogus line “{line}”");
                     }

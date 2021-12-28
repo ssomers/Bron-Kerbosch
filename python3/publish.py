@@ -81,12 +81,17 @@ class Measurement(object):
         return self.mean - self.min
 
 
+def csv_basename(language: str, orderstr: str) -> str:
+    lang = language.replace('c#', 'csharp')
+    return f"bron_kerbosch_{lang}_order_{orderstr}.csv"
+
+
 def publish(
         language: str, orderstr: str, case_names: Sequence[str],
         stats_per_func_by_size: Mapping[int, List[SampleStatistics]]) -> None:
     num_cases = len(case_names)
-    filename = f"bron_kerbosch_{language}_order_{orderstr}"
-    path = os.path.join(os.pardir, filename + ".csv")
+    filename = csv_basename(language, orderstr)
+    path = os.path.join(os.pardir, filename)
     with open(path, 'w', newline='', encoding='utf-8') as csvfile:
         w = csv.writer(csvfile)
         w.writerow(["Size"] + [(f"{name} {t}") for name in case_names
@@ -103,10 +108,10 @@ def read_csv(
     orderstr: str,
     case_name_selector: Mapping[str, str] = {}
 ) -> Tuple[List[int], Mapping[str, List[Measurement]]]:
-    filename = f"bron_kerbosch_{language}_order_{orderstr}"
-    path = filename + ".csv"
+    filename = csv_basename(language, orderstr)
+    path = os.path.join(os.pardir, filename)
     if not os.path.exists(path):
-        path = os.path.join(os.pardir, path)
+        path = filename
     sizes = []
     m_per_size_by_case_name: Dict[str, List[Measurement]] = {}
     with open(path, newline='', encoding='utf-8') as csvfile:
@@ -172,7 +177,7 @@ def import_matplotlib() -> bool:
 def publish_whole_csv(language: str, orderstr: str) -> None:
     m_per_size_by_case_name: Mapping[str, List[Measurement]]
     sizes, m_per_size_by_case_name = read_csv(language, orderstr)
-    filename = f'details_{language.replace("c#", "csharp")}_{orderstr}'
+    basename = f'details_{language.replace("c#", "csharp")}_{orderstr}'
     assert sizes
     assert m_per_size_by_case_name
     assert all(
@@ -182,24 +187,24 @@ def publish_whole_csv(language: str, orderstr: str) -> None:
         if sizes[-1] > 1_000_000:
             cutoff = bisect_left(sizes, 500_000)
             publish_details(
-                language, orderstr, filename + "_initial", sizes[:cutoff], {
+                language, orderstr, basename + "_initial", sizes[:cutoff], {
                     case_name: m_per_size[:cutoff]
                     for case_name, m_per_size in
                     m_per_size_by_case_name.items()
                 })
             publish_details(
-                language, orderstr, filename, sizes[cutoff:], {
+                language, orderstr, basename, sizes[cutoff:], {
                     case_name: m_per_size[cutoff:]
                     for case_name, m_per_size in m_per_size_by_case_name.items(
                     ) if not all(m.isnan() for m in m_per_size[cutoff:])
                 })
         else:
-            publish_details(language, orderstr, filename, sizes,
+            publish_details(language, orderstr, basename, sizes,
                             m_per_size_by_case_name)
 
 
 def publish_details(
-        language: str, orderstr: str, filename: str, sizes: List[int],
+        language: str, orderstr: str, basename: str, sizes: List[int],
         m_per_size_by_case_name: Mapping[str, List[Measurement]]) -> None:
     assert sizes
     assert m_per_size_by_case_name
@@ -236,20 +241,20 @@ def publish_details(
             twin.plot([], linestyle=linestyle, label=lib, color="black")
         twin.legend(loc="lower right")
     fig.tight_layout()
-    fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
+    fig.savefig(basename + ".svg", bbox_inches=0, pad_inches=0)
 
 
 def publish_measurements(
         language: Optional[str],
         orderstr: str,
-        filename: str,
+        basename: str,
         sizes: List[int],
         measurement_per_size_by_case_name: Mapping[str, List[Measurement]],
         suffix: str,
         color_by_case: Optional[Callable[[str], str]] = None,
         dash_by_case: Optional[Callable[[str], str]] = None) -> None:
     assert sizes
-    assert measurement_per_size_by_case_name, filename
+    assert measurement_per_size_by_case_name, basename
     if import_matplotlib():
         from matplotlib import pyplot
         fig, axes = pyplot.subplots(figsize=figsize_inline)
@@ -273,12 +278,12 @@ def publish_measurements(
                                      dash_by_case(case_name)))
         axes.legend(loc="upper left")
         fig.tight_layout()
-        fig.savefig(filename + ".svg", bbox_inches=0, pad_inches=0)
+        fig.savefig(basename + ".svg", bbox_inches=0, pad_inches=0)
         pyplot.close(fig)
 
 
 def publish_report(orderstr: str,
-                   filename: str,
+                   basename: str,
                    langlibs: Sequence[str],
                    versions: Sequence[str],
                    single_version: Optional[str] = None) -> None:
@@ -288,16 +293,16 @@ def publish_report(orderstr: str,
     single_language = languages.pop() if len(languages) == 1 else None
     for langlib in langlibs:
         lang_lib = langlib.split('@', 1)
-        lang = lang_lib[0].capitalize()
+        lang = lang_lib[0]
         lib = ("@" + lang_lib[1]) if len(lang_lib) > 1 else ""
         sizes1, measurements1 = read_csv(
             language=lang,
             orderstr=orderstr,
             case_name_selector={
-                f"{ver}{lib}":
-                (f"{lib}" if single_language and single_version else
-                 f"{ver}{lib}" if single_language else
-                 f"{lang}" if single_version else f"{lang}{lib} {ver}")
+                f"{ver}{lib}": (f"{lib}" if single_language and single_version
+                                else f"{ver}{lib}" if single_language else
+                                (lang.capitalize() +
+                                 ("" if single_version else f"{lib} {ver}")))
                 for ver in versions
             })
         if orderstr == "1M":
@@ -320,7 +325,7 @@ def publish_report(orderstr: str,
     publish_measurements(
         language=single_language,
         orderstr=orderstr,
-        filename=filename,
+        basename=basename,
         sizes=sizes,
         suffix="" if single_version is None else " " + single_version,
         measurement_per_size_by_case_name=measurements,
@@ -330,12 +335,12 @@ def publish_report(orderstr: str,
 
 def publish_reports() -> None:
     # 1. Ver1 vs. Ver1½
-    publish_report(filename="report_1",
+    publish_report(basename="report_1",
                    orderstr="100",
                    langlibs=["python3", "rust@Hash"],
                    versions=["Ver1", "Ver1½"])
     # 2. Ver1 vs. Ver2
-    publish_report(filename="report_2",
+    publish_report(basename="report_2",
                    orderstr="100",
                    langlibs=["java", "scala", "rust@Hash"],
                    versions=["Ver1½", "Ver2½"])
@@ -344,17 +349,16 @@ def publish_reports() -> None:
         for langlib in ["rust@Hash", "java"]:
             lang = langlib.split('@', 1)[0]
             publish_report(
-                filename=f"report_3_{lang}_{orderstr}",
+                basename=f"report_3_{lang}_{orderstr}",
                 orderstr=orderstr,
                 langlibs=[langlib],
                 versions=["Ver2½", "Ver2½-RP", "Ver2½-GP", "Ver2½-GPX"])
     # 4. Ver2 vs. Ver3
     for orderstr in ["10k", "1M"]:
         for langlib in ["python3", "c#"]:
-            lang = langlib.split('@', 1)[0]
             lang = langlib.split('@', 1)[0].replace("c#", "csharp")
             publish_report(
-                filename=f"report_4_{lang}_{orderstr}",
+                basename=f"report_4_{lang}_{orderstr}",
                 orderstr=orderstr,
                 langlibs=[langlib],
                 versions=["Ver2½-GP", "Ver2½-GPX", "Ver3½-GP", "Ver3½-GPX"])
@@ -362,17 +366,17 @@ def publish_reports() -> None:
         for langlib in ["rust@Hash", "java"]:
             lang = langlib.split('@', 1)[0]
             publish_report(
-                filename=f"report_4_{lang}_{orderstr}",
+                basename=f"report_4_{lang}_{orderstr}",
                 orderstr=orderstr,
                 langlibs=[langlib],
                 versions=["Ver2½-GP", "Ver2½-GPX", "Ver3½-GP", "Ver3½-GPX"])
     # 5. Parallelism
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"report_5_java_{orderstr}",
+        publish_report(basename=f"report_5_java_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java"],
                        versions=["Ver3½-GP", "Ver3½=GPs", "Ver3½=GPc"])
-        publish_report(filename=f"report_5_go_{orderstr}",
+        publish_report(basename=f"report_5_go_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["go"],
                        versions=[
@@ -381,7 +385,7 @@ def publish_reports() -> None:
                        ])
     # 6. Languages
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"report_6_{orderstr}",
+        publish_report(basename=f"report_6_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
                            "python3", "scala", "java", "go", "c#",
@@ -390,19 +394,19 @@ def publish_reports() -> None:
                        versions=["Ver3½-GP"],
                        single_version="Ver3½-GP")
         publish_report(
-            filename=f"report_6_channels_{orderstr}",
+            basename=f"report_6_channels_{orderstr}",
             orderstr=orderstr,
             langlibs=["java", "go", "c#", "c++@hashset", "rust@Hash"],
             versions=["Ver3½=GPc", "Ver3½=GP3"],
             single_version="parallel Ver3½=GP using channels")
-        publish_report(filename=f"report_6_parallel_{orderstr}",
+        publish_report(basename=f"report_6_parallel_{orderstr}",
                        orderstr=orderstr,
                        langlibs=["java", "scala"],
                        versions=["Ver3½=GPs"],
                        single_version="simple parallel Ver3½=GP")
     # 7. Libraries
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(filename=f"report_7_rust_{orderstr}",
+        publish_report(basename=f"report_7_rust_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
                            "rust@BTree",
@@ -414,7 +418,7 @@ def publish_reports() -> None:
                        versions=["Ver3½-GP"],
                        single_version="Ver3½-GP")
     for orderstr in ["100", "10k"]:
-        publish_report(filename=f"report_7_c++_{orderstr}",
+        publish_report(basename=f"report_7_c++_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
                            "c++@hashset",

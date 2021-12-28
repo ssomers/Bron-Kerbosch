@@ -6,9 +6,6 @@ namespace BronKerbosch
     {
         public int Cliques { get; private set; }
 
-        public void Record(ImmutableArray<Vertex> clique)
-        {
-            Cliques += 1;
-        }
+        public void Record(ImmutableArray<Vertex> clique) => Cliques += 1;
     }
 }

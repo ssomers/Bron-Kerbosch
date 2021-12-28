@@ -13,7 +13,7 @@ namespace BronKerbosch
         {
             for (int i = 0; i < adjacencies.Length; ++i)
             {
-                var v = Vertex.nth(i);
+                var v = Vertex.Nth(i);
                 foreach (var w in adjacencies[v.index])
                 {
                     Debug.Assert(v != w);
@@ -29,7 +29,7 @@ namespace BronKerbosch
         {
             get
             {
-                var total = Enumerable.Range(0, Order).Select(Vertex.nth).Sum(Degree);
+                var total = Enumerable.Range(0, Order).Select(Vertex.Nth).Sum(Degree);
                 Debug.Assert(total % 2 == 0);
                 return total / 2;
             }
@@ -39,7 +39,7 @@ namespace BronKerbosch
 
         public int Degree(Vertex node) => itsAdjacencies[node.index].Count;
 
-        public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.nth);
+        public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.Nth);
 
         public IEnumerable<Vertex> ConnectedVertices() => Vertices().Where(v => Degree(v) > 0);
 

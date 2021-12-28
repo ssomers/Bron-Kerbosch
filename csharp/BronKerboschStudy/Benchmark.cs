@@ -86,7 +86,7 @@ namespace BronKerboschStudy
                 }
             }
 
-            var path = $"..\\bron_kerbosch_c#_order_{orderstr}.csv";
+            var path = $"..\\bron_kerbosch_csharp_order_{orderstr}.csv";
             if (File.Exists(path))
                 File.Delete(path);
             File.Move(tmpfname, path);

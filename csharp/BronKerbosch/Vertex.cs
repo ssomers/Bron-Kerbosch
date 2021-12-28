@@ -8,11 +8,11 @@ namespace BronKerbosch
     {
         public readonly Index index;
         private Vertex(Index i) => index = i;
-        public static Vertex nth(Index i) => new Vertex(i);
-        public bool Equals(Vertex that) => this.index == that.index;
-        public override bool Equals(object? obj) => obj is Vertex that && this.Equals(that);
+        public static Vertex Nth(Index i) => new(i);
+        public bool Equals(Vertex other) => index == other.index;
+        public override bool Equals(object? obj) => obj is Vertex other && Equals(other);
         public override int GetHashCode() => index.GetHashCode();
-        public int CompareTo(Vertex that) => this.index.CompareTo(that.index);
+        public int CompareTo(Vertex other) => index.CompareTo(other.index);
         public static bool operator <(Vertex lhs, Vertex rhs) => lhs.CompareTo(rhs) < 0;
         public static bool operator <=(Vertex lhs, Vertex rhs) => lhs.CompareTo(rhs) <= 0;
         public static bool operator >(Vertex lhs, Vertex rhs) => lhs.CompareTo(rhs) > 0;

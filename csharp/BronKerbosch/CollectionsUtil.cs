@@ -19,11 +19,17 @@ namespace BronKerbosch
         public static bool AreDisjoint<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs is null || rhs is null)
+            {
                 return true;
+            }
             else if (lhs.Count > rhs.Count)
+            {
                 return !lhs.Overlaps(rhs);
+            }
             else
+            {
                 return !rhs.Overlaps(lhs);
+            }
         }
 
         public static HashSet<T> Difference<T>(ISet<T> lhs, ISet<T> rhs)
@@ -32,7 +38,10 @@ namespace BronKerbosch
             foreach (var v in lhs)
             {
                 if (!rhs.Contains(v))
-                    result.Add(v);
+                {
+                    var added = result.Add(v);
+                    Debug.Assert(added);
+                }
             }
             return result;
             // much slower: lhs.Except(rhs).ToHashSet();
@@ -41,7 +50,9 @@ namespace BronKerbosch
         public static int IntersectionSize<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs.Count > rhs.Count)
+            {
                 return IntersectionSize(rhs, lhs);
+            }
 
             return lhs.Count(v => rhs.Contains(v));
             // wee bit slower: return lhs.Where(v => rhs.Contains(v)).Count();
@@ -52,13 +63,18 @@ namespace BronKerbosch
         public static HashSet<T> Intersection<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs.Count > rhs.Count)
+            {
                 return Intersection(rhs, lhs);
+            }
 
             var result = new HashSet<T>(capacity: Math.Min(lhs.Count, rhs.Count));
             foreach (var v in lhs)
             {
                 if (rhs.Contains(v))
-                    result.Add(v);
+                {
+                    var added = result.Add(v);
+                    Debug.Assert(added);
+                }
             }
             return result;
             // much slower: return rhs.Intersect(lhs).ToHashSet();
@@ -78,7 +94,8 @@ namespace BronKerbosch
             using var en = candidates.GetEnumerator();
             var ok = en.MoveNext();
             Debug.Assert(ok);
-            candidates.Remove(en.Current);
+            ok = candidates.Remove(en.Current);
+            Debug.Assert(ok);
             return en.Current;
         }
     }

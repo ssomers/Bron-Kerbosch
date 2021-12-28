@@ -26,7 +26,8 @@ internal static class BronKerboschDegeneracy
                     neighbouringCandidates, neighbouringExcluded,
                     ImmutableArray.Create(v));
             }
-            excluded.Add(v);
+            var added = excluded.Add(v);
+            Debug.Assert(added);
         }
     }
 }
