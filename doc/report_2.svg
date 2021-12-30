@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2021-12-28T02:37:16.322011</dc:date>
+    <dc:date>2021-12-30T19:31:24.076301</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.5.0, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.5.1, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -1591,7 +1591,7 @@ L 471.112727 310.015673
 L 494.634545 289.299199 
 L 518.156364 266.709882 
 L 541.678182 237.099921 
-" clip-path="url(#p4f77a58086)" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #009933; stroke-width: 1.5"/>
+" clip-path="url(#p4f77a58086)" style="fill: none; stroke: #009933; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="line2d_27">
     <path d="M 71.241818 373.109996 
@@ -1639,7 +1639,7 @@ L 471.112727 218.044436
 L 494.634545 168.337849 
 L 518.156364 111.95539 
 L 541.678182 46.332761 
-" clip-path="url(#p4f77a58086)" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #006666; stroke-width: 1.5"/>
+" clip-path="url(#p4f77a58086)" style="fill: none; stroke: #006666; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="line2d_29">
     <path d="M 71.241818 371.292508 
@@ -1687,7 +1687,7 @@ L 471.112727 322.566823
 L 494.634545 306.228121 
 L 518.156364 286.551697 
 L 541.678182 262.449561 
-" clip-path="url(#p4f77a58086)" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #cc0033; stroke-width: 1.5"/>
+" clip-path="url(#p4f77a58086)" style="fill: none; stroke: #cc0033; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="line2d_31">
     <path d="M 71.241818 373.509453 
@@ -2015,7 +2015,7 @@ L 66.72 34.978438
     <g id="line2d_34">
      <path d="M 56.72 39.978438 
 L 76.72 39.978438 
-" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #009933; stroke-width: 1.5"/>
+" style="fill: none; stroke: #009933; stroke-width: 1.5; stroke-linecap: square"/>
     </g>
     <g id="line2d_35"/>
     <g id="text_17">
@@ -2161,7 +2161,7 @@ L 66.72 64.334688
     <g id="line2d_42">
      <path d="M 56.72 69.334688 
 L 76.72 69.334688 
-" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #006666; stroke-width: 1.5"/>
+" style="fill: none; stroke: #006666; stroke-width: 1.5; stroke-linecap: square"/>
     </g>
     <g id="line2d_43"/>
     <g id="text_19">
@@ -2244,7 +2244,7 @@ L 66.72 93.690938
     <g id="line2d_50">
      <path d="M 56.72 98.690938 
 L 76.72 98.690938 
-" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #cc0033; stroke-width: 1.5"/>
+" style="fill: none; stroke: #cc0033; stroke-width: 1.5; stroke-linecap: square"/>
     </g>
     <g id="line2d_51"/>
     <g id="text_21">

@@ -76,10 +76,10 @@ Therefore, all the other implementations will contain similar tweaks.
 * **Ver3-GP:** Ver2-GP with degeneracy ordering
 * **Ver3-GPX:** Ver2-GPX with degeneracy ordering
 
-As per the previous paragraph, we mostly implement locally optimized **½** versions of these.
-In particular, we write out the first iteration separately, because in that the set of candidate
-vertices starts off being huge, i.e., every reachable vertex, but that set doesn't have to be
-represented at all because every reachable vertex is a candidate until excluded.
+As announced in the previous paragraph, we mostly implement locally optimized **½** versions of these.
+In particular, we write out the first iteration separately, because there the set of candidate
+vertices starts off being huge, i.e., every connected vertex in the graph, but that set doesn't have
+to be represented at all because every reachable vertex is a candidate until excluded.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -96,16 +96,23 @@ These are all single-threaded implementations (using only one CPU core).
 ![Time spent on graphs of order 10k](doc/report_3_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_3_rust_10k.svg)
 
-* Ver3-GP wins somewhat from Ver2-GP in big graphs…
-![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
+* Ver3-GP barely wins from Ver2-GP in moderately sized graphs…
 ![Time spent on graphs of order 10k](doc/report_4_rust_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_4_csharp_10k.svg)
-![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 
-* …except in Python
+* …but loses in many other cases
+![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
+![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_4_python3_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_4_python3_1M.svg)
 
+* Ver3-GP seems to cope better at scale than Ver3-GPX
+![Time spent on graphs of order 1M](doc/report_5_csharp_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_csharp_1M.svg)
+![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
+![Time spent on graphs of order 10k](doc/report_5_rust_10k.svg)
+![Time spent on graphs of order 10k](doc/report_5_python3_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_python3_1M.svg)
 
 ## Introducing parallelism
 
@@ -132,33 +139,33 @@ Ways to implement parallelism varies per language:
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
-![Time spent on graphs of order 100](doc/report_5_java_100.svg)
-![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
-![Time spent on graphs of order 1M](doc/report_5_java_1M.svg)
+![Time spent on graphs of order 100](doc/report_6_java_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_java_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_java_1M.svg)
 
 * In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel;
   and there's no need to severely limit the number of goroutines
-![Time spent on graphs of order 100](doc/report_5_go_100.svg)
-![Time spent on graphs of order 10k](doc/report_5_go_10k.svg)
-![Time spent on graphs of order 1M](doc/report_5_go_1M.svg)
+![Time spent on graphs of order 100](doc/report_6_go_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_go_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_go_1M.svg)
 
 
 ## Comparing languages
 
 * Plain single-threaded
-![Time spent on graphs of order 100](doc/report_6_100.svg)
-![Time spent on graphs of order 10k](doc/report_6_10k.svg)
-![Time spent on graphs of order 1M](doc/report_6_1M.svg)
+![Time spent on graphs of order 100](doc/report_7_sequential_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_sequential_10k.svg)
+![Time spent on graphs of order 1M](doc/report_7_sequential_1M.svg)
 
 * Relatively simple multi-threaded
-![Time spent on graphs of order 100](doc/report_6_parallel_100.svg)
-![Time spent on graphs of order 10k](doc/report_6_parallel_10k.svg)
-![Time spent on graphs of order 1M](doc/report_6_parallel_1M.svg)
+![Time spent on graphs of order 100](doc/report_7_parallel_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_parallel_10k.svg)
+![Time spent on graphs of order 1M](doc/report_7_parallel_1M.svg)
 
 * Multi-thread using something resembling channels
-![Time spent on graphs of order 100](doc/report_6_channels_100.svg)
-![Time spent on graphs of order 10k](doc/report_6_channels_10k.svg)
-![Time spent on graphs of order 1M](doc/report_6_channels_1M.svg)
+![Time spent on graphs of order 100](doc/report_7_channels_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_channels_10k.svg)
+![Time spent on graphs of order 1M](doc/report_7_channels_1M.svg)
 
 
 ## Comparing implementations of the set data structure
@@ -176,9 +183,9 @@ various generic set implementations.
 #### Results
 
 * Rust (multi-threaded use shows very similar results, but less consistent runs)
-![Time spent on graphs of order 100](doc/report_7_rust_100.svg)
-![Time spent on graphs of order 10k](doc/report_7_rust_10k.svg)
-![Time spent on graphs of order 1M](doc/report_7_rust_1M.svg)
+![Time spent on graphs of order 100](doc/report_8_rust_100.svg)
+![Time spent on graphs of order 10k](doc/report_8_rust_10k.svg)
+![Time spent on graphs of order 1M](doc/report_8_rust_1M.svg)
 
 In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 
@@ -188,8 +195,8 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 * **ord_vec:** ordered `std::vector` (obviously, this can only work well on small graphs)
 
 #### Results
-![Time spent on graphs of order 100](doc/report_7_c++_100.svg)
-![Time spent on graphs of order 10k](doc/report_7_c++_10k.svg)
+![Time spent on graphs of order 100](doc/report_8_c++_100.svg)
+![Time spent on graphs of order 10k](doc/report_8_c++_10k.svg)
 
 
 # How to run & test

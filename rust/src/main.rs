@@ -299,7 +299,7 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |set_type: SetType, _size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::HashSet => vec![2, 3, 4, 5, 7, 8, 9],
+                    SetType::HashSet => (2..=9).collect(),
                     _ => vec![2, 4, 7, 9],
                 }
             },
