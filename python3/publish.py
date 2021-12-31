@@ -81,9 +81,12 @@ class Measurement(object):
         return self.mean - self.min
 
 
+def clean_language(language: str) -> str:
+    return language.replace("c#", "csharp")
+
+
 def csv_basename(language: str, orderstr: str) -> str:
-    lang = language.replace('c#', 'csharp')
-    return f"bron_kerbosch_{lang}_order_{orderstr}.csv"
+    return f"bron_kerbosch_{clean_language(language)}_order_{orderstr}.csv"
 
 
 def publish(
@@ -177,7 +180,7 @@ def import_matplotlib() -> bool:
 def publish_whole_csv(language: str, orderstr: str) -> None:
     m_per_size_by_case_name: Mapping[str, List[Measurement]]
     sizes, m_per_size_by_case_name = read_csv(language, orderstr)
-    basename = f'details_{language.replace("c#", "csharp")}_{orderstr}'
+    basename = f'details_{clean_language(language)}_{orderstr}'
     assert sizes
     assert m_per_size_by_case_name
     assert all(
@@ -245,16 +248,17 @@ def publish_details(
 
 
 def publish_measurements(
-        language: Optional[str],
-        orderstr: str,
         basename: str,
+        orderstr: str,
         sizes: List[int],
         measurement_per_size_by_case_name: Mapping[str, List[Measurement]],
-        suffix: str,
+        suffix: str = "",
+        language: Optional[str] = None,
         color_by_case: Optional[Callable[[str], str]] = None,
         dash_by_case: Optional[Callable[[str], str]] = None) -> None:
     assert sizes
     assert measurement_per_size_by_case_name, basename
+    print("Generating", basename)
     if import_matplotlib():
         from matplotlib import pyplot
         fig, axes = pyplot.subplots(figsize=figsize_inline)
@@ -283,8 +287,8 @@ def publish_measurements(
 
 
 def publish_report(
-        orderstr: str,
         basename: str,
+        orderstr: str,
         langlibs: Sequence[str],
         versions: Sequence[str],
         single_version: Optional[str] = None,
@@ -292,19 +296,17 @@ def publish_report(
     sizes: List[int] = []
     measurements: Dict[str, List[Measurement]] = {}
     languages = set(langlib.split('@', 1)[0] for langlib in langlibs)
-    single_language = languages.pop() if len(languages) == 1 else None
+    assert len(languages) > 1
     for langlib in langlibs:
         lang_lib = langlib.split('@', 1)
         lang = lang_lib[0]
-        lib = ("@" + lang_lib[1]) if len(lang_lib) > 1 else ""
+        at_lib = ("@" + lang_lib[1]) if len(lang_lib) > 1 else ""
         sizes1, measurements1 = read_csv(
             language=lang,
             orderstr=orderstr,
             case_name_selector={
-                f"{ver}{lib}": (f"{lib}" if single_language and single_version
-                                else f"{ver}{lib}" if single_language else
-                                (lang.capitalize() +
-                                 ("" if single_version else f"{lib} {ver}")))
+                f"{ver}{at_lib}": lang.capitalize() +
+                ("" if single_version else f"{at_lib} {ver}")
                 for ver in versions
             })
         if orderstr == "1M":
@@ -318,83 +320,119 @@ def publish_report(
         measurements.update(measurements1)
 
     publish_measurements(
-        language=single_language,
-        orderstr=orderstr,
         basename=basename,
+        orderstr=orderstr,
         sizes=sizes,
-        suffix="" if single_version is None else " " + single_version,
+        suffix="" if single_version is None else f" {single_version}",
         measurement_per_size_by_case_name=measurements,
-        color_by_case=color_by_language if single_language is None else None,
+        color_by_case=color_by_language,
         dash_by_case=dash_by_case)
 
 
+def publish_version_report(basebasename: str, orderstr: str, langlib: str,
+                           versions: Sequence[str]) -> None:
+    sep = (langlib + '@').index('@')
+    lang, at_lib = langlib[:sep], langlib[sep:]
+    sizes, measurements = read_csv(
+        language=lang,
+        orderstr=orderstr,
+        case_name_selector={f"{ver}{at_lib}": f"{ver}"
+                            for ver in versions})
+    if orderstr == "1M":
+        cutoff = bisect_left(sizes, 250_000)
+        sizes = sizes[cutoff:]
+        measurements = {n: m[cutoff:] for n, m in measurements.items()}
+    publish_measurements(basename=basebasename +
+                         f"_{clean_language(lang)}_{orderstr}",
+                         language=lang,
+                         orderstr=orderstr,
+                         sizes=sizes,
+                         measurement_per_size_by_case_name=measurements)
+
+
+def publish_library_report(basename: str, orderstr: str, language: str,
+                           ver: str, libs: Sequence[str]) -> None:
+    sizes, measurements = read_csv(
+        language=language,
+        orderstr=orderstr,
+        case_name_selector={f"{ver}@{lib}": f"{lib}"
+                            for lib in libs})
+    if orderstr == "1M":
+        cutoff = bisect_left(sizes, 250_000)
+        sizes = sizes[cutoff:]
+        measurements = {n: m[cutoff:] for n, m in measurements.items()}
+    publish_measurements(basename=basename,
+                         language=language,
+                         orderstr=orderstr,
+                         sizes=sizes,
+                         suffix=" " + ver,
+                         measurement_per_size_by_case_name=measurements)
+
+
 def publish_reports() -> None:
+
+    def dash_by_case(case_name: str) -> str:
+        return "solid" if case_name.endswith("½") else "dotted"
+
     # 1. Ver1 vs. Ver1½
     publish_report(basename="report_1",
                    orderstr="100",
                    langlibs=["python3", "rust@Hash"],
                    versions=["Ver1", "Ver1½"],
-                   dash_by_case=lambda case_name: "solid"
-                   if case_name.endswith("½") else "dotted")
+                   dash_by_case=dash_by_case)
     # 2. Ver1 vs. Ver2
     publish_report(basename="report_2",
                    orderstr="100",
                    langlibs=["java", "scala", "rust@Hash"],
                    versions=["Ver1½", "Ver2½"],
-                   dash_by_case=lambda case_name: "solid"
-                   if case_name.endswith("½") else "dotted")
+                   dash_by_case=dash_by_case)
     # 3. Ver2 variants
     for orderstr in ["100", "10k"]:
         for langlib in ["rust@Hash", "java"]:
-            lang = langlib.split('@', 1)[0]
-            publish_report(
-                basename=f"report_3_{lang}_{orderstr}",
+            publish_version_report(
+                basebasename="report_3",
                 orderstr=orderstr,
-                langlibs=[langlib],
+                langlib=langlib,
                 versions=["Ver2½", "Ver2½-RP", "Ver2½-GP", "Ver2½-GPX"])
     # 4. Ver2 vs. Ver3
     for orderstr in ["10k", "1M"]:
         for langlib in ["python3", "c#"]:
-            lang = langlib.split('@', 1)[0].replace("c#", "csharp")
-            publish_report(basename=f"report_4_{lang}_{orderstr}",
-                           orderstr=orderstr,
-                           langlibs=[langlib],
-                           versions=["Ver2½-GP", "Ver3½-GP"])
+            publish_version_report(basebasename="report_4",
+                                   orderstr=orderstr,
+                                   langlib=langlib,
+                                   versions=["Ver2½-GP", "Ver3½-GP"])
     for orderstr in ["10k"]:
         for langlib in ["rust@Hash", "java"]:
-            lang = langlib.split('@', 1)[0]
-            publish_report(basename=f"report_4_{lang}_{orderstr}",
-                           orderstr=orderstr,
-                           langlibs=[langlib],
-                           versions=["Ver2½-GP", "Ver3½-GP"])
+            publish_version_report(basebasename="report_4",
+                                   orderstr=orderstr,
+                                   langlib=langlib,
+                                   versions=["Ver2½-GP", "Ver3½-GP"])
     # 5. Ver3 variants
     for orderstr in ["10k", "1M"]:
         for langlib in ["python3", "c#"]:
-            lang = langlib.split('@', 1)[0].replace("c#", "csharp")
-            publish_report(basename=f"report_5_{lang}_{orderstr}",
-                           orderstr=orderstr,
-                           langlibs=[langlib],
-                           versions=["Ver3½-GP", "Ver3½-GPX"])
+            publish_version_report(basebasename="report_5",
+                                   orderstr=orderstr,
+                                   langlib=langlib,
+                                   versions=["Ver3½-GP", "Ver3½-GPX"])
     for orderstr in ["10k"]:
         for langlib in ["rust@Hash", "java"]:
-            lang = langlib.split('@', 1)[0]
-            publish_report(basename=f"report_5_{lang}_{orderstr}",
-                           orderstr=orderstr,
-                           langlibs=[langlib],
-                           versions=["Ver3½-GP", "Ver3½-GPX"])
+            publish_version_report(basebasename="report_5",
+                                   orderstr=orderstr,
+                                   langlib=langlib,
+                                   versions=["Ver3½-GP", "Ver3½-GPX"])
     # 6. Parallelism
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(basename=f"report_6_java_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["java"],
-                       versions=["Ver3½-GP", "Ver3½=GPs", "Ver3½=GPc"])
-        publish_report(basename=f"report_6_go_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=["go"],
-                       versions=[
-                           "Ver3½-GP", "Ver3½=GP0", "Ver3½=GP1", "Ver3½=GP2",
-                           "Ver3½=GP3", "Ver3½=GP4"
-                       ])
+        publish_version_report(basebasename="report_6",
+                               orderstr=orderstr,
+                               langlib="java",
+                               versions=["Ver3½-GP", "Ver3½=GPs", "Ver3½=GPc"])
+        publish_version_report(basebasename="report_6",
+                               orderstr=orderstr,
+                               langlib="go",
+                               versions=[
+                                   "Ver3½-GP", "Ver3½=GP0", "Ver3½=GP1",
+                                   "Ver3½=GP2", "Ver3½=GP3", "Ver3½=GP4"
+                               ])
     # 7. Languages
     for orderstr in ["100", "10k", "1M"]:
         publish_report(basename=f"report_7_sequential_{orderstr}",
@@ -418,27 +456,19 @@ def publish_reports() -> None:
                        single_version="simple parallel Ver3½=GP")
     # 8. Libraries
     for orderstr in ["100", "10k", "1M"]:
-        publish_report(basename=f"report_8_rust_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=[
-                           "rust@BTree",
-                           "rust@Hash",
-                           "rust@hashbrown",
-                           "rust@fnv",
-                           "rust@ord_vec",
-                       ],
-                       versions=["Ver3½-GP"],
-                       single_version="Ver3½-GP")
+        publish_library_report(
+            basename=f"report_8_rust_{orderstr}",
+            orderstr=orderstr,
+            language="rust",
+            ver="Ver3½-GP",
+            libs=["BTree", "Hash", "hashbrown", "fnv", "ord_vec"],
+        )
     for orderstr in ["100", "10k"]:
-        publish_report(basename=f"report_8_c++_{orderstr}",
-                       orderstr=orderstr,
-                       langlibs=[
-                           "c++@hashset",
-                           "c++@std_set",
-                           "c++@ord_vec",
-                       ],
-                       versions=["Ver3½-GP"],
-                       single_version="Ver3½-GP")
+        publish_library_report(basename=f"report_8_c++_{orderstr}",
+                               orderstr=orderstr,
+                               language="c++",
+                               ver="Ver3½-GP",
+                               libs=["hashset", "std_set", "ord_vec"])
 
 
 if __name__ == '__main__':
