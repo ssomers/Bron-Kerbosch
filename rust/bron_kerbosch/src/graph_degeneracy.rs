@@ -169,15 +169,20 @@ mod tests {
                     }
 
                     let g = SlimUndirectedGraph::new(adjacencies);
+                    let connected = connected_vertices(&g);
+
                     let ordering: Vec<Vertex> = degeneracy_ordering(&g, 0).collect();
-                    let orderin: Vec<Vertex> = degeneracy_ordering(&g, -1).collect();
                     let ordering_set: BTreeSet<Vertex> = ordering.iter().copied().collect();
-                    let orderin_set: BTreeSet<Vertex> = orderin.iter().copied().collect();
-                    assert_eq!(ordering.len(), ordering_set.len());
-                    assert_eq!(orderin.len(), orderin_set.len());
-                    assert_eq!(orderin.len(), ordering.len().saturating_sub(1));
-                    assert_eq!(ordering_set, connected_vertices(&g));
-                    assert!(orderin_set.is_subset(&ordering_set));
+                    assert_eq!(ordering.len(), ordering_set.len(), "duplicates in ordering");
+                    assert_eq!(ordering_set, connected);
+                    if let Some(&first) = ordering.first() {
+                        for &v in &ordering {
+                            assert!(g.degree(first) <= g.degree(v));
+                        }
+                    }
+
+                    let orderin: Vec<Vertex> = degeneracy_ordering(&g, -1).collect();
+                    assert_eq!(orderin, ordering[..connected.len().saturating_sub(1)]);
                     Ok(())
                 },
             )

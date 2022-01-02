@@ -23,10 +23,6 @@ def symmetric_adjacencies(adjac: List[Set[Vertex]]) -> List[Set[Vertex]]:
     return adjacencies
 
 
-def are_unique(lst: List[int]) -> bool:
-    return len(lst) == len(set(lst))
-
-
 def test_degeneracy_ordering_empty() -> None:
     g = UndirectedGraph(adjacencies=[])
     assert list(degeneracy_ordering(g)) == []
@@ -44,10 +40,10 @@ def test_degeneracy_ordering_empty() -> None:
 def test_degeneracy_ordering_nonempty(adjacencies: List[Set[Vertex]]) -> None:
     g = UndirectedGraph(adjacencies=adjacencies)
     connected_vertices = g.connected_vertices()
+
     ordering = list(degeneracy_ordering(g))
-    ordering_min1 = list(degeneracy_ordering(g, drop=1))
-    assert are_unique(ordering)
-    assert are_unique(ordering_min1)
     assert set(ordering) == connected_vertices
-    assert set(ordering_min1) <= connected_vertices
-    assert len(ordering_min1) == max(len(connected_vertices), 1) - 1
+    assert all(g.degree(ordering[0]) <= g.degree(v) for v in ordering[1:])
+
+    ordering_min1 = list(degeneracy_ordering(g, drop=1))
+    assert ordering_min1 == ordering[:-1]

@@ -7,8 +7,10 @@ import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -17,8 +19,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("LawOfDemeter")
 final class DegeneracyOrderingTest {
-    private static SortedSet<Integer> degeneracyOrdering(UndirectedGraph g, int drop) {
+    private static SortedSet<Integer> sortedDegeneracyOrdering(UndirectedGraph g, int drop) {
         SortedSet<Integer> vertices = new TreeSet<>();
         new DegeneracyOrdering(g, drop).forEachRemaining((int v) -> {
             boolean added = vertices.add(v);
@@ -30,23 +33,23 @@ final class DegeneracyOrderingTest {
     @Test
     void empty() {
         var g = new UndirectedGraph(List.of());
-        assertTrue(degeneracyOrdering(g, 0).isEmpty());
-        assertTrue(degeneracyOrdering(g, -1).isEmpty());
+        assertTrue(sortedDegeneracyOrdering(g, 0).isEmpty());
+        assertTrue(sortedDegeneracyOrdering(g, -1).isEmpty());
     }
 
     @Test
     void pair() {
         var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0)));
-        assertEquals(Set.of(0, 1), degeneracyOrdering(g, 0));
-        assertEquals(1, degeneracyOrdering(g, -1).size());
-        assertEquals(0, degeneracyOrdering(g, -2).size());
+        assertEquals(Set.of(0, 1), sortedDegeneracyOrdering(g, 0));
+        assertEquals(1, sortedDegeneracyOrdering(g, -1).size());
+        assertEquals(0, sortedDegeneracyOrdering(g, -2).size());
     }
 
     @Test
     void split() {
         var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0, 2), Set.of(1)));
         assertNotEquals(1, new DegeneracyOrdering(g, 0).next());
-        assertEquals(Set.of(0, 1, 2), degeneracyOrdering(g, 0));
+        assertEquals(Set.of(0, 1, 2), sortedDegeneracyOrdering(g, 0));
     }
 
     /**
@@ -81,7 +84,7 @@ final class DegeneracyOrderingTest {
         var g = new UndirectedGraph(adjacencies);
         SortedSet<Integer> connectedVertices =
                 g.connectedVertices().collect(Collectors.toCollection(TreeSet::new));
-        return degeneracyOrdering(g, 0).equals(connectedVertices);
+        return sortedDegeneracyOrdering(g, 0).equals(connectedVertices);
     }
 
     @Property
@@ -89,7 +92,30 @@ final class DegeneracyOrderingTest {
             @ForAll("arbitraryAdjacencyLikes") List<Set<Integer>> adjacencyLikes) {
         var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         var g = new UndirectedGraph(adjacencies);
-        return degeneracyOrdering(g, -1).size() == Math.max(0, g.connectedVertices().count() - 1);
+        var ordering = new DegeneracyOrdering(g, 0).stream().toArray();
+        var ordering1 = new DegeneracyOrdering(g, -1).stream().toArray();
+        return ordering1.length == Math.max(0, ordering.length - 1)
+                && Arrays.equals(ordering, 0, ordering1.length, ordering1, 0, ordering1.length);
+    }
+
+    @Property
+    boolean degeneracyOrderingStartsWithLowestDegree(
+            @ForAll("arbitraryAdjacencyLikes") List<Set<Integer>> adjacencyLikes) {
+        var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
+        var g = new UndirectedGraph(adjacencies);
+        var ordering = new DegeneracyOrdering(g, 0);
+        /*
+        var result = ordering.stream().reduce((int first, int v) ->
+                first != -1 && g.degree(first) <= g.degree(v) ? first : -1);
+        return result.isEmpty() || result.getAsInt() != -1;
+        */
+        int first;
+        try {
+            first = ordering.nextInt();
+        } catch (NoSuchElementException e) {
+            return true;
+        }
+        return ordering.stream().allMatch(v -> g.degree(first) <= g.degree(v));
     }
 
     private static Arbitrary<Set<Integer>> arbitraryNeighbours(int order) {
