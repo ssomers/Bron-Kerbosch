@@ -205,7 +205,7 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 To obtain these results:
   - [dense graph of order 100](doc/details_python3_100.svg)
   - [plain graph of order 10k](doc/details_python3_10k.svg)
-  - [very sparse graph of order 1M](doc/details_python3_1M.svg)
+  - [sparse graph of order 1M](doc/details_python3_1M.svg)
 
 Perform
 
@@ -235,7 +235,6 @@ Perform
 To obtain these results:
   - [dense graph of order 100](doc/details_go_100.svg)
   - [plain graph of order 10k](doc/details_go_10k.svg)
-  - [extremely sparse graph of order 1M](doc/details_go_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_go_1M.svg)
 
 Perform
@@ -254,7 +253,6 @@ On MSYS2:
 To obtain these results:
   - [dense graph of order 100](doc/details_csharp_100.svg)
   - [plain graph of order 10k](doc/details_csharp_10k.svg)
-  - [extremely sparse graph of order 1M](doc/details_csharp_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_csharp_1M.svg)
 
 Perform
@@ -270,11 +268,10 @@ Perform
 To obtain these results:
   - [dense graph of order 100](doc/details_c++_100.svg)
   - [plain graph of order 10k](doc/details_c++_10k.svg)
-  - [extremely sparse graph of order 1M](doc/details_c++_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_c++_1M.svg)
 
 Either:
-  - clone/export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
+  - clone or export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
   - open cpp\BronKerboschStudy.sln with Visual Studio 2022
   - set directory to cppcoro (if not `..\cppcoro` relative to Bron-Kerbosch):
     - View > Other Windows > Property Manager
@@ -290,7 +287,6 @@ Either:
 To obtain these results:
   - [dense graph of order 100](doc/details_java_100.svg)
   - [plain graph of order 10k](doc/details_java_10k.svg)
-  - [extremely sparse graph of order 1M](doc/details_java_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_java_1M.svg)
 
 Perform
@@ -305,7 +301,6 @@ Perform
 To obtain these results:
   - [dense graph of order 100](doc/details_scala_100.svg)
   - [plain graph of order 10k](doc/details_scala_10k.svg)
-  - [extremely sparse graph of order 1M](doc/details_scala_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_scala_1M.svg)
 
 Perform

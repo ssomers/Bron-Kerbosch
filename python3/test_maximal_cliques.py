@@ -324,7 +324,7 @@ if __name__ == '__main__':
         seed = 19680516
     all_func_indices = list(range(len(FUNCS)))
     most_func_indices = list(range(2, len(FUNCS)))
-    mt_func_indices = list(range(2, len(FUNCS)))
+    mt_func_indices = list(range(3, len(FUNCS)))
     if args.order is not None and args.size is not None:
         bk(orderstr=args.order,
            sizes=[int(size) for size in args.size],
@@ -347,6 +347,7 @@ if __name__ == '__main__':
         time.sleep(7)
         bk(orderstr="1M",
            sizes=itertools.chain(range(50_000, 250_000, 50_000),
-                                 range(250_000, 1_000_001, 250_000)),
+                                 range(250_000, 2_000_000, 250_000),
+                                 range(2_000_000, 3_000_001, 1_000_000)),
            func_indices=mt_func_indices,
            samples=3)

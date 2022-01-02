@@ -187,7 +187,7 @@ def publish_whole_csv(language: str, orderstr: str) -> None:
         len(m_per_size) == len(sizes)
         for m_per_size in m_per_size_by_case_name.values())
     if import_matplotlib():
-        if sizes[-1] > 1_000_000:
+        if language == "rust" and orderstr == "1M":
             cutoff = bisect_left(sizes, 500_000)
             publish_details(
                 language, orderstr, basename + "_initial", sizes[:cutoff], {
