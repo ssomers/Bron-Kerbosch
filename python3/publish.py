@@ -163,6 +163,11 @@ def read_csv(
                for s in range(len(sizes))):
             print(f"{filename}: backing out on {case_name}")
             del m_per_size_by_case_name[case_name]
+    assert len(sizes)
+    assert len(m_per_size_by_case_name)
+    assert all(
+        len(m_per_size) == len(sizes)
+        for m_per_size in m_per_size_by_case_name.values())
     return sizes, m_per_size_by_case_name
 
 
@@ -178,42 +183,40 @@ def import_matplotlib() -> bool:
 
 
 def publish_whole_csv(language: str, orderstr: str) -> None:
-    m_per_size_by_case_name: Mapping[str, List[Measurement]]
     sizes, m_per_size_by_case_name = read_csv(language, orderstr)
-    basename = f'details_{clean_language(language)}_{orderstr}'
-    assert sizes
-    assert m_per_size_by_case_name
-    assert all(
-        len(m_per_size) == len(sizes)
-        for m_per_size in m_per_size_by_case_name.values())
     if import_matplotlib():
         if language == "rust" and orderstr == "1M":
             cutoff = bisect_left(sizes, 500_000)
-            publish_details(
-                language, orderstr, basename + "_initial", sizes[:cutoff], {
-                    case_name: m_per_size[:cutoff]
-                    for case_name, m_per_size in
-                    m_per_size_by_case_name.items()
-                })
-            publish_details(
-                language, orderstr, basename, sizes[cutoff:], {
-                    case_name: m_per_size[cutoff:]
-                    for case_name, m_per_size in m_per_size_by_case_name.items(
-                    ) if not all(m.isnan() for m in m_per_size[cutoff:])
-                })
-        else:
-            publish_details(language, orderstr, basename, sizes,
-                            m_per_size_by_case_name)
+            sizes_1 = sizes[:cutoff]
+            sizes = sizes[cutoff:]
+            m_per_size_by_case_name_1 = {
+                case_name: m_per_size[:cutoff]
+                for case_name, m_per_size in m_per_size_by_case_name.items()
+            }
+            m_per_size_by_case_name = {
+                case_name: m_per_size[cutoff:]
+                for case_name, m_per_size in m_per_size_by_case_name.items()
+                if not all(m.isnan() for m in m_per_size[cutoff:])
+            }
+            publish_details(language,
+                            orderstr,
+                            sizes_1,
+                            m_per_size_by_case_name_1,
+                            basename_variant="_initial")
+        publish_details(language, orderstr, sizes, m_per_size_by_case_name)
 
 
-def publish_details(
-        language: str, orderstr: str, basename: str, sizes: List[int],
-        m_per_size_by_case_name: Mapping[str, List[Measurement]]) -> None:
-    assert sizes
-    assert m_per_size_by_case_name
+def publish_details(language: str,
+                    orderstr: str,
+                    sizes: List[int],
+                    m_per_size_by_case_name: Mapping[str, List[Measurement]],
+                    basename_variant: str = "") -> None:
+    assert len(sizes)
+    assert len(m_per_size_by_case_name)
     assert all(
         len(m_per_size) == len(sizes)
         for m_per_size in m_per_size_by_case_name.values())
+    basename = f'details_{clean_language(language)}_{orderstr}{basename_variant}'
     from matplotlib import pyplot
     fig, axes = pyplot.subplots(figsize=figsize_detail)
     axes.set_title(f"{language.capitalize()} implementations of " +
