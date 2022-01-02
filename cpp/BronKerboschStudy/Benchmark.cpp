@@ -229,14 +229,13 @@ int main(int argc, char** argv) {
             3);
         Benchmark::bk(
             "1M",
-            concat(range(50'000u, 200'000u, 50'000u), range(250'000u, 1'999'999u, 250'000u),
+            concat(range(500'000u, 1'999'999u, 250'000u),
                    range(2'000'000u, 5'000'000u, 1'000'000u)),
-            [&](SetType set_type, unsigned size) {
+            [&](SetType set_type, unsigned) {
                 switch (set_type) {
                     case SetType::std_set: [[fallthrough]];
                     case SetType::ord_vec: return std::vector<int>{};
-                    case SetType::hashset:
-                        return size > 1'000'000 ? std::vector<int>{1, 3, 5} : most_func_indices;
+                    case SetType::hashset: return std::vector<int>{1, 3, 5};
                 }
                 throw std::logic_error("unreachable");
             },

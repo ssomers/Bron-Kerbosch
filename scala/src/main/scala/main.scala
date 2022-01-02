@@ -138,13 +138,11 @@ object main {
     val mt_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
     val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
     val sizes_10k = Array(
-      (i"1k" until i"10k" by i"1k")
-        ++ (i"10k" until i"100k" by i"10k")
+      (i"10k" until i"100k" by i"10k")
         ++ (i"100k" to i"200k" by i"25k"): _*
     )
     val sizes_1M = Array(
-      (i"50k" until i"250k" by i"50k")
-        ++ (i"250k" until i"2M" by i"250k")
+      (i"500k" until i"2M" by i"250k")
         ++ (i"2M" to i"5M" by i"1M"): _*
     )
     bk("100", 100, Array(2000), 3, FUNCS.indices.toArray) // warm up

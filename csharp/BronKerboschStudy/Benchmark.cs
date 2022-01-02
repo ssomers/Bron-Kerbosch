@@ -108,10 +108,9 @@ namespace BronKerboschStudy
             var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
             Debug.Fail("Run Release build for meaningful measurements");
             Bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
-            Bk("10k", Range(1_000, 10_000, 1_000).Concat(Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000))),
+            Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
                 size => mostFuncIndices, 3);
-            Bk("1M", Range(50_000, 250_000, 50_000)
-                    .Concat(Range(250_000, 2_000_000, 250_000))
+            Bk("1M", Range(500_000, 2_000_000, 250_000)
                     .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
                 size => size > 3_000_000 ? new[] { 2, 4, 5, 6 } : mostFuncIndices, 3);
         }

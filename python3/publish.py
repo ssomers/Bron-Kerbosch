@@ -144,7 +144,7 @@ def read_csv(
         for i, row in enumerate(reader):
             if len(row) != expected_cols:
                 raise ImportError(
-                    f"{filename} row {i+2}: Found {len(row)} columns, expected {expected_cols}"
+                    f"{filename} row {i+2}: found {len(row)} columns, expected {expected_cols}"
                 )
             size = int(row[0])
             sizes.append(size)
@@ -185,18 +185,22 @@ def import_matplotlib() -> bool:
 def publish_whole_csv(language: str, orderstr: str) -> None:
     sizes, m_per_size_by_case_name = read_csv(language, orderstr)
     if import_matplotlib():
-        if language == "rust" and orderstr == "1M":
-            cutoff = bisect_left(sizes, 500_000)
-            sizes_1 = sizes[:cutoff]
-            sizes = sizes[cutoff:]
+        if cutoff := {
+            ("c++", "10k"): 10_000,
+            ("rust", "10k"): 50_000,
+            ("rust", "1M"): 500_000
+        }.get((language, orderstr)):
+            idx = bisect_left(sizes, cutoff)
+            sizes_1 = sizes[:idx]
+            sizes = sizes[idx:]
             m_per_size_by_case_name_1 = {
-                case_name: m_per_size[:cutoff]
+                case_name: m_per_size[:idx]
                 for case_name, m_per_size in m_per_size_by_case_name.items()
             }
             m_per_size_by_case_name = {
-                case_name: m_per_size[cutoff:]
+                case_name: m_per_size[idx:]
                 for case_name, m_per_size in m_per_size_by_case_name.items()
-                if not all(m.isnan() for m in m_per_size[cutoff:])
+                if not all(m.isnan() for m in m_per_size[idx:])
             }
             publish_details(language,
                             orderstr,
@@ -223,7 +227,8 @@ def publish_details(language: str,
                    f"Bron-Kerbosch on a random graph of order {orderstr}")
     axes.set_xlabel("Size (#edges)")
     axes.set_ylabel("Seconds spent")
-    axes.set_yscale("log")
+    if not basename_variant:
+        axes.set_yscale("log")
     linestyles: Dict[str, object] = OrderedDict()
     for case_name, m_per_size in m_per_size_by_case_name.items():
         names = case_name.split('@')
@@ -312,10 +317,13 @@ def publish_report(
                 ("" if single_version else f"{at_lib} {ver}")
                 for ver in versions
             })
-        if orderstr == "1M":
-            cutoff = bisect_left(sizes1, 250_000)
-            sizes1 = sizes1[cutoff:]
-            measurements1 = {n: m[cutoff:] for n, m in measurements1.items()}
+        if cutoff := {
+                "10k": 10_000,
+                "1M": 500_000,
+                }.get(orderstr):
+            idx = bisect_left(sizes1, cutoff)
+            sizes1 = sizes1[idx:]
+            measurements1 = {n: m[idx:] for n, m in measurements1.items()}
         if sizes[:len(sizes1)] != sizes1[:len(sizes)]:
             raise ImportError(f"{sizes} != {sizes1} for {lang} {orderstr}")
         if len(sizes) < len(sizes1):
@@ -341,10 +349,6 @@ def publish_version_report(basebasename: str, orderstr: str, langlib: str,
         orderstr=orderstr,
         case_name_selector={f"{ver}{at_lib}": f"{ver}"
                             for ver in versions})
-    if orderstr == "1M":
-        cutoff = bisect_left(sizes, 250_000)
-        sizes = sizes[cutoff:]
-        measurements = {n: m[cutoff:] for n, m in measurements.items()}
     publish_measurements(basename=basebasename +
                          f"_{clean_language(lang)}_{orderstr}",
                          language=lang,
@@ -360,10 +364,6 @@ def publish_library_report(basename: str, orderstr: str, language: str,
         orderstr=orderstr,
         case_name_selector={f"{ver}@{lib}": f"{lib}"
                             for lib in libs})
-    if orderstr == "1M":
-        cutoff = bisect_left(sizes, 250_000)
-        sizes = sizes[cutoff:]
-        measurements = {n: m[cutoff:] for n, m in measurements.items()}
     publish_measurements(basename=basename,
                          language=language,
                          orderstr=orderstr,

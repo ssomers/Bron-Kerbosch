@@ -220,6 +220,7 @@ Perform
 ## Rust
 To obtain these results:
   - [dense graph of order 100](doc/details_rust_100.svg)
+  - [sparse graph of order 10k](doc/details_rust_10k_initial.svg)
   - [plain graph of order 10k](doc/details_rust_10k.svg)
   - [extremely sparse graph of order 1M](doc/details_rust_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_rust_1M.svg)
@@ -267,6 +268,7 @@ Perform
 ## C++ 20
 To obtain these results:
   - [dense graph of order 100](doc/details_c++_100.svg)
+  - [sparse graph of order 10k](doc/details_c++_10k_initial.svg)
   - [plain graph of order 10k](doc/details_c++_10k.svg)
   - [sparse graph of order 1M](doc/details_c++_1M.svg)
 

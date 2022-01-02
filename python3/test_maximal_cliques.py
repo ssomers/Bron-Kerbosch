@@ -339,15 +339,13 @@ if __name__ == '__main__':
             samples=5)
         time.sleep(7)
         bk(orderstr="10k",
-           sizes=itertools.chain(range(1_000, 10_000, 1_000),
-                                 range(10_000, 100_000, 10_000),
+           sizes=itertools.chain(range(10_000, 100_000, 10_000),
                                  range(100_000, 200_001, 25_000)),
            func_indices=most_func_indices,
            samples=3)
         time.sleep(7)
         bk(orderstr="1M",
-           sizes=itertools.chain(range(50_000, 250_000, 50_000),
-                                 range(250_000, 2_000_000, 250_000),
+           sizes=itertools.chain(range(500_000, 2_000_000, 250_000),
                                  range(2_000_000, 3_000_001, 1_000_000)),
            func_indices=mt_func_indices,
            samples=3)
