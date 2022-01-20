@@ -77,9 +77,10 @@ Therefore, all the other implementations will contain similar tweaks.
 * **Ver3-GPX:** Ver2-GPX with degeneracy ordering
 
 As announced in the previous paragraph, we mostly implement locally optimized **½** versions of these.
-In particular, we write out the first iteration separately, because there the set of candidate
-vertices starts off being huge, i.e., every connected vertex in the graph, but that set doesn't have
-to be represented at all because every reachable vertex is a candidate until excluded.
+In particular, we
+[write out the first iteration separately](https://github.com/ssomers/Bron-Kerbosch/blob/master/python3/bron_kerbosch2_gp.py),
+because in that first iteration the set of candidate vertices starts off being huge, with every connected vertex in the graph,
+but that set doesn't have to be represented at all because every reachable vertex is a candidate until excluded.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -121,8 +122,8 @@ Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How d
 ![Ver3 structure](doc/Ver3.dot.svg)
 
 We already specialized the first iteration in Ver2, and Ver3 changes the order in the first iteration
-to the graph's degeneracy order.
-So we definitely write [the first iteration separately](python3/bron_kerbosch3_gp.py).
+to the graph's degeneracy order. So we definitely
+[write the first iteration separately](https://github.com/ssomers/Bron-Kerbosch/blob/master/python3/bron_kerbosch3_gp.py).
 Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
 - 1 task generating the degeneracy order of the graph,
 - 1 task performing the first iteration in that order,
