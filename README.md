@@ -176,9 +176,9 @@ various generic set implementations.
 
 ### Rust
 * **BTree:** `std::collections::BTreeSet`
-* **Hash:** `std::collections::HashSet`, a wrapper around a version of hashbrown
-* **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.11
-* **fnv:** `FnvHashSet` from [crate fnv](https://crates.io/crates/fnv) 1.0
+* **Hash:** `std::collections::HashSet`, a wrapper around a version of hashbrown, in particular 0.11.0 in Rust 1.58.0
+* **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.12
+* **fnv:** `FnvHashSet` from [crate fnv](https://crates.io/crates/fnv) 1.0.7
 * **ord_vec:** ordered `std::collections::Vec` (obviously, this can only work well on small graphs)
 
 #### Results
