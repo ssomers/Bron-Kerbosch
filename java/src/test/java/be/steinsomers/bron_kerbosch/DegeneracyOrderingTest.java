@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("LawOfDemeter")
 final class DegeneracyOrderingTest {
     private static SortedSet<Integer> sortedDegeneracyOrdering(UndirectedGraph g, int drop) {
         SortedSet<Integer> vertices = new TreeSet<>();
@@ -104,11 +103,6 @@ final class DegeneracyOrderingTest {
         var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         var g = new UndirectedGraph(adjacencies);
         var ordering = new DegeneracyOrdering(g, 0);
-        /*
-        var result = ordering.stream().reduce((int first, int v) ->
-                first != -1 && g.degree(first) <= g.degree(v) ? first : -1);
-        return result.isEmpty() || result.getAsInt() != -1;
-        */
         int first;
         try {
             first = ordering.nextInt();

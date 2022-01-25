@@ -3,7 +3,6 @@ package be.steinsomers.bron_kerbosch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -19,7 +18,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
     // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
     // otherwise, vertex is still queued and priority = degree + 1 - number of picked neighbours.
     private final int[] priority_per_vertex;
-    private final SimplePriorityQueue queue;
+    private final SimplePriorityQueue<Integer> queue;
     private int num_left_to_pick;
 
     DegeneracyOrdering(UndirectedGraph graph, int drop) {
@@ -38,7 +37,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
                 numCandidates += 1;
             }
         }
-        queue = new SimplePriorityQueue(maxPriority, numCandidates);
+        queue = new SimplePriorityQueue<>(maxPriority, numCandidates);
         for (int candidate = 0; candidate < order; ++candidate) {
             var priority = priority_per_vertex[candidate];
             if (priority != 0) {
@@ -58,10 +57,10 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
         assert IntStream.range(0, priority_per_vertex.length)
                 .allMatch(v -> priority_per_vertex[v] == 0
                         || queue.contains(priority_per_vertex[v], v));
-        var i = queue.pop().orElseThrow(() -> new NoSuchElementException("gotcha"));
+        var i = queue.pop();
         while (priority_per_vertex[i] == 0) {
             // v was requeued with a more urgent priority and therefore already picked
-            i = queue.pop().orElseThrow();
+            i = queue.pop();
         }
 
         priority_per_vertex[i] = 0;
@@ -82,19 +81,19 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
         return i;
     }
 
-    private static final class SimplePriorityQueue {
-        private final List<ArrayList<Integer>> stack_per_priority;
+    private static final class SimplePriorityQueue<T> {
+        private final List<ArrayList<T>> stack_per_priority;
         private final int sizeHint;
 
         SimplePriorityQueue(int maxPriority, int sizeHint) {
             stack_per_priority = Stream
-                    .generate((Supplier<ArrayList<Integer>>) ArrayList::new)
+                    .generate((Supplier<ArrayList<T>>) ArrayList::new)
                     .limit(maxPriority)
                     .collect(Collectors.toCollection(ArrayList::new));
             this.sizeHint = sizeHint;
         }
 
-        void put(int priority, int elt) {
+        void put(int priority, T elt) {
             var stack = stack_per_priority.get(priority - 1);
             if (stack == null) {
                 stack = new ArrayList<>(sizeHint);
@@ -102,19 +101,19 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
             stack.add(elt);
         }
 
-        OptionalInt pop() {
+        T pop() {
             for (var stack : stack_per_priority) {
                 if (!stack.isEmpty()) {
                     var last = stack.size() - 1;
                     var elt = stack.get(last);
                     stack.remove(last);
-                    return OptionalInt.of(elt);
+                    return elt;
                 }
             }
-            return OptionalInt.empty();
+            throw new NoSuchElementException("attempt to pop more than was put");
         }
 
-        boolean contains(int priority, int elt) {
+        boolean contains(int priority, T elt) {
             return stack_per_priority.get(priority - 1).contains(elt);
         }
     }
