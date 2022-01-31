@@ -7,21 +7,17 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 final class BronKerboschTest {
     private static void bk(Collection<List<Integer>> adjacenciesList,
                            List<List<Integer>> expectedCliques) {
-        var adjacencies = adjacenciesList.stream()
-                .map(Set::copyOf)
-                .collect(Collectors.toUnmodifiableList());
+        var adjacencies = adjacenciesList.stream().map(Set::copyOf).toList();
         var graph = new UndirectedGraph(adjacencies);
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
             var funcName = Main.FUNC_NAMES[funcIndex];
             Collection<int[]> rawCliques;
             try {
-                rawCliques = Main.FUNCS[funcIndex].explore(graph)
-                        .collect(Collectors.toUnmodifiableList());
+                rawCliques = Main.FUNCS[funcIndex].explore(graph).toList();
             } catch (InterruptedException ex) {
                 throw new AssertionError(ex);
             }

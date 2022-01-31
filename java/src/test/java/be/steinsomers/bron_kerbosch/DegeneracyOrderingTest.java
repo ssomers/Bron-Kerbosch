@@ -61,9 +61,9 @@ final class DegeneracyOrderingTest {
     private static List<Set<Integer>> makeSymmetricAdjacencies(List<Set<Integer>> adjacencyLikes) {
         final var order = adjacencyLikes.size();
         final List<Set<Integer>> adjacencies = Stream
-                .generate(() -> new HashSet<Integer>())
+                .generate(() -> (Set<Integer>) new HashSet<Integer>(16))
                 .limit(order)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         for (int v = 0; v < order; ++v) {
             var neighbours = adjacencyLikes.get(v);
             for (int w : neighbours) {

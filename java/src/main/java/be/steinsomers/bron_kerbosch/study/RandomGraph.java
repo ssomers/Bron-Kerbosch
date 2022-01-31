@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class RandomGraph extends UndirectedGraph {
@@ -22,9 +21,9 @@ final class RandomGraph extends UndirectedGraph {
 
     private static List<Set<Integer>> new_sets(int n) {
         return Stream
-                .generate(() -> new HashSet<Integer>())
+                .generate(() -> (Set<Integer>) new HashSet<Integer>(16))
                 .limit(n)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     static RandomGraph readUndirected(String orderStr, int order, int size) throws IOException {

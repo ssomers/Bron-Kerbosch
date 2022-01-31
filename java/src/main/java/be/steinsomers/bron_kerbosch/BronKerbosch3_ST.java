@@ -1,8 +1,5 @@
 package be.steinsomers.bron_kerbosch;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -12,12 +9,9 @@ import java.util.stream.Stream;
 public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     private UndirectedGraph graph;
 
-    @Data
-    @RequiredArgsConstructor
-    private static final class VisitJob {
-        private final int startVertex;
-        private final Set<Integer> mut_candidates;
-        private final Set<Integer> mut_excluded;
+    private record VisitJob(int startVertex,
+                            Set<Integer> mut_candidates,
+                            Set<Integer> mut_excluded) {
     }
 
     private final class VisitProducer {
@@ -62,7 +56,7 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
         return ordering.stream()
                 .mapToObj(visitProducer::createJob)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableList())
+                .toList()
                 .parallelStream()
                 .flatMap(visitor::visit);
     }

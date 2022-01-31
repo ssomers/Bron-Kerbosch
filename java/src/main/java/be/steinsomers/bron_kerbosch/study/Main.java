@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 final class Main {
@@ -50,10 +49,7 @@ final class Main {
     static List<List<Integer>> OrderCliques(Collection<int[]> cliques) {
         assert cliques.stream().allMatch(clique -> clique.length > 1);
         return cliques.stream()
-                .map(clique -> Arrays.stream(clique)
-                        .sorted()
-                        .boxed()
-                        .collect(Collectors.toUnmodifiableList()))
+                .map(clique -> Arrays.stream(clique).sorted().boxed().toList())
                 .sorted((clique1, clique2) ->
                         IntStream.range(0, Math.min(clique1.size(), clique2.size()))
                                 .map((int i) -> clique1.get(i) - clique2.get(i))
@@ -62,7 +58,7 @@ final class Main {
                                 .orElseThrow(() -> new IllegalArgumentException(String.format(
                                         "got overlapping or equal cliques %s <> %s",
                                         clique1, clique2))))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
     private static SampleStatistics[] bron_kerbosch_timed(RandomGraph graph,
@@ -74,8 +70,7 @@ final class Main {
         for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
                 if (sample == 0) {
-                    var cliques = FUNCS[funcIndex].explore(graph)
-                            .collect(Collectors.toUnmodifiableList());
+                    var cliques = FUNCS[funcIndex].explore(graph).toList();
                     var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
                         if (cliques.size() != graph.cliqueCount) {
