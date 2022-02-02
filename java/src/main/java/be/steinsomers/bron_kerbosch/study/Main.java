@@ -19,9 +19,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+@SuppressWarnings("UseOfConcreteClass")
 final class Main {
     static final String[] FUNC_NAMES = {
             "Ver1½",
@@ -61,7 +63,7 @@ final class Main {
                 .toList();
     }
 
-    private static SampleStatistics[] bron_kerbosch_timed(RandomGraph graph,
+    private static SampleStatistics[] bron_kerbosch_timed(GraphTestData testData,
                                                           int samples, int[] funcIndices)
             throws InterruptedException {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
@@ -70,10 +72,10 @@ final class Main {
         for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
             for (int funcIndex : funcIndices) {
                 if (sample == 0) {
-                    var cliques = FUNCS[funcIndex].explore(graph).toList();
+                    var cliques = FUNCS[funcIndex].explore(testData.graph()).toList();
                     var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
-                        if (cliques.size() != graph.cliqueCount) {
+                        if (cliques.size() != testData.cliqueCount()) {
                             throw new AssertionError("Inconsistent results");
                         }
                         firstOrdered = Optional.of(ordered);
@@ -84,9 +86,9 @@ final class Main {
                     }
                 } else {
                     var start = System.nanoTime();
-                    var cliqueCount = FUNCS[funcIndex].explore(graph).count();
+                    var cliqueCount = FUNCS[funcIndex].explore(testData.graph()).count();
                     var elapsed = System.nanoTime() - start;
-                    if (cliqueCount != graph.cliqueCount) {
+                    if (cliqueCount != testData.cliqueCount()) {
                         throw new AssertionError("Inconsistent results");
                     }
                     times[funcIndex].put(elapsed);
@@ -108,26 +110,26 @@ final class Main {
             fo.write("Size");
             for (var funcIndex : funcIndices) {
                 var fn = FUNC_NAMES[funcIndex];
-                fo.write(String.format(",%s min,%s mean,%s max", fn, fn, fn));
+                fo.write(String.format(Locale.US, ",%s min,%s mean,%s max", fn, fn, fn));
             }
             fo.write(System.lineSeparator());
 
             for (var size : sizes) {
                 var start = System.nanoTime();
-                var graph = RandomGraph.readUndirected(orderStr, order, size);
+                var testData = GraphTestData.readUndirected(orderStr, order, size);
                 var elapsed = System.nanoTime() - start;
                 System.out.printf("%4s nodes, %7d edges, creation: %6.3f%n",
                         orderStr, size, elapsed / 1e9);
-                var times = bron_kerbosch_timed(graph, samples, funcIndices);
+                var times = bron_kerbosch_timed(testData, samples, funcIndices);
 
-                fo.write(String.format("%d", size));
+                fo.write(String.format(Locale.US, "%d", size));
                 for (var funcIndex : funcIndices) {
                     var funcName = FUNC_NAMES[funcIndex];
                     double max = times[funcIndex].max() / 1e9;
                     double min = times[funcIndex].min() / 1e9;
                     double mean = times[funcIndex].mean() / 1e9;
                     double dev = times[funcIndex].deviation() / 1e9;
-                    fo.write(String.format(",%f,%f,%f", min, mean, max));
+                    fo.write(String.format(Locale.US, ",%f,%f,%f", min, mean, max));
                     System.out.printf("%4s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
                             orderStr, size, funcName, mean, 100 * dev / mean);
                 }
@@ -140,6 +142,7 @@ final class Main {
         }
     }
 
+    @SuppressWarnings("CommentedOutCode")
     public static void main(String[] args) throws InterruptedException {
         assert false : "Omit -ea for meaningful measurements";
 

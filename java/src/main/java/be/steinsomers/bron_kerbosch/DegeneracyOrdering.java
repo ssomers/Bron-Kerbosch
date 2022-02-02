@@ -18,6 +18,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
     // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
     // otherwise, vertex is still queued and priority = degree + 1 - number of picked neighbours.
     private final int[] priority_per_vertex;
+    @SuppressWarnings("UseOfConcreteClass")
     private final SimplePriorityQueue<Integer> queue;
     private int num_left_to_pick;
 

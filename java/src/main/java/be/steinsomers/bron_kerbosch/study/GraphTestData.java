@@ -11,14 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-final class RandomGraph extends UndirectedGraph {
-    public final int cliqueCount;
-
-    private RandomGraph(List<Set<Integer>> adjacencies, int cliqueCount) {
-        super(adjacencies);
-        this.cliqueCount = cliqueCount;
-    }
-
+record GraphTestData(UndirectedGraph graph, int cliqueCount) {
     private static List<Set<Integer>> new_sets(int n) {
         return Stream
                 .generate(() -> (Set<Integer>) new HashSet<Integer>(16))
@@ -26,7 +19,7 @@ final class RandomGraph extends UndirectedGraph {
                 .toList();
     }
 
-    static RandomGraph readUndirected(String orderStr, int order, int size) throws IOException {
+    static GraphTestData readUndirected(String orderStr, int order, int size) throws IOException {
         assert order > 2;
         assert size >= 0;
         var fullyMeshedSize = ((long) order) * (order - 1) / 2;
@@ -40,10 +33,10 @@ final class RandomGraph extends UndirectedGraph {
         var adjacencies = readEdges(edgesPath, order, size);
         var cliqueCount = readStats(statsPath, orderStr, size);
 
-        var g = new RandomGraph(adjacencies, cliqueCount);
+        var g = new UndirectedGraph(adjacencies);
         if (g.order() != order) throw new AssertionError("order mishap");
         if (g.size() != size) throw new AssertionError("size mishap");
-        return g;
+        return new GraphTestData(g, cliqueCount);
     }
 
     private static List<Set<Integer>> readEdges(Path path, int order, int size) throws IOException {

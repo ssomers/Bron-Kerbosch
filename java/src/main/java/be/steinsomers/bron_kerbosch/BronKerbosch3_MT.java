@@ -1,6 +1,5 @@
 package be.steinsomers.bron_kerbosch;
 
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +22,6 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     private BlockingQueue<VisitJob> visitQueue;
     private Collection<int[]> cliques;
 
-    @Data
     @RequiredArgsConstructor
     private static final class VisitJob {
         private final int startVertex;
@@ -50,6 +48,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
 
     @NoArgsConstructor
     private final class VisitProducer extends Thread {
+        @SuppressWarnings("UseOfConcreteClass")
         @Override
         public void run() {
             try {
@@ -84,6 +83,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
 
     @NoArgsConstructor
     private final class Visitor extends Thread {
+        @SuppressWarnings("UseOfConcreteClass")
         @Override
         public void run() {
             try {
@@ -107,7 +107,9 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     @Override
     public Stream<int[]> explore(UndirectedGraph graph) throws InterruptedException {
         this.graph = graph;
-        cliques = Collections.synchronizedCollection(new ArrayDeque<>());
+        @SuppressWarnings("NumericCastThatLosesPrecision")
+        var initialCap = (int) Math.floor(Math.sqrt(graph.size()));
+        cliques = Collections.synchronizedCollection(new ArrayDeque<>(initialCap));
         startQueue = new ArrayBlockingQueue<>(64);
         visitQueue = new ArrayBlockingQueue<>(64);
         new StartProducer().start();

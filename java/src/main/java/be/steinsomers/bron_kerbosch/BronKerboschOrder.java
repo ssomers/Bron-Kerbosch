@@ -1,20 +1,13 @@
-package be.steinsomers.bron_kerbosch;
 // Bron-Kerbosch algorithm with degeneracy ordering
+package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class BronKerboschOrder implements BronKerboschAlgorithm {
-    private final PivotChoice itsPivotChoice;
-
-    BronKerboschOrder(PivotChoice furtherPivotChoice) {
-        itsPivotChoice = furtherPivotChoice;
-    }
-
-    @Override
-    public final Stream<int[]> explore(UndirectedGraph graph) {
+final class BronKerboschOrder {
+    public static Stream<int[]> explore(UndirectedGraph graph, PivotChoice furtherPivotChoice) {
         Stream.Builder<int[]> cliqueStream = Stream.builder();
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
@@ -30,7 +23,7 @@ class BronKerboschOrder implements BronKerboschAlgorithm {
                         .collect(Collectors.toCollection(HashSet::new));
                 BronKerboschPivot.visit(
                         graph, cliqueStream,
-                        itsPivotChoice,
+                        furtherPivotChoice,
                         neighbouringCandidates,
                         neighbouringExcluded,
                         new int[]{v}

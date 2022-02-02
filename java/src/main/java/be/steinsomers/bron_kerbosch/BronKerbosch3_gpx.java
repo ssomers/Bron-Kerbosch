@@ -1,7 +1,10 @@
 package be.steinsomers.bron_kerbosch;
 
-public final class BronKerbosch3_gpx extends BronKerboschOrder {
-    public BronKerbosch3_gpx() {
-        super(PivotChoice.MaxDegreeLocalX);
+import java.util.stream.Stream;
+
+public final class BronKerbosch3_gpx implements BronKerboschAlgorithm {
+    @Override
+    public Stream<int[]> explore(UndirectedGraph graph) {
+        return BronKerboschOrder.explore(graph, PivotChoice.MaxDegreeLocalX);
     }
 }

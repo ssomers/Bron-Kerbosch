@@ -10,7 +10,7 @@ final class SampleStatistics {
     public void put(long v) {
         if (samples == 0 || min > v) {
             min = v;
-         }
+        }
         if (samples == 0 || max < v) {
             max = v;
         }
