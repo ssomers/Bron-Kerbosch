@@ -22,7 +22,7 @@ public record UndirectedGraph(List<Set<Integer>> adjacencies) {
     }
 
     public int size() {
-        int total = IntStream.range(0, order()).map(this::degree).sum();
+        int total = adjacencies.stream().mapToInt(Set::size).sum();
         assert total % 2 == 0;
         return total / 2;
     }

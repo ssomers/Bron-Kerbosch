@@ -30,7 +30,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @NoArgsConstructor
-    private final class StartProducer extends Thread {
+    private final class StartProducer implements Runnable {
         @Override
         public void run() {
             try {
@@ -47,7 +47,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @NoArgsConstructor
-    private final class VisitProducer extends Thread {
+    private final class VisitProducer implements Runnable {
         @SuppressWarnings("UseOfConcreteClass")
         @Override
         public void run() {
@@ -82,7 +82,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     }
 
     @NoArgsConstructor
-    private final class Visitor extends Thread {
+    private final class Visitor implements Runnable {
         @SuppressWarnings("UseOfConcreteClass")
         @Override
         public void run() {
@@ -112,11 +112,11 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         cliques = Collections.synchronizedCollection(new ArrayDeque<>(initialCap));
         startQueue = new ArrayBlockingQueue<>(64);
         visitQueue = new ArrayBlockingQueue<>(64);
-        new StartProducer().start();
-        new VisitProducer().start();
-        var visitors = new Visitor[NUM_VISITING_THREADS];
+        new Thread(new StartProducer()).start();
+        new Thread(new VisitProducer()).start();
+        var visitors = new Thread[NUM_VISITING_THREADS];
         for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
-            visitors[i] = new Visitor();
+            visitors[i] = new Thread(new Visitor());
             visitors[i].start();
         }
         for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
