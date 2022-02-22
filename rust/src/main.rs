@@ -7,32 +7,17 @@ use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNC
 use random_graph::{parse_positive_int, read_undirected, Size};
 use stats::SampleStatistics;
 
+use clap::{arg, command};
 use fnv::FnvHashSet;
 use itertools::Itertools;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
 use std::path::Path;
+use std::str::FromStr;
 use std::thread;
 use std::time::{Duration, Instant};
-use structopt::StructOpt;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
-
-#[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
-struct Opt {
-    #[structopt(long = "ver")]
-    ver: Option<usize>,
-
-    #[structopt(long = "set")]
-    set: Option<SetType>,
-
-    #[structopt(name = "order", default_value = "")]
-    order: String,
-
-    #[structopt(name = "sizes")]
-    sizes: Vec<String>,
-}
 
 #[derive(Copy, Clone, Debug, Display, EnumIter, EnumString, Eq, PartialEq, Ord, PartialOrd)]
 enum SetType {
@@ -207,7 +192,7 @@ fn bk(
 ) -> Result<(), std::io::Error> {
     const LANGUAGE: &str = "rust";
 
-    let sizes: Vec<_> = sizes.collect();
+    let sizes = Vec::from_iter(sizes);
     let published = sizes.len() > 1;
     let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
     let temppath = Path::new("tmp").with_extension("csv");
@@ -275,8 +260,13 @@ fn bk(
 }
 
 fn main() -> Result<(), std::io::Error> {
-    let opt = Opt::from_args();
-    if opt.order.is_empty() && opt.ver.is_none() && opt.set.is_none() {
+    let matches = command!()
+        .arg(arg!(-v --ver <VER>).required(false))
+        .arg(arg!(-s --set <SET>).required(false))
+        .arg(arg!([order]))
+        .arg(arg!([size] ... ))
+        .get_matches();
+    if !matches.args_present() {
         debug_assert!(false, "Run with --release for meaningful measurements");
         bk(
             "100",
@@ -321,18 +311,24 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-    } else if !opt.order.is_empty() && !opt.sizes.is_empty() {
-        let sizes = opt.sizes.iter().map(|s| parse_positive_int(s));
+    } else if let (Some(order), Some(sizes)) =
+        (matches.value_of("order"), matches.values_of("size"))
+    {
+        let forced_set_type = matches
+            .value_of("set")
+            .map(|t| SetType::from_str(t).unwrap());
+        let sizes = sizes.map(parse_positive_int);
         let included_funcs = |set_type: SetType, _size: usize| -> Vec<usize> {
-            if opt.set.filter(|&s| s != set_type).is_some() {
+            if forced_set_type.is_some() && forced_set_type != Some(set_type) {
                 vec![]
-            } else if let Some(func_index) = opt.ver {
+            } else if let Some(v) = matches.value_of("ver") {
+                let func_index = usize::from_str(v).unwrap();
                 vec![func_index]
             } else {
                 (0..NUM_FUNCS).collect()
             }
         };
-        bk(&opt.order, sizes, 1, included_funcs)?;
+        bk(order, sizes, 1, included_funcs)?;
     } else {
         eprintln!("Specify order and size(s)")
     }
