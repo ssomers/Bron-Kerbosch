@@ -1,4 +1,4 @@
-pub use crate::vertex::Vertex;
+pub use super::vertex::Vertex;
 
 use rand::Rng;
 use std::fmt::Debug;

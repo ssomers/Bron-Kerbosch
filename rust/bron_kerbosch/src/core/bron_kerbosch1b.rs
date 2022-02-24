@@ -1,8 +1,8 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use crate::graph::{connected_vertices, UndirectedGraph, Vertex, VertexSetLike};
-use crate::pile::Pile;
-use crate::reporter::Reporter;
+use super::graph::{connected_vertices, UndirectedGraph, Vertex, VertexSetLike};
+use super::pile::Pile;
+use super::reporter::Reporter;
 
 type Clique<'a> = Pile<'a, Vertex>;
 

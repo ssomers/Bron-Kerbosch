@@ -1,8 +1,8 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
-use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
-use crate::pile::Pile;
-use crate::reporter::Reporter;
+use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use super::pile::Pile;
+use super::reporter::Reporter;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {

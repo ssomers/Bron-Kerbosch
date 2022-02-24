@@ -1,8 +1,8 @@
 //! Bron-Kerbosch algorithm with pivot picked randomly (IK_RP)
 
-use crate::bron_kerbosch_pivot::{visit, PivotChoice};
-use crate::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
-use crate::reporter::Reporter;
+use super::bron_kerbosch_pivot::{visit, PivotChoice};
+use super::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
+use super::reporter::Reporter;
 
 pub fn explore<Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where

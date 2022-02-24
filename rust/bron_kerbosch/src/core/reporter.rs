@@ -1,4 +1,4 @@
-use crate::graph::Vertex;
+use super::vertex::Vertex;
 
 pub type Clique = Vec<Vertex>;
 

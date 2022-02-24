@@ -1,7 +1,7 @@
 //! Naive Bron-Kerbosch algorithm
 
-use crate::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
-use crate::reporter::{Clique, Reporter};
+use super::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
+use super::reporter::{Clique, Reporter};
 
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where

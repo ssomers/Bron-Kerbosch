@@ -2,11 +2,11 @@
 //! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
-use crate::bron_kerbosch_pivot::{visit, PivotChoice};
-use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
-use crate::graph_degeneracy::degeneracy_ordering;
-use crate::pile::Pile;
-use crate::reporter::{Clique, Reporter};
+use super::bron_kerbosch_pivot::{visit, PivotChoice};
+use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use super::graph_degeneracy::degeneracy_ordering;
+use super::pile::Pile;
+use super::reporter::{Clique, Reporter};
 
 struct SendingReporter {
     tx: crossbeam_channel::Sender<Clique>,

@@ -1,9 +1,9 @@
 //! Bron-Kerbosch algorithm with pivot of highest degree (IK_GP)
 
-use crate::bron_kerbosch_pivot::{visit, PivotChoice};
-use crate::graph::{UndirectedGraph, Vertex, VertexSetLike};
-use crate::pile::Pile;
-use crate::reporter::Reporter;
+use super::bron_kerbosch_pivot::{visit, PivotChoice};
+use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use super::pile::Pile;
+use super::reporter::Reporter;
 
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
 where
@@ -24,7 +24,7 @@ where
                     visit(
                         graph,
                         reporter,
-                        PivotChoice::Arbitrary,
+                        PivotChoice::MaxDegreeLocal,
                         neighbouring_candidates,
                         neighbouring_excluded,
                         Some(&Pile::from(v)),

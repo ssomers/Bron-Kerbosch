@@ -1,5 +1,5 @@
-pub use crate::vertex::{Vertex, VertexMap};
-pub use crate::vertexsetlike::VertexSetLike;
+pub use super::vertex::{Vertex, VertexMap};
+pub use super::vertexsetlike::VertexSetLike;
 
 pub trait UndirectedGraph: Sync {
     type VertexSet: VertexSetLike;

@@ -1,9 +1,8 @@
 mod random_graph;
 
-use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
-use bron_kerbosch::reporters::{CountingReporter, SimpleReporter};
-use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
+use bron_kerbosch::{CountingReporter, SimpleReporter};
+use bron_kerbosch::{NewableUndirectedGraph, SlimUndirectedGraph, Vertex, VertexSetLike};
 use random_graph::{parse_positive_int, read_undirected, Size};
 use stats::SampleStatistics;
 
@@ -80,7 +79,7 @@ where
                 if secs >= 3.0 {
                     println!("  {:8}: {}s", FUNC_NAMES[func_index], secs);
                 }
-                let current = order_cliques(reporter.cliques);
+                let current = order_cliques(reporter.cliques.into_iter());
                 if let Some(first_result) = first.as_ref() {
                     if *first_result != current {
                         eprintln!(

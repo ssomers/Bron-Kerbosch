@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use bron_kerbosch::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;

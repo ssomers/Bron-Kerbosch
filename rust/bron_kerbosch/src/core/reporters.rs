@@ -1,6 +1,5 @@
-use crate::graph::Vertex;
-use crate::reporter::{Clique, Reporter};
-
+pub use crate::core::reporter::{Clique, Reporter};
+use crate::core::vertex::Vertex;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Default)]

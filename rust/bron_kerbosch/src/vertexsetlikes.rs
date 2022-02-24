@@ -1,4 +1,4 @@
-use crate::vertexsetlike::{Vertex, VertexSetLike};
+use crate::core::vertexsetlike::{Vertex, VertexSetLike};
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use rand::{seq::IteratorRandom, seq::SliceRandom, Rng};
