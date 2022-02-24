@@ -154,8 +154,7 @@ mod tests {
                 }),
                 |adjac| {
                     let order = adjac.len();
-                    let adjacencies: Vec<BTreeSet<Vertex>> =
-                        (0..order).map(|_| BTreeSet::new()).collect();
+                    let adjacencies = Vec::from_iter((0..order).map(|_| BTreeSet::new()));
                     let mut adjacencies = Adjacencies::sneak_in(adjacencies);
                     for (v, adjacent_to_v) in adjac.iter().enumerate() {
                         let v = Vertex::new(v);
@@ -171,8 +170,8 @@ mod tests {
                     let g = SlimUndirectedGraph::new(adjacencies);
                     let connected = connected_vertices(&g);
 
-                    let ordering: Vec<Vertex> = degeneracy_ordering(&g, 0).collect();
-                    let ordering_set: BTreeSet<Vertex> = ordering.iter().copied().collect();
+                    let ordering = Vec::from_iter(degeneracy_ordering(&g, 0));
+                    let ordering_set = BTreeSet::from_iter(ordering.iter().copied());
                     assert_eq!(ordering.len(), ordering_set.len(), "duplicates in ordering");
                     assert_eq!(ordering_set, connected);
                     if let Some(&first) = ordering.first() {
@@ -181,7 +180,7 @@ mod tests {
                         }
                     }
 
-                    let orderin: Vec<Vertex> = degeneracy_ordering(&g, -1).collect();
+                    let orderin = Vec::from_iter(degeneracy_ordering(&g, -1));
                     assert_eq!(orderin, ordering[..connected.len().saturating_sub(1)]);
                     Ok(())
                 },

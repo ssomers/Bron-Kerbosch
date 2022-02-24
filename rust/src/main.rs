@@ -1,7 +1,7 @@
 mod random_graph;
 
 use bron_kerbosch::graph::{NewableUndirectedGraph, Vertex, VertexSetLike};
-use bron_kerbosch::reporter::{CountingReporter, SimpleReporter};
+use bron_kerbosch::reporters::{CountingReporter, SimpleReporter};
 use bron_kerbosch::slimgraph::SlimUndirectedGraph;
 use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
 use random_graph::{parse_positive_int, read_undirected, Size};
@@ -44,10 +44,10 @@ where
     VertexSet: VertexSetLike + Clone,
     G: NewableUndirectedGraph<VertexSet>,
 {
-    let Size::Of(size) = size;
     let instant = Instant::now();
-    let (g, known_clique_count) = read_undirected(orderstr, Size::Of(size)).unwrap();
+    let (g, known_clique_count) = read_undirected(orderstr, size).unwrap();
     let seconds = instant.elapsed().as_secs_f32();
+    let Size::Of(size) = size;
     println!(
         "{}-based random graph of order {}, size {}, {} cliques: (generating took {:.3}s)",
         set_type,

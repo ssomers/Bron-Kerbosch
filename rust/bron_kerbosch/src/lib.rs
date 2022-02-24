@@ -13,12 +13,15 @@ pub mod graph;
 pub mod graph_degeneracy;
 pub mod pile;
 pub mod reporter;
+pub mod reporters;
 pub mod slimgraph;
 mod vertex;
-mod vertexset;
+mod vertexsetlike;
+mod vertexsetlikes;
 
 use graph::{UndirectedGraph, Vertex, VertexSetLike};
-use reporter::{Clique, Reporter, SimpleReporter};
+use reporter::{Clique, Reporter};
+use reporters::SimpleReporter;
 use std::collections::BTreeSet;
 
 #[cfg(not(miri))]
