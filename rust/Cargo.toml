@@ -1,6 +1,6 @@
 [package]
 name = "compare_bron_kerbosch_on_random_graphs"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
 edition = "2021"
 
@@ -12,11 +12,11 @@ debug = true
 [dependencies]
 bron_kerbosch = { path="bron_kerbosch" }
 stats = { path="stats" }
-anyhow = "*"
-clap = { features = ["cargo"] }
-csv = "*"
-fnv = "*"
-hashbrown = "*"
-itertools = "*"
-strum = "*"
-strum_macros = "*"
+anyhow = "1.0.12"
+clap = {version = "3.1.0", features = ["cargo"]}
+csv = "1.0.0"
+fnv = "1.0.5"
+hashbrown = "0.11.0"
+itertools = "0.10.0"
+strum = "0.23.0"
+strum_macros = "0.23.1"
