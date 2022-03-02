@@ -373,22 +373,18 @@ def publish_library_report(basename: str, orderstr: str, language: str,
 
 
 def publish_reports() -> None:
-
-    def dash_by_case(case_name: str) -> str:
-        return "solid" if case_name.endswith("½") else "dotted"
-
     # 1. Ver1 vs. Ver1½
     publish_report(basename="report_1",
                    orderstr="100",
                    langlibs=["python3", "rust@Hash"],
                    versions=["Ver1", "Ver1½"],
-                   dash_by_case=dash_by_case)
+                   dash_by_case=lambda name: "solid" if name.endswith("½") else "dotted")
     # 2. Ver1 vs. Ver2
     publish_report(basename="report_2",
                    orderstr="100",
                    langlibs=["java", "scala", "rust@Hash"],
                    versions=["Ver1½", "Ver2½"],
-                   dash_by_case=dash_by_case)
+                   dash_by_case=lambda name: "solid" if name.endswith("2½") else "dotted")
     # 3. Ver2 variants
     for orderstr in ["100", "10k"]:
         for langlib in ["rust@Hash", "java"]:
