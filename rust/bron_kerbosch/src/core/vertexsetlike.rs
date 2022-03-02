@@ -4,20 +4,16 @@ use rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;
 
-pub trait VertexSetLike: Eq + Debug + FromIterator<Vertex> {
+pub trait VertexSetLike: Debug + Eq + FromIterator<Vertex> + Send {
     fn new() -> Self;
     fn with_capacity(capacity: usize) -> Self;
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
     fn contains(&self, v: Vertex) -> bool;
-    fn difference_collect<C>(&self, other: &Self) -> C
-    where
-        C: FromIterator<Vertex>;
+    fn difference_collect(&self, other: &Self) -> Self;
     fn is_disjoint(&self, other: &Self) -> bool;
     fn intersection_size(&self, other: &Self) -> usize;
-    fn intersection_collect<C>(&self, other: &Self) -> C
-    where
-        C: FromIterator<Vertex>;
+    fn intersection_collect(&self, other: &Self) -> Self;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: Vertex);

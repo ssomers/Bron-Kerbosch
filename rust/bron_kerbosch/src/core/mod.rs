@@ -20,7 +20,7 @@ pub mod tests;
 pub mod vertex;
 pub mod vertexsetlike;
 
-use graph::{UndirectedGraph, Vertex, VertexSetLike};
+use graph::{UndirectedGraph, Vertex};
 use reporter::{Clique, Reporter};
 use std::collections::BTreeSet;
 
@@ -44,7 +44,6 @@ pub static FUNC_NAMES: &[&str; 10] = &[
 pub fn explore<Graph, Rprtr>(func_index: usize, graph: &Graph, reporter: &mut Rprtr)
 where
     Graph: UndirectedGraph,
-    Graph::VertexSet: VertexSetLike + Send,
     Rprtr: Reporter,
 {
     match func_index {
