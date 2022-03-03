@@ -58,15 +58,12 @@ where
     (g, known_clique_count)
 }
 
-fn bron_kerbosch_timed<VertexSet>(
+fn bron_kerbosch_timed<VertexSet: VertexSetLike>(
     graph: &SlimUndirectedGraph<VertexSet>,
     known_clique_count: Option<usize>,
     samples: u32,
     func_indices: &[usize],
-) -> [SampleStatistics<Seconds>; NUM_FUNCS]
-where
-    VertexSet: VertexSetLike + Send + Sync,
-{
+) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
     for sample in 0..=(if samples == 1 { 0 } else { samples }) {
@@ -123,16 +120,13 @@ where
     times
 }
 
-fn bk_core_core<VertexSet>(
+fn bk_core_core<VertexSet: VertexSetLike + Clone>(
     orderstr: &str,
     size: usize,
     samples: u32,
     set_type: SetType,
     func_indices: &[usize],
-) -> [SampleStatistics<Seconds>; NUM_FUNCS]
-where
-    VertexSet: VertexSetLike + Clone + Sync + Send,
-{
+) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let (graph, known_clique_count): (SlimUndirectedGraph<VertexSet>, _) =
         read_random_graph(set_type, orderstr, Size::Of(size));
     bron_kerbosch_timed(&graph, known_clique_count, samples, func_indices)

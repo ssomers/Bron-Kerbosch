@@ -4,17 +4,11 @@ use super::graph::{
 };
 
 #[derive(Debug)]
-pub struct SlimUndirectedGraph<VertexSet>
-where
-    VertexSet: Sync,
-{
+pub struct SlimUndirectedGraph<VertexSet: VertexSetLike> {
     adjacencies: Adjacencies<VertexSet>,
 }
 
-impl<VertexSet> UndirectedGraph for SlimUndirectedGraph<VertexSet>
-where
-    VertexSet: VertexSetLike + Sync,
-{
+impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet> {
     type VertexSet = VertexSet;
 
     fn order(&self) -> usize {
@@ -38,7 +32,7 @@ where
 
 impl<VertexSet> NewableUndirectedGraph<VertexSet> for SlimUndirectedGraph<VertexSet>
 where
-    VertexSet: VertexSetLike + Sync,
+    VertexSet: VertexSetLike,
 {
     fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
         debug_assert!(are_valid_adjacencies(&adjacencies));

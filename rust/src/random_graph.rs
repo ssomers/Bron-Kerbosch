@@ -29,19 +29,12 @@ pub fn parse_positive_int(value: &str) -> usize {
     num * factor
 }
 
-fn new_adjacencies<VertexSet>(order: usize) -> Adjacencies<VertexSet>
-where
-    VertexSet: VertexSetLike + Clone,
-{
-    Adjacencies::sneak_in(std::vec::from_elem(VertexSet::new(), order))
-}
-
 fn read_edges<VertexSet>(path: &Path, orderstr: &str, size: usize) -> Result<Adjacencies<VertexSet>>
 where
     VertexSet: VertexSetLike + Clone,
 {
     let order = parse_positive_int(orderstr);
-    let mut adjacency_sets: Adjacencies<VertexSet> = new_adjacencies(order);
+    let mut adjacencies = Adjacencies::new(VertexSet::new(), order);
     let context = |line_num| {
         move || {
             let line_str = if line_num > 0 {
@@ -72,15 +65,15 @@ where
         let v = Vertex::new(v.parse().with_context(context(line_num))?);
         let w = Vertex::new(w.parse().with_context(context(line_num))?);
         debug_assert_ne!(v, w);
-        debug_assert!(!adjacency_sets[v].contains(w));
-        debug_assert!(!adjacency_sets[w].contains(v));
-        adjacency_sets[v].insert(w);
-        adjacency_sets[w].insert(v);
+        debug_assert!(!adjacencies[v].contains(w));
+        debug_assert!(!adjacencies[w].contains(v));
+        adjacencies[v].insert(w);
+        adjacencies[w].insert(v);
     }
     if line_num < size {
         return Err(anyhow!("Exhausted generated list of edges")).with_context(context(line_num));
     }
-    Ok(adjacency_sets)
+    Ok(adjacencies)
 }
 
 fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<usize>> {
@@ -121,10 +114,10 @@ where
     let stats_name = "random_stats.txt";
     let edges_pbuf: PathBuf = ["..", "data", edges_name].iter().collect();
     let stats_pbuf: PathBuf = ["..", "data", stats_name].iter().collect();
-    let adjacency_sets = read_edges(edges_pbuf.as_path(), orderstr, size)?;
+    let adjacencies = read_edges(edges_pbuf.as_path(), orderstr, size)?;
     let clique_count = read_clique_count(stats_pbuf.as_path(), orderstr, size)?;
 
-    let g = G::new(adjacency_sets);
+    let g = G::new(adjacencies);
     assert_eq!(g.order(), order);
     assert_eq!(g.size(), size);
     Ok((g, clique_count))

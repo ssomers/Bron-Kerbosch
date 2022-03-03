@@ -1,7 +1,5 @@
 use super::*;
-use crate::core::graph::{
-    connected_vertices, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex,
-};
+use crate::core::graph::{connected_vertices, UndirectedGraph};
 use crate::core::graph_degeneracy::degeneracy_ordering;
 use proptest::prelude::*;
 use proptest::test_runner::TestRunner;
@@ -21,8 +19,7 @@ pub fn test_degeneracy_order() {
             }),
             |adjac| {
                 let order = adjac.len();
-                let adjacencies = Vec::from_iter((0..order).map(|_| VertexSet::new()));
-                let mut adjacencies = Adjacencies::sneak_in(adjacencies);
+                let mut adjacencies = Adjacencies::new(VertexSet::new(), order);
                 for (v, adjacent_to_v) in adjac.iter().enumerate() {
                     let v = Vertex::new(v);
                     for &w in adjacent_to_v {

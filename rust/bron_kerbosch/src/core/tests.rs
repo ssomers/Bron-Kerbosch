@@ -15,8 +15,8 @@ fn verticise(vertex_indices: &Vec<usize>) -> Vec<Vertex> {
 
 impl TestData {
     pub fn run<VertexSet: VertexSetLike>(&self) {
-        let adjacencies: Vec<Vec<Vertex>> = self.adjacencies.iter().map(verticise).collect();
-        let graph = SlimUndirectedGraph::new(VertexMap::sneak_in(adjacencies));
+        let adjacencies = VertexMap::from_iter(self.adjacencies.iter().map(verticise));
+        let graph = SlimUndirectedGraph::new(adjacencies);
         let expected_cliques = order_cliques(self.cliques.iter().map(verticise));
         for func_index in 0..NUM_FUNCS {
             let mut reporter = SimpleReporter::default();

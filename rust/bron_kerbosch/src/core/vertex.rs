@@ -29,15 +29,18 @@ impl<T> IndexMut<Vertex> for [T] {
 #[derive(Debug)]
 pub struct VertexMap<T>(Vec<T>);
 impl<T> VertexMap<T> {
-    pub fn new(filler: T, order: usize) -> Self
+    pub fn new(stamp: T, order: usize) -> Self
     where
         T: Clone,
     {
-        Self(vec![filler; order])
+        Self(vec![stamp; order])
     }
 
-    pub fn sneak_in(vec: Vec<T>) -> Self {
-        Self(vec)
+    pub fn from_iter<I>(it: I) -> Self
+    where
+        I: Iterator<Item = T>,
+    {
+        Self(Vec::from_iter(it))
     }
 
     pub fn is_empty(&self) -> bool {
