@@ -8,6 +8,8 @@ mod bron_kerbosch2b_rp;
 mod bron_kerbosch3_gp;
 mod bron_kerbosch3_gpx;
 mod bron_kerbosch3_mt;
+mod bron_kerbosch_degen;
+mod bron_kerbosch_degen_mt;
 mod bron_kerbosch_pivot;
 pub mod graph;
 pub(super) mod graph_degeneracy;
