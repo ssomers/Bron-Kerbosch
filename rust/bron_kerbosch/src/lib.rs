@@ -6,9 +6,7 @@ mod vertexsetlikes;
 pub use crate::core::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 pub use crate::core::reporters::{CountingReporter, SimpleReporter};
 pub use crate::core::slimgraph::SlimUndirectedGraph;
-pub use crate::core::{
-    explore, order_cliques, OrderedClique, OrderedCliques, FUNC_NAMES, NUM_FUNCS,
-};
+pub use crate::core::{explore, order_cliques, OrderedClique, OrderedCliques, FUNC_NAMES};
 
 #[cfg(test)]
 mod tests {

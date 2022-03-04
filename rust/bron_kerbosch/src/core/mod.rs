@@ -25,10 +25,10 @@ use reporter::{Clique, Reporter};
 use std::collections::BTreeSet;
 
 #[cfg(not(miri))]
-pub const NUM_FUNCS: usize = 10;
+const NUM_FUNCS: usize = 10;
 #[cfg(miri)]
-pub const NUM_FUNCS: usize = 9;
-pub static FUNC_NAMES: &[&str; 10] = &[
+const NUM_FUNCS: usize = 9;
+pub const FUNC_NAMES: &[&str; NUM_FUNCS] = &[
     "Ver1",
     "Ver1½",
     "Ver2-GP",
@@ -38,6 +38,7 @@ pub static FUNC_NAMES: &[&str; 10] = &[
     "Ver2½-RP",
     "Ver3½-GP",
     "Ver3½-GPX",
+    #[cfg(not(miri))]
     "Ver3½=GPc",
 ];
 

@@ -1,6 +1,6 @@
 mod random_graph;
 
-use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES, NUM_FUNCS};
+use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES};
 use bron_kerbosch::{CountingReporter, SimpleReporter};
 use bron_kerbosch::{NewableUndirectedGraph, SlimUndirectedGraph, Vertex, VertexSetLike};
 use random_graph::{parse_positive_int, read_undirected, Size};
@@ -32,6 +32,7 @@ enum SetType {
     OrdVec,
 }
 
+const NUM_FUNCS: usize = FUNC_NAMES.len();
 type Seconds = f32;
 
 fn read_random_graph<VertexSet, G>(

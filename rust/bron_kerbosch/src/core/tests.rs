@@ -17,16 +17,12 @@ impl TestData {
     pub fn run<VertexSet: VertexSetLike>(&self) {
         let adjacencies = VertexMap::from_iter(self.adjacencies.iter().map(verticise));
         let graph = SlimUndirectedGraph::new(adjacencies);
-        let expected_cliques = order_cliques(self.cliques.iter().map(verticise));
-        for func_index in 0..NUM_FUNCS {
+        let expected = order_cliques(self.cliques.iter().map(verticise));
+        for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
             let mut reporter = SimpleReporter::default();
             explore(func_index, &graph, &mut reporter);
             let cliques = order_cliques(reporter.cliques.into_iter());
-            assert_eq!(
-                cliques, expected_cliques,
-                "for {} on {}",
-                FUNC_NAMES[func_index], self.name
-            );
+            assert_eq!(cliques, expected, "for {} on {}", func_name, self.name);
         }
     }
 }

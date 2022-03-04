@@ -28,19 +28,13 @@ impl<T> IndexMut<Vertex> for [T] {
 
 #[derive(Debug)]
 pub struct VertexMap<T>(Vec<T>);
+
 impl<T> VertexMap<T> {
     pub fn new(stamp: T, order: usize) -> Self
     where
         T: Clone,
     {
         Self(vec![stamp; order])
-    }
-
-    pub fn from_iter<I>(it: I) -> Self
-    where
-        I: Iterator<Item = T>,
-    {
-        Self(Vec::from_iter(it))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -60,6 +54,12 @@ impl<T> VertexMap<T> {
 
     pub fn iter(&self) -> impl Iterator<Item = (Vertex, &T)> {
         self.0.iter().enumerate().map(|(i, v)| (Vertex::new(i), v))
+    }
+}
+
+impl<T> FromIterator<T> for VertexMap<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> VertexMap<T> {
+        Self(Vec::from_iter(iter))
     }
 }
 
