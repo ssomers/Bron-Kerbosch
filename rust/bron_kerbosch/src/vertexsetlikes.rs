@@ -65,7 +65,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear();
+        self.clear()
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -124,7 +124,7 @@ impl VertexSetLike for HashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional);
+        self.reserve(additional)
     }
 
     fn insert(&mut self, v: Vertex) {
@@ -149,7 +149,7 @@ impl VertexSetLike for HashSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear();
+        self.clear()
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -207,7 +207,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional);
+        self.reserve(additional)
     }
 
     fn insert(&mut self, v: Vertex) {
@@ -232,7 +232,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear();
+        self.clear()
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -290,7 +290,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional);
+        self.reserve(additional)
     }
 
     fn insert(&mut self, v: Vertex) {
@@ -315,7 +315,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear();
+        self.clear()
     }
 
     fn all<F>(&self, f: F) -> bool
