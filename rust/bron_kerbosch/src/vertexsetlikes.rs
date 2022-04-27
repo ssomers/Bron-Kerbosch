@@ -6,23 +6,23 @@ use std::collections::{BTreeSet, HashSet};
 
 impl VertexSetLike for BTreeSet<Vertex> {
     fn new() -> Self {
-        Self::new()
+        BTreeSet::new()
     }
 
     fn with_capacity(_capacity: usize) -> Self {
-        Self::new()
+        BTreeSet::new()
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        BTreeSet::is_empty(self)
     }
 
     fn len(&self) -> usize {
-        self.len()
+        BTreeSet::len(self)
     }
 
     fn contains(&self, v: Vertex) -> bool {
-        self.contains(&v)
+        BTreeSet::contains(self, &v)
     }
 
     fn difference_collect(&self, other: &Self) -> Self {
@@ -44,11 +44,11 @@ impl VertexSetLike for BTreeSet<Vertex> {
     fn reserve(&mut self, _additional: usize) {}
 
     fn insert(&mut self, v: Vertex) {
-        self.insert(v);
+        BTreeSet::insert(self, v);
     }
 
     fn remove(&mut self, v: Vertex) {
-        self.remove(&v);
+        BTreeSet::remove(self, &v);
     }
 
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
@@ -65,7 +65,7 @@ impl VertexSetLike for BTreeSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear()
+        BTreeSet::clear(self)
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -88,23 +88,23 @@ impl VertexSetLike for BTreeSet<Vertex> {
 #[allow(clippy::implicit_hasher)]
 impl VertexSetLike for HashSet<Vertex> {
     fn new() -> Self {
-        Self::new()
+        HashSet::new()
     }
 
     fn with_capacity(capacity: usize) -> Self {
-        Self::with_capacity(capacity)
+        HashSet::with_capacity(capacity)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        HashSet::is_empty(self)
     }
 
     fn len(&self) -> usize {
-        self.len()
+        HashSet::len(self)
     }
 
     fn contains(&self, v: Vertex) -> bool {
-        self.contains(&v)
+        HashSet::contains(self, &v)
     }
 
     fn difference_collect(&self, other: &Self) -> Self {
@@ -112,7 +112,7 @@ impl VertexSetLike for HashSet<Vertex> {
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
-        self.is_disjoint(other)
+        HashSet::is_disjoint(self, other)
     }
 
     fn intersection_size(&self, other: &Self) -> usize {
@@ -124,15 +124,15 @@ impl VertexSetLike for HashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional)
+        HashSet::reserve(self, additional)
     }
 
     fn insert(&mut self, v: Vertex) {
-        self.insert(v);
+        HashSet::insert(self, v);
     }
 
     fn remove(&mut self, v: Vertex) {
-        self.remove(&v);
+        HashSet::remove(self, &v);
     }
 
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
@@ -171,23 +171,23 @@ impl VertexSetLike for HashSet<Vertex> {
 
 impl VertexSetLike for FnvHashSet<Vertex> {
     fn new() -> Self {
-        Self::default()
+        FnvHashSet::default()
     }
 
     fn with_capacity(capacity: usize) -> Self {
-        Self::with_capacity_and_hasher(capacity, FnvBuildHasher::default())
+        FnvHashSet::with_capacity_and_hasher(capacity, FnvBuildHasher::default())
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        FnvHashSet::is_empty(self)
     }
 
     fn len(&self) -> usize {
-        self.len()
+        FnvHashSet::len(self)
     }
 
     fn contains(&self, v: Vertex) -> bool {
-        self.contains(&v)
+        FnvHashSet::contains(self, &v)
     }
 
     fn difference_collect(&self, other: &Self) -> Self {
@@ -195,7 +195,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
-        self.is_disjoint(other)
+        FnvHashSet::is_disjoint(self, other)
     }
 
     fn intersection_size(&self, other: &Self) -> usize {
@@ -207,15 +207,15 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional)
+        FnvHashSet::reserve(self, additional)
     }
 
     fn insert(&mut self, v: Vertex) {
-        self.insert(v);
+        FnvHashSet::insert(self, v);
     }
 
     fn remove(&mut self, v: Vertex) {
-        self.remove(&v);
+        FnvHashSet::remove(self, &v);
     }
 
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
@@ -232,7 +232,7 @@ impl VertexSetLike for FnvHashSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear()
+        FnvHashSet::clear(self)
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -254,23 +254,23 @@ impl VertexSetLike for FnvHashSet<Vertex> {
 
 impl VertexSetLike for hashbrown::HashSet<Vertex> {
     fn new() -> Self {
-        Self::new()
+        hashbrown::HashSet::new()
     }
 
     fn with_capacity(capacity: usize) -> Self {
-        Self::with_capacity(capacity)
+        hashbrown::HashSet::with_capacity(capacity)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        hashbrown::HashSet::is_empty(self)
     }
 
     fn len(&self) -> usize {
-        self.len()
+        hashbrown::HashSet::len(self)
     }
 
     fn contains(&self, v: Vertex) -> bool {
-        self.contains(&v)
+        hashbrown::HashSet::contains(self, &v)
     }
 
     fn difference_collect(&self, other: &Self) -> Self {
@@ -278,7 +278,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
-        self.is_disjoint(other)
+        hashbrown::HashSet::is_disjoint(self, other)
     }
 
     fn intersection_size(&self, other: &Self) -> usize {
@@ -290,15 +290,15 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional)
+        hashbrown::HashSet::reserve(self, additional)
     }
 
     fn insert(&mut self, v: Vertex) {
-        self.insert(v);
+        hashbrown::HashSet::insert(self, v);
     }
 
     fn remove(&mut self, v: Vertex) {
-        self.remove(&v);
+        hashbrown::HashSet::remove(self, &v);
     }
 
     fn pop_arbitrary(&mut self) -> Option<Vertex> {
@@ -315,7 +315,7 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear()
+        hashbrown::HashSet::clear(self)
     }
 
     fn all<F>(&self, f: F) -> bool
@@ -337,19 +337,19 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
 
 impl VertexSetLike for Vec<Vertex> {
     fn new() -> Self {
-        Self::new()
+        Vec::new()
     }
 
     fn with_capacity(capacity: usize) -> Self {
-        Self::with_capacity(capacity)
+        Vec::with_capacity(capacity)
     }
 
     fn is_empty(&self) -> bool {
-        self.is_empty()
+        Vec::is_empty(self)
     }
 
     fn len(&self) -> usize {
-        self.len()
+        Vec::len(self)
     }
 
     fn contains(&self, v: Vertex) -> bool {
@@ -388,7 +388,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn reserve(&mut self, additional: usize) {
-        self.reserve(additional)
+        Vec::reserve(self, additional)
     }
 
     fn insert(&mut self, v: Vertex) {
@@ -416,7 +416,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn clear(&mut self) {
-        self.clear()
+        Vec::clear(self)
     }
 
     fn all<F>(&self, f: F) -> bool
