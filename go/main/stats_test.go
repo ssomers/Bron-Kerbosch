@@ -55,3 +55,39 @@ func TestStats9(t *testing.T) {
 	Assert.AreEqual(s.Variance(), 4.0)
 	Assert.AreEqual(s.Deviation(), 2.0)
 }
+
+func FuzzStats1(f *testing.F) {
+	f.Add(1.)
+	f.Fuzz(func(t *testing.T, x float64) {
+		var s SampleStatistics
+		s.Put(x)
+		Assert.IsTrue(s.Mean() == x)
+	})
+}
+
+func FuzzStats2(f *testing.F) {
+	f.Add(1., 2.)
+	f.Fuzz(func(t *testing.T, x float64, y float64) {
+		var s SampleStatistics
+		s.Put(x)
+		s.Put(y)
+		Assert.IsTrue(s.Mean() >= s.Min())
+		Assert.IsTrue(s.Mean() <= s.Max())
+		Assert.IsTrue(s.Variance() >= 0.)
+		Assert.IsTrue(s.Deviation() <= (s.Max()-s.Min())*1.5)
+	})
+}
+
+func FuzzStatsN(f *testing.F) {
+	f.Add(1., uint16(3))
+	f.Fuzz(func(t *testing.T, x float64, n uint16) {
+		var s SampleStatistics
+		for i := n; i > 0; i-- {
+			s.Put(x)
+		}
+		Assert.IsTrue(s.Mean() >= s.Min())
+		Assert.IsTrue(s.Mean() <= s.Max())
+		Assert.IsTrue(s.Variance() >= 0.)
+		Assert.IsTrue(s.Deviation() <= (s.Max()-s.Min())*1.5)
+	})
+}

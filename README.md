@@ -242,13 +242,14 @@ To obtain these results:
 Perform
 
     cd go
-    go1.18beta1 vet BronKerbosch/...
-    go1.18beta1 test BronKerbosch/...
-    go1.18beta1 run BronKerbosch/main
+    go vet BronKerbosch/...
+    go test BronKerbosch/...
+    go run BronKerbosch/main
+    go test -race BronKerbosch/lib
 
-On MSYS2:
+Optionally, on MSYS2:
     PATH=$PATH:$HOME/Documents/go/bin
-    go1.18beta1 test -race BronKerbosch/lib
+    go test -race BronKerbosch/lib
 
 
 ## C#

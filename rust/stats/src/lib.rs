@@ -39,7 +39,7 @@ where
             std::f64::NAN
         } else {
             let r = self.sum / (self.samples as f64);
-            r.max(f64::from(self.min)).min(f64::from(self.max))
+            r.max(self.min.into()).min(self.max.into())
         }
     }
     pub fn variance(&self) -> f64 {
@@ -58,7 +58,7 @@ where
         if r.is_nan() {
             r
         } else {
-            r.min(f64::from(self.max - self.min))
+            r.min((self.max - self.min).into())
         }
     }
 }
@@ -145,16 +145,14 @@ mod proptests {
         fn put_1_u32(x in proptest::num::u32::ANY) {
             let mut s: SampleStatistics<u32> = Default::default();
             s.put(x);
-            assert!(s.mean() >= f64::from(s.min()));
-            assert!(s.mean() <= f64::from(s.max()));
+            assert!(s.mean() == x.into());
         }
 
         #[test]
         fn put_1_f64(x in proptest::num::f64::NORMAL) {
             let mut s: SampleStatistics<f64> = Default::default();
             s.put(x);
-            assert!(s.mean() >= s.min());
-            assert!(s.mean() <= s.max());
+            assert!(s.mean() == x.into());
         }
 
         #[test]
@@ -162,10 +160,10 @@ mod proptests {
             let mut s: SampleStatistics<u32> = Default::default();
             s.put(x);
             s.put(y);
-            assert!(s.mean() >= f64::from(s.min()));
-            assert!(s.mean() <= f64::from(s.max()));
+            assert!(s.mean() >= s.min().into());
+            assert!(s.mean() <= s.max().into());
             assert!(s.variance() >= 0.);
-            assert!(s.deviation() <= f64::from(s.max() - s.min()));
+            assert!(s.deviation() <= (s.max() - s.min()).into());
         }
 
         #[test]
@@ -185,10 +183,10 @@ mod proptests {
             for _ in 0..i {
                 s.put(x);
             }
-            assert!(s.mean() >= f64::from(s.min()));
-            assert!(s.mean() <= f64::from(s.max()));
+            assert!(s.mean() >= s.min().into());
+            assert!(s.mean() <= s.max().into());
             assert!(s.variance() >= 0.);
-            assert!(s.deviation() <= f64::from(s.max() - s.min()));
+            assert!(s.deviation() <= (s.max() - s.min()).into());
         }
 
         #[test]
