@@ -294,7 +294,7 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_java_1M.svg)
 
 Perform
-  - open folder java with IntelliJ IDEA 2021 (Community Edition)
+  - open folder java with IntelliJ IDEA 2022 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
   - set run configuration to "Main"
@@ -308,7 +308,7 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_scala_1M.svg)
 
 Perform
-  - open folder scala with IntelliJ IDEA 2021 (Community Edition)
+  - open folder scala with IntelliJ IDEA 2022 (Community Edition)
   - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
   - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
   - Build > Rebuild Project
