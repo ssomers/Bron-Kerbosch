@@ -299,8 +299,9 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::OrdVec if size > 100_000 => vec![4],
                     SetType::BTreeSet if size > 3_000_000 => vec![],
+                    SetType::OrdVec if size > 250_000 => vec![],
+                    SetType::OrdVec if size > 100_000 => vec![4],
                     _ => vec![4, 7, 9],
                 }
             },
