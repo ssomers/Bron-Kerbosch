@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using static System.Globalization.CultureInfo;
 
 namespace BronKerboschStudy
 {
@@ -55,7 +56,9 @@ namespace BronKerboschStudy
             int samples)
         {
             const string tmpfname = "tmp.csv";
-            using (StreamWriter fo = new StreamWriter(tmpfname))
+            using (StreamWriter fo = new StreamWriter(tmpfname,
+                                                      new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                                                      new System.IO.FileStreamOptions { Mode = FileMode.Create, Access = FileAccess.Write }))
             {
                 fo.Write("Size");
                 foreach (string name in Portfolio.FuncNames)
@@ -74,7 +77,7 @@ namespace BronKerboschStudy
                         var max = stats[funcIndex].Max;
                         var min = stats[funcIndex].Min;
                         var mean = stats[funcIndex].Mean;
-                        fo.Write($",{min},{mean},{max}");
+                        fo.Write(String.Format(InvariantCulture, ",{0},{1},{2}", min, mean, max));
                         if (!double.IsNaN(mean))
                         {
                             var reldev = stats[funcIndex].Deviation / mean;
