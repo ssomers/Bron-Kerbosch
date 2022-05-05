@@ -1,7 +1,7 @@
-package main
+package Stats
 
 import (
-	"BronKerbosch/Assert"
+	"BronKerboschStudy/Assert"
 	"math"
 	"testing"
 )

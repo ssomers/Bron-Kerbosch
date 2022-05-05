@@ -1,23 +1,25 @@
 package main
 
 import (
-	"BronKerbosch/lib"
+	"BronKerboschStudy/BronKerbosch"
+	"BronKerboschStudy/Stats"
+	"BronKerboschStudy/StudyIO"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]SampleStatistics {
+func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]Stats.SampleStatistics {
 	begin := time.Now()
-	graph, cliqueCount, err := readRandomUndirectedGraph(orderstr, size)
+	graph, cliqueCount, err := StudyIO.ReadRandomUndirectedGraph(orderstr, size)
 	secs := time.Since(begin).Seconds()
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("order %4s size %7d %-8s: %5.3fs\n", orderstr, size, "creation", secs)
 
-	var times [BronKerbosch.NumFuncs]SampleStatistics
+	var times [BronKerbosch.NumFuncs]Stats.SampleStatistics
 	var first [][]BronKerbosch.Vertex
 	sample := 0
 	if samples == 1 {
@@ -133,7 +135,7 @@ func main() {
 		orderstr := os.Args[1]
 		var sizes []int
 		for _, sizestr := range os.Args[2:] {
-			size, err := parsePositiveInt(sizestr)
+			size, err := StudyIO.ParsePositiveInt(sizestr)
 			if err != nil {
 				panic(err)
 			}

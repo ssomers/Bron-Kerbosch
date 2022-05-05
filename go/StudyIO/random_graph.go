@@ -1,34 +1,15 @@
-package main
+package StudyIO
 
 import (
-	"BronKerbosch/lib"
+	"BronKerboschStudy/BronKerbosch"
 	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func parsePositiveInt(str string) (int, error) {
-	var val int
-	var suffix rune
-	n, err := fmt.Sscanf(str, "%d%c", &val, &suffix)
-	if n == 1 {
-		return val, nil // ignore EOF error
-	}
-	if err == nil {
-		if suffix == 'k' {
-			return val * 1e3, nil
-		}
-		if suffix == 'M' {
-			return val * 1e6, nil
-		}
-		err = fmt.Errorf("Unknown suffix \"%c\"", suffix)
-	}
-	return val, err
-}
-
-func readRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.UndirectedGraph, int, error) {
-	order, err := parsePositiveInt(orderstr)
+func ReadRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.UndirectedGraph, int, error) {
+	order, err := ParsePositiveInt(orderstr)
 	if err != nil {
 		return BronKerbosch.UndirectedGraph{}, 0, err
 	}

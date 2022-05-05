@@ -242,14 +242,14 @@ To obtain these results:
 Perform
 
     cd go
-    go vet BronKerbosch/...
-    go test BronKerbosch/...
-    go run BronKerbosch/main
-    go test -race BronKerbosch/lib
+    go vet ./...
+    go test ./...
+    go run main.go
+    go test -race ./BronKerbosch
 
 Optionally, on MSYS2:
     PATH=$PATH:$HOME/Documents/go/bin
-    go test -race BronKerbosch/lib
+    go test -race ./...
 
 
 ## C#
