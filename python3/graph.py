@@ -1,6 +1,6 @@
-from typing import List, Set
+from typing import List, Set, TypeAlias
 
-Vertex = int
+Vertex: TypeAlias = int
 
 
 class UndirectedGraph(object):

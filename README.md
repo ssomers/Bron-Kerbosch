@@ -14,7 +14,7 @@ The purpose of this fork is not only to compare the algorithms, but also program
  library choices, and the effect of optimization, chiefly parallelism.
 
 Compared to the original project this is forked from, the code is:
-* converted from python 2 to python 3.9
+* converted from python 2 to python 3.10
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and a performance test on random graphs
