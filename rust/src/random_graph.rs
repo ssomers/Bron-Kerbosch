@@ -11,18 +11,13 @@ pub enum Size {
 }
 
 pub fn parse_positive_int(value: &str) -> usize {
-    let numstr: &str;
-    let factor: usize;
-    if value.ends_with('M') {
-        numstr = &value[0..value.len() - 1];
-        factor = 1_000_000;
-    } else if value.ends_with('k') {
-        numstr = &value[0..value.len() - 1];
-        factor = 1_000;
+    let (numstr, factor) = if let Some(megas) = value.strip_suffix('M') {
+        (megas, 1_000_000)
+    } else if let Some(kilos) = value.strip_suffix('k') {
+        (kilos, 1_000)
     } else {
-        numstr = value;
-        factor = 1;
-    }
+        (value, 1)
+    };
     let num: usize = numstr
         .parse()
         .unwrap_or_else(|err| panic!("{} is not a positive integer ({})", numstr, err));
