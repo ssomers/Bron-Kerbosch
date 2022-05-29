@@ -7,6 +7,7 @@ from typing import Generator, List, Optional, Set, Tuple
 
 
 class NeighbourhoodWatch:
+
     def __init__(self, order: int):
         vertices = range(order)
         self.unsaturated_vertices = list(vertices)

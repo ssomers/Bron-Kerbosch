@@ -4,6 +4,7 @@ Vertex = int
 
 
 class UndirectedGraph(object):
+
     def __init__(self, adjacencies: List[Set[Vertex]]):
         order = len(adjacencies)
         for v, adjacent_to_v in enumerate(adjacencies):

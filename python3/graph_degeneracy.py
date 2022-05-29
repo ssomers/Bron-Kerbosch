@@ -5,6 +5,7 @@ from typing import Generator, List
 
 
 class PriorityQueue:
+
     def __init__(self, max_priority: int) -> None:
         self.stack_per_priority: List[List[int]] = [
             [] for _ in range(max_priority + 1)

@@ -2,6 +2,7 @@ from math import isfinite, isnan, nan, sqrt
 
 
 class SampleStatistics(object):
+
     def __init__(self) -> None:
         self.max = nan
         self.min = nan

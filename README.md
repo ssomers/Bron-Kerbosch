@@ -213,7 +213,7 @@ Perform
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once) pip install mypy pytest hypothesis matplotlib
+    (once or twice) pip install --upgrade mypy pytest hypothesis matplotlib
     mypy .
     pytest
     python -O test_maximal_cliques.py
