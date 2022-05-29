@@ -29,7 +29,7 @@ class NeighbourhoodWatch:
         assert v != w
         return v, w
 
-    def record_neighbour(self, v: int, new_neighbour: int) -> None:
+    def meet_neighbour(self, v: int, new_neighbour: int) -> None:
         assert v != new_neighbour
         if self.complement[v]:
             assert new_neighbour in self.neighbours[v]
@@ -47,9 +47,6 @@ class NeighbourhoodWatch:
                     self.unsaturated_vertices.remove(v)
             else:
                 self.neighbours[v].add(new_neighbour)
-
-    def meet_neighbour(self, v: int, new_neighbour: int) -> None:
-        self.record_neighbour(v, new_neighbour)
 
 
 def generate_edges(order: int) -> Generator[Tuple[int, int], None, None]:
@@ -174,7 +171,7 @@ if __name__ == '__main__':
     order = to_int(orderstr)
     size = to_int(sizestr)
     filename = f"random_edges_order_{orderstr}"
-    path = os.path.join(os.pardir, filename + ".txt")
+    path = os.path.join(os.pardir, "data", filename + ".txt")
     print(f"Writing {size or 'all'} edges to {path}")
     with open(path, 'w', newline='\n') as txtfile:
         for (v, w) in generate_n_edges(order=order, size=size):
