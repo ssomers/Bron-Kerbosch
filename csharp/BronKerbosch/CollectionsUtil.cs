@@ -19,17 +19,11 @@ namespace BronKerbosch
         public static bool AreDisjoint<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs is null || rhs is null)
-            {
                 return true;
-            }
             else if (lhs.Count > rhs.Count)
-            {
                 return !lhs.Overlaps(rhs);
-            }
             else
-            {
                 return !rhs.Overlaps(lhs);
-            }
         }
 
         public static HashSet<T> Difference<T>(ISet<T> lhs, ISet<T> rhs)

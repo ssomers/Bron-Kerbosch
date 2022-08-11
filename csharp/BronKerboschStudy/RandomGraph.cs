@@ -38,7 +38,7 @@ namespace BronKerboschStudy
             if (size > fullyMeshedSize)
                 throw new ArgumentException($"{order} nodes accommodate at most {fullyMeshedSize} edges");
 
-            string edgesPath = $"..\\data\\random_edges_order_{orderstr}.txt";
+            var edgesPath = $"..\\data\\random_edges_order_{orderstr}.txt";
             const string statsPath = "..\\data\\random_stats.txt";
             var adjacencies = ReadEdges(edgesPath, orderstr, size);
             var cliqueCount = ReadStats(statsPath, orderstr, size);
@@ -84,7 +84,7 @@ namespace BronKerboschStudy
         {
             var prefix = $"{orderstr}\t{size}\t";
             using var file = new StreamReader(path);
-            string header = file.ReadLine()!;
+            var header = file.ReadLine()!;
             string? line;
             while ((line = file.ReadLine()) != null)
             {

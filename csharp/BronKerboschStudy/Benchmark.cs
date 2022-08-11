@@ -1,121 +1,115 @@
 using BronKerbosch;
+using BronKerboschStudy;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using static System.Globalization.CultureInfo;
 
-namespace BronKerboschStudy
+SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] funcIndices, int samples)
 {
-    internal class Benchmark
+    List<ImmutableArray<Vertex>>? first = null;
+    SampleStatistics[] times = Enumerable.Range(0, Portfolio.FuncNames.Length)
+        .Select(funcIndex => new SampleStatistics()).ToArray();
+    for (var sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
     {
-        private static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] funcIndices, int samples)
+        foreach (var funcIndex in funcIndices)
         {
-            List<ImmutableArray<Vertex>>? first = null;
-            SampleStatistics[] times = Enumerable.Range(0, Portfolio.FuncNames.Length)
-                .Select(funcIndex => new SampleStatistics()).ToArray();
-            for (var sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
+            if (sample == 0)
             {
-                foreach (var funcIndex in funcIndices)
+                var reporter = new SimpleReporter();
+                var sw = Stopwatch.StartNew();
+                Portfolio.Explore(funcIndex, graph.Graph, reporter);
+                sw.Stop();
+                var secs = sw.ElapsedMilliseconds / 1e3;
+                if (secs >= 3.0)
+                    Console.WriteLine($"  {Portfolio.FuncNames[funcIndex],8}: {secs,6:N2}s");
+                Portfolio.SortCliques(reporter.Cliques);
+                if (first == null)
                 {
-                    if (sample == 0)
+                    if (reporter.Cliques.Count != graph.CliqueCount)
                     {
-                        var reporter = new SimpleReporter();
-                        var sw = Stopwatch.StartNew();
-                        Portfolio.Explore(funcIndex, graph.Graph, reporter);
-                        sw.Stop();
-                        var secs = sw.ElapsedMilliseconds / 1e3;
-                        if (secs >= 3.0)
-                            Console.WriteLine($"  {Portfolio.FuncNames[funcIndex],8}: {secs,6:N2}s");
-                        Portfolio.SortCliques(reporter.Cliques);
-                        if (first == null)
-                        {
-                            if (reporter.Cliques.Count != graph.CliqueCount)
-                            {
-                                throw new ArgumentException(
-                                    $"Expected {graph.CliqueCount} cliques, got {reporter.Cliques.Count}");
-                            }
-                            first = reporter.Cliques;
-                        }
-                        else
-                            Portfolio.AssertSameCliques(first, reporter.Cliques);
+                        throw new ArgumentException(
+                            $"Expected {graph.CliqueCount} cliques, got {reporter.Cliques.Count}");
                     }
-                    else
-                    {
-                        var reporter = new CountingReporter();
-                        var sw = Stopwatch.StartNew();
-                        Portfolio.Explore(funcIndex, graph.Graph, reporter);
-                        sw.Stop();
-                        var secs = sw.ElapsedMilliseconds / 1e3;
-                        times[funcIndex].Put(secs);
-                    }
+                    first = reporter.Cliques;
+                }
+                else
+                {
+                    Portfolio.AssertSameCliques(first, reporter.Cliques);
                 }
             }
-            return times;
-        }
-
-        private static void Bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
-            int samples)
-        {
-            const string tmpfname = "tmp.csv";
-            using (StreamWriter fo = new StreamWriter(tmpfname,
-                                                      new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
-                                                      new System.IO.FileStreamOptions { Mode = FileMode.Create, Access = FileAccess.Write }))
+            else
             {
-                fo.Write("Size");
-                foreach (string name in Portfolio.FuncNames)
-                {
-                    fo.Write(",{0} min,{0} mean,{0} max", name);
-                }
-                fo.WriteLine();
-                foreach (var size in sizes)
-                {
-                    var funcIndices = includedFuncs(size).ToArray();
-                    var g = RandomUndirectedGraph.Read(orderstr, size);
-                    var stats = BronKerboschTimed(g, funcIndices, samples);
-                    fo.Write($"{size}");
-                    foreach ((var funcIndex, string funcName) in Portfolio.FuncNames.Select((n, i) => (i, n)))
-                    {
-                        var max = stats[funcIndex].Max;
-                        var min = stats[funcIndex].Min;
-                        var mean = stats[funcIndex].Mean;
-                        fo.Write(String.Format(InvariantCulture, ",{0},{1},{2}", min, mean, max));
-                        if (!double.IsNaN(mean))
-                        {
-                            var reldev = stats[funcIndex].Deviation / mean;
-                            Console.WriteLine(
-                                $"order {orderstr,4:D} size {size,7:D} {funcName,-8}: {mean,6:N3}s ± {reldev:P0}");
-                        }
-                    }
-                    fo.WriteLine();
-                }
+                var reporter = new CountingReporter();
+                var sw = Stopwatch.StartNew();
+                Portfolio.Explore(funcIndex, graph.Graph, reporter);
+                sw.Stop();
+                var secs = sw.ElapsedMilliseconds / 1e3;
+                times[funcIndex].Put(secs);
             }
-
-            var path = $"..\\bron_kerbosch_csharp_order_{orderstr}.csv";
-            if (File.Exists(path))
-                File.Delete(path);
-            File.Move(tmpfname, path);
-        }
-
-        private static IEnumerable<int> Range(int start, int stop, int step)
-        {
-            var current = start;
-            while (current < stop)
-            {
-                yield return current;
-                current += step;
-            }
-        }
-
-        private static void Main()
-        {
-            var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
-            var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
-            Debug.Fail("Run Release build for meaningful measurements");
-            Bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
-            Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
-                size => mostFuncIndices, 3);
-            Bk("1M", Range(500_000, 2_000_000, 250_000)
-                    .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
-                size => size > 3_000_000 ? new[] { 2, 4, 5, 6 } : mostFuncIndices, 3);
         }
     }
+    return times;
 }
+
+void Bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
+    int samples)
+{
+    const string tmpfname = "tmp.csv";
+    using (var fo = new StreamWriter(tmpfname,
+                                     new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+                                     new FileStreamOptions { Mode = FileMode.Create, Access = FileAccess.Write }))
+    {
+        fo.Write("Size");
+        foreach (var name in Portfolio.FuncNames)
+        {
+            fo.Write(",{0} min,{0} mean,{0} max", name);
+        }
+        fo.WriteLine();
+        foreach (var size in sizes)
+        {
+            var funcIndices = includedFuncs(size).ToArray();
+            var g = RandomUndirectedGraph.Read(orderstr, size);
+            var stats = BronKerboschTimed(g, funcIndices, samples);
+            fo.Write($"{size}");
+            foreach ((var funcIndex, var funcName) in Portfolio.FuncNames.Select((n, i) => (i, n)))
+            {
+                var max = stats[funcIndex].Max;
+                var min = stats[funcIndex].Min;
+                var mean = stats[funcIndex].Mean;
+                fo.Write(string.Format(InvariantCulture, ",{0},{1},{2}", min, mean, max));
+                if (!double.IsNaN(mean))
+                {
+                    var reldev = stats[funcIndex].Deviation / mean;
+                    Console.WriteLine(
+                        $"order {orderstr,4:D} size {size,7:D} {funcName,-8}: {mean,6:N3}s ± {reldev:P0}");
+                }
+            }
+            fo.WriteLine();
+        }
+    }
+
+    var path = $"..\\bron_kerbosch_csharp_order_{orderstr}.csv";
+    if (File.Exists(path))
+        File.Delete(path);
+    File.Move(tmpfname, path);
+}
+
+IEnumerable<int> Range(int start, int stop, int step)
+{
+    var current = start;
+    while (current < stop)
+    {
+        yield return current;
+        current += step;
+    }
+}
+
+var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
+var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
+Debug.Fail("Run Release build for meaningful measurements");
+Bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
+Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
+    size => mostFuncIndices, 3);
+Bk("1M", Range(500_000, 2_000_000, 250_000)
+        .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
+    size => size > 3_000_000 ? new[] { 2, 4, 5, 6 } : mostFuncIndices, 3);
