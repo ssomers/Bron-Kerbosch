@@ -72,7 +72,7 @@ namespace BronKerbosch
         }
     }
 
-    internal class PriorityQueue
+    internal sealed class PriorityQueue
     {
         private readonly List<Vertex>[] itsQueuePerPriority;
 

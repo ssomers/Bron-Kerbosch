@@ -1,6 +1,7 @@
 using BronKerbosch;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace BronKerboschStudy
 {
@@ -15,25 +16,25 @@ namespace BronKerboschStudy
             CliqueCount = cliqueCount;
         }
 
-        public static int ParsePositiveInt(string orderstr)
+        public static int ParseInt(string orderstr)
         {
-            if (orderstr.EndsWith("M"))
+            int factor = 1;
+            if (orderstr.EndsWith("M", StringComparison.Ordinal))
             {
-                return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000_000;
+                factor = 1_000_000;
+                orderstr = orderstr.Remove(orderstr.Length - 1);
             }
-            else if (orderstr.EndsWith("k"))
+            else if (orderstr.EndsWith("k", StringComparison.Ordinal))
             {
-                return int.Parse(orderstr.Remove(orderstr.Length - 1)) * 1_000;
+                factor = 1_000;
+                orderstr = orderstr.Remove(orderstr.Length - 1);
             }
-            else
-            {
-                return int.Parse(orderstr);
-            }
+            return int.Parse(orderstr, CultureInfo.InvariantCulture) * factor;
         }
 
         public static RandomUndirectedGraph Read(string orderstr, int size)
         {
-            var order = ParsePositiveInt(orderstr);
+            var order = ParseInt(orderstr);
             var fullyMeshedSize = (long)order * (order - 1) / 2;
             if (size > fullyMeshedSize)
                 throw new ArgumentException($"{order} nodes accommodate at most {fullyMeshedSize} edges");
@@ -50,7 +51,7 @@ namespace BronKerboschStudy
 
         private static ImmutableArray<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
         {
-            var order = ParsePositiveInt(orderstr);
+            var order = ParseInt(orderstr);
             var adjacencies = Enumerable.Range(0, order)
                 .Select(_ => new HashSet<Vertex>())
                 .ToImmutableArray();
@@ -88,7 +89,7 @@ namespace BronKerboschStudy
             string? line;
             while ((line = file.ReadLine()) != null)
             {
-                if (line.StartsWith(prefix))
+                if (line.StartsWith(prefix, StringComparison.Ordinal))
                 {
                     if (!int.TryParse(line.AsSpan(prefix.Length), out var c))
                     {

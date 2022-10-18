@@ -53,7 +53,7 @@ internal static class BronKerbosch3ST
         int received = 0;
 
         // Step 3: collect results.
-        var collect = new ActionBlock<ImmutableArray<Vertex>>(clique => finalReporter.Record(clique));
+        var collect = new ActionBlock<ImmutableArray<Vertex>>(finalReporter.Record);
 
         // Step 2: visit vertices.
         var reporter = new NestedReporter(collect);

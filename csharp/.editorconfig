@@ -92,6 +92,8 @@ csharp_style_prefer_top_level_statements = true:silent
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
 csharp_style_prefer_utf8_string_literals = true:suggestion
+dotnet_diagnostic.IDE0007.severity = silent
+dotnet_diagnostic.IDE0021.severity = silent
 dotnet_diagnostic.IDE0048.severity = silent
 
 [*.{cs,vb}]

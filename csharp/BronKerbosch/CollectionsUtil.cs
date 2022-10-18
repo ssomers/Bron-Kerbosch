@@ -48,7 +48,7 @@ namespace BronKerbosch
                 return IntersectionSize(rhs, lhs);
             }
 
-            return lhs.Count(v => rhs.Contains(v));
+            return lhs.Count(rhs.Contains);
             // wee bit slower: return lhs.Where(v => rhs.Contains(v)).Count();
             // much slower: return rhs.Intersect(lhs).Count();
             // even slower: return lhs.Intersect(rhs).Count();

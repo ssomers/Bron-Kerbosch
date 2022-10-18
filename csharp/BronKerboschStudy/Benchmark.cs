@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using static System.Globalization.CultureInfo;
 
-SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] funcIndices, int samples)
+static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] funcIndices, int samples)
 {
     List<ImmutableArray<Vertex>>? first = null;
     SampleStatistics[] times = Enumerable.Range(0, Portfolio.FuncNames.Length)

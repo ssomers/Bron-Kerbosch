@@ -4,7 +4,7 @@ namespace BronKerbosch
 {
     using Index = Int32;
 
-    public struct Vertex : IComparable<Vertex>, IEquatable<Vertex>
+    public readonly struct Vertex : IComparable<Vertex>, IEquatable<Vertex>
     {
         public readonly Index index;
         private Vertex(Index i) => index = i;
