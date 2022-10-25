@@ -1,20 +1,12 @@
 image:
   - Visual Studio 2022
-platform:
-  - Any CPU
-configuration:
-  - Debug
 environment:
   matrix:
     - python: "C:\\Python310-x64"
 install: 
-  - nuget restore csharp\BronKerboschStudy.sln
-  - PATH C:\python310-x64;C:\python310-x64\Scripts;%PATH%
   - python -V
   - pip install mypy pytest hypothesis --disable-pip-version-check
-build_script:
-  - msbuild csharp\BronKerboschStudy.sln
+build: off
 test_script:
-  - dotnet test csharp\BronKerboschStudy.sln
   - mypy --cache-dir=/dev/null python3
   - pytest -p no:cacheprovider python3
