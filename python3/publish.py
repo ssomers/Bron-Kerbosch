@@ -44,7 +44,7 @@ def color_by_func_name(case_name: str) -> str:
 
 def color_by_language(case_name: str) -> str:
     return {
-        "Python3": "#000099",
+        "Python311": "#000099",
         "Rust": "#CC0033",
         "Java": "#009933",
         "Scala": "#006666",
@@ -372,11 +372,33 @@ def publish_library_report(basename: str, orderstr: str, language: str,
                          measurement_per_size_by_case_name=measurements)
 
 
+def publish_langver_report(basename: str, orderstr: str, ver: str,
+                           language: str, languages: Mapping[str,
+                                                             str]) -> None:
+    sizes: List[int] = []
+    measurements: Dict[str, List[Measurement]] = {}
+    for lang, label in languages.items():
+        sizes1, measurements1 = read_csv(
+            language=lang,
+            orderstr=orderstr,
+            case_name_selector={f"{ver}": f"{label}"},
+        )
+        assert not sizes or sizes1 == sizes
+        sizes = sizes1
+        measurements.update(measurements1)
+    publish_measurements(basename=basename,
+                         language=language,
+                         orderstr=orderstr,
+                         sizes=sizes,
+                         suffix=" " + ver,
+                         measurement_per_size_by_case_name=measurements)
+
+
 def publish_reports() -> None:
     # 1. Ver1 vs. Ver1½
     publish_report(basename="report_1",
                    orderstr="100",
-                   langlibs=["python3", "rust@Hash"],
+                   langlibs=["python311", "rust@Hash"],
                    versions=["Ver1", "Ver1½"],
                    dash_by_case=lambda name: "solid"
                    if name.endswith("½") else "dotted")
@@ -397,7 +419,7 @@ def publish_reports() -> None:
                 versions=["Ver2½", "Ver2½-RP", "Ver2½-GP", "Ver2½-GPX"])
     # 4. Ver2 vs. Ver3
     for orderstr in ["10k", "1M"]:
-        for langlib in ["python3", "c#"]:
+        for langlib in ["python311", "c#"]:
             publish_version_report(basebasename="report_4",
                                    orderstr=orderstr,
                                    langlib=langlib,
@@ -410,7 +432,7 @@ def publish_reports() -> None:
                                    versions=["Ver2½-GP", "Ver3½-GP"])
     # 5. Ver3 variants
     for orderstr in ["10k", "1M"]:
-        for langlib in ["python3", "c#"]:
+        for langlib in ["python311", "c#"]:
             publish_version_report(basebasename="report_5",
                                    orderstr=orderstr,
                                    langlib=langlib,
@@ -439,7 +461,7 @@ def publish_reports() -> None:
         publish_report(basename=f"report_7_sequential_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
-                           "python3", "scala", "java", "go", "c#",
+                           "python311", "scala", "java", "go", "c#",
                            "c++@hashset", "rust@Hash"
                        ],
                        versions=["Ver3½-GP"],
@@ -470,6 +492,18 @@ def publish_reports() -> None:
                                language="c++",
                                ver="Ver3½-GP",
                                libs=["hashset", "std_set", "ord_vec"])
+    # 9. Language versions
+    for orderstr in ["100", "10k", "1M"]:
+        publish_langver_report(
+            basename=f"report_9_python_{orderstr}",
+            orderstr=orderstr,
+            language="Python",
+            languages={
+                "python3": "Python 3.10",
+                "python311": "Python 3.11"
+            },
+            ver="Ver3½-GP",
+        )
 
 
 if __name__ == '__main__':

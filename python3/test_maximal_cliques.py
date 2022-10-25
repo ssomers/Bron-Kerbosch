@@ -304,7 +304,7 @@ def bk(orderstr: str, sizes: Iterable[int], func_indices: List[int],
                 print(f"  {func_name:<8}: {mean:6.3f}s ± {reldev:.0%}")
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
-        publish(language="python3",
+        publish(language="python311",
                 orderstr=orderstr,
                 case_names=FUNC_NAMES,
                 stats_per_func_by_size=stats_per_func_by_size)

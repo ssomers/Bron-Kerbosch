@@ -104,16 +104,16 @@ These are all single-threaded implementations (using only one CPU core).
 * …but loses in many other cases
 ![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
-![Time spent on graphs of order 10k](doc/report_4_python3_10k.svg)
-![Time spent on graphs of order 1M](doc/report_4_python3_1M.svg)
+![Time spent on graphs of order 10k](doc/report_4_python311_10k.svg)
+![Time spent on graphs of order 1M](doc/report_4_python311_1M.svg)
 
 * Ver3-GP seems to cope better at scale than Ver3-GPX
 ![Time spent on graphs of order 1M](doc/report_5_csharp_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_5_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_5_rust_10k.svg)
-![Time spent on graphs of order 10k](doc/report_5_python3_10k.svg)
-![Time spent on graphs of order 1M](doc/report_5_python3_1M.svg)
+![Time spent on graphs of order 10k](doc/report_5_python311_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_python311_1M.svg)
 
 ## Introducing parallelism
 
@@ -169,6 +169,13 @@ Ways to implement parallelism varies per language:
 ![Time spent on graphs of order 1M](doc/report_7_channels_1M.svg)
 
 
+## Comparing versions of languages
+
+* Python 3.10 versus 3.11
+![Time spent on graphs of order 100](doc/report_9_python_100.svg)
+![Time spent on graphs of order 10k](doc/report_9_python_10k.svg)
+![Time spent on graphs of order 1M](doc/report_9_python_1M.svg)
+
 ## Comparing implementations of the set data structure
 
 All algorithms work heavily with sets. Some languages allow picking at compile time among
@@ -204,9 +211,9 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 
 ## Python 3
 To obtain these results:
-  - [dense graph of order 100](doc/details_python3_100.svg)
-  - [plain graph of order 10k](doc/details_python3_10k.svg)
-  - [sparse graph of order 1M](doc/details_python3_1M.svg)
+  - [dense graph of order 100](doc/details_python311_100.svg)
+  - [plain graph of order 10k](doc/details_python311_10k.svg)
+  - [sparse graph of order 1M](doc/details_python311_1M.svg)
 
 Perform
 
@@ -244,8 +251,8 @@ Perform
     cd go
     go vet ./...
     go test ./...
-    go run main.go
     go test -race ./BronKerbosch
+    go run main.go
 
 Optionally, on MSYS2:
     PATH=$PATH:$HOME/Documents/go/bin
