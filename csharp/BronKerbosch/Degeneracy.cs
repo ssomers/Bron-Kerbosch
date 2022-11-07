@@ -46,17 +46,17 @@ namespace BronKerbosch
             {
                 numLeftToPick -= 1;
                 var i = q.Pop();
-                while (priorityPerVertex[i.index] == NO_PRIORITY)
+                while (priorityPerVertex[i.Index()] == NO_PRIORITY)
                 {
                     // was requeued with a more urgent priority and therefore already picked
                     i = q.Pop();
                 }
-                Debug.Assert(priorityPerVertex[i.index] >= 0);
-                priorityPerVertex[i.index] = NO_PRIORITY;
+                Debug.Assert(priorityPerVertex[i.Index()] >= 0);
+                priorityPerVertex[i.Index()] = NO_PRIORITY;
                 yield return i;
                 foreach (var v in graph.Neighbours(i))
                 {
-                    var oldPriority = priorityPerVertex[v.index];
+                    var oldPriority = priorityPerVertex[v.Index()];
                     if (oldPriority != NO_PRIORITY)
                     {
                         // Since this is an unvisited neighbour of a vertex just being picked,
@@ -64,7 +64,7 @@ namespace BronKerbosch
                         Debug.Assert(oldPriority > 0);
                         // Requeue with a more urgent priority, but don't bother to remove
                         // the original entry - it will be skipped if it's reached at all.
-                        priorityPerVertex[v.index] = oldPriority - 1;
+                        priorityPerVertex[v.Index()] = oldPriority - 1;
                         q.Put(priority: oldPriority - 1, element: v);
                     }
                 }

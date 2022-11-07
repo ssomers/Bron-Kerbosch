@@ -101,7 +101,7 @@ namespace BronKerbosch
                 return;
             }
 
-            Debug.Assert(pivot.index != INVALID);
+            Debug.Assert(pivot.Index() != INVALID);
             if (choice == Choice.MaxDegreeLocalX)
             {
                 foreach (var v in excluded)

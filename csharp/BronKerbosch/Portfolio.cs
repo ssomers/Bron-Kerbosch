@@ -70,7 +70,7 @@ namespace BronKerbosch
 
             for (var i = 0; i < lhs.Length && i < rhs.Length; ++i)
             {
-                var d = lhs[i].index - rhs[i].index;
+                var d = lhs[i].CompareTo(rhs[i]);
                 if (d != 0)
                 {
                     return d;
