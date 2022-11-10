@@ -306,18 +306,18 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-    } else if let (Some(order), Some(sizes)) =
-        (matches.value_of("order"), matches.values_of("size"))
-    {
+    } else if let (Some(order), Some(sizes)) = (
+        matches.get_one::<String>("order"),
+        matches.get_many::<String>("size"),
+    ) {
         let forced_set_type = matches
-            .value_of("set")
+            .get_one::<String>("set")
             .map(|t| SetType::from_str(t).unwrap());
-        let sizes = sizes.map(parse_positive_int);
+        let sizes = sizes.map(|s| parse_positive_int(s.as_str()));
         let included_funcs = |set_type: SetType, _size: usize| -> Vec<usize> {
             if forced_set_type.is_some() && forced_set_type != Some(set_type) {
                 vec![]
-            } else if let Some(v) = matches.value_of("ver") {
-                let func_index = usize::from_str(v).unwrap();
+            } else if let Some(&func_index) = matches.get_one::<usize>("ver") {
                 vec![func_index]
             } else {
                 (0..NUM_FUNCS).collect()

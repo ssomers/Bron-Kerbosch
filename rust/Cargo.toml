@@ -13,10 +13,10 @@ debug = true
 bron_kerbosch = { path="bron_kerbosch" }
 stats = { path="stats" }
 anyhow = "1.0.12"
-clap = {version = "3.1.0", features = ["cargo"]}
+clap = {version = "4.0.0", features = ["cargo"]}
 csv = "1.0.0"
 fnv = "1.0.5"
-hashbrown = "0.11.0"
+hashbrown = "0.13.0"
 itertools = "0.10.0"
-strum = "0.23.0"
-strum_macros = "0.23.1"
+strum = "0.24.0"
+strum_macros = "0.24.0"
