@@ -50,13 +50,13 @@ where
         PriorityQueue {
             stack_per_priority: match max_priority {
                 None => vec![],
-                Some(max_priority) => vec![vec![]; max_priority.get() as usize],
+                Some(max_priority) => vec![vec![]; max_priority.get()],
             },
         }
     }
 
     fn put(&mut self, priority: Priority, element: T) {
-        self.stack_per_priority[priority.get() as usize - 1].push(element);
+        self.stack_per_priority[priority.get() - 1].push(element);
     }
 
     fn pop(&mut self) -> Option<T> {
@@ -73,7 +73,7 @@ where
         if !(cfg!(debug_assertions)) {
             panic!("not suitable for use in release code")
         }
-        self.stack_per_priority[priority.get() as usize - 1].contains(&element)
+        self.stack_per_priority[priority.get() - 1].contains(&element)
     }
 }
 

@@ -39,7 +39,7 @@ where
             std::f64::NAN
         } else {
             let r = self.sum / (self.samples as f64);
-            r.max(self.min.into()).min(self.max.into())
+            r.clamp(self.min.into(), self.max.into())
         }
     }
     pub fn variance(&self) -> f64 {

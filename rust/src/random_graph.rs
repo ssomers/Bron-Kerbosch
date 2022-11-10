@@ -48,7 +48,7 @@ where
     let f = File::open(path).with_context(context(0))?;
     let reader = BufReader::new(f);
     let mut line_num = 0;
-    for line_result in reader.lines().take(size as usize) {
+    for line_result in reader.lines().take(size) {
         line_num += 1;
         let line = line_result.with_context(context(line_num))?;
         let mut split = line.split(' ');
