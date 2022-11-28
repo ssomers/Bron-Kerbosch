@@ -78,14 +78,14 @@ internal static class BronKerbosch3ST
                     _ = Interlocked.Increment(ref waitgroup);
                     _ = Task.Run(delegate
                         {
-                            Pivot.Visit(graph, reporter, Pivot.Choice.MaxDegreeLocal,
+                            Pivot.Visit(graph, reporter, PivotChoice.MaxDegreeLocal,
                                         neighbouringCandidates, neighbouringExcluded,
                                         ImmutableArray.Create(v));
                         }).ContinueWith(completion, scheduler);
                 }
                 else
                 {
-                    Debug.Assert(!CollectionsUtil.AreDisjoint(neighbours, excluded));
+                    Debug.Assert(CollectionsUtil.Overlaps(neighbours, excluded));
                 }
                 var added = excluded.Add(v);
                 Debug.Assert(added);

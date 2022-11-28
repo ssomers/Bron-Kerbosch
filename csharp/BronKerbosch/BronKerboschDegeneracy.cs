@@ -9,7 +9,7 @@ using System.Linq;
 
 internal static class BronKerboschDegeneracy
 {
-    public static void Explore(UndirectedGraph graph, IReporter reporter, Pivot.Choice pivotChoice)
+    public static void Explore(UndirectedGraph graph, IReporter reporter, PivotChoice pivotChoice)
     {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.

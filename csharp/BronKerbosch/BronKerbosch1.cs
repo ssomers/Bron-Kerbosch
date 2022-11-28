@@ -42,7 +42,7 @@ internal static class BronKerbosch1
                     neighbouringCandidates, neighbouringExcluded,
                     CollectionsUtil.Append(cliqueInProgress, v));
             }
-            else if (CollectionsUtil.AreDisjoint(excluded, neighbours))
+            else if (!CollectionsUtil.Overlaps(excluded, neighbours))
             {
                 reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
             }

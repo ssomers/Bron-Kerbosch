@@ -15,7 +15,7 @@ internal static class BronKerbosch2aGP
             Pivot.Visit(
                 graph,
                 reporter,
-                Pivot.Choice.MaxDegreeLocal,
+                PivotChoice.MaxDegreeLocal,
                 candidates,
                 new HashSet<Vertex>(),
                 ImmutableArray.Create<Vertex>());

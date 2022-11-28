@@ -7,15 +7,15 @@ using System.Linq;
 
 namespace BronKerbosch
 {
+    internal enum PivotChoice
+    {
+        MaxDegreeLocal,
+        MaxDegreeLocalX
+    }
+
     internal static class Pivot
     {
-        public enum Choice
-        {
-            MaxDegreeLocal,
-            MaxDegreeLocalX
-        }
-
-        public static void Explore(UndirectedGraph graph, IReporter reporter, Pivot.Choice pivotChoice)
+        public static void Explore(UndirectedGraph graph, IReporter reporter, PivotChoice pivotChoice)
         {
             var order = graph.Order;
             if (order == 0)
@@ -45,29 +45,29 @@ namespace BronKerbosch
             }
         }
 
-        public static void Visit(UndirectedGraph graph, IReporter reporter, Choice choice,
+        public static void Visit(UndirectedGraph graph, IReporter reporter, PivotChoice choice,
                                  ISet<Vertex> candidates, ISet<Vertex> excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
             Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
             Debug.Assert(!candidates.Overlaps(excluded));
-            Debug.Assert(candidates.Count >= 1);
-            if (candidates.Count == 1)
+            int numCandidates = candidates.Count;
+            Debug.Assert(numCandidates >= 1);
+            if (numCandidates == 1)
             {
                 // Same logic as below, stripped down
                 var v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                if (!CollectionsUtil.Overlaps(neighbours, excluded))
                 {
                     reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 }
-
                 return;
             }
 
             Vertex pivot;
-            var remainingCandidates = new Vertex[candidates.Count];
+            var remainingCandidates = new Vertex[numCandidates];
             var remainingCandidateCount = 0;
             // Quickly handle locally unconnected candidates while finding pivot
             const int INVALID = int.MaxValue;
@@ -80,7 +80,7 @@ namespace BronKerbosch
                 if (localDegree == 0)
                 {
                     // Same logic as below, stripped down
-                    if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                    if (!CollectionsUtil.Overlaps(neighbours, excluded))
                     {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }
@@ -102,7 +102,7 @@ namespace BronKerbosch
             }
 
             Debug.Assert(pivot.Index() != INVALID);
-            if (choice == Choice.MaxDegreeLocalX)
+            if (choice == PivotChoice.MaxDegreeLocalX)
             {
                 foreach (var v in excluded)
                 {
@@ -133,7 +133,7 @@ namespace BronKerbosch
                               neighbouringCandidates, neighbouringExcluded,
                               CollectionsUtil.Append(cliqueInProgress, v));
                     }
-                    else if (CollectionsUtil.AreDisjoint(neighbours, excluded))
+                    else if (!CollectionsUtil.Overlaps(neighbours, excluded))
                     {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }

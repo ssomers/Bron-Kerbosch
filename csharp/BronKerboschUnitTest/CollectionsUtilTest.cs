@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace BronKerboschUnitTest
 {
-    public class UtilTests
+    public class CollectionsUtilTests
     {
         [Test]
         public void Append()
@@ -23,49 +23,56 @@ namespace BronKerboschUnitTest
         }
 
         [Test]
-        public void PopArbitrary()
+        public void PopArbitrary1()
         {
-            var one = new HashSet<uint> { 1u };
-            var two = new HashSet<uint> { 1u, 2u };
-            Assert.That(CollectionsUtil.PopArbitrary(one).Equals(1u));
+            HashSet<int> one = new() { 1 };
+            var x = CollectionsUtil.PopArbitrary(one);
+            Assert.That(x.Equals(1));
             Assert.Zero(one.Count);
+        }
+
+        [Test]
+        public void PopArbitrary2()
+        {
+            HashSet<int> two = new() { 1, 2 };
             var x = CollectionsUtil.PopArbitrary(two);
             var y = CollectionsUtil.PopArbitrary(two);
-            Assert.That(Math.Min(x, y).Equals(1u));
-            Assert.That(Math.Max(x, y).Equals(2u));
+            Assert.That(Math.Min(x, y).Equals(1));
+            Assert.That(Math.Max(x, y).Equals(2));
+            Assert.Zero(two.Count);
         }
 
         [Test]
         public void AreDisjoint()
         {
-            var empty = new HashSet<int> { };
-            var one = new HashSet<int> { 1 };
-            var two = new HashSet<int> { 1, 2 };
-            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
-            Assert.That(CollectionsUtil.AreDisjoint(empty, one));
-            Assert.That(CollectionsUtil.AreDisjoint(one, empty));
-            Assert.That(CollectionsUtil.AreDisjoint(empty, two));
-            Assert.That(CollectionsUtil.AreDisjoint(two, empty));
-            Assert.That(CollectionsUtil.AreDisjoint(empty, six));
-            Assert.That(CollectionsUtil.AreDisjoint(six, empty));
-            Assert.That(!CollectionsUtil.AreDisjoint(one, two));
-            Assert.That(!CollectionsUtil.AreDisjoint(two, one));
-            Assert.That(!CollectionsUtil.AreDisjoint(one, six));
-            Assert.That(!CollectionsUtil.AreDisjoint(six, one));
-            Assert.That(!CollectionsUtil.AreDisjoint(two, six));
-            Assert.That(!CollectionsUtil.AreDisjoint(six, two));
-            Assert.That(!CollectionsUtil.AreDisjoint(one, one));
-            Assert.That(!CollectionsUtil.AreDisjoint(two, two));
-            Assert.That(!CollectionsUtil.AreDisjoint(six, six));
+            HashSet<int> empty = new();
+            HashSet<int> one = new() { 1 };
+            HashSet<int> two = new() { 1, 2 };
+            HashSet<int> six = new() { 0, 1, 2, 3, 4, 5 };
+            Assert.That(!CollectionsUtil.Overlaps(empty, one));
+            Assert.That(!CollectionsUtil.Overlaps(one, empty));
+            Assert.That(!CollectionsUtil.Overlaps(empty, two));
+            Assert.That(!CollectionsUtil.Overlaps(two, empty));
+            Assert.That(!CollectionsUtil.Overlaps(empty, six));
+            Assert.That(!CollectionsUtil.Overlaps(six, empty));
+            Assert.That(CollectionsUtil.Overlaps(one, two));
+            Assert.That(CollectionsUtil.Overlaps(two, one));
+            Assert.That(CollectionsUtil.Overlaps(one, six));
+            Assert.That(CollectionsUtil.Overlaps(six, one));
+            Assert.That(CollectionsUtil.Overlaps(two, six));
+            Assert.That(CollectionsUtil.Overlaps(six, two));
+            Assert.That(CollectionsUtil.Overlaps(one, one));
+            Assert.That(CollectionsUtil.Overlaps(two, two));
+            Assert.That(CollectionsUtil.Overlaps(six, six));
         }
 
         [Test]
         public void Intersection()
         {
-            var empty = new HashSet<int> { };
-            var one = new HashSet<int> { 1 };
-            var two = new HashSet<int> { 1, 2 };
-            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
+            HashSet<int> empty = new();
+            HashSet<int> one = new() { 1 };
+            HashSet<int> two = new() { 1, 2 };
+            HashSet<int> six = new() { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.Intersection(empty, one).SetEquals(empty));
             Assert.That(CollectionsUtil.Intersection(one, empty).SetEquals(empty));
             Assert.That(CollectionsUtil.Intersection(empty, two).SetEquals(empty));
@@ -86,10 +93,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void IntersectCount()
         {
-            var empty = new HashSet<int> { };
-            var one = new HashSet<int> { 1 };
-            var two = new HashSet<int> { 1, 2 };
-            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
+            HashSet<int> empty = new();
+            HashSet<int> one = new() { 1 };
+            HashSet<int> two = new() { 1, 2 };
+            HashSet<int> six = new() { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.IntersectionSize(empty, one).Equals(0));
             Assert.That(CollectionsUtil.IntersectionSize(one, empty).Equals(0));
             Assert.That(CollectionsUtil.IntersectionSize(empty, two).Equals(0));
@@ -110,10 +117,10 @@ namespace BronKerboschUnitTest
         [Test]
         public void Difference()
         {
-            var empty = new HashSet<int> { };
-            var one = new HashSet<int> { 1 };
-            var two = new HashSet<int> { 1, 2 };
-            var six = new HashSet<int> { 0, 1, 2, 3, 4, 5 };
+            HashSet<int> empty = new();
+            HashSet<int> one = new() { 1 };
+            HashSet<int> two = new() { 1, 2 };
+            HashSet<int> six = new() { 0, 1, 2, 3, 4, 5 };
             Assert.That(CollectionsUtil.Difference(empty, one).SetEquals(empty));
             Assert.That(CollectionsUtil.Difference(empty, two).SetEquals(empty));
             Assert.That(CollectionsUtil.Difference(empty, six).SetEquals(empty));

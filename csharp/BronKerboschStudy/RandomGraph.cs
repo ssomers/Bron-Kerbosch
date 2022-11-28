@@ -16,25 +16,9 @@ namespace BronKerboschStudy
             CliqueCount = cliqueCount;
         }
 
-        public static int ParseInt(string orderstr)
-        {
-            int factor = 1;
-            if (orderstr.EndsWith("M", StringComparison.Ordinal))
-            {
-                factor = 1_000_000;
-                orderstr = orderstr.Remove(orderstr.Length - 1);
-            }
-            else if (orderstr.EndsWith("k", StringComparison.Ordinal))
-            {
-                factor = 1_000;
-                orderstr = orderstr.Remove(orderstr.Length - 1);
-            }
-            return int.Parse(orderstr, CultureInfo.InvariantCulture) * factor;
-        }
-
         public static RandomUndirectedGraph Read(string orderstr, int size)
         {
-            var order = ParseInt(orderstr);
+            var order = NumbersGame.ParseInt(orderstr);
             var fullyMeshedSize = (long)order * (order - 1) / 2;
             if (size > fullyMeshedSize)
                 throw new ArgumentException($"{order} nodes accommodate at most {fullyMeshedSize} edges");
@@ -51,7 +35,7 @@ namespace BronKerboschStudy
 
         private static ImmutableArray<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
         {
-            var order = ParseInt(orderstr);
+            var order = NumbersGame.ParseInt(orderstr);
             var adjacencies = Enumerable.Range(0, order)
                 .Select(_ => new HashSet<Vertex>())
                 .ToImmutableArray();

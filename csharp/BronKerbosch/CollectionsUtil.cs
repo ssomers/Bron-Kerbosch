@@ -16,14 +16,14 @@ namespace BronKerbosch
             return builder.MoveToImmutable();
         }
 
-        public static bool AreDisjoint<T>(ISet<T> lhs, ISet<T> rhs)
+        public static bool Overlaps<T>(ISet<T> lhs, ISet<T> rhs)
         {
             if (lhs is null || rhs is null)
-                return true;
+                return false;
             else if (lhs.Count > rhs.Count)
-                return !lhs.Overlaps(rhs);
+                return lhs.Overlaps(rhs);
             else
-                return !rhs.Overlaps(lhs);
+                return rhs.Overlaps(lhs);
         }
 
         public static HashSet<T> Difference<T>(ISet<T> lhs, ISet<T> rhs)
