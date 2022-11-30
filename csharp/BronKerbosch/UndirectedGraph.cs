@@ -5,11 +5,13 @@ using System.Linq;
 
 namespace BronKerbosch
 {
-    public sealed class UndirectedGraph
+    public sealed class UndirectedGraph<TVertexSet, TVertexSetMgr>
+        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
-        private readonly ImmutableArray<HashSet<Vertex>> itsAdjacencies;
+        private readonly ImmutableArray<TVertexSet> itsAdjacencies;
 
-        public UndirectedGraph(ImmutableArray<HashSet<Vertex>> adjacencies)
+        public UndirectedGraph(ImmutableArray<TVertexSet> adjacencies)
         {
             for (int i = 0; i < adjacencies.Length; ++i)
             {
@@ -35,9 +37,9 @@ namespace BronKerbosch
             }
         }
 
-        public HashSet<Vertex> Neighbours(Vertex node) => itsAdjacencies[node.Index()];
+        public TVertexSet Neighbours(Vertex node) => itsAdjacencies[node.Index()];
 
-        public int Degree(Vertex node) => itsAdjacencies[node.Index()].Count;
+        public int Degree(Vertex node) => itsAdjacencies[node.Index()].Count();
 
         public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.Nth);
 

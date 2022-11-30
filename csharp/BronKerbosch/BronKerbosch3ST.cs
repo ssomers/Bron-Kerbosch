@@ -11,7 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-internal static class BronKerbosch3ST
+internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
+    where VertexSet : IEnumerable<Vertex>
+    where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     internal sealed class NestedReporter : IReporter
     {
@@ -46,7 +48,7 @@ internal static class BronKerbosch3ST
         }
     }
 
-    public static void Explore(UndirectedGraph graph, IReporter finalReporter)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter finalReporter)
     {
         var scheduler = TaskScheduler.Default;
         int sent = 0;
@@ -66,28 +68,28 @@ internal static class BronKerbosch3ST
                 collect.Complete();
             }
         }
-        var excluded = new HashSet<Vertex>();
+        var excluded = VertexSetMgr.Empty();
         var visit = new ActionBlock<Vertex>(v =>
             {
                 var neighbours = graph.Neighbours(v);
                 Debug.Assert(neighbours.Any());
-                var neighbouringCandidates = CollectionsUtil.Difference(neighbours, excluded);
+                var neighbouringCandidates = VertexSetMgr.Difference(neighbours, excluded);
                 if (neighbouringCandidates.Any())
                 {
-                    var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
+                    var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
                     _ = Interlocked.Increment(ref waitgroup);
                     _ = Task.Run(delegate
                         {
-                            Pivot.Visit(graph, reporter, PivotChoice.MaxDegreeLocal,
+                            Pivot<VertexSet, VertexSetMgr>.Visit(graph, reporter, PivotChoice.MaxDegreeLocal,
                                         neighbouringCandidates, neighbouringExcluded,
                                         ImmutableArray.Create(v));
                         }).ContinueWith(completion, scheduler);
                 }
                 else
                 {
-                    Debug.Assert(CollectionsUtil.Overlaps(neighbours, excluded));
+                    Debug.Assert(VertexSetMgr.Overlaps(neighbours, excluded));
                 }
-                var added = excluded.Add(v);
+                var added = VertexSetMgr.Add(excluded, v);
                 Debug.Assert(added);
                 ++received;
             });
@@ -96,7 +98,7 @@ internal static class BronKerbosch3ST
         // Step 1: feed vertices in order.
         _ = Task.Run(delegate
             {
-                foreach (var v in Degeneracy.Ordering(graph, drop: 1))
+                foreach (var v in Degeneracy<VertexSet, VertexSetMgr>.Ordering(graph, drop: 1))
                 {
                     while (!visit.Post(v))
                     {

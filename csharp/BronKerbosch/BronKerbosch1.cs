@@ -6,47 +6,50 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-internal static class BronKerbosch1
+internal static class BronKerbosch1<VertexSet, VertexSetMgr>
+    where VertexSet : IEnumerable<Vertex>
+    where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    public static void Explore(UndirectedGraph graph, IReporter reporter)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
     {
-        var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
-        if (candidates.Any())
+        var candidates = VertexSetMgr.From(graph.ConnectedVertices());
+        var numCandidates = candidates.Count();
+        if (numCandidates > 0)
         {
             Visit(
                 graph,
                 reporter,
                 candidates,
-                new HashSet<Vertex>(capacity: candidates.Count),
+                VertexSetMgr.EmptyWithCapacity(numCandidates),
                 ImmutableArray.Create<Vertex>());
         }
     }
 
 
-    private static void Visit(UndirectedGraph graph, IReporter reporter,
-        ISet<Vertex> candidates, ISet<Vertex> excluded, ImmutableArray<Vertex> cliqueInProgress)
+    private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter,
+        VertexSet candidates, VertexSet excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
         Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
         Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
-        Debug.Assert(!candidates.Overlaps(excluded));
+        Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
         Debug.Assert(candidates.Any());
         while (candidates.Any())
         {
-            var v = CollectionsUtil.PopArbitrary(candidates);
+            var v = VertexSetMgr.PopArbitrary(candidates);
             var neighbours = graph.Neighbours(v);
-            var neighbouringCandidates = CollectionsUtil.Intersection(candidates, neighbours);
+            var neighbouringCandidates = VertexSetMgr.Intersection(candidates, neighbours);
             if (neighbouringCandidates.Any())
             {
-                var neighbouringExcluded = CollectionsUtil.Intersection(excluded, neighbours);
+                var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
                 Visit(graph, reporter,
                     neighbouringCandidates, neighbouringExcluded,
                     CollectionsUtil.Append(cliqueInProgress, v));
             }
-            else if (!CollectionsUtil.Overlaps(excluded, neighbours))
+            else if (!VertexSetMgr.Overlaps(excluded, neighbours))
             {
                 reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
             }
-            var added = excluded.Add(v);
+            var added = VertexSetMgr.Add(excluded, v);
             Debug.Assert(added);
         }
     }

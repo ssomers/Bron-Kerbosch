@@ -5,19 +5,21 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-internal static class BronKerbosch2aGP
+internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr>
+    where VertexSet : IEnumerable<Vertex>
+    where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    public static void Explore(UndirectedGraph graph, IReporter reporter)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
     {
-        var candidates = new HashSet<Vertex>(graph.ConnectedVertices());
+        var candidates = VertexSetMgr.From(graph.ConnectedVertices());
         if (candidates.Any())
         {
-            Pivot.Visit(
+            Pivot<VertexSet, VertexSetMgr>.Visit(
                 graph,
                 reporter,
                 PivotChoice.MaxDegreeLocal,
                 candidates,
-                new HashSet<Vertex>(),
+                VertexSetMgr.Empty(),
                 ImmutableArray.Create<Vertex>());
         }
     }

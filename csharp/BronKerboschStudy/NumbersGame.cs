@@ -1,6 +1,3 @@
-using BronKerbosch;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace BronKerboschStudy

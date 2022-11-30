@@ -4,9 +4,15 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using static System.Globalization.CultureInfo;
 
-static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] funcIndices, int samples)
+static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
+    RandomUndirectedGraph<VertexSet,
+    VertexSetMgr> graph,
+    int[] funcIndices,
+    int samples)
+    where VertexSet : IEnumerable<Vertex>
+    where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    List<ImmutableArray<Vertex>>? first = null;
+    List<ImmutableArray<Vertex>>? firstResult = null;
     SampleStatistics[] times = Enumerable.Range(0, Portfolio.FuncNames.Length)
         .Select(funcIndex => new SampleStatistics()).ToArray();
     for (var sample = samples == 1 ? 1 : 0; sample <= samples; ++sample)
@@ -23,18 +29,18 @@ static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] f
                 if (secs >= 3.0)
                     Console.WriteLine($"  {Portfolio.FuncNames[funcIndex],8}: {secs,6:N2}s");
                 Portfolio.SortCliques(reporter.Cliques);
-                if (first == null)
+                if (firstResult == null)
                 {
                     if (reporter.Cliques.Count != graph.CliqueCount)
                     {
-                        throw new ArgumentException(
+                        throw new InvalidProgramException(
                             $"Expected {graph.CliqueCount} cliques, got {reporter.Cliques.Count}");
                     }
-                    first = reporter.Cliques;
+                    firstResult = reporter.Cliques;
                 }
                 else
                 {
-                    Portfolio.AssertSameCliques(first, reporter.Cliques);
+                    Portfolio.AssertSameCliques(firstResult, reporter.Cliques);
                 }
             }
             else
@@ -51,8 +57,12 @@ static SampleStatistics[] BronKerboschTimed(RandomUndirectedGraph graph, int[] f
     return times;
 }
 
-void Bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
+void Bk<VertexSet, VertexSetMgr>(
+    string orderstr,
+    IEnumerable<int> sizes, Func<int, IEnumerable<int>> includedFuncs,
     int samples)
+    where VertexSet : IEnumerable<Vertex>
+    where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     const string tmpfname = "tmp.csv";
     using (var fo = new StreamWriter(tmpfname,
@@ -68,7 +78,7 @@ void Bk(string orderstr, IEnumerable<int> sizes, Func<int, IEnumerable<int>> inc
         foreach (var size in sizes)
         {
             var funcIndices = includedFuncs(size).ToArray();
-            var g = RandomUndirectedGraph.Read(orderstr, size);
+            var g = RandomUndirectedGraph<VertexSet, VertexSetMgr>.Read(orderstr, size);
             var stats = BronKerboschTimed(g, funcIndices, samples);
             fo.Write($"{size}");
             foreach ((var funcIndex, var funcName) in Portfolio.FuncNames.Select((n, i) => (i, n)))
@@ -107,9 +117,10 @@ IEnumerable<int> Range(int start, int stop, int step)
 var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
 var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
 Debug.Fail("Run Release build for meaningful measurements");
-Bk("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
-Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
+//Bk<List<Vertex>, ListMgr>("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
+Bk<HashSet<Vertex>, HashSetMgr>("100", Range(2_000, 3_001, 50), size => allFuncIndices, 5); // max 4_950
+Bk<HashSet<Vertex>, HashSetMgr>("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
     size => mostFuncIndices, 3);
-Bk("1M", Range(500_000, 2_000_000, 250_000)
+Bk<HashSet<Vertex>, HashSetMgr>("1M", Range(500_000, 2_000_000, 250_000)
         .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
     size => size > 3_000_000 ? new[] { 2, 4, 5, 6 } : mostFuncIndices, 3);

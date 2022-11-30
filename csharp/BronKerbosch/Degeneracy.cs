@@ -5,11 +5,13 @@ using System.Linq;
 
 namespace BronKerbosch
 {
-    internal static class Degeneracy
+    internal static class Degeneracy<VertexSet, VertexSetMgr>
+        where VertexSet : IEnumerable<Vertex>
+        where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
         // Iterate connected vertices, lowest degree first.
         // drop=N: omit last N vertices
-        public static IEnumerable<Vertex> Ordering(UndirectedGraph graph, int drop)
+        public static IEnumerable<Vertex> Ordering(UndirectedGraph<VertexSet, VertexSetMgr> graph, int drop)
         {
             Debug.Assert(drop >= 0);
             const int NO_PRIORITY = -1;

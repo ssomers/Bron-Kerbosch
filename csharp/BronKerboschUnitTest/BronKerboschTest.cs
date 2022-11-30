@@ -1,19 +1,24 @@
 ﻿using BronKerbosch;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 #pragma warning disable CA1825 // Avoid zero-length array allocations
 
 namespace BronKerboschUnitTest
 {
-    public class BronKerboschTest
+    public class BronKerboschTest : BronKerboschTTest<HashSet<Vertex>, HashSetMgr> { }
+
+    public class BronKerboschTTest<TVertexSet, TVertexSetMgr>
+        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
         private static void Bk(int[][] adjacencies, int[][] cliques)
         {
-            var adjacencies2 = adjacencies.Select(neighbours => neighbours.Select(i => Vertex.Nth(i)).ToHashSet())
+            var adjacencies2 = adjacencies.Select(neighbours => TVertexSetMgr.From(neighbours.Select(i => Vertex.Nth(i))))
                                  .ToImmutableArray();
             var cliques2 = cliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray()).ToArray();
-            var graph = new UndirectedGraph(adjacencies2);
+            var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
                 var reporter = new SimpleReporter();

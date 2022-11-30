@@ -13,9 +13,11 @@ namespace BronKerbosch
         MaxDegreeLocalX
     }
 
-    internal static class Pivot
+    internal static class Pivot<VertexSet, VertexSetMgr>
+        where VertexSet : IEnumerable<Vertex>
+        where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
-        public static void Explore(UndirectedGraph graph, IReporter reporter, PivotChoice pivotChoice)
+        public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice pivotChoice)
         {
             var order = graph.Order;
             if (order == 0)
@@ -25,41 +27,41 @@ namespace BronKerbosch
             var pivot = graph.MaxDegreeVertex();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            var excluded = new HashSet<Vertex>(capacity: order);
+            var excluded = VertexSetMgr.EmptyWithCapacity(order);
             foreach (var v in Enumerable.Range(0, order).Select(Vertex.Nth))
             {
                 var neighbours = graph.Neighbours(v);
                 if (neighbours.Any() && !neighbours.Contains(pivot))
                 {
-                    var neighbouringExcluded = CollectionsUtil.Intersection(neighbours, excluded);
-                    if (neighbouringExcluded.Count < neighbours.Count)
+                    var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
+                    if (neighbouringExcluded.Count() < neighbours.Count())
                     {
-                        var neighbouringCandidates = CollectionsUtil.Difference(neighbours, neighbouringExcluded);
+                        var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                         Visit(graph, reporter, pivotChoice,
                               neighbouringCandidates, neighbouringExcluded,
-                              ImmutableArray.Create<Vertex>(v));
+                              ImmutableArray.Create(v));
                     }
-                    var added = excluded.Add(v);
+                    var added = VertexSetMgr.Add(excluded, v);
                     Debug.Assert(added);
                 }
             }
         }
 
-        public static void Visit(UndirectedGraph graph, IReporter reporter, PivotChoice choice,
-                                 ISet<Vertex> candidates, ISet<Vertex> excluded,
+        public static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice choice,
+                                 VertexSet candidates, VertexSet excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
             Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
-            Debug.Assert(!candidates.Overlaps(excluded));
-            int numCandidates = candidates.Count;
+            Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
+            int numCandidates = candidates.Count();
             Debug.Assert(numCandidates >= 1);
             if (numCandidates == 1)
             {
                 // Same logic as below, stripped down
                 var v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                if (!CollectionsUtil.Overlaps(neighbours, excluded))
+                if (!VertexSetMgr.Overlaps(neighbours, excluded))
                 {
                     reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                 }
@@ -76,11 +78,11 @@ namespace BronKerbosch
             foreach (var v in candidates)
             {
                 var neighbours = graph.Neighbours(v);
-                var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
+                var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
                 if (localDegree == 0)
                 {
                     // Same logic as below, stripped down
-                    if (!CollectionsUtil.Overlaps(neighbours, excluded))
+                    if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }
@@ -107,7 +109,7 @@ namespace BronKerbosch
                 foreach (var v in excluded)
                 {
                     var neighbours = graph.Neighbours(v);
-                    var localDegree = CollectionsUtil.IntersectionSize(neighbours, candidates);
+                    var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
                     if (seenLocalDegree < localDegree)
                     {
                         seenLocalDegree = localDegree;
@@ -123,21 +125,21 @@ namespace BronKerbosch
                 Debug.Assert(neighbours.Any());
                 if (!neighbours.Contains(pivot))
                 {
-                    var removed = candidates.Remove(v);
+                    var removed = VertexSetMgr.Remove(candidates, v);
                     Debug.Assert(removed);
-                    var neighbouringCandidates = CollectionsUtil.Intersection(neighbours, candidates);
+                    var neighbouringCandidates = VertexSetMgr.Intersection(neighbours, candidates);
                     if (neighbouringCandidates.Any())
                     {
-                        var neighbouringExcluded = CollectionsUtil.Intersection(neighbours, excluded);
+                        var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
                         Visit(graph, reporter, choice,
                               neighbouringCandidates, neighbouringExcluded,
                               CollectionsUtil.Append(cliqueInProgress, v));
                     }
-                    else if (!CollectionsUtil.Overlaps(neighbours, excluded))
+                    else if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
                         reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
                     }
-                    var added = excluded.Add(v);
+                    var added = VertexSetMgr.Add(excluded, v);
                     Debug.Assert(added);
                 }
             }

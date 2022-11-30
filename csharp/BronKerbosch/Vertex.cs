@@ -7,10 +7,10 @@ namespace BronKerbosch
 
     public readonly record struct Vertex : IComparable<Vertex>
     {
-        private Index index { init; get; }
+        private Index Idx { init; get; }
 
-        public static Vertex Nth(Index i) => new() { index = i };
-        public int CompareTo(Vertex other) => index.CompareTo(other.index);
-        public Index Index() => index;
+        public static Vertex Nth(Index idx) => new() { Idx = idx };
+        public int CompareTo(Vertex other) => Idx.CompareTo(other.Idx);
+        public Index Index() => Idx;
     }
 }

@@ -1,22 +1,23 @@
 using BronKerbosch;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Globalization;
 
 namespace BronKerboschStudy
 {
-    public sealed class RandomUndirectedGraph
+    public sealed class RandomUndirectedGraph<TVertexSet, TVertexSetMgr>
+        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
-        public UndirectedGraph Graph { get; }
+        public UndirectedGraph<TVertexSet, TVertexSetMgr> Graph { get; }
         public int CliqueCount { get; }
 
-        private RandomUndirectedGraph(UndirectedGraph graph, int cliqueCount)
+        private RandomUndirectedGraph(UndirectedGraph<TVertexSet, TVertexSetMgr> graph, int cliqueCount)
         {
             Graph = graph;
             CliqueCount = cliqueCount;
         }
 
-        public static RandomUndirectedGraph Read(string orderstr, int size)
+        public static RandomUndirectedGraph<TVertexSet, TVertexSetMgr> Read(string orderstr, int size)
         {
             var order = NumbersGame.ParseInt(orderstr);
             var fullyMeshedSize = (long)order * (order - 1) / 2;
@@ -27,17 +28,17 @@ namespace BronKerboschStudy
             const string statsPath = "..\\data\\random_stats.txt";
             var adjacencies = ReadEdges(edgesPath, orderstr, size);
             var cliqueCount = ReadStats(statsPath, orderstr, size);
-            var g = new UndirectedGraph(adjacencies);
+            var g = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies);
             Debug.Assert(g.Order == order);
             Debug.Assert(g.Size == size);
-            return new RandomUndirectedGraph(g, cliqueCount);
+            return new RandomUndirectedGraph<TVertexSet, TVertexSetMgr>(g, cliqueCount);
         }
 
-        private static ImmutableArray<HashSet<Vertex>> ReadEdges(string path, string orderstr, int size)
+        private static ImmutableArray<TVertexSet> ReadEdges(string path, string orderstr, int size)
         {
             var order = NumbersGame.ParseInt(orderstr);
             var adjacencies = Enumerable.Range(0, order)
-                .Select(_ => new HashSet<Vertex>())
+                .Select(_ => TVertexSetMgr.Empty())
                 .ToImmutableArray();
             var linenum = 0;
             using (var file = new StreamReader(path))
@@ -52,8 +53,8 @@ namespace BronKerboschStudy
                     {
                         throw new ArgumentException($"File {path} line {linenum} contains bogus text {line}");
                     }
-                    var added1 = adjacencies[v].Add(Vertex.Nth(w));
-                    var added2 = adjacencies[w].Add(Vertex.Nth(v));
+                    var added1 = TVertexSetMgr.Add(adjacencies[v], Vertex.Nth(w));
+                    var added2 = TVertexSetMgr.Add(adjacencies[w], Vertex.Nth(v));
                     Debug.Assert(added1);
                     Debug.Assert(added2);
                 }

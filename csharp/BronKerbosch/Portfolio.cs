@@ -14,17 +14,19 @@ namespace BronKerbosch
             "Ver3½=GPc"
         };
 
-        public static void Explore(int funcIndex, UndirectedGraph graph, IReporter reporter)
+        public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, IReporter reporter)
+            where TVertexSet : IEnumerable<Vertex>
+            where TVertexSetMgr : IVertexSetMgr<TVertexSet>
         {
             switch (funcIndex)
             {
-                case 0: BronKerbosch1.Explore(graph, reporter); break;
-                case 1: BronKerbosch2aGP.Explore(graph, reporter); break;
-                case 2: BronKerbosch2bGP.Explore(graph, reporter); break;
-                case 3: BronKerbosch2bGPX.Explore(graph, reporter); break;
-                case 4: BronKerbosch3GP.Explore(graph, reporter); break;
-                case 5: BronKerbosch3GPX.Explore(graph, reporter); break;
-                case 6: BronKerbosch3ST.Explore(graph, reporter); break;
+                case 0: BronKerbosch1<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 1: BronKerbosch2aGP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 2: BronKerbosch2bGP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 6: BronKerbosch3ST<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }
