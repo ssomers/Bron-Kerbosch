@@ -3,14 +3,13 @@
 #pragma once
 
 #include "BronKerboschPivot.h"
-#include "CliqueList.h"
 
 namespace BronKerbosch {
     class BronKerbosch2GPX {
        public:
-        template <typename VertexSet>
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
-            return BronKerboschPivot::explore(graph, PivotChoice::MaxDegreeLocalX);
+        template <typename Reporter, typename VertexSet>
+        static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
+            return BronKerboschPivot::explore<Reporter>(graph, PivotChoice::MaxDegreeLocalX);
         }
     };
 }

@@ -16,10 +16,10 @@ namespace BronKerbosch {
 
     class BronKerboschPivot {
        public:
-        template <typename VertexSet>
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph,
-                                  PivotChoice pivot_choice) {
-            auto cliques = CliqueList{};
+        template <typename Reporter, typename VertexSet>
+        static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph,
+                                        PivotChoice pivot_choice) {
+            auto cliques = Reporter::empty();
             if (auto const order = graph.order()) {
                 // In this initial iteration, we don't need to represent the set of candidates
                 // because all neighbours are candidates until excluded.
@@ -33,10 +33,11 @@ namespace BronKerbosch {
                             auto neighbouring_candidates =
                                 Util::difference(neighbours, neighbouring_excluded);
                             auto newclique = VertexPile(v);
-                            cliques.splice(cliques.end(),
-                                           visit(graph, pivot_choice, pivot_choice,
-                                                 std::move(neighbouring_candidates),
-                                                 std::move(neighbouring_excluded), &newclique));
+                            Reporter::add_all(
+                                cliques,
+                                visit<Reporter>(graph, pivot_choice, pivot_choice,
+                                                std::move(neighbouring_candidates),
+                                                std::move(neighbouring_excluded), &newclique));
                         }
                         excluded.insert(v);
                     }
@@ -45,24 +46,24 @@ namespace BronKerbosch {
             return cliques;
         }
 
-        template <typename VertexSet>
-        static CliqueList visit(UndirectedGraph<VertexSet> const& graph,
-                                PivotChoice initial_pivot_choice,
-                                PivotChoice further_pivot_choice,
-                                VertexSet&& candidates,
-                                VertexSet&& excluded,
-                                VertexPile* clique) {
+        template <typename Reporter, typename VertexSet>
+        static Reporter::Result visit(UndirectedGraph<VertexSet> const& graph,
+                                      PivotChoice initial_pivot_choice,
+                                      PivotChoice further_pivot_choice,
+                                      VertexSet&& candidates,
+                                      VertexSet&& excluded,
+                                      VertexPile* clique) {
             assert(!candidates.empty());
             assert(Util::are_disjoint(candidates, excluded));
 
-            auto cliques = CliqueList{};
+            auto cliques = Reporter::empty();
 
             if (candidates.size() == 1) {
                 // Same logic as below, but stripped down for this common case
                 for (Vertex v : candidates) {
                     auto const& neighbours = graph.neighbours(v);
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        cliques.push_back(VertexPile(v, clique).collect());
+                        Reporter::add_one(cliques, VertexPile(v, clique));
                     }
                 }
                 return cliques;
@@ -79,7 +80,7 @@ namespace BronKerbosch {
                 if (local_degree == 0) {
                     // Same logic as below, but stripped down
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        cliques.push_back(VertexPile(v, clique).collect());
+                        Reporter::add_one(cliques, VertexPile(v, clique));
                     }
                 } else {
                     if (seen_local_degree < local_degree) {
@@ -111,15 +112,16 @@ namespace BronKerbosch {
                     auto neighbouring_candidates = Util::intersection(neighbours, candidates);
                     if (neighbouring_candidates.empty()) {
                         if (Util::are_disjoint(neighbours, excluded)) {
-                            cliques.push_back(VertexPile(v, clique).collect());
+                            Reporter::add_one(cliques, VertexPile(v, clique));
                         }
                     } else {
                         auto neighbouring_excluded = Util::intersection(neighbours, excluded);
                         auto newclique = VertexPile(v, clique);
-                        cliques.splice(cliques.end(),
-                                       visit(graph, further_pivot_choice, further_pivot_choice,
-                                             std::move(neighbouring_candidates),
-                                             std::move(neighbouring_excluded), &newclique));
+                        Reporter::add_all(
+                            cliques,
+                            visit<Reporter>(graph, further_pivot_choice, further_pivot_choice,
+                                            std::move(neighbouring_candidates),
+                                            std::move(neighbouring_excluded), &newclique));
                     }
                     excluded.insert(v);
                 }

@@ -15,15 +15,48 @@ namespace BronKerbosch {
         static int const NUM_FUNCS = 6;
         static const char* const FUNC_NAMES[NUM_FUNCS];
 
-        template <typename VertexSet>
-        static CliqueList explore(int func_index, UndirectedGraph<VertexSet> const& graph) {
+        struct CollectingReporter {
+            using Result = CliqueList;
+
+            static Result empty() {
+                return CliqueList{};
+            }
+
+            static void add_one(Result& cliques, VertexPile&& pile) {
+                cliques.push_back(pile.collect());
+            }
+
+            static void add_all(Result& cliques, Result&& more_cliques) {
+                cliques.splice(cliques.end(), more_cliques);
+            }
+        };
+
+        struct CountingReporter {
+            using Result = size_t;
+
+            static Result empty() {
+                return 0;
+            }
+
+            static void add_one(Result& cliques, VertexPile&&) {
+                cliques += 1;
+            }
+
+            static void add_all(Result& cliques, Result&& more_cliques) {
+                cliques += more_cliques;
+            }
+        };
+
+        template <typename Reporter, typename VertexSet>
+        static typename Reporter::Result explore(int func_index,
+                                                 UndirectedGraph<VertexSet> const& graph) {
             switch (func_index) {
-                case 0: return BronKerbosch1::explore(graph);
-                case 1: return BronKerbosch2GP::explore(graph);
-                case 2: return BronKerbosch2GPX::explore(graph);
-                case 3: return BronKerbosch3GP::explore(graph);
-                case 4: return BronKerbosch3GPX::explore(graph);
-                case 5: return BronKerbosch3MT<VertexSet>::explore(graph);
+                case 0: return BronKerbosch1::explore<Reporter>(graph);
+                case 1: return BronKerbosch2GP::explore<Reporter>(graph);
+                case 2: return BronKerbosch2GPX::explore<Reporter>(graph);
+                case 3: return BronKerbosch3GP::explore<Reporter>(graph);
+                case 4: return BronKerbosch3GPX::explore<Reporter>(graph);
+                case 5: return BronKerbosch3MT<Reporter, VertexSet>::explore(graph);
             }
             throw std::logic_error("invalid func_index");
         }

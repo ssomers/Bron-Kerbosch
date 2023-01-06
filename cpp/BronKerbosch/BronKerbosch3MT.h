@@ -4,7 +4,6 @@
 #pragma once
 
 #include "BronKerboschPivot.h"
-#include "CliqueList.h"
 #include "GraphDegeneracy.h"
 #pragma warning(push)
 #pragma warning(disable : 4189 4265 4623 5204 26495)
@@ -19,7 +18,7 @@
 #pragma warning(pop)
 
 namespace BronKerbosch {
-    template <typename VertexSet>
+    template <typename Reporter, typename VertexSet>
     class BronKerbosch3MT {
        private:
         static const size_t VISITORS = 8;
@@ -130,7 +129,8 @@ namespace BronKerbosch {
             cppcoro::single_producer_sequencer<size_t> const& visit_sequencer,
             cppcoro::multi_producer_sequencer<size_t>& clique_sequencer,
             VisitJob& visit_job,
-            std::optional<CliqueList> (*clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
+            std::optional<typename Reporter::Result> (
+                *clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp) {
             size_t producers = 1;
             size_t nextToRead = 0;
@@ -146,9 +146,11 @@ namespace BronKerbosch {
                         assert(visit_job.full.load());
                         auto pile = VertexPile{visit_job.start};
                         size_t seq = co_await clique_sequencer.claim_one(tp);
-                        (*clique_produce)[seq % CLIQUES].emplace(BronKerboschPivot::visit<VertexSet>(
-                            graph, PivotChoice::MaxDegreeLocal, PivotChoice::MaxDegreeLocal,
-                            std::move(visit_job.candidates), std::move(visit_job.excluded), &pile));
+                        (*clique_produce)[seq % CLIQUES].emplace(
+                            BronKerboschPivot::visit<Reporter, VertexSet>(
+                                graph, PivotChoice::MaxDegreeLocal, PivotChoice::MaxDegreeLocal,
+                                std::move(visit_job.candidates), std::move(visit_job.excluded),
+                                &pile));
                         clique_sequencer.publish(seq);
                         assert(visit_job.full.exchange(false));
                         assert(visit_job.busy.exchange(false));
@@ -167,9 +169,10 @@ namespace BronKerbosch {
         static cppcoro::task<> clique_consumer(
             cppcoro::sequence_barrier<size_t>& clique_barrier,
             cppcoro::multi_producer_sequencer<size_t> const& clique_sequencer,
-            std::optional<CliqueList> (*clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
+            std::optional<typename Reporter::Result> (
+                *clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
             size_t producers,
-            CliqueList& all_cliques,
+            Reporter::Result& all_cliques,
             cppcoro::static_thread_pool& tp) noexcept {
             size_t nextToRead = 0;
             while (producers) {
@@ -178,7 +181,7 @@ namespace BronKerbosch {
                 do {
                     auto next_publication = (*clique_produce)[nextToRead % CLIQUES];
                     if (next_publication.has_value()) {
-                        all_cliques.splice(all_cliques.end(), std::move(next_publication).value());
+                        Reporter::add_all(all_cliques, std::move(next_publication).value());
                     } else {
                         --producers;
                     }
@@ -190,7 +193,7 @@ namespace BronKerbosch {
         }
 
        public:
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
+        static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
             auto tp = cppcoro::static_thread_pool{6};
             auto start_barrier = cppcoro::sequence_barrier<size_t>{};
             auto start_sequencer =
@@ -203,12 +206,12 @@ namespace BronKerbosch {
                 visit_sequencers[i] = std::make_unique<cppcoro::single_producer_sequencer<size_t>>(
                     visit_barriers[i], 1);
             }
-            VisitJob visit_jobs[VISITORS];
+            VisitJob visit_jobs[VISITORS] = {};
 
             auto clique_barrier = cppcoro::sequence_barrier<size_t>{};
             auto clique_sequencer =
                 cppcoro::multi_producer_sequencer<size_t>{clique_barrier, CLIQUES};
-            std::optional<CliqueList> cliques[CLIQUES];
+            std::optional<Reporter::Result> cliques[CLIQUES];
 
             auto tasks = std::vector<cppcoro::task<void>>{};
             tasks.reserve(2 + VISITORS + 1);
@@ -222,7 +225,7 @@ namespace BronKerbosch {
                     &cliques, tp));
             }
 
-            auto all_cliques = CliqueList{};
+            auto all_cliques = Reporter::empty();
             tasks.push_back(BronKerbosch3MT::clique_consumer(clique_barrier, clique_sequencer,
                                                              &cliques, VISITORS, all_cliques, tp));
             cppcoro::sync_wait(cppcoro::when_all_ready(std::move(tasks)));

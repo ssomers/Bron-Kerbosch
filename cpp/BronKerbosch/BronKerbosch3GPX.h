@@ -9,9 +9,9 @@
 namespace BronKerbosch {
     class BronKerbosch3GPX {
        public:
-        template <typename VertexSet>
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph) {
-            return BronKerboschDegeneracy::explore(graph, PivotChoice::MaxDegreeLocalX);
+        template <typename Reporter, typename VertexSet>
+        static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
+            return BronKerboschDegeneracy::explore<Reporter>(graph, PivotChoice::MaxDegreeLocalX);
         }
     };
 }

@@ -12,10 +12,10 @@
 namespace BronKerbosch {
     class BronKerboschDegeneracy {
        public:
-        template <typename VertexSet>
-        static CliqueList explore(UndirectedGraph<VertexSet> const& graph,
-                                  PivotChoice pivot_choice) {
-            auto cliques = CliqueList{};
+        template <typename Reporter, typename VertexSet>
+        static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph,
+                                        PivotChoice pivot_choice) {
+            auto cliques = Reporter::empty();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
@@ -29,10 +29,10 @@ namespace BronKerbosch {
                     auto neighbouring_candidates =
                         Util::difference(neighbours, neighbouring_excluded);
                     auto pile = VertexPile{v};
-                    cliques.splice(cliques.end(), BronKerboschPivot::visit(
-                                                      graph, pivot_choice, pivot_choice,
-                                                      std::move(neighbouring_candidates),
-                                                      std::move(neighbouring_excluded), &pile));
+                    Reporter::add_all(cliques, BronKerboschPivot::visit<Reporter>(
+                                                   graph, pivot_choice, pivot_choice,
+                                                   std::move(neighbouring_candidates),
+                                                   std::move(neighbouring_excluded), &pile));
                 }
                 excluded.insert(v);
             }

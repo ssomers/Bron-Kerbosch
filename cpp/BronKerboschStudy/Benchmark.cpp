@@ -31,7 +31,7 @@ class Benchmark {
             for (int func_index : func_indices) {
                 if (sample == 0) {
                     auto begin = std::chrono::steady_clock::now();
-                    auto result = Portfolio::explore(func_index, graph);
+                    auto result = Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     if (duration >= std::chrono::seconds(3)) {
@@ -56,11 +56,11 @@ class Benchmark {
                     }
                 } else {
                     auto begin = std::chrono::steady_clock::now();
-                    auto cliques = Portfolio::explore(func_index, graph);
+                    auto cliques = Portfolio::explore<Portfolio::CountingReporter, VertexSet>(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
-                    if (cliques.size() != graph.clique_count) {
+                    if (cliques != graph.clique_count) {
                         std::cerr << "Expected " << graph.clique_count << ", obtained "
-                                  << cliques.size() << " cliques\n";
+                                  << cliques << " cliques\n";
                         std::exit(EXIT_FAILURE);
                     }
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
