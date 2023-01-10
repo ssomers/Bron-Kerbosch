@@ -4,11 +4,11 @@ type Reporter interface {
 	Record(clique []Vertex)
 }
 
-type SimpleReporter struct {
+type CollectingReporter struct {
 	Cliques [][]Vertex
 }
 
-func (r *SimpleReporter) Record(clique []Vertex) {
+func (r *CollectingReporter) Record(clique []Vertex) {
 	cc := make([]Vertex, len(clique))
 	copy(cc, clique)
 	r.Cliques = append(r.Cliques, cc)

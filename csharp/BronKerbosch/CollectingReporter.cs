@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace BronKerbosch
 {
-    public sealed class SimpleReporter : IReporter
+    public sealed class CollectingReporter : IReporter
     {
         public List<ImmutableArray<Vertex>> Cliques { get; } = new List<ImmutableArray<Vertex>>();
 

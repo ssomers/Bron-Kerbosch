@@ -207,6 +207,15 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 ![Time spent on graphs of order 10k](doc/report_8_c++_10k.svg)
 
 
+### C#
+* **HashSet**
+* **SortedSet:**
+
+#### Results
+![Time spent on graphs of order 100](doc/report_8_csharp_100.svg)
+![Time spent on graphs of order 10k](doc/report_8_csharp_10k.svg)
+
+
 # How to run & test
 
 ## Python 3
@@ -255,6 +264,7 @@ Perform
     go run main.go
 
 Optionally, on MSYS2:
+
     PATH=$PATH:$HOME/Documents/go/bin
     go test -race ./...
 
@@ -282,7 +292,18 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_c++_1M.svg)
 
 Either:
-  - clone or export https://github.com/VaderY/cppcoro locally, e.g. next to this repository
+  - clone or export https://github.com/andreasbuhr/cppcoro locally, e.g. next to this repository
+  - build it, something akin to:
+  
+        call "%ProgramFiles%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+        mkdir build
+        cd build
+        cmake .. -A x64 -DCMAKE_CXX_STANDARD=20 -DBUILD_TESTING=ON
+        cmake --build . --config Release
+        cmake --build . --config Debug
+        ctest --progress --config Release
+        ctest --progress --config Debug
+
   - open cpp\BronKerboschStudy.sln with Visual Studio 2022
   - set directory to cppcoro (if not `..\cppcoro` relative to Bron-Kerbosch):
     - View > Other Windows > Property Manager

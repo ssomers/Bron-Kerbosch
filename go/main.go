@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbosch.NumFuncs]Stats.SampleStatistics {
+func timed(orderstr string, size int, funcIndices []int, timedSamples int) [BronKerbosch.NumFuncs]Stats.SampleStatistics {
 	begin := time.Now()
 	graph, cliqueCount, err := StudyIO.ReadRandomUndirectedGraph(orderstr, size)
 	secs := time.Since(begin).Seconds()
@@ -21,22 +21,23 @@ func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbo
 
 	var times [BronKerbosch.NumFuncs]Stats.SampleStatistics
 	var first [][]BronKerbosch.Vertex
-	sample := 0
-	if samples == 1 {
-		sample = 1
-	}
-	for ; sample <= samples; sample++ {
+	for sample := 0; sample <= timedSamples; sample++ {
 		for _, funcIndex := range funcIndices {
 			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
+			var collectingReporter BronKerbosch.CollectingReporter
+			var countingReporter BronKerbosch.CountingReporter
+			begin := time.Now()
 			if sample == 0 {
-				var reporter BronKerbosch.SimpleReporter
-				begin := time.Now()
-				bronKerboschFunc(&graph, &reporter)
-				secs := time.Since(begin).Seconds()
+				bronKerboschFunc(&graph, &collectingReporter)
+			} else {
+				bronKerboschFunc(&graph, &countingReporter)
+			}
+			secs := time.Since(begin).Seconds()
+			if sample == 0 {
 				if secs >= 3.0 {
 					fmt.Printf("  %-8s: %5.2fs\n", BronKerbosch.FuncNames[funcIndex], secs)
 				}
-				current := reporter.Cliques
+				current := collectingReporter.Cliques
 				BronKerbosch.SortCliques(current)
 				if len(first) == 0 {
 					if len(current) != cliqueCount {
@@ -50,13 +51,9 @@ func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbo
 					})
 				}
 			} else {
-				var reporter BronKerbosch.CountingReporter
-				begin := time.Now()
-				bronKerboschFunc(&graph, &reporter)
-				secs := time.Since(begin).Seconds()
-				if reporter.Cliques != cliqueCount {
+				if countingReporter.Cliques != cliqueCount {
 					fmt.Printf("  %s: expected %d cliques, obtained %d\n",
-						BronKerbosch.FuncNames[funcIndex], cliqueCount, reporter.Cliques)
+						BronKerbosch.FuncNames[funcIndex], cliqueCount, countingReporter.Cliques)
 				}
 				times[funcIndex].Put(secs)
 			}
@@ -65,7 +62,7 @@ func timed(orderstr string, size int, funcIndices []int, samples int) [BronKerbo
 	return times
 }
 
-func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
+func bk(orderstr string, sizes []int, funcIndices []int, timedSamples int) {
 	name := "bron_kerbosch_go_order_" + orderstr
 	path := filepath.Join("..", name+".csv")
 	fo, err := os.Create(path)
@@ -87,7 +84,7 @@ func bk(orderstr string, sizes []int, funcIndices []int, samples int) {
 	fo.WriteString("\n")
 	for _, size := range sizes {
 		fo.WriteString(fmt.Sprintf("%d", size))
-		stats := timed(orderstr, size, funcIndices, samples)
+		stats := timed(orderstr, size, funcIndices, timedSamples)
 		for _, funcIndex := range funcIndices {
 			name := BronKerbosch.FuncNames[funcIndex]
 			max := stats[funcIndex].Max()
@@ -141,7 +138,7 @@ func main() {
 			}
 			sizes = append(sizes, size)
 		}
-		bk(orderstr, sizes, allFuncIndices, 3)
+		bk(orderstr, sizes, allFuncIndices, 0)
 	} else {
 		print("give me one or more sizes too")
 	}

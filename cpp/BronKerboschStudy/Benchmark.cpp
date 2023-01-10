@@ -24,10 +24,10 @@ class Benchmark {
     template <typename VertexSet>
     static Times timed(RandomGraph<VertexSet> const& graph,
                        std::vector<int> const& func_indices,
-                       int samples) {
+                       int timed_samples) {
         std::unique_ptr<std::vector<VertexList>> first;
         auto times = Times{};
-        for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
+        for (int sample = 0; sample <= timed_samples; ++sample) {
             for (int func_index : func_indices) {
                 if (sample == 0) {
                     auto begin = std::chrono::steady_clock::now();
@@ -75,28 +75,29 @@ class Benchmark {
     static Times bk_core(std::string const& orderstr,
                          unsigned size,
                          std::vector<int> func_indices,
-                         int samples) {
+                         int timed_samples) {
         auto g = RandomGraph<VertexSet>::readUndirected(orderstr, size);
-        return timed(g, func_indices, samples);
+        return timed(g, func_indices, timed_samples);
     }
 
     static Times bk_core(SetType set_type,
                          std::string const& orderstr,
                          unsigned size,
                          std::function<std::vector<int>(SetType, unsigned size)> includedFuncs,
-                         int samples) {
+                         int timed_samples) {
         auto func_indices = includedFuncs(set_type, size);
         if (func_indices.empty()) {
             return Times{};
         } else {
             switch (set_type) {
                 case SetType::std_set:
-                    return bk_core<std::set<Vertex>>(orderstr, size, func_indices, samples);
+                    return bk_core<std::set<Vertex>>(orderstr, size, func_indices, timed_samples);
                 case SetType::ord_vec:
-                    return bk_core<ordered_vector<Vertex>>(orderstr, size, func_indices, samples);
+                    return bk_core<ordered_vector<Vertex>>(orderstr, size, func_indices,
+                                                           timed_samples);
                 case SetType::hashset:
                     return bk_core<std::unordered_set<Vertex>>(orderstr, size, func_indices,
-                                                               samples);
+                                                               timed_samples);
             }
             throw std::logic_error("unreachable");
         }
@@ -115,7 +116,7 @@ class Benchmark {
     static void bk(std::string const& orderstr,
                    std::vector<unsigned> const& sizes,
                    std::function<std::vector<int>(SetType, unsigned size)> includedFuncs,
-                   int samples) {
+                   int timed_samples) {
         auto tmpfname = "tmp.csv";
         {
             auto fo = std::ofstream{tmpfname};
@@ -132,7 +133,7 @@ class Benchmark {
                 fo << size;
                 for (int set_type_index = 0; set_type_index < SET_TYPES; ++set_type_index) {
                     auto set_type = SetType(set_type_index);
-                    Times stats = bk_core(set_type, orderstr, size, includedFuncs, samples);
+                    Times stats = bk_core(set_type, orderstr, size, includedFuncs, timed_samples);
                     for (int func_index = 0; func_index < Portfolio::NUM_FUNCS; ++func_index) {
                         auto func_name = Portfolio::FUNC_NAMES[func_index];
                         auto max = stats[func_index].max();
@@ -246,7 +247,7 @@ int main(int argc, char** argv) {
         unsigned size = BronKerboschStudy::parseInt(argv[2]);
         Benchmark::bk(
             orderstr, range(size, size, 1u), [&](SetType, unsigned) { return all_func_indices; },
-            1);
+            0);
         return EXIT_SUCCESS;
     } else {
         std::cerr << "Specify order and size\n";

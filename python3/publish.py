@@ -58,6 +58,7 @@ def linestyle_by_lib(lib: str) -> object:
     return {
         "BTree": "dotted",
         "std_set": "dotted",
+        "SortedSet": "dotted",
         "ord_vec": "dashed",
         "hashbrown": "dashdot",
         "fnv": (0, (4, 2, 1, 1, 1, 2)),
@@ -106,6 +107,10 @@ def publish(
     publish_whole_csv(language=language, orderstr=orderstr)
 
 
+def read_seconds(s: str) -> float:
+    return float(s) if s else math.nan
+
+
 def read_csv(
     language: str,
     orderstr: str,
@@ -152,9 +157,9 @@ def read_csv(
                 published_name = (case_name_selector.get(case_name)
                                   if case_name_selector else case_name)
                 if published_name is not None:
-                    m = Measurement(min=float(row[c * 3 + 1]),
-                                    mean=float(row[c * 3 + 2]),
-                                    max=float(row[c * 3 + 3]))
+                    m = Measurement(min=read_seconds(row[c * 3 + 1]),
+                                    mean=read_seconds(row[c * 3 + 2]),
+                                    max=read_seconds(row[c * 3 + 3]))
                     m_per_size_by_case_name.setdefault(published_name,
                                                        []).append(m)
 
@@ -419,7 +424,7 @@ def publish_reports() -> None:
                 versions=["Ver2½", "Ver2½-RP", "Ver2½-GP", "Ver2½-GPX"])
     # 4. Ver2 vs. Ver3
     for orderstr in ["10k", "1M"]:
-        for langlib in ["python311", "c#"]:
+        for langlib in ["python311", "c#@HashSet"]:
             publish_version_report(basebasename="report_4",
                                    orderstr=orderstr,
                                    langlib=langlib,
@@ -432,7 +437,7 @@ def publish_reports() -> None:
                                    versions=["Ver2½-GP", "Ver3½-GP"])
     # 5. Ver3 variants
     for orderstr in ["10k", "1M"]:
-        for langlib in ["python311", "c#"]:
+        for langlib in ["python311", "c#@HashSet"]:
             publish_version_report(basebasename="report_5",
                                    orderstr=orderstr,
                                    langlib=langlib,
@@ -461,7 +466,7 @@ def publish_reports() -> None:
         publish_report(basename=f"report_7_sequential_{orderstr}",
                        orderstr=orderstr,
                        langlibs=[
-                           "python311", "scala", "java", "go", "c#",
+                           "python311", "scala", "java", "go", "c#@HashSet",
                            "c++@hashset", "rust@Hash"
                        ],
                        versions=["Ver3½-GP"],
@@ -469,7 +474,7 @@ def publish_reports() -> None:
         publish_report(
             basename=f"report_7_channels_{orderstr}",
             orderstr=orderstr,
-            langlibs=["java", "go", "c#", "c++@hashset", "rust@Hash"],
+            langlibs=["java", "go", "c#@HashSet", "c++@hashset", "rust@Hash"],
             versions=["Ver3½=GPc", "Ver3½=GP3"],
             single_version="parallel Ver3½=GP using channels")
         publish_report(basename=f"report_7_parallel_{orderstr}",
@@ -487,6 +492,13 @@ def publish_reports() -> None:
             libs=["BTree", "Hash", "hashbrown", "fnv", "ord_vec"],
         )
     for orderstr in ["100", "10k"]:
+        publish_library_report(
+            basename=f"report_8_csharp_{orderstr}",
+            orderstr=orderstr,
+            language="c#",
+            ver="Ver3½-GP",
+            libs=["HashSet", "SortedSet"],
+        )
         publish_library_report(basename=f"report_8_c++_{orderstr}",
                                orderstr=orderstr,
                                language="c++",

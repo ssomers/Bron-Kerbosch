@@ -95,6 +95,7 @@ csharp_style_prefer_utf8_string_literals = true:suggestion
 dotnet_diagnostic.IDE0007.severity = silent
 dotnet_diagnostic.IDE0021.severity = silent
 dotnet_diagnostic.IDE0048.severity = silent
+dotnet_diagnostic.IDE0061.severity = silent
 
 [*.{cs,vb}]
 #### Naming styles ####

@@ -27,7 +27,7 @@ class bron_kerbosch3_st[Vertex: Integral]
       Await.ready(future, Duration.Inf)
   }
 
-  def go_explore(
+  private def go_explore(
       graph: UndirectedGraph[Vertex],
       reporter: immutable.Iterable[Vertex] => Unit
   ): List[Future[Unit]] = {

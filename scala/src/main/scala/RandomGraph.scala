@@ -23,7 +23,7 @@ object RandomGraph {
     vseq.dropRightInPlace(1)
   }
 
-  def new_adjacencies[Vertex](
+  private def new_adjacencies[Vertex](
       n: Int
   ): mutable.IndexedSeq[mutable.Set[Vertex]] = {
     mutable.IndexedSeq.fill(n) { mutable.Set() }
@@ -51,7 +51,7 @@ object RandomGraph {
     (graph, clique_count)
   }
 
-  def read_edges[Vertex: Integral](
+  private def read_edges[Vertex: Integral](
       path: String,
       order: Int,
       size: Int
@@ -70,7 +70,7 @@ object RandomGraph {
       .map(neighbours => new HashSet[Vertex] ++ neighbours)
   }
 
-  def read_stats(path: String, order_str: String, size: Int): Int = {
+  private def read_stats(path: String, order_str: String, size: Int): Int = {
     val prefix = f"$order_str\t$size\t"
     val file = Source.fromFile(path)
     for (line <- file.getLines().take(size)) {

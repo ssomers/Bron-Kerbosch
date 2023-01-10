@@ -89,7 +89,7 @@ object degeneracy_ordering {
 }
 
 class PriorityQueue[Vertex](max_priority: Int) {
-  val stack_per_priority: Array[mutable.ArrayBuffer[Vertex]] =
+  private val stack_per_priority: Array[mutable.ArrayBuffer[Vertex]] =
     Array.fill(max_priority) { new mutable.ArrayBuffer[Vertex] }
 
   def put(priority: Int, v: Vertex): Unit = {

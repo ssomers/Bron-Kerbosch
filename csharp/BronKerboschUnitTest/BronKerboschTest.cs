@@ -7,9 +7,10 @@ using System.Linq;
 
 namespace BronKerboschUnitTest
 {
-    public class BronKerboschTest : BronKerboschTTest<HashSet<Vertex>, HashSetMgr> { }
+    public class BronKerboschHashTest : BronKerboschTestTemplate<HashSet<Vertex>, HashSetMgr> { }
+    public class BronKerboschSortedTest : BronKerboschTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
-    public class BronKerboschTTest<TVertexSet, TVertexSetMgr>
+    public class BronKerboschTestTemplate<TVertexSet, TVertexSetMgr>
         where TVertexSet : IEnumerable<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
@@ -21,7 +22,7 @@ namespace BronKerboschUnitTest
             var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
-                var reporter = new SimpleReporter();
+                var reporter = new CollectingReporter();
                 Portfolio.Explore(funcIndex, graph, reporter);
                 Assert.AreEqual(cliques2.Length, reporter.Cliques.Count);
                 Portfolio.SortCliques(reporter.Cliques);

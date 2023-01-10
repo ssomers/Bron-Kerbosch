@@ -3,11 +3,11 @@ use crate::core::vertex::Vertex;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Default)]
-pub struct SimpleReporter {
+pub struct CollectingReporter {
     pub cliques: Vec<Clique>,
 }
 
-impl Reporter for SimpleReporter {
+impl Reporter for CollectingReporter {
     fn record(&mut self, clique: Clique) {
         debug_assert!(clique.len() > 1);
         debug_assert_eq!(

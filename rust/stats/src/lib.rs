@@ -13,9 +13,12 @@ where
     f64: std::convert::From<T>,
     f64: std::convert::From<<T as std::ops::Sub>::Output>,
 {
+    pub fn is_empty(&self) -> bool {
+        self.samples == 0
+    }
     pub fn put(&mut self, v: T) {
         let vf = f64::from(v);
-        if self.samples == 0 {
+        if self.is_empty() {
             self.min = v;
             self.max = v;
         } else if self.min > v {

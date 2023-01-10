@@ -11,7 +11,7 @@ class Reporter(metaclass=ABCMeta):
         pass
 
 
-class SimpleReporter(Reporter):
+class CollectingReporter(Reporter):
 
     def __init__(self) -> None:
         self.cliques: List[Sequence[int]] = []

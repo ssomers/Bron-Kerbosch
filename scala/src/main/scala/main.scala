@@ -40,17 +40,16 @@ object main {
       })
   }
 
-  def bron_kerbosch_timed(
+  private def bron_kerbosch_timed(
       graph: UndirectedGraph[Vertex],
       clique_count: Int,
-      samples: Int,
+      timed_samples: Int,
       func_indices: Array[Int]
   ): Array[SampleStatistics] = {
     var firstOrdered: Option[Seq[Seq[Vertex]]] = None
     val times = Array.fill(FUNCS.size) { new SampleStatistics }
-    val start = if (samples == 1) 1 else 0
 
-    for (sample <- start to samples; func_index <- func_indices) {
+    for (sample <- 0 to timed_samples; func_index <- func_indices) {
       val func = FUNCS(func_index)
       val func_name = FUNC_NAMES(func_index)
       if (sample == 0) {

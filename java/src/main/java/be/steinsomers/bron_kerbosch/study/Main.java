@@ -64,12 +64,12 @@ final class Main {
     }
 
     private static SampleStatistics[] bron_kerbosch_timed(GraphTestData testData,
-                                                          int samples, int[] funcIndices)
+                                                          int timedSamples, int[] funcIndices)
             throws InterruptedException {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
         var times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
-        for (int sample = samples == 1 ? 1 : 0; sample <= samples; ++sample) {
+        for (int sample = 0; sample <= timedSamples; ++sample) {
             for (int funcIndex : funcIndices) {
                 if (sample == 0) {
                     var cliques = FUNCS[funcIndex].explore(testData.graph()).toList();
@@ -102,7 +102,7 @@ final class Main {
                            String orderStr,
                            int order,
                            int[] sizes,
-                           int samples,
+                           int timedSamples,
                            int[] funcIndices) {
         var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
         var path = Paths.get("..", name + ".csv");
@@ -120,7 +120,7 @@ final class Main {
                 var elapsed = System.nanoTime() - start;
                 System.out.printf("%4s nodes, %7d edges, creation: %6.3f%n",
                         orderStr, size, elapsed / 1e9);
-                var times = bron_kerbosch_timed(testData, samples, funcIndices);
+                var times = bron_kerbosch_timed(testData, timedSamples, funcIndices);
 
                 fo.write(String.format(Locale.US, "%d", size));
                 for (var funcIndex : funcIndices) {

@@ -1,5 +1,5 @@
 use super::graph::{NewableUndirectedGraph, Vertex, VertexMap, VertexSetLike};
-use super::reporters::SimpleReporter;
+use super::reporters::CollectingReporter;
 use super::slimgraph::SlimUndirectedGraph;
 use super::*;
 
@@ -19,7 +19,7 @@ impl TestData {
         let graph = SlimUndirectedGraph::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-            let mut reporter = SimpleReporter::default();
+            let mut reporter = CollectingReporter::default();
             explore(func_index, &graph, &mut reporter);
             let cliques = order_cliques(reporter.cliques.into_iter());
             assert_eq!(cliques, expected, "for {} on {}", func_name, self.name);
