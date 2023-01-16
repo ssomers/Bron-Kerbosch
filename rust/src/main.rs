@@ -176,7 +176,7 @@ fn bk(
 
     let sizes = Vec::from_iter(sizes);
     let published = sizes.len() > 1;
-    let name = format!("bron_kerbosch_{}_order_{}", LANGUAGE, orderstr);
+    let name = format!("bron_kerbosch_{LANGUAGE}_order_{orderstr}");
     let temppath = Path::new("tmp").with_extension("csv");
     {
         let mut writer: Option<csv::Writer<File>> = if published {
@@ -208,9 +208,9 @@ fn bk(
                                 .cartesian_product(FUNC_NAMES.iter())
                                 .flat_map(|(set_type, name)| {
                                     vec![
-                                        format!("{}@{} min", name, set_type),
-                                        format!("{}@{} mean", name, set_type),
-                                        format!("{}@{} max", name, set_type),
+                                        format!("{name}@{set_type} min"),
+                                        format!("{name}@{set_type} mean"),
+                                        format!("{name}@{set_type} max"),
                                     ]
                                 }),
                         ),

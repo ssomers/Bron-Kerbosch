@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use bron_kerbosch::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
+use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -20,8 +21,16 @@ pub fn parse_positive_int(value: &str) -> usize {
     };
     let num: usize = numstr
         .parse()
-        .unwrap_or_else(|err| panic!("{} is not a positive integer ({})", numstr, err));
+        .unwrap_or_else(|err| panic!("{numstr} is not a positive integer ({err})"));
     num * factor
+}
+
+fn locator(path: &Path, line_num: usize) -> String {
+    let mut locator = format!("In file {}", path.display());
+    if line_num > 0 {
+        write!(locator, " on line {line_num}").ok();
+    }
+    locator
 }
 
 fn read_edges<VertexSet>(path: &Path, orderstr: &str, size: usize) -> Result<Adjacencies<VertexSet>>
@@ -32,16 +41,9 @@ where
     let mut adjacencies = Adjacencies::new(VertexSet::new(), order);
     let context = |line_num| {
         move || {
-            let line_str = if line_num > 0 {
-                format!(" on line {}", line_num)
-            } else {
-                String::new()
-            };
             format!(
-                "In file {}{}\nPerhaps (re)generate with `python -m random_graph {} <max_size?>`",
-                path.display(),
-                line_str,
-                orderstr
+                "{}\nPerhaps (re)generate with `python -m random_graph {orderstr} <max_size?>`",
+                locator(path, line_num)
             )
         }
     };
@@ -72,10 +74,10 @@ where
 }
 
 fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<usize>> {
-    let f = File::open(path).with_context(|| format!("In file {}", path.display()))?;
+    let f = File::open(path).with_context(|| locator(path, 0))?;
     let reader = BufReader::new(f);
-    let context = |line_num| move || format!("In file {} on line {}", path.display(), line_num);
-    let prefix = format!("{}\t{}\t", orderstr, size);
+    let context = |line_num| move || locator(path, line_num);
+    let prefix = format!("{orderstr}\t{size}\t");
     for (line_idx, line_result) in reader.lines().enumerate().skip(1) {
         let line = line_result.with_context(context(line_idx + 1))?;
         if line.starts_with(&prefix) {
@@ -105,7 +107,7 @@ where
         ));
     }
 
-    let edges_name = &format!("random_edges_order_{}.txt", orderstr);
+    let edges_name = &format!("random_edges_order_{orderstr}.txt");
     let stats_name = "random_stats.txt";
     let edges_pbuf: PathBuf = ["..", "data", edges_name].iter().collect();
     let stats_pbuf: PathBuf = ["..", "data", stats_name].iter().collect();
