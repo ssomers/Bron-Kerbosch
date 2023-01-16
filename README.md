@@ -245,6 +245,8 @@ To obtain these results:
 Perform
 
     cd rust
+    (sometimes) rustup update
+    (sometimes) cargo upgrades && cargo update
     cargo clippy --workspace
     cargo test --workspace
     cargo run --release
