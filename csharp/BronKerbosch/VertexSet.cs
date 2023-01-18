@@ -121,7 +121,6 @@ namespace BronKerbosch
                 }
             }
             return result;
-            // much slower: s1.Except(s2).ToHashSet();
         }
         public static SortedSet<Vertex> Intersection(SortedSet<Vertex> s1, SortedSet<Vertex> s2)
         {
@@ -140,8 +139,6 @@ namespace BronKerbosch
                 }
             }
             return result;
-            // much slower: return s2.Intersect(s1).ToHashSet();
-            // even slower: return s1.Intersect(s2).ToHashSet();
         }
         public static int IntersectionSize(SortedSet<Vertex> s1, SortedSet<Vertex> s2)
         {
@@ -151,9 +148,6 @@ namespace BronKerbosch
             }
 
             return s1.Count(s2.Contains);
-            // wee bit slower: return s1.Where(v => s2.Contains(v)).Cardinality();
-            // much slower: return s2.Intersect(s1).Cardinality();
-            // even slower: return s1.Intersect(s2).Cardinality();
         }
         public static bool Overlaps(SortedSet<Vertex> s1, SortedSet<Vertex> s2)
         {
