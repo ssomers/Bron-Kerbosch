@@ -26,20 +26,23 @@ namespace BronKerbosch {
         static const size_t CLIQUES = 8;
         static const Vertex SENTINEL_VTX = std::numeric_limits<Vertex>::max();
 
-        struct VisitJob {
+        class VisitJob {
             Vertex start = SENTINEL_VTX;
             VertexSet candidates;
             VertexSet excluded;
 #ifndef NDEBUG
-            std::atomic_bool busy, full;
+            std::atomic_bool busy;  // being read from or written to by a thread
+            std::atomic_bool full;  // having been written to
 #endif
 
+           public:
             VisitJob() noexcept = default;
             VisitJob(VisitJob&&) = delete;
             VisitJob(VisitJob const&) = delete;
             VisitJob& operator=(VisitJob&&) = delete;
             VisitJob& operator=(VisitJob const&) = delete;
 
+            // Store in this slot a visit to be done.
             void schedule(Vertex new_start,
                           VertexSet&& new_candidates,
                           VertexSet&& new_excluded) noexcept {
@@ -50,6 +53,32 @@ namespace BronKerbosch {
                 excluded = std::move(new_excluded);
                 assert(!full.exchange(true));
                 assert(busy.exchange(false));
+            }
+
+            // Store in this slot a marker that no more visits are needed.
+            void close() noexcept {
+                assert(!busy.exchange(true));
+                assert(!full.load());
+                start = SENTINEL_VTX;
+                assert(!full.exchange(true));
+                assert(busy.exchange(false));
+            }
+
+            // Execute the visit stored in this slot, if any.
+            std::optional<typename Reporter::Result> visit(UndirectedGraph<VertexSet> const& graph,
+                                                           PivotChoice pivot_choice) noexcept {
+                std::optional<Reporter::Result> result;
+                assert(!busy.exchange(true));
+                assert(full.load());
+                if (start != SENTINEL_VTX) {
+                    auto pile = VertexPile{start};
+                    result = BronKerboschPivot::visit<Reporter, VertexSet>(
+                        graph, pivot_choice, pivot_choice, std::move(candidates),
+                        std::move(excluded), &pile);
+                }
+                assert(full.exchange(false));
+                assert(busy.exchange(false));
+                return result;
             }
         };
 
@@ -81,16 +110,18 @@ namespace BronKerbosch {
             cppcoro::static_thread_pool& tp) {
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
             size_t visitor = 0;
-            size_t producers = 1;
+            bool producer = true;
             size_t nextToRead = 0;
-            while (producers > 0) {
+            while (producer) {
                 size_t const available =
                     co_await start_sequencer.wait_until_published(nextToRead, tp);
-                do {
-                    assert(producers > 0);
+                assert(nextToRead <= available);
+                for (; nextToRead <= available; ++nextToRead) {
                     Vertex start = (*starts)[nextToRead % STARTS];
                     if (start == SENTINEL_VTX) {
-                        --producers;
+                        assert(producer);
+                        producer = false;
+                        assert(nextToRead == available);
                     } else {
                         auto const& neighbours = graph.neighbours(start);
                         assert(!neighbours.empty());
@@ -109,8 +140,7 @@ namespace BronKerbosch {
                         }
                         excluded.insert(start);
                     }
-                    ++nextToRead;
-                } while (nextToRead <= available);
+                }
 
                 start_barrier.publish(available);
             }
@@ -118,7 +148,7 @@ namespace BronKerbosch {
             for (visitor = 0; visitor < VISITORS; ++visitor) {
                 auto visit_sequencer = (*visit_sequencers)[visitor].get();
                 size_t seq = co_await visit_sequencer->claim_one(tp);
-                (*visit_jobs)[visitor].start = SENTINEL_VTX;
+                (*visit_jobs)[visitor].close();
                 visit_sequencer->publish(seq);
             }
         }
@@ -132,31 +162,24 @@ namespace BronKerbosch {
             std::optional<typename Reporter::Result> (
                 *clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp) {
-            size_t producers = 1;
+            bool producer = true;
             size_t nextToRead = 0;
-            while (producers > 0) {
+            while (producer) {
                 size_t const available =
                     co_await visit_sequencer.wait_until_published(nextToRead, tp);
-                do {
-                    assert(producers > 0);
-                    if (visit_job.start == SENTINEL_VTX) {
-                        --producers;
-                    } else {
-                        assert(!visit_job.busy.exchange(true));
-                        assert(visit_job.full.load());
-                        auto pile = VertexPile{visit_job.start};
+                assert(nextToRead <= available);
+                for (; nextToRead <= available; ++nextToRead) {
+                    auto cliques = visit_job.visit(graph, PivotChoice::MaxDegreeLocal);
+                    if (cliques) {
                         size_t seq = co_await clique_sequencer.claim_one(tp);
-                        (*clique_produce)[seq % CLIQUES].emplace(
-                            BronKerboschPivot::visit<Reporter, VertexSet>(
-                                graph, PivotChoice::MaxDegreeLocal, PivotChoice::MaxDegreeLocal,
-                                std::move(visit_job.candidates), std::move(visit_job.excluded),
-                                &pile));
+                        (*clique_produce)[seq % CLIQUES].emplace(*std::move(cliques));
                         clique_sequencer.publish(seq);
-                        assert(visit_job.full.exchange(false));
-                        assert(visit_job.busy.exchange(false));
+                    } else {
+                        assert(producer);
+                        producer = false;
+                        assert(nextToRead == available);
                     }
-                    ++nextToRead;
-                } while (nextToRead <= available);
+                }
 
                 visit_barrier.publish(available);
             }
@@ -178,15 +201,15 @@ namespace BronKerbosch {
             while (producers) {
                 size_t const available =
                     co_await clique_sequencer.wait_until_published(nextToRead, nextToRead - 1, tp);
-                do {
+                assert(nextToRead <= available);
+                for (; nextToRead <= available; ++nextToRead) {
                     auto next_publication = (*clique_produce)[nextToRead % CLIQUES];
                     if (next_publication.has_value()) {
                         Reporter::add_all(all_cliques, std::move(next_publication).value());
                     } else {
                         --producers;
                     }
-                    ++nextToRead;
-                } while (nextToRead <= available);
+                }
 
                 clique_barrier.publish(available);
             }

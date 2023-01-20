@@ -249,6 +249,22 @@ int main(int argc, char** argv) {
             orderstr, range(size, size, 1u), [&](SetType, unsigned) { return all_func_indices; },
             0);
         return EXIT_SUCCESS;
+    } else if (argc == 4) {
+        auto orderstr = argv[1];
+        unsigned size = BronKerboschStudy::parseInt(argv[2]);
+        int func_index = atoi(argv[3]);
+        Benchmark::bk(
+            orderstr, range(size, size, 1u),
+            [func_index](SetType set_type, unsigned) {
+                switch (set_type) {
+                    case SetType::std_set: [[fallthrough]];
+                    case SetType::ord_vec: return std::vector<int>{};
+                    case SetType::hashset: return std::vector<int>{func_index};
+                }
+                throw std::logic_error("unreachable");
+            },
+            0);
+        return EXIT_SUCCESS;
     } else {
         std::cerr << "Specify order and size\n";
         return EXIT_FAILURE;
