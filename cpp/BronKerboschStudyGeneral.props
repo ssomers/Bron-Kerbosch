@@ -11,13 +11,13 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..;$(CppcoroDir)\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BoostDir)\stage\lib;$(CppcoroDir)\build\lib\$(ConfigurationName)</AdditionalLibraryDirectories>
