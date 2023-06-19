@@ -15,23 +15,16 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
     where VertexSet : IEnumerable<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    internal sealed class NestedReporter : IReporter
+    internal sealed class NestedReporter(ITargetBlock<ImmutableArray<Vertex>>? target) : IReporter
     {
-        private ITargetBlock<ImmutableArray<Vertex>>? Target;
-
-        public NestedReporter(ITargetBlock<ImmutableArray<Vertex>> target)
-        {
-            Target = target;
-        }
-
         public void Record(ImmutableArray<Vertex> clique)
         {
-            if (Target is null)
+            if (target is null)
             {
                 throw new InvalidOperationException("Record after Close");
             }
 
-            if (!Target.Post(clique))
+            if (!target.Post(clique))
             {
                 throw new InvalidOperationException("Record failed");
             }
@@ -39,12 +32,11 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
 
         public void Close()
         {
-            if (Target is null)
+            if (target is null)
             {
                 throw new InvalidOperationException("Close after Close");
             }
-
-            Target = null;
+            target = null;
         }
     }
 
@@ -59,10 +51,10 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
 
         // Step 2: visit vertices.
         var reporter = new NestedReporter(collect);
-        int waitgroup = 1;
+        int waitGroup = 1;
         void completion(Task _)
         {
-            if (Interlocked.Decrement(ref waitgroup) == 0)
+            if (Interlocked.Decrement(ref waitGroup) == 0)
             {
                 reporter.Close();
                 collect.Complete();
@@ -77,7 +69,7 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
                 if (neighbouringCandidates.Any())
                 {
                     var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
-                    _ = Interlocked.Increment(ref waitgroup);
+                    _ = Interlocked.Increment(ref waitGroup);
                     _ = Task.Run(delegate
                         {
                             Pivot<VertexSet, VertexSetMgr>.Visit(graph, reporter, PivotChoice.MaxDegreeLocal,

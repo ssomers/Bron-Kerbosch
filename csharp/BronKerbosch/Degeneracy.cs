@@ -74,14 +74,9 @@ namespace BronKerbosch
         }
     }
 
-    internal sealed class PriorityQueue
+    internal sealed class PriorityQueue(int maxPriority)
     {
-        private readonly List<Vertex>[] itsQueuePerPriority;
-
-        public PriorityQueue(int maxPriority)
-        {
-            itsQueuePerPriority = new List<Vertex>[maxPriority + 1];
-        }
+        private readonly List<Vertex>[] itsQueuePerPriority = new List<Vertex>[maxPriority + 1];
 
         public void Put(int priority, Vertex element)
         {

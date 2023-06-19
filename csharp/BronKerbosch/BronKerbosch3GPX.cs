@@ -10,7 +10,7 @@ internal static class BronKerbosch3GPX<VertexSet, VertexSetMgr>
 {
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
     {
-#       pragma warning disable IDE0022 // Use expression body for methods
+#       pragma warning disable IDE0022 // Use expression body for method
         BronKerboschDegeneracy<VertexSet, VertexSetMgr>.Explore(graph, reporter, PivotChoice.MaxDegreeLocalX);
     }
 }

@@ -8,11 +8,11 @@ namespace BronKerboschStudy
         private double Sum;
         private double SumOfSquares;
 
-        public double Mean => Samples > 0
+        public readonly double Mean => Samples > 0
             ? Math.Max(Min, Math.Min(Max, Sum / Samples))
             : double.NaN;
 
-        public double Variance => Samples > 1
+        public readonly double Variance => Samples > 1
             ? Math.Max(0, SumOfSquares - Sum * Sum / Samples) / (Samples - 1)
             : double.NaN;
 

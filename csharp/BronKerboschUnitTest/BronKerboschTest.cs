@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 #pragma warning disable CA1825 // Avoid zero-length array allocations
+#pragma warning disable CA1861 // Avoid constant arrays as arguments
 
 namespace BronKerboschUnitTest
 {
