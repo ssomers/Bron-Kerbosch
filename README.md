@@ -262,13 +262,12 @@ Perform
     cd go
     go vet ./...
     go test ./...
-    go test -race ./BronKerbosch
     go run main.go
 
 Optionally, on MSYS2:
 
-    PATH=$PATH:$HOME/Documents/go/bin
-    go test -race ./...
+    PATH=$PATH:$PROGRAMFILES/go/bin
+    go test -race ./BronKerbosch
 
 
 ## C#
