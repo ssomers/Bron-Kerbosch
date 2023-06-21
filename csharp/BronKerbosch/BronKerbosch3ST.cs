@@ -17,16 +17,18 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
 {
     internal sealed class NestedReporter(ITargetBlock<ImmutableArray<Vertex>>? target) : IReporter
     {
+        public int useAfterClose;
+        public int postFailed;
+
         public void Record(ImmutableArray<Vertex> clique)
         {
             if (target is null)
             {
-                throw new InvalidOperationException("Record after Close");
+                ++useAfterClose; // breakpoint candidate
             }
-
-            if (!target.Post(clique))
+            else if (!target.Post(clique))
             {
-                throw new InvalidOperationException("Record failed");
+                ++postFailed; // breakpoint candidate
             }
         }
 
@@ -34,7 +36,7 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
         {
             if (target is null)
             {
-                throw new InvalidOperationException("Close after Close");
+                ++useAfterClose; // breakpoint candidate
             }
             target = null;
         }
@@ -105,6 +107,14 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
         if (sent != received)
         {
             throw new InvalidOperationException($"{sent} sent <> {received} received");
+        }
+        if (reporter.useAfterClose != 0)
+        {
+            throw new InvalidOperationException($"Reporter use after Close ({reporter.useAfterClose} times)");
+        }
+        if (reporter.postFailed != 0)
+        {
+            throw new InvalidOperationException($"Record failed  ({reporter.postFailed} times)");
         }
     }
 }

@@ -96,6 +96,7 @@ dotnet_diagnostic.IDE0007.severity = silent
 dotnet_diagnostic.IDE0021.severity = silent
 dotnet_diagnostic.IDE0048.severity = silent
 dotnet_diagnostic.IDE0061.severity = silent
+csharp_style_prefer_primary_constructors = true:suggestion
 
 [*.{cs,vb}]
 #### Naming styles ####
