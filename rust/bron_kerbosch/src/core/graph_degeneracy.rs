@@ -1,4 +1,5 @@
 use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use std::iter::FusedIterator;
 
 pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<Graph>
 where
@@ -104,6 +105,7 @@ impl<'a, Graph> DegeneracyOrderIter<'a, Graph> {
     }
 }
 
+impl<'a, Graph> FusedIterator for DegeneracyOrderIter<'a, Graph> where Graph: UndirectedGraph {}
 impl<'a, Graph> Iterator for DegeneracyOrderIter<'a, Graph>
 where
     Graph: UndirectedGraph,
