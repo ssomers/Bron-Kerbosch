@@ -8,13 +8,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="bron-kerbosch" />
-        <module name="java" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="bron-kerbosch" options="" />
       <module name="java" options="" />
     </option>
   </component>
