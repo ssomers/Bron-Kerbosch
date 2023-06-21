@@ -3,7 +3,7 @@ import scala.collection.{immutable, mutable}
 object bron_kerbosch_pivot {
   object PivotChoice extends Enumeration {
     type PivotChoice = Value
-    val Arbitrary, MaxDegree, MaxDegreeLocal, MaxDegreeLocalX = Value
+    val Arbitrary, MaxDegreeLocal, MaxDegreeLocalX = Value
   }
   import PivotChoice._
 
