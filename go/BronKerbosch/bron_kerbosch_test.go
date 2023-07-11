@@ -1,6 +1,7 @@
 package BronKerbosch
 
 import (
+	"BronKerboschStudy/Assert"
 	"fmt"
 	"testing"
 )
@@ -23,6 +24,42 @@ func checkDegeneracyOrder(graph *UndirectedGraph) {
 	if len(unordered) != 0 {
 		panic(fmt.Sprintf("degeneracy ordering %v forgot %d vertices", ordered, len(unordered)))
 	}
+}
+
+func proposedNeighbour(v int, proposed byte) int {
+	if int(proposed) < v {
+		return int(proposed)
+	} else {
+		return int(proposed) + 1
+	}
+}
+
+func FuzzDegeneracyOrder(f *testing.F) {
+	f.Add([]byte{0, 1})
+	f.Fuzz(func(t *testing.T, seed []byte) {
+		order := len(seed)
+		for v, proposed := range seed {
+			w := proposedNeighbour(v, proposed)
+			Assert.IsTrue(w != v)
+			if order <= w {
+				order = w + 1
+			}
+		}
+		adjacencies := make([]VertexSet, order)
+		for v := 0; v < order; v++ {
+			adjacencies[v] = make(VertexSet)
+		}
+		for v, proposed := range seed {
+			w := proposedNeighbour(v, proposed)
+			adjacencies[v].Add(Vertex(w))
+			adjacencies[w].Add(Vertex(v))
+		}
+		g := NewUndirectedGraph(adjacencies)
+		if g.Order() != order {
+			panic("botched order")
+		}
+		checkDegeneracyOrder(&g)
+	})
 }
 
 func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {

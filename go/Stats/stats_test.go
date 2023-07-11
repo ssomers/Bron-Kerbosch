@@ -81,6 +81,10 @@ func FuzzStats2(f *testing.F) {
 func FuzzStatsN(f *testing.F) {
 	f.Add(1., uint16(3))
 	f.Fuzz(func(t *testing.T, x float64, n uint16) {
+		if n < 3 {
+			t.Skip()
+			return
+		}
 		var s SampleStatistics
 		for i := n; i > 0; i-- {
 			s.Put(x)

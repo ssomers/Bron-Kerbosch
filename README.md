@@ -262,6 +262,10 @@ Perform
     cd go
     go vet ./...
     go test ./...
+    go test ./Stats -fuzz=Stats1 -fuzztime=1s
+    go test ./Stats -fuzz=Stats2 -fuzztime=2s
+    go test ./Stats -fuzz=StatsN -fuzztime=5s
+    go test ./BronKerbosch -fuzz=DegeneracyOrder -fuzztime=20s
     go run main.go
 
 Optionally, on MSYS2:
