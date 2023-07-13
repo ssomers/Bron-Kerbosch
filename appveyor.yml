@@ -1,8 +1,5 @@
 image:
   - Visual Studio 2022
-environment:
-  matrix:
-    - python: "C:\\Python310-x64"
 install: 
   - python -V
   - pip install mypy pytest hypothesis --disable-pip-version-check
@@ -10,3 +7,11 @@ build: off
 test_script:
   - mypy --cache-dir=/dev/null python3
   - pytest -p no:cacheprovider python3
+  - pushd go
+  - go vet ./...
+  - go test ./...
+  - go test ./Stats -fuzz=Stats1 -fuzztime=1s
+  - go test ./Stats -fuzz=Stats2 -fuzztime=1s
+  - go test ./Stats -fuzz=StatsN -fuzztime=2s
+  - go test ./BronKerbosch -fuzz=DegeneracyOrder -fuzztime=5s
+  - popd
