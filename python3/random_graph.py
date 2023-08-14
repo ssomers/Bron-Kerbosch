@@ -93,8 +93,8 @@ def read_random_graph(orderstr: str,
     elif size > fully_meshed_size:
         raise ValueError(
             f"{order} nodes accommodate at most {fully_meshed_size} edges")
-    edges_name = f"random_edges_order_{orderstr}"
-    stats_name = f"random_stats"
+    edges_name = "random_edges_order_" + orderstr
+    stats_name = "random_stats"
     edges_path = os.path.join(os.pardir, "data", edges_name + ".txt")
     stats_path = os.path.join(os.pardir, "data", stats_name + ".txt")
     adjacencies = read_edges(edges_path, orderstr, order, size)
@@ -128,7 +128,8 @@ def read_edges(path: str, orderstr: str, order: int,
                     f"Exhausted generated list of {i+1} edges in {path}")
     except OSError as err:
         raise ValueError(
-            f"{err}\nPerhaps generate it with `python -m random_graph {orderstr} <max_size?>`"
+            f"{err}\nPerhaps generate it with"
+            f" `python -m random_graph {orderstr} <max_size?>`"
         ) from err
 
 

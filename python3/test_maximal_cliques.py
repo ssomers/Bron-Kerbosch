@@ -84,7 +84,8 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
                 if first is None:
                     if len(current) != clique_count:
                         print(
-                            f"{func_name}: expected {clique_count}, obtained {len(current)} cliques!"
+                            f"{func_name}: expected {clique_count},"
+                            f" obtained {len(current)} cliques!"
                         )
                     if graph.order < 100 and not are_maximal(current):
                         print(f"  {func_name} not maximal")
@@ -96,7 +97,8 @@ def bron_kerbosch_timed(graph: Graph, clique_count: int,
             else:
                 if counting_reporter.cliques != clique_count:
                     print(
-                        f"{func_name}: expected {clique_count}, obtained {counting_reporter.cliques} cliques!"
+                        f"{func_name}: expected {clique_count},"
+                        f" obtained {counting_reporter.cliques} cliques!"
                     )
                 times[func_index].put(secs)
     return times

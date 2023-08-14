@@ -4,7 +4,6 @@ from graph import UndirectedGraph, Vertex
 from reporter import Reporter
 
 from typing import Callable, List, Set
-import random
 
 PivotChoice = Callable[[UndirectedGraph, Set[Vertex]], Vertex]
 

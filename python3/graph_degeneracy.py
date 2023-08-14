@@ -43,7 +43,8 @@ def degeneracy_ordering(graph: UndirectedGraph,
     # Possible values of priority_per_node:
     #   -2: if unconnected (should never come up again)
     #   -1: when yielded
-    #   0..max_degree: candidates still queued with priority (degree - #of yielded neighbours)
+    #   0..max_degree: candidates still queued with priority equal to
+    #                  (degree - number of yielded neighbours).
     q = PriorityQueue(max_priority=max_degree)
     for c, p in enumerate(priority_per_node):
         if p > 0:

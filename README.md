@@ -231,6 +231,7 @@ Perform
     (once) python -m venv venv
     venv\Scripts\activate.bat
     (once or twice) pip install --upgrade mypy pytest hypothesis matplotlib
+    ruff check . --exclude "venv*"
     mypy .
     pytest
     python -O test_maximal_cliques.py

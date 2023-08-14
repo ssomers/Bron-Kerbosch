@@ -4,7 +4,6 @@ from hypothesis import given
 from hypothesis.strategies import floats, lists
 from math import isnan, sqrt
 from typing import Sequence
-import pytest
 
 
 def test_stats_0_i32() -> None:

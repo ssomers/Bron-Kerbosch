@@ -93,7 +93,6 @@ def csv_basename(language: str, orderstr: str) -> str:
 def publish(
         language: str, orderstr: str, case_names: Sequence[str],
         stats_per_func_by_size: Mapping[int, List[SampleStatistics]]) -> None:
-    num_cases = len(case_names)
     filename = csv_basename(language, orderstr)
     path = os.path.join(os.pardir, filename)
     with open(path, 'w', newline='', encoding='utf-8') as csvfile:
@@ -149,7 +148,8 @@ def read_csv(
         for i, row in enumerate(reader):
             if len(row) != expected_cols:
                 raise ImportError(
-                    f"{filename} row {i+2}: found {len(row)} columns, expected {expected_cols}"
+                    f"{filename} row {i+2}: found {len(row)} columns,"
+                    f"expected {expected_cols}"
                 )
             size = int(row[0])
             sizes.append(size)
