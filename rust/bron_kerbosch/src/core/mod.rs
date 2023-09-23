@@ -67,5 +67,5 @@ where
 pub type OrderedClique = BTreeSet<Vertex>;
 pub type OrderedCliques = BTreeSet<OrderedClique>;
 pub fn order_cliques<I: Iterator<Item = Clique>>(cliques: I) -> OrderedCliques {
-    BTreeSet::from_iter(cliques.map(|clique| BTreeSet::from_iter(clique.into_iter())))
+    BTreeSet::from_iter(cliques.map(BTreeSet::from_iter))
 }
