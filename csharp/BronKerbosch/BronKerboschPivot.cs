@@ -39,7 +39,7 @@ namespace BronKerbosch
                         var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                         Visit(graph, reporter, pivotChoice,
                               neighbouringCandidates, neighbouringExcluded,
-                              ImmutableArray.Create(v));
+                              [v]);
                     }
                     var added = VertexSetMgr.Add(excluded, v);
                     Debug.Assert(added);
@@ -63,7 +63,7 @@ namespace BronKerbosch
                 var neighbours = graph.Neighbours(v);
                 if (!VertexSetMgr.Overlaps(neighbours, excluded))
                 {
-                    reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                    reporter.Record([.. cliqueInProgress, v]);
                 }
                 return;
             }
@@ -84,7 +84,7 @@ namespace BronKerbosch
                     // Same logic as below, stripped down
                     if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
-                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                        reporter.Record([.. cliqueInProgress, v]);
                     }
                 }
                 else
@@ -133,11 +133,11 @@ namespace BronKerbosch
                         var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
                         Visit(graph, reporter, choice,
                               neighbouringCandidates, neighbouringExcluded,
-                              CollectionsUtil.Append(cliqueInProgress, v));
+                              [.. cliqueInProgress, v]);
                     }
                     else if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
-                        reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                        reporter.Record([.. cliqueInProgress, v]);
                     }
                     var added = VertexSetMgr.Add(excluded, v);
                     Debug.Assert(added);

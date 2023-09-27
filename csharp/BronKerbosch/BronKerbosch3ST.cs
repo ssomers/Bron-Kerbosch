@@ -76,7 +76,7 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
                         {
                             Pivot<VertexSet, VertexSetMgr>.Visit(graph, reporter, PivotChoice.MaxDegreeLocal,
                                         neighbouringCandidates, neighbouringExcluded,
-                                        ImmutableArray.Create(v));
+                                        [v]);
                         }).ContinueWith(completion, scheduler);
                 }
                 else

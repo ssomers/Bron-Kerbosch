@@ -3,8 +3,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-#pragma warning disable CA1825 // Avoid zero-length array allocations
-#pragma warning disable CA1861 // Avoid constant arrays as arguments
 
 namespace BronKerboschUnitTest
 {
@@ -35,230 +33,183 @@ namespace BronKerboschUnitTest
         [Test]
         public void TestOrder0()
         {
-            Bk(adjacencies: new int[][] { },
-               cliques: new int[][] { });
+            Bk(adjacencies: [],
+               cliques: []);
         }
 
         [Test]
         public void TestOrder1()
         {
-            Bk(adjacencies: new[] { new int[] { } },
-               cliques: new int[][] { });
+            Bk(adjacencies: [[]],
+               cliques: []);
         }
 
         [Test]
         public void TestOrder2_Isolated()
         {
-            Bk(adjacencies: new[] { new int[] { }, new int[] { } },
-               cliques: new int[][] { });
+            Bk(adjacencies: [[], []],
+               cliques: []);
         }
 
         [Test]
         public void TestOrder2_Connected()
         {
-            Bk(adjacencies: new[] { new int[] { 1 }, new int[] { 0 } },
-               cliques: new[] { new int[] { 0, 1 } });
+            Bk(adjacencies: [[1], [0]],
+               cliques: [[0, 1]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Left()
         {
-            Bk(adjacencies: new[] { new int[] { 1 }, new int[] { 0 }, new int[] { } },
-               cliques: new[] { new int[] { 0, 1 } });
+            Bk(adjacencies: [[1], [0], []],
+               cliques: [[0, 1]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Long()
         {
-            Bk(adjacencies: new[] { new int[] { 2 }, new int[] { }, new int[] { 0 } },
-               cliques: new[] { new int[] { 0, 2 } });
+            Bk(adjacencies: [[2], [], [0]],
+               cliques: [[0, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Right()
         {
-            Bk(adjacencies: new[] { new int[] { }, new int[] { 2 }, new int[] { 1 } },
-               cliques: new[] { new int[] { 1, 2 } });
+            Bk(adjacencies: [[], [2], [1]],
+               cliques: [[1, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size2()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1},
-                    new int[] {0, 2},
-                    new int[] {1}
-                },
-               cliques: new[] { new int[] { 0, 1 }, new int[] { 1, 2 } });
+            Bk(adjacencies: [[1], [0, 2], [1]],
+               cliques: [[0, 1], [1, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size3()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2},
-                    new int[] {0, 2},
-                    new int[] {0, 1}
-                },
-               cliques: new[] { new int[] { 0, 1, 2 } });
+            Bk(adjacencies: [[1, 2], [0, 2], [0, 1]],
+               cliques: [[0, 1, 2]]);
         }
 
         [Test]
         public void TestOrder4_Size2()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1}, new int[] {0},
-                    new int[] {3}, new int[] {2}
-                },
-               cliques: new[] { new int[] { 0, 1 }, new int[] { 2, 3 } });
+            Bk(adjacencies: [[1], [0], [3], [2]],
+               cliques: [[0, 1], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size3_Bus()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1}, new int[] {0, 2},
-                    new int[] {1, 3}, new int[] {2}
-                },
-               cliques: new[] { new int[] { 0, 1 }, new int[] { 1, 2 }, new int[] { 2, 3 } });
+            Bk(adjacencies: [[1], [0, 2], [1, 3], [2]],
+               cliques: [[0, 1], [1, 2], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size3_Star()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2, 3}, new int[] {0},
-                    new int[] {0}, new int[] {0}
-                },
-               cliques: new[] { new int[] { 0, 1 }, new int[] { 0, 2 }, new int[] { 0, 3 } });
+            Bk(adjacencies: [[1, 2, 3], [0], [0], [0]],
+               cliques: [[0, 1], [0, 2], [0, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size4_p()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1}, new int[] {0, 2, 3},
-                    new int[] {1, 3}, new int[] {1, 2}
-                },
-               cliques: new[] { new int[] { 0, 1 }, new int[] { 1, 2, 3 } });
+            Bk(adjacencies: [[1], [0, 2, 3], [1, 3], [1, 2]],
+               cliques: [[0, 1], [1, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size4_Square()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 3}, new int[] {0, 2},
-                    new int[] {1, 3}, new int[] {0, 2}
-                },
-               cliques: new[]
-                {
-                    new int[] {0, 1}, new int[] {0, 3},
-                    new int[] {1, 2}, new int[] {2, 3}
-                });
+            Bk(adjacencies: [[1, 3], [0, 2], [1, 3], [0, 2]],
+               cliques: [[0, 1], [0, 3], [1, 2], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size5()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2, 3}, new int[] {0, 2},
-                    new int[] {0, 1, 3}, new int[] {0, 2}
-                },
-               cliques: new[] { new int[] { 0, 1, 2 }, new int[] { 0, 2, 3 } });
+            Bk(adjacencies: [[1, 2, 3], [0, 2], [0, 1, 3], [0, 2]],
+               cliques: [[0, 1, 2], [0, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size6()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2, 3}, new int[] {0, 2, 3},
-                    new int[] {0, 1, 3}, new int[] {0, 1, 2}
-                },
-               cliques: new[] { new int[] { 0, 1, 2, 3 } });
+            Bk(adjacencies: [[1, 2, 3], [0, 2, 3], [0, 1, 3], [0, 1, 2]],
+               cliques: [[0, 1, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size6_Penultimate()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2, 3, 4}, new int[] {0, 2, 3, 4},
-                    new int[] {0, 1, 3, 4}, new int[] {0, 1, 2},
-                    new int[] {0, 1, 2}
-                },
-               cliques: new[] { new int[] { 0, 1, 2, 3 }, new int[] { 0, 1, 2, 4 } });
+            Bk(adjacencies: [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4], [0, 1, 2], [0, 1, 2]],
+               cliques: [[0, 1, 2, 3], [0, 1, 2, 4]]);
         }
 
         [Test]
         public void TestSample()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] { },
-                    new int[] {2, 3, 4},
-                    new int[] {1, 3, 4, 5},
-                    new int[] {1, 2, 4, 5},
-                    new int[] {1, 2, 3},
-                    new int[] {2, 3, 6, 7},
-                    new int[] {5, 7},
-                    new int[] {5, 6}
-                },
-               cliques: new[]
-                {
-                    new int[] {1, 2, 3, 4},
-                    new int[] {2, 3, 5},
-                    new int[] {5, 6, 7}
-                });
+            Bk(adjacencies:
+                [
+                    [],
+                    [2, 3, 4],
+                    [1, 3, 4, 5],
+                    [1, 2, 4, 5],
+                    [1, 2, 3],
+                    [2, 3, 6, 7],
+                    [5, 7],
+                    [5, 6]
+                ],
+               cliques:
+                [
+                    [1, 2, 3, 4],
+                    [2, 3, 5],
+                    [5, 6, 7]
+                ]);
         }
 
         [Test]
         public void TestBigger()
         {
-            Bk(adjacencies: new[]
-                {
-                    new int[] {1, 2, 3, 4, 6, 7},
-                    new int[] {0, 3, 6, 7, 8, 9},
-                    new int[] {0, 3, 5, 7, 8, 9},
-                    new int[] {0, 1, 2, 4, 9},
-                    new int[] {0, 3, 6, 7, 9},
-                    new int[] {2, 6},
-                    new int[] {0, 1, 4, 5, 9},
-                    new int[] {0, 1, 2, 4, 9},
-                    new int[] {1, 2},
-                    new int[] {1, 2, 3, 4, 6, 7}
-                },
-               cliques: new[]
-                {
-                    new int[] {0, 1, 3},
-                    new int[] {0, 1, 6},
-                    new int[] {0, 1, 7},
-                    new int[] {0, 2, 3},
-                    new int[] {0, 2, 7},
-                    new int[] {0, 3, 4},
-                    new int[] {0, 4, 6},
-                    new int[] {0, 4, 7},
-                    new int[] {1, 3, 9},
-                    new int[] {1, 6, 9},
-                    new int[] {1, 7, 9},
-                    new int[] {1, 8},
-                    new int[] {2, 3, 9},
-                    new int[] {2, 5},
-                    new int[] {2, 7, 9},
-                    new int[] {2, 8},
-                    new int[] {3, 4, 9},
-                    new int[] {4, 6, 9},
-                    new int[] {4, 7, 9},
-                    new int[] {5, 6}
-                });
+            Bk(adjacencies:
+                [
+                    [1, 2, 3, 4, 6, 7],
+                    [0, 3, 6, 7, 8, 9],
+                    [0, 3, 5, 7, 8, 9],
+                    [0, 1, 2, 4, 9],
+                    [0, 3, 6, 7, 9],
+                    [2, 6],
+                    [0, 1, 4, 5, 9],
+                    [0, 1, 2, 4, 9],
+                    [1, 2],
+                    [1, 2, 3, 4, 6, 7]
+                ],
+               cliques:
+                [
+                    [0, 1, 3],
+                    [0, 1, 6],
+                    [0, 1, 7],
+                    [0, 2, 3],
+                    [0, 2, 7],
+                    [0, 3, 4],
+                    [0, 4, 6],
+                    [0, 4, 7],
+                    [1, 3, 9],
+                    [1, 6, 9],
+                    [1, 7, 9],
+                    [1, 8],
+                    [2, 3, 9],
+                    [2, 5],
+                    [2, 7, 9],
+                    [2, 8],
+                    [3, 4, 9],
+                    [4, 6, 9],
+                    [4, 7, 9],
+                    [5, 6]
+                ]);
         }
     }
 }

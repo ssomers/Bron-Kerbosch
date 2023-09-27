@@ -1,4 +1,4 @@
-// Naive Bron-Kerbosch algorithm
+// Naïve Bron-Kerbosch algorithm
 
 using BronKerbosch;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
                 reporter,
                 candidates,
                 VertexSetMgr.EmptyWithCapacity(numCandidates),
-                ImmutableArray.Create<Vertex>());
+                []);
         }
     }
 
@@ -43,11 +43,11 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
                 var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
                 Visit(graph, reporter,
                     neighbouringCandidates, neighbouringExcluded,
-                    CollectionsUtil.Append(cliqueInProgress, v));
+                    [.. cliqueInProgress, v]);
             }
             else if (!VertexSetMgr.Overlaps(excluded, neighbours))
             {
-                reporter.Record(CollectionsUtil.Append(cliqueInProgress, v));
+                reporter.Record([.. cliqueInProgress, v]);
             }
             var added = VertexSetMgr.Add(excluded, v);
             Debug.Assert(added);

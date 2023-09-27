@@ -163,7 +163,7 @@ IEnumerable<int> Range(int start, int stop, int step)
 
 Debug.Fail("Run Release build for meaningful measurements");
 
-#pragma warning disable CA1861 // Avoid constant arrays as arguments
+#pragma warning disable CA1861 // Prefer 'static readonly' fields over constant array arguments if…
 var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
 var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
 Bk("100", Range(2_000, 3_001, 50), (_, size) => allFuncIndices, 5); // max 4_950
