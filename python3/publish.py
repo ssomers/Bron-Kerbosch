@@ -178,7 +178,7 @@ def read_csv(
 
 def import_matplotlib() -> bool:
     try:
-        import matplotlib  # type: ignore
+        import matplotlib
     except ImportError as e:
         print(f"{e} (maybe you want to `pip install matplotlib`?)")
         return False

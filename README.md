@@ -14,7 +14,7 @@ The purpose of this fork is not only to compare the algorithms, but also program
  library choices, and the effect of optimization, chiefly parallelism.
 
 Compared to the original project this is forked from, the code is:
-* converted from python 2 to python 3.11
+* converted from python 2 to python 3.12
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and this performance test on random graphs
@@ -230,7 +230,7 @@ Perform
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once or twice) pip install --upgrade mypy pytest hypothesis matplotlib
+    (once or twice) pip install --upgrade mypy ruff pytest hypothesis matplotlib
     ruff check . --exclude "venv*"
     mypy .
     pytest
