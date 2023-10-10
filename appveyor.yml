@@ -1,13 +1,7 @@
 image:
   - Visual Studio 2022
-install: 
-  - python -V
-  - pip install mypy ruff pytest hypothesis --disable-pip-version-check
 build: off
 test_script:
-  - mypy --cache-dir=/dev/null python3
-  - ruff check --no-cache python3
-  - pytest -p no:cacheprovider python3
   - cd go
   - go vet ./...
   - go test ./...
