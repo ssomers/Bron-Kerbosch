@@ -4,7 +4,7 @@
 
 Performance comparison of various implementations of three
 [Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
-to find all maximal cliques in a graph.
+to find all maximal cliques in a graph. It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch).
 
 Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
 “A note on the problem of reporting maximal cliques”,
@@ -13,7 +13,7 @@ Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 The purpose of this fork is not only to compare the algorithms, but also programming languages,
  library choices, and the effect of optimization, chiefly parallelism.
 
-Compared to the original project this is forked from, the code is:
+Compared to the original project, the code is:
 * converted from python 2 to python 3.12
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
