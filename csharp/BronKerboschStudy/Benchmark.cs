@@ -18,9 +18,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     var secs = sw.ElapsedMilliseconds / 1e3;
     Console.WriteLine($"{VertexSetMgr.Name()}-based random graph of order {orderstr},"
         + $" {size} edges, {graph.CliqueCount} cliques: (generating took {secs:.3}s)");
-    SampleStatistics[] times = Enumerable
-        .Range(0, Portfolio.FuncNames.Length)
-        .Select(funcIndex => new SampleStatistics()).ToArray();
+    SampleStatistics[] times = new SampleStatistics[Portfolio.FuncNames.Length];
 
     List<ImmutableArray<Vertex>>? firstResult = null;
     for (var sample = 0; sample <= timed_samples; ++sample)
@@ -112,7 +110,7 @@ void Bk(
 
             if (setTypesUsed.Length == 0)
             {
-                setTypesUsed = stats.Keys.ToArray();
+                setTypesUsed = [.. stats.Keys];
                 if (setTypesUsed.Length == 0)
                     throw new ArgumentException("includedFuncs excludes all set types for smallest size");
                 fo.Write("Size");
