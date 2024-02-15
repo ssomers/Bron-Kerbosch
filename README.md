@@ -225,7 +225,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_python311_10k.svg)
   - [sparse graph of order 1M](doc/details_python311_1M.svg)
 
-Perform
+Perform:
 
     cd python3
     (once) python -m venv venv
@@ -244,7 +244,7 @@ To obtain these results:
   - [extremely sparse graph of order 1M](doc/details_rust_1M_initial.svg)
   - [sparse graph of order 1M](doc/details_rust_1M.svg)
 
-Perform
+Perform:
 
     cd rust
     (sometimes) rustup update
@@ -259,7 +259,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_go_10k.svg)
   - [sparse graph of order 1M](doc/details_go_1M.svg)
 
-Perform
+Perform:
 
     cd go
     go vet ./...
@@ -282,7 +282,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_csharp_10k.svg)
   - [sparse graph of order 1M](doc/details_csharp_1M.svg)
 
-Perform
+Perform:
   - open csharp\BronKerboschStudy.sln with Visual Studio 2022
   - set configuration to Debug
   - Test > Run > All Tests
@@ -298,7 +298,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_c++_10k.svg)
   - [sparse graph of order 1M](doc/details_c++_1M.svg)
 
-Either:
+Perform:
   - clone or export https://github.com/andreasbuhr/cppcoro locally, e.g. next to this repository
   - build it, something akin to:
   
@@ -328,7 +328,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_java_10k.svg)
   - [sparse graph of order 1M](doc/details_java_1M.svg)
 
-Perform
+Perform:
   - open folder java with IntelliJ IDEA 2022 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
@@ -342,7 +342,7 @@ To obtain these results:
   - [plain graph of order 10k](doc/details_scala_10k.svg)
   - [sparse graph of order 1M](doc/details_scala_1M.svg)
 
-Perform
+Perform:
   - open folder scala with IntelliJ IDEA 2022 (Community Edition)
   - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
   - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
