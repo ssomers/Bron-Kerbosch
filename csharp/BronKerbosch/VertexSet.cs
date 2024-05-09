@@ -23,7 +23,7 @@ namespace BronKerbosch
     public record struct HashSetMgr : IVertexSetMgr<HashSet<Vertex>>
     {
         public static string Name() => "HashSet";
-        public static HashSet<Vertex> Empty() => new();
+        public static HashSet<Vertex> Empty() => [];
         public static HashSet<Vertex> EmptyWithCapacity(int capacity) => new(capacity: capacity);
         public static HashSet<Vertex> From(IEnumerable<Vertex> vertices) => new(vertices);
         public static bool Add(HashSet<Vertex> s, Vertex v) => s.Add(v);
@@ -95,8 +95,8 @@ namespace BronKerbosch
     public record struct SortedSetMgr : IVertexSetMgr<SortedSet<Vertex>>
     {
         public static string Name() => "SortedSet";
-        public static SortedSet<Vertex> Empty() => new();
-        public static SortedSet<Vertex> EmptyWithCapacity(int capacity) => new();
+        public static SortedSet<Vertex> Empty() => [];
+        public static SortedSet<Vertex> EmptyWithCapacity(int capacity) => [];
         public static SortedSet<Vertex> From(IEnumerable<Vertex> vertices) => new(vertices);
         public static bool Add(SortedSet<Vertex> s, Vertex v) => s.Add(v);
         public static bool Remove(SortedSet<Vertex> s, Vertex v) => s.Remove(v);

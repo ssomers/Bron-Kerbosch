@@ -114,7 +114,7 @@ void Bk(
                 if (setTypesUsed.Length == 0)
                     throw new ArgumentException("includedFuncs excludes all set types for smallest size");
                 fo.Write("Size");
-                foreach (SetType setType in setTypesUsed)
+                foreach (var setType in setTypesUsed)
                 {
                     foreach (var func_name in Portfolio.FuncNames)
                     {
@@ -125,7 +125,7 @@ void Bk(
                 fo.WriteLine();
             }
             fo.Write($"{size}");
-            foreach (SetType setType in setTypesUsed)
+            foreach (var setType in setTypesUsed)
             {
                 var times = stats.GetValueOrDefault(setType, new SampleStatistics[Portfolio.FuncNames.Length]);
                 foreach ((var funcIndex, var funcName) in Portfolio.FuncNames.Select((n, i) => (i, n)))
@@ -161,7 +161,6 @@ IEnumerable<int> Range(int start, int stop, int step)
 
 Debug.Fail("Run Release build for meaningful measurements");
 
-#pragma warning disable CA1861 // Prefer 'static readonly' fields over constant array arguments if…
 var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
 var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
 Bk("100", Range(2_000, 3_001, 50), (_, size) => allFuncIndices, 5); // max 4_950
@@ -171,8 +170,8 @@ Bk("1M", Range(500_000, 2_000_000, 250_000)
         .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
     (setType, size) => setType switch
     {
-        SetType.HashSet => size > 2_000_000 ? new[] { 4, 5, 6 } : mostFuncIndices,
-        SetType.SortedSet => Array.Empty<int>(),
+        SetType.HashSet => size > 2_000_000 ? [4, 5, 6] : mostFuncIndices,
+        SetType.SortedSet => [],
         _ => throw new ArgumentOutOfRangeException(nameof(setType)),
     }, 3);
 
