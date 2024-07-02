@@ -1,6 +1,9 @@
 image:
   - Visual Studio 2022
 build: off
+before_test:
+  - PATH c:\go\bin;%PATH%
+  - set GOROOT=c:\go
 test_script:
   - cd go
   - go vet ./...
