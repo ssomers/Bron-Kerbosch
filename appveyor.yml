@@ -1,9 +1,16 @@
 image:
   - Visual Studio 2022
-stack: go 1.22
+
 build: off
+
+clone_folder: c:\gopath\src\github.com\$username\$project
+
+environment:
+  GOPATH: c:\gopath
+
 before_test:
   - set GOROOT=c:\go
+
 test_script:
   - cd go
   - go vet ./...
