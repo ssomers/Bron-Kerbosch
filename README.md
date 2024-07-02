@@ -1,5 +1,3 @@
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/ssomers/bron-kerbosch?svg=true&branch=master)](https://ci.appveyor.com/project/ssomers/bron-kerbosch)
-
 # What is this?
 
 Performance comparison of various implementations of three
