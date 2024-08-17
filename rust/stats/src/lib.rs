@@ -39,7 +39,7 @@ where
     }
     pub fn mean(&self) -> f64 {
         if self.samples < 1 {
-            std::f64::NAN
+            f64::NAN
         } else {
             let r = self.sum / (self.samples as f64);
             r.clamp(self.min.into(), self.max.into())
@@ -47,7 +47,7 @@ where
     }
     pub fn variance(&self) -> f64 {
         if self.samples < 2 {
-            std::f64::NAN
+            f64::NAN
         } else if self.min == self.max {
             0.
         } else {
