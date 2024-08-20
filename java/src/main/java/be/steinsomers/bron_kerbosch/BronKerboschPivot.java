@@ -47,6 +47,7 @@ final class BronKerboschPivot {
         assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
         assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);
         assert util.AreDisjoint(mut_candidates, mut_excluded);
+        //noinspection SizeReplaceableByIsEmpty
         assert mut_candidates.size() >= 1;
         if (mut_candidates.size() == 1) {
             // Same logic as below, stripped down for this common case

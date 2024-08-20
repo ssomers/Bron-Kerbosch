@@ -7,12 +7,12 @@ namespace BronKerbosch
     public static class Portfolio
     {
         public static readonly string[] FuncNames =
-        {
+        [
             "Ver1½",
             "Ver2-GP", "Ver2½-GP", "Ver2½-GPX",
             "Ver3½-GP", "Ver3½-GPX",
             "Ver3½=GPc"
-        };
+        ];
 
         public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, IReporter reporter)
             where TVertexSet : IEnumerable<Vertex>
