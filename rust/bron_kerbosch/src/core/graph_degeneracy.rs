@@ -88,7 +88,7 @@ pub struct DegeneracyOrderIter<'a, Graph> {
     num_left_to_pick: isize,
 }
 
-impl<'a, Graph> DegeneracyOrderIter<'a, Graph> {
+impl<Graph> DegeneracyOrderIter<'_, Graph> {
     fn pick_with_lowest_degree(&mut self) -> Vertex {
         debug_assert!(self.priority_per_vertex.iter().all(|(v, &p)| match p {
             None => true, // might still be in some stack
@@ -105,8 +105,8 @@ impl<'a, Graph> DegeneracyOrderIter<'a, Graph> {
     }
 }
 
-impl<'a, Graph> FusedIterator for DegeneracyOrderIter<'a, Graph> where Graph: UndirectedGraph {}
-impl<'a, Graph> Iterator for DegeneracyOrderIter<'a, Graph>
+impl<Graph> FusedIterator for DegeneracyOrderIter<'_, Graph> where Graph: UndirectedGraph {}
+impl<Graph> Iterator for DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
 {
