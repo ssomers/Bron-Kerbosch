@@ -225,7 +225,7 @@ namespace BronKerbosch {
 
             cppcoro::sequence_barrier<size_t> visit_barriers[VISITORS];
             std::unique_ptr<cppcoro::single_producer_sequencer<size_t>> visit_sequencers[VISITORS];
-            for (auto i = 0; i < VISITORS; ++i) {
+            for (size_t i = 0; i < VISITORS; ++i) {
                 visit_sequencers[i] = std::make_unique<cppcoro::single_producer_sequencer<size_t>>(
                     visit_barriers[i], 1);
             }
@@ -242,7 +242,7 @@ namespace BronKerbosch {
             tasks.push_back(BronKerbosch3MT::visit_producer(graph, start_barrier, start_sequencer,
                                                             &visit_sequencers, &starts, &visit_jobs,
                                                             tp));
-            for (auto i = 0; i < VISITORS; ++i) {
+            for (size_t i = 0; i < VISITORS; ++i) {
                 tasks.push_back(BronKerbosch3MT::clique_producer(
                     graph, visit_barriers[i], *visit_sequencers[i], clique_sequencer, visit_jobs[i],
                     &cliques, tp));
