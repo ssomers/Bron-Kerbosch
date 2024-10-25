@@ -42,8 +42,7 @@ class NeighbourhoodWatch:
                 self.complement[v] = True
                 self.neighbours[v] = (
                     set(self.unsaturated_vertices)
-                    - {v}
-                    - {new_neighbour}
+                    - {v, new_neighbour}
                     - self.neighbours[v]
                 )
                 if not self.neighbours[v]:
