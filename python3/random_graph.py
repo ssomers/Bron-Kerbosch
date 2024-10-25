@@ -7,7 +7,6 @@ from typing import Generator, List, Optional, Set, Tuple
 
 
 class NeighbourhoodWatch:
-
     def __init__(self, order: int):
         vertices = range(order)
         self.unsaturated_vertices = list(vertices)
@@ -41,8 +40,12 @@ class NeighbourhoodWatch:
             n = len(self.neighbours[v])
             if n + 1 >= len(self.unsaturated_vertices) - 2 - n:
                 self.complement[v] = True
-                self.neighbours[v] = (set(self.unsaturated_vertices) - {v} -
-                                      {new_neighbour} - self.neighbours[v])
+                self.neighbours[v] = (
+                    set(self.unsaturated_vertices)
+                    - {v}
+                    - {new_neighbour}
+                    - self.neighbours[v]
+                )
                 if not self.neighbours[v]:
                     self.unsaturated_vertices.remove(v)
             else:
@@ -59,14 +62,13 @@ def generate_edges(order: int) -> Generator[Tuple[int, int], None, None]:
 
 
 def generate_n_edges(
-        order: int,
-        size: Optional[int] = None) -> Generator[Tuple[int, int], None, None]:
+    order: int, size: Optional[int] = None
+) -> Generator[Tuple[int, int], None, None]:
     fully_meshed_size = order * (order - 1) // 2
     if size is None:
         size = fully_meshed_size
     elif size > fully_meshed_size:
-        raise ValueError(
-            f"{order} nodes accommodate at most {fully_meshed_size} edges")
+        raise ValueError(f"{order} nodes accommodate at most {fully_meshed_size} edges")
     for (v, w), _ in zip(generate_edges(order), range(size)):
         yield v, w
 
@@ -84,15 +86,15 @@ def random_undirected_graph(order: int, size: int) -> UndirectedGraph:
     return g
 
 
-def read_random_graph(orderstr: str,
-                      size: Optional[int]) -> Tuple[UndirectedGraph, int]:
+def read_random_graph(
+    orderstr: str, size: Optional[int]
+) -> Tuple[UndirectedGraph, int]:
     order = to_int(orderstr)
     fully_meshed_size = order * (order - 1) // 2
     if size is None:
         size = fully_meshed_size
     elif size > fully_meshed_size:
-        raise ValueError(
-            f"{order} nodes accommodate at most {fully_meshed_size} edges")
+        raise ValueError(f"{order} nodes accommodate at most {fully_meshed_size} edges")
     edges_name = "random_edges_order_" + orderstr
     stats_name = "random_stats"
     edges_path = os.path.join(os.pardir, "data", edges_name + ".txt")
@@ -105,11 +107,10 @@ def read_random_graph(orderstr: str,
     return g, clique_count
 
 
-def read_edges(path: str, orderstr: str, order: int,
-               size: int) -> List[Set[Vertex]]:
+def read_edges(path: str, orderstr: str, order: int, size: int) -> List[Set[Vertex]]:
     adjacencies: List[Set[Vertex]] = [set() for _ in range(order)]
     try:
-        with open(path, 'r') as txtfile:
+        with open(path, "r") as txtfile:
             for i, line in enumerate(txtfile):
                 strs = line.split()
                 try:
@@ -124,8 +125,7 @@ def read_edges(path: str, orderstr: str, order: int,
                 if i + 1 == size:
                     return adjacencies
             else:
-                raise ValueError(
-                    f"Exhausted generated list of {i+1} edges in {path}")
+                raise ValueError(f"Exhausted generated list of {i+1} edges in {path}")
     except OSError as err:
         raise ValueError(
             f"{err}\nPerhaps generate it with"
@@ -136,12 +136,12 @@ def read_edges(path: str, orderstr: str, order: int,
 def read_stats(path: str, orderstr: str, size: int) -> int:
     try:
         prefix = f"{orderstr}\t{size}\t"
-        with open(path, 'r') as txtfile:
+        with open(path, "r") as txtfile:
             for line in txtfile:
                 if line.startswith(prefix):
                     try:
-                        return int(line[len(prefix):])
-                    except (ValueError):
+                        return int(line[len(prefix) :])
+                    except ValueError:
                         raise ValueError(
                             f"File {path} has bogus line “{line.rstrip()}”"
                         ) from None
@@ -153,19 +153,18 @@ def read_stats(path: str, orderstr: str, size: int) -> int:
 def to_int(txt: str) -> int:
     if txt is None:
         return None
-    elif txt.endswith('M'):
+    elif txt.endswith("M"):
         return int(txt[:-1]) * 1_000_000
-    elif txt.endswith('k'):
+    elif txt.endswith("k"):
         return int(txt[:-1]) * 1_000
     else:
         return int(txt)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description="generate edges for undirected graph")
-    parser.add_argument('order', nargs=1)
-    parser.add_argument('size', nargs='?')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="generate edges for undirected graph")
+    parser.add_argument("order", nargs=1)
+    parser.add_argument("size", nargs="?")
     args = parser.parse_args(sys.argv[1:])
     orderstr = args.order[0]
     sizestr = args.size
@@ -174,6 +173,6 @@ if __name__ == '__main__':
     filename = f"random_edges_order_{orderstr}"
     path = os.path.join(os.pardir, "data", filename + ".txt")
     print(f"Writing {size or 'all'} edges to {path}")
-    with open(path, 'w', newline='\n') as txtfile:
-        for (v, w) in generate_n_edges(order=order, size=size):
+    with open(path, "w", newline="\n") as txtfile:
+        for v, w in generate_n_edges(order=order, size=size):
             txtfile.write(f"{v} {w}\n")

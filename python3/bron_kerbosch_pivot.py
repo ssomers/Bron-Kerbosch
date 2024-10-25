@@ -8,9 +8,14 @@ from typing import Callable, List, Set
 PivotChoice = Callable[[UndirectedGraph, Set[Vertex]], Vertex]
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter, pivot_choice_X: bool,
-          candidates: Set[Vertex], excluded: Set[Vertex],
-          clique: List[Vertex]) -> None:
+def visit(
+    graph: UndirectedGraph,
+    reporter: Reporter,
+    pivot_choice_X: bool,
+    candidates: Set[Vertex],
+    excluded: Set[Vertex],
+    clique: List[Vertex],
+) -> None:
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
     assert candidates.isdisjoint(excluded)
@@ -56,12 +61,14 @@ def visit(graph: UndirectedGraph, reporter: Reporter, pivot_choice_X: bool,
             candidates.remove(v)
             if neighbouring_candidates := candidates.intersection(neighbours):
                 neighbouring_excluded = excluded.intersection(neighbours)
-                visit(graph=graph,
-                      reporter=reporter,
-                      pivot_choice_X=pivot_choice_X,
-                      candidates=neighbouring_candidates,
-                      excluded=neighbouring_excluded,
-                      clique=clique + [v])
+                visit(
+                    graph=graph,
+                    reporter=reporter,
+                    pivot_choice_X=pivot_choice_X,
+                    candidates=neighbouring_candidates,
+                    excluded=neighbouring_excluded,
+                    clique=clique + [v],
+                )
             elif excluded.isdisjoint(neighbours):
                 reporter.record(clique + [v])
             excluded.add(v)

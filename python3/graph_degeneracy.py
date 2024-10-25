@@ -5,11 +5,8 @@ from typing import Generator, List
 
 
 class PriorityQueue:
-
     def __init__(self, max_priority: int) -> None:
-        self.stack_per_priority: List[List[int]] = [
-            [] for _ in range(max_priority + 1)
-        ]
+        self.stack_per_priority: List[List[int]] = [[] for _ in range(max_priority + 1)]
 
     def put(self, priority: int, element: int) -> None:
         assert priority >= 0
@@ -25,8 +22,9 @@ class PriorityQueue:
             raise ValueError("attempt to pop more than was put")
 
 
-def degeneracy_ordering(graph: UndirectedGraph,
-                        drop: int = 0) -> Generator[Vertex, None, None]:
+def degeneracy_ordering(
+    graph: UndirectedGraph, drop: int = 0
+) -> Generator[Vertex, None, None]:
     """
     Iterate connected vertices, lowest degree first.
     drop=N: omit last N vertices

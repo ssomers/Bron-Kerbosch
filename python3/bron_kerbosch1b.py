@@ -8,15 +8,22 @@ from typing import List, Set
 def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
     """Naive Bron-Kerbosch algorithm, optimized"""
     if candidates := graph.connected_vertices():
-        visit(graph=graph,
-              reporter=reporter,
-              candidates=candidates,
-              excluded=set(),
-              clique=[])
+        visit(
+            graph=graph,
+            reporter=reporter,
+            candidates=candidates,
+            excluded=set(),
+            clique=[],
+        )
 
 
-def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
-          excluded: Set[Vertex], clique: List[Vertex]) -> None:
+def visit(
+    graph: UndirectedGraph,
+    reporter: Reporter,
+    candidates: Set[Vertex],
+    excluded: Set[Vertex],
+    clique: List[Vertex],
+) -> None:
     assert all(graph.degree(v) > 0 for v in candidates)
     assert all(graph.degree(v) > 0 for v in excluded)
     assert candidates.isdisjoint(excluded)
@@ -27,11 +34,13 @@ def visit(graph: UndirectedGraph, reporter: Reporter, candidates: Set[Vertex],
         neighbouring_candidates = candidates.intersection(neighbours)
         if neighbouring_candidates:
             neighbouring_excluded = excluded.intersection(neighbours)
-            visit(graph,
-                  reporter,
-                  candidates=neighbouring_candidates,
-                  excluded=neighbouring_excluded,
-                  clique=clique + [v])
+            visit(
+                graph,
+                reporter,
+                candidates=neighbouring_candidates,
+                excluded=neighbouring_excluded,
+                clique=clique + [v],
+            )
         elif excluded.isdisjoint(neighbours):
             reporter.record(clique + [v])
         excluded.add(v)

@@ -88,9 +88,9 @@ def test_stats_3_float_deviation_small() -> None:
 def test_stats_3_float_mean_small() -> None:
     # found by hypothesis
     s = SampleStatistics()
-    s.put(-9.020465019382587e+92)
-    s.put(-9.020465019382587e+92)
-    s.put(-9.020465019382587e+92)
+    s.put(-9.020465019382587e92)
+    s.put(-9.020465019382587e92)
+    s.put(-9.020465019382587e92)
     assert s.sum / s.samples < s.min
     assert s.mean() == s.min
 
@@ -102,6 +102,6 @@ def test_stats_floats(samples: Sequence[float]) -> None:
         s.put(sample)
     assert s.mean() >= s.min
     assert s.mean() <= s.max
-    assert s.variance() >= 0.
+    assert s.variance() >= 0.0
     if s.min < s.max:
         assert s.deviation() <= s.max - s.min

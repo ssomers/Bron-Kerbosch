@@ -5,14 +5,12 @@ from typing import List, Sequence
 
 
 class Reporter(metaclass=ABCMeta):
-
     @abstractmethod
     def record(self, clique: Sequence[int]) -> None:
         pass
 
 
 class CollectingReporter(Reporter):
-
     def __init__(self) -> None:
         self.cliques: List[Sequence[int]] = []
 
@@ -22,7 +20,6 @@ class CollectingReporter(Reporter):
 
 
 class CountingReporter(Reporter):
-
     def __init__(self) -> None:
         self.cliques = 0
 
