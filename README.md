@@ -103,16 +103,16 @@ These are all single-threaded implementations (using only one CPU core).
 * …but loses in many other cases
 ![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
-![Time spent on graphs of order 10k](doc/report_4_python311_10k.svg)
-![Time spent on graphs of order 1M](doc/report_4_python311_1M.svg)
+![Time spent on graphs of order 10k](doc/report_4_python313_10k.svg)
+![Time spent on graphs of order 1M](doc/report_4_python313_1M.svg)
 
 * Ver3-GP seems to cope better at scale than Ver3-GPX
 ![Time spent on graphs of order 1M](doc/report_5_csharp_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_5_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_5_rust_10k.svg)
-![Time spent on graphs of order 10k](doc/report_5_python311_10k.svg)
-![Time spent on graphs of order 1M](doc/report_5_python311_1M.svg)
+![Time spent on graphs of order 10k](doc/report_5_python313_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_python313_1M.svg)
 
 ## Introducing parallelism
 
@@ -202,8 +202,8 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 * **ord_vec:** ordered `std::vector` (obviously, this can only work well on small graphs)
 
 #### Results
-![Time spent on graphs of order 100](doc/report_8_c++_100.svg)
-![Time spent on graphs of order 10k](doc/report_8_c++_10k.svg)
+![Time spent on graphs of order 100](doc/report_8_cpp_100.svg)
+![Time spent on graphs of order 10k](doc/report_8_cpp_10k.svg)
 
 
 ### C#
@@ -291,10 +291,10 @@ Perform:
 
 ## C++ 20
 To obtain these results:
-  - [dense graph of order 100](doc/details_c++_100.svg)
-  - [sparse graph of order 10k](doc/details_c++_10k_initial.svg)
-  - [plain graph of order 10k](doc/details_c++_10k.svg)
-  - [sparse graph of order 1M](doc/details_c++_1M.svg)
+  - [dense graph of order 100](doc/details_cpp_100.svg)
+  - [sparse graph of order 10k](doc/details_cpp_10k_initial.svg)
+  - [plain graph of order 10k](doc/details_cpp_10k.svg)
+  - [sparse graph of order 1M](doc/details_cpp_1M.svg)
 
 Perform:
   - clone or export https://github.com/andreasbuhr/cppcoro locally, e.g. next to this repository
@@ -355,15 +355,15 @@ Perform:
 
 ## Finally
 
-Python and Rust publish results to the cloud automatically, the others need a push:
+Python and Rust publish results to detail_* files automatically, the others need a push:
 
     python python3\publish.py go 100 10k 1M
-    python python3\publish.py c# 100 10k 1M
-    python python3\publish.py c++ 100 10k 1M
+    python python3\publish.py csharp 100 10k 1M
+    python python3\publish.py cpp 100 10k 1M
     python python3\publish.py java 100 10k 1M
     python python3\publish.py scala 100 10k 1M
 
-And finally, generate images locally:
+And finally, generate report images:
 
     python python3\publish.py
     dot doc\Ver3.dot -Tsvg -O

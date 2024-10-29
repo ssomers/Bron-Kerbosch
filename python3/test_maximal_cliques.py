@@ -316,7 +316,7 @@ def bk(
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
         publish(
-            language="python311",
+            languagestr="python313",
             orderstr=orderstr,
             case_names=FUNC_NAMES,
             stats_per_func_by_size=stats_per_func_by_size,

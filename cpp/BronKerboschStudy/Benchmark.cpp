@@ -18,6 +18,10 @@ using BronKerboschStudy::SampleStatistics;
 enum class SetType { hashset, std_set, ord_vec };
 static int const SET_TYPES = 3;
 
+struct ShowMeMemoryLayout : RandomGraph<std::unordered_set<Vertex>> {
+    ShowMeMemoryLayout() = delete;
+};
+
 class Benchmark {
     using Times = std::array<SampleStatistics<double>, Portfolio::NUM_FUNCS>;
 
@@ -161,7 +165,7 @@ class Benchmark {
                 fo << std::endl;
             }
         }
-        auto path = "..\\bron_kerbosch_c++_order_" + orderstr + ".csv";
+        auto path = "..\\bron_kerbosch_cpp_order_" + orderstr + ".csv";
         std::remove(path.c_str());
         auto rc = std::rename(tmpfname, path.c_str());
         if (rc != 0) {
