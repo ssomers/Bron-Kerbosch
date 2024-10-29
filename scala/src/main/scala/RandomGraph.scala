@@ -73,15 +73,17 @@ object RandomGraph {
   private def read_stats(path: String, order_str: String, size: Int): Int = {
     val prefix = f"$order_str\t$size\t"
     val file = Source.fromFile(path)
+    var stats: String = ""
     for (line <- file.getLines().take(size)) {
       if (line.startsWith(prefix)) {
-        file.close()
-        return Integer.parseInt(line.substring(prefix.length))
+        stats = line.substring(prefix.length)
       }
     }
     file.close()
-    throw new IllegalArgumentException(
-      f"File $path lacks order $order_str size $size"
-    )
+    if (stats.isEmpty)
+      throw new IllegalArgumentException(
+        f"File $path lacks order $order_str size $size"
+      )
+    Integer.parseInt(stats)
   }
 }

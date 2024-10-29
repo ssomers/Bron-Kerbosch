@@ -123,7 +123,7 @@ object main {
 
   implicit class IntContext(val sc: StringContext) {
     def i(args: Any*): Int = {
-      val orig = sc.s(args: _*)
+      val orig = sc.s(args *)
       orig.replace("M", "kk").replace("k", "000").toInt
     }
   }
@@ -135,14 +135,12 @@ object main {
     val all_func_indices = FUNCS.indices.toArray
     val most_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
     val mt_func_indices = FUNCS.indices.slice(1, Int.MaxValue).toArray
-    val sizes_100 = Array(i"2k" to i"3k" by 50: _*)
+    val sizes_100 = Array(i"2k" to i"3k" by 50 *)
     val sizes_10k = Array(
-      (i"10k" until i"100k" by i"10k")
-        ++ (i"100k" to i"200k" by i"25k"): _*
+      (i"10k" until i"100k" by i"10k") ++ (i"100k" to i"200k" by i"25k") *
     )
     val sizes_1M = Array(
-      (i"500k" until i"2M" by i"250k")
-        ++ (i"2M" to i"5M" by i"1M"): _*
+      (i"500k" until i"2M" by i"250k") ++ (i"2M" to i"5M" by i"1M") *
     )
     bk("100", 100, Array(2000), 3, FUNCS.indices.toArray) // warm up
     Thread.sleep(3210) // give IntelliJ launcher some time to cool down

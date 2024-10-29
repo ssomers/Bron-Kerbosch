@@ -1,5 +1,5 @@
 // Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
-// choosing a pivot from candidates only (IK_GP), multi-threaded
+// choosing a pivot from candidates only (IK_GP), multithreaded
 
 import bron_kerbosch_pivot.PivotChoice.MaxDegreeLocal
 import bron_kerbosch_pivot.visit

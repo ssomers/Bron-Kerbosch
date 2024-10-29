@@ -97,14 +97,16 @@ class PriorityQueue[Vertex](max_priority: Int) {
   }
 
   def pop(): Option[Vertex] = {
-    for (stack <- stack_per_priority) {
-      val element = stack.lastOption
-      if (element.isDefined) {
-        stack.remove(stack.length - 1)
-        return element
+    import scala.util.boundary
+    boundary:
+      for (stack <- stack_per_priority) {
+        val element = stack.lastOption
+        if (element.isDefined) {
+          stack.remove(stack.length - 1)
+          boundary.break(element)
+        }
       }
-    }
-    None
+      None
   }
 
   def contains(priority: Int, v: Vertex): Boolean = {

@@ -1,4 +1,4 @@
-import main.{Clique, Cliques, FUNCS, FUNC_NAMES, order_cliques, Vertex}
+import main.{Clique, Cliques, FUNCS, FUNC_NAMES, Vertex, order_cliques}
 
 class BronKerboschTest extends org.scalatest.funsuite.AnyFunSuite {
   def bk(
