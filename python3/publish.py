@@ -23,7 +23,6 @@ class Language(Enum):
     python311 = auto()
     python313 = auto()
     rust = auto()
-    scala = auto()
 
     def long_name(self) -> str:
         return {
@@ -36,7 +35,6 @@ class Language(Enum):
             Language.python311: "Python 3.11",
             Language.python313: "Python 3.13",
             Language.rust: "Rust 1.82",
-            Language.scala: "Scala 2.13.8",
         }[self]
 
     def short_name(self) -> str:
@@ -50,7 +48,6 @@ class Language(Enum):
             Language.python311: "Python",
             Language.python313: "Python",
             Language.rust: "Rust",
-            Language.scala: "Scala",
         }[self]
 
 
@@ -121,7 +118,6 @@ def color_by_language(case: Case) -> str:
         Language.python313: "#000099",
         Language.rust: "#CC0033",
         Language.java: "#009933",
-        Language.scala: "#006666",
         Language.csharp: "#666600",
         Language.cpp: "#990000",
         Language.go: "#0000CC",
@@ -406,7 +402,6 @@ def publish_report(
     sizes: List[int] = []
     measurements: Dict[Case, List[Measurement]] = {}
     languages = set(langlib.Language for langlib in langlibs)
-    assert len(languages) > 1
     assert len(versions) == len(linestyle_per_version)
     for langlib in langlibs:
         sizes1, measurements1 = read_csv(
@@ -521,7 +516,6 @@ def publish_reports() -> None:
         orderstr="100",
         langlibs=[
             LangLib(Language.java),
-            LangLib(Language.scala),
             LangLib(Language.rust, "Hash"),
         ],
         versions=["Ver1½", "Ver2½"],
@@ -605,7 +599,6 @@ def publish_reports() -> None:
             orderstr=orderstr,
             langlibs=[
                 LangLib(Language.python313),
-                LangLib(Language.scala),
                 LangLib(Language.java),
                 LangLib(Language.go),
                 LangLib(Language.csharp, "HashSet"),
@@ -631,15 +624,6 @@ def publish_reports() -> None:
             linestyle_per_version=[None, None],
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="parallel Ver3½=GP using channels",
-        )
-        publish_report(
-            basename=f"report_7_parallel_{orderstr}",
-            orderstr=orderstr,
-            langlibs=[LangLib(Language.java), LangLib(Language.scala)],
-            versions=["Ver3½=GPs"],
-            linestyle_per_version=[None],
-            label_by_case=lambda case: case.LangLib.Language.short_name(),
-            single_version_suffix="simple parallel Ver3½=GP",
         )
     # 8. Libraries
     for orderstr in ["100", "10k", "1M"]:

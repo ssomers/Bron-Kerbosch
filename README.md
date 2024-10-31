@@ -16,9 +16,7 @@ Compared to the original project, the code is:
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and this performance test on random graphs
-* most of this also (sometimes only) in Rust, Java, Go, C++ and partly in C# and Scala
-
-Beware that my Scala knowledge and code is the least developed of all languages.
+* most of this also (sometimes only) in Rust, Java, Go, C++ and C#
 
 All charts below show the amount of time spent on the same particular Windows machine with a 6 core CPU,
 all on the same predetermined random graph, with error bars showing the minimum and maximum
@@ -129,7 +127,7 @@ Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
 - 1 or more tasks performing nested iterations.
 
 Ways to implement parallelism varies per language:
-* **Ver3½=GPs:** (C#, Java, Scala) using relatively simple composition (async, stream, future)
+* **Ver3½=GPs:** (C#, Java) using relatively simple composition (async, stream, future)
 * **Ver3½=GPc:** (Rust, C++, Java) using something complex resembling channels
 * **Ver3½=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
 * **Ver3½=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
@@ -156,11 +154,6 @@ Ways to implement parallelism varies per language:
 ![Time spent on graphs of order 100](doc/report_7_sequential_100.svg)
 ![Time spent on graphs of order 10k](doc/report_7_sequential_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_7_sequential_1M.svg)
-
-* Relatively simple multi-threaded
-![Time spent on graphs of order 100](doc/report_7_parallel_100.svg)
-![Time spent on graphs of order 10k](doc/report_7_parallel_10k.svg)
-![Time spent on graphs of order 1M](doc/report_7_parallel_1M.svg)
 
 * Multi-thread using something resembling channels
 ![Time spent on graphs of order 100](doc/report_7_channels_100.svg)
@@ -334,25 +327,6 @@ Perform:
   - Run > Run 'Main'
 
 
-## Scala
-To obtain these results:
-  - [dense graph of order 100](doc/details_scala_100.svg)
-  - [plain graph of order 10k](doc/details_scala_10k.svg)
-  - [sparse graph of order 1M](doc/details_scala_1M.svg)
-
-Perform:
-  - open folder scala with IntelliJ IDEA 2022 (Community Edition)
-  - View > Tool Windows > sbt; Reload sbt Project (or Reload All sbt Projects)
-  - enable assertions: comment out `"-Xdisable-assertions"` in build.sbt
-  - Build > Rebuild Project
-  - set run configuration to test
-  - Run > Run 'test'
-  - disable assertions: uncomment `"-Xdisable-assertions"` in build.sbt
-  - Build > Rebuild Project
-  - set run configuration to main
-  - Run > Run 'main'
-
-
 ## Finally
 
 Python and Rust publish results to detail_* files automatically, the others need a push:
@@ -361,7 +335,6 @@ Python and Rust publish results to detail_* files automatically, the others need
     python python3\publish.py csharp 100 10k 1M
     python python3\publish.py cpp 100 10k 1M
     python python3\publish.py java 100 10k 1M
-    python python3\publish.py scala 100 10k 1M
 
 And finally, generate report images:
 
