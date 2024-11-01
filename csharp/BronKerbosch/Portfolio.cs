@@ -26,7 +26,7 @@ namespace BronKerbosch
                 case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
                 case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
                 case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 6: BronKerbosch3ST<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

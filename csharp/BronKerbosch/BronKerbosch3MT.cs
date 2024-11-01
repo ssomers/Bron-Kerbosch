@@ -1,5 +1,6 @@
 ﻿// Bron-Kerbosch algorithm with degeneracy ordering,
-// choosing a pivot from both candidates and excluded vertices (IK_GPX).
+// with nested searches choosing a pivot from candidates only (IK_GP),
+// implemented by multiple threads.
 
 using BronKerbosch;
 using System;
@@ -11,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
+internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
     where VertexSet : IEnumerable<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
@@ -23,21 +24,15 @@ internal static class BronKerbosch3ST<VertexSet, VertexSetMgr>
         public void Record(ImmutableArray<Vertex> clique)
         {
             if (target is null)
-            {
                 ++useAfterClose; // breakpoint candidate
-            }
             else if (!target.Post(clique))
-            {
                 ++postFailed; // breakpoint candidate
-            }
         }
 
         public void Close()
         {
             if (target is null)
-            {
                 ++useAfterClose; // breakpoint candidate
-            }
             target = null;
         }
     }
