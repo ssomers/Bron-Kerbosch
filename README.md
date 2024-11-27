@@ -1,27 +1,22 @@
 # What is this?
 
-Performance comparison of various implementations of three
-[Bron-Kerbosch algorithms](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
-to find all maximal cliques in a graph. It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch).
+Performance comparison of many implementations to solve one particular computational problem,
+to compare the effects of algorithm complexity, programming languages, library choices, and parallelism.
 
-Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
-“A note on the problem of reporting maximal cliques”,
-Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
+The algorithms implemented are three variants of [the Bron-Kerbosch algorithm](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
+to find all maximal cliques in a graph. Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
+“A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
-The purpose of this fork is not only to compare the algorithms, but also programming languages,
- library choices, and the effect of optimization, chiefly parallelism.
-
-Compared to the original project, the code is:
-* converted from python 2 to python 3.12
+It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch). Compared to the original project, the code is:
+* converted from python 2 to python 3
 * (hopefully) clarified and type safe
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and this performance test on random graphs
-* most of this also (sometimes only) in Rust, Java, Go, C++ and C#
+* and done over in Rust, Java, Go, C++ and C#, with parallelism added
 
 All charts below show the amount of time spent on the same particular Windows machine with a 6 core CPU,
 all on the same predetermined random graph, with error bars showing the minimum and maximum
-over 5 or 3 samples.
-Order of a graph = number of vertices.
+over 5 or 3 samples. Order of a graph = number of vertices, size of a graph = number of edges.
 
 A random graph is easy to generate and objective, but not ideal to test the performance of the
 algorithm itself, because when you're doing something useful looking for maximal cliques, the actual data likely
