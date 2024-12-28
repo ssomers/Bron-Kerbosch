@@ -5,12 +5,12 @@ authors = ["Stein Somers <git@steinsomers.be>"]
 edition = "2021"
 
 [dependencies]
-crossbeam = "0.8.0"
-crossbeam-channel = "0.5.0"
-fnv = "1.0.5"
-hashbrown = "0.13.0"
-rand = "0.8.0"
+crossbeam = "0.8.4"
+crossbeam-channel = "0.5.14"
+fnv = "1.0.7"
+hashbrown = "0.15.2"
+rand = "0.8.5"
 
 [dev-dependencies]
-proptest = "1.0.0"
-rand_chacha = "0.3.0"
+proptest = "1.6.0"
+rand_chacha = "0.3.1"
