@@ -18,6 +18,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <BuildStlModules>false</BuildStlModules>
+      <DisableLanguageExtensions>true</DisableLanguageExtensions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BoostDir)\stage\lib;$(CppcoroDir)\build\lib\$(ConfigurationName)</AdditionalLibraryDirectories>

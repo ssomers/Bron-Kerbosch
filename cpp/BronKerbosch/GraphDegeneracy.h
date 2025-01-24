@@ -9,7 +9,7 @@ namespace BronKerbosch {
     class DegeneracyOrderIter {
        private:
         using Priority = unsigned;
-        static Priority const PRIORITY_NONE = 0;
+        static constexpr Priority PRIORITY_NONE = 0;
 
         template <typename T>
         struct PriorityQueue {
