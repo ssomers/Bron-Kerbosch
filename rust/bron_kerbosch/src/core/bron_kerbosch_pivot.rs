@@ -117,7 +117,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
         }
         PivotChoice::Random => {
             candidates.for_each(|v| remaining_candidates.push(v));
-            let mut rng = rand::thread_rng();
+            let mut rng = rand::rng();
             pivot = candidates.choose(&mut rng).copied();
         }
     }

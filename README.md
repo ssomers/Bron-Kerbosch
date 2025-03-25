@@ -234,7 +234,7 @@ Perform:
 
     cd rust
     (sometimes) rustup update
-    (sometimes) cargo upgrades && cargo update
+    (sometimes) cargo upgrade && cargo update
     cargo clippy --workspace
     cargo test --workspace
     cargo run --release
