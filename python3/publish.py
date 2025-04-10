@@ -401,7 +401,6 @@ def publish_report(
 ) -> None:
     sizes: List[int] = []
     measurements: Dict[Case, List[Measurement]] = {}
-    languages = set(langlib.Language for langlib in langlibs)
     assert len(versions) == len(linestyle_per_version)
     for langlib in langlibs:
         sizes1, measurements1 = read_csv(
