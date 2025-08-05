@@ -17,7 +17,7 @@ impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet
 
     fn size(&self) -> usize {
         let total: usize = self.adjacencies.iter().map(|(_, a)| a.len()).sum();
-        assert!(total % 2 == 0);
+        assert!(total.is_multiple_of(2));
         total / 2
     }
 

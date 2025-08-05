@@ -1,7 +1,7 @@
 use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 use std::iter::FusedIterator;
 
-pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<Graph>
+pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
 {
