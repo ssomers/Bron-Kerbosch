@@ -83,7 +83,7 @@
     <ClInclude Include="SampleStatistics.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Benchmark.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
