@@ -9,7 +9,7 @@ to find all maximal cliques in a graph. Some algorithm variants (IK_*) are descr
 
 It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch). Compared to the original project, the code is:
 * converted from python 2 to python 3
-* (hopefully) clarified and type safe
+* (hopefully) clarified and statically typed
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and this performance test on random graphs
 * and done over in Rust, Java, Go, C++ and C#, with parallelism added
