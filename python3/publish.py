@@ -27,14 +27,14 @@ class Language(Enum):
     def long_name(self) -> str:
         return {
             Language.cpp: "C++",
-            Language.csharp: "C# .NET 8",
+            Language.csharp: "C# .NET 9",
             Language.go: "Go 1.23.2",
-            Language.java: "Java 12",
+            Language.java: "Java 24",
             Language.python: "Python",
             Language.python310: "Python 3.10",
             Language.python311: "Python 3.11",
             Language.python313: "Python 3.13",
-            Language.rust: "Rust 1.82",
+            Language.rust: "Rust 1.90",
         }[self]
 
     def short_name(self) -> str:
@@ -195,7 +195,10 @@ def read_csv(
     m_per_size_by_case: Dict[Case, List[Measurement]] = {}
     with open(path, newline="", encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
-        head = next(reader)
+        try:
+            head = next(reader)
+        except StopIteration:
+            raise ImportError(f"{filename}: seems to be empty")
         num_cases = (len(head) - 1) // 3
         expected_cols = 1 + num_cases * 3
         if len(head) != expected_cols:
