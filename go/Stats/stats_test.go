@@ -86,7 +86,7 @@ func FuzzStatsN(f *testing.F) {
 			return
 		}
 		var s SampleStatistics
-		for i := n; i > 0; i-- {
+		for range n {
 			s.Put(x)
 		}
 		Assert.IsTrue(s.Mean() >= s.Min())

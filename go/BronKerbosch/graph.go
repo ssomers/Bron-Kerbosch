@@ -72,7 +72,7 @@ func (g *UndirectedGraph) maxDegreeVertex() Vertex {
 	order := g.Order()
 	maxDegree := 0
 	var maxVertex Vertex
-	for i := 0; i < order; i++ {
+	for i := range order {
 		v := Vertex(i)
 		degree := g.degree(v)
 		if maxDegree < degree {

@@ -28,7 +28,7 @@ class Language(Enum):
         return {
             Language.cpp: "C++",
             Language.csharp: "C# .NET 9",
-            Language.go: "Go 1.23.2",
+            Language.go: "Go 1.25",
             Language.java: "Java 24",
             Language.python: "Python",
             Language.python310: "Python 3.10",

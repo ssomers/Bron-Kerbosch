@@ -32,7 +32,7 @@ func SortCliques(cliques [][]Vertex) {
 		})
 	}
 	sort.Slice(cliques, func(l int, r int) bool {
-		for i := 0; i < len(cliques[l]) && i < len(cliques[r]); i++ {
+		for i := range min(len(cliques[l]), len(cliques[r])) {
 			if d := cliques[l][i] - cliques[r][i]; d != 0 {
 				return d < 0
 			}

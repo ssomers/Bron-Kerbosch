@@ -34,7 +34,7 @@ func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors
 		reporter := ChannelReporter{cliques}
 		var wg sync.WaitGroup
 		wg.Add(numVisitors)
-		for i := 0; i < numVisitors; i++ {
+		for range numVisitors {
 			go func() {
 				for job := range visits {
 					visit(

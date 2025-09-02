@@ -40,7 +40,7 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 	priorityPerNode := make([]int, order)
 	maxDegree := 0
 	numLeftToVisit := 0
-	for c := 0; c < order; c++ {
+	for c := range order {
 		degree := graph.degree(Vertex(c))
 		if degree > 0 {
 			priorityPerNode[Vertex(c)] = degree
@@ -89,7 +89,7 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 	}
 }
 
-type priorityQueue [T interface{}] struct {
+type priorityQueue[T interface{}] struct {
 	stackPerPriority [][]T
 }
 

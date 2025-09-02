@@ -46,7 +46,7 @@ func FuzzDegeneracyOrder(f *testing.F) {
 			}
 		}
 		adjacencies := make([]VertexSet, order)
-		for v := 0; v < order; v++ {
+		for v := range order {
 			adjacencies[v] = make(VertexSet)
 		}
 		for v, proposed := range seed {

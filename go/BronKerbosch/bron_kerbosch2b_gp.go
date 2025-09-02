@@ -9,7 +9,7 @@ func bronKerbosch2bGP(graph *UndirectedGraph, reporter Reporter) {
 	}
 	pivot := graph.maxDegreeVertex()
 	excluded := make(VertexSet, order)
-	for i := 0; i < order; i++ {
+	for i := range order {
 		v := Vertex(i)
 		neighbours := graph.neighbours(v)
 		if !neighbours.Contains(pivot) {

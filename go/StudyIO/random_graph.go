@@ -50,7 +50,7 @@ func readEdges(path string, orderstr string, order int, size int) ([]BronKerbosc
 	}
 	defer file.Close()
 	adjacencies := make([]BronKerbosch.VertexSet, order)
-	for v := 0; v < order; v++ {
+	for v := range order {
 		adjacencies[v] = make(BronKerbosch.VertexSet)
 	}
 	scanner := bufio.NewScanner(file)
