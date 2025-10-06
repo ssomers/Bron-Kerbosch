@@ -1,8 +1,1 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" />
-    <PackageReference Include="System.Threading.Tasks.Dataflow" />
-  </ItemGroup>
-
-</Project>
+﻿<Project Sdk="Microsoft.NET.Sdk" />

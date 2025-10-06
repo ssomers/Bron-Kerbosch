@@ -6,7 +6,5 @@
     <PackageVersion Include="nunit" Version="4.4.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-    <PackageVersion Include="System.Collections.Immutable" Version="10.0.0-rc.1.25451.107" />
-    <PackageVersion Include="System.Threading.Tasks.Dataflow" Version="10.0.0-rc.1.25451.107" />
   </ItemGroup>
 </Project>
