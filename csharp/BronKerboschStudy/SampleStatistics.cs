@@ -1,3 +1,5 @@
+using System;
+
 namespace BronKerboschStudy
 {
     public struct SampleStatistics
