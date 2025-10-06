@@ -11,17 +11,17 @@ namespace BronKerboschStudyUnitTest
         [Test]
         public void ParsePositiveInt()
         {
-            Assert.AreEqual(NumbersGame.ParseInt("0"), 0);
-            Assert.AreEqual(NumbersGame.ParseInt("123"), 123);
-            Assert.AreEqual(NumbersGame.ParseInt("1k"), 1_000);
-            Assert.AreEqual(NumbersGame.ParseInt("1M"), 1_000_000);
-            Assert.AreEqual(NumbersGame.ParseInt("42M"), 42_000_000);
+            Assert.That(NumbersGame.ParseInt("0"), Is.EqualTo(0));
+            Assert.That(NumbersGame.ParseInt("123"), Is.EqualTo(123));
+            Assert.That(NumbersGame.ParseInt("1k"), Is.EqualTo(1_000));
+            Assert.That(NumbersGame.ParseInt("1M"), Is.EqualTo(1_000_000));
+            Assert.That(NumbersGame.ParseInt("42M"), Is.EqualTo(42_000_000));
         }
 
         [Test]
         public void ParseNegativeInt()
         {
-            Assert.AreEqual(NumbersGame.ParseInt("-1"), -1);
+            Assert.That(NumbersGame.ParseInt("-1"), Is.EqualTo(-1));
         }
 
         [Test]

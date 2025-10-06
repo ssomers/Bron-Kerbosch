@@ -12,8 +12,8 @@ namespace BronKerboschUnitTest
         {
             HashSet<Vertex> one = new() { Vertex.Nth(1) };
             var x = HashSetMgr.PopArbitrary(one).Index();
-            Assert.AreEqual(x, 1);
-            Assert.Zero(one.Count);
+            Assert.That(x, Is.EqualTo(1));
+            Assert.That(one, Is.Empty);
         }
 
         [Test]
@@ -22,9 +22,9 @@ namespace BronKerboschUnitTest
             HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
             var x = HashSetMgr.PopArbitrary(two).Index();
             var y = HashSetMgr.PopArbitrary(two).Index();
-            Assert.AreEqual(Math.Min(x, y), 1);
-            Assert.AreEqual(Math.Max(x, y), 2);
-            Assert.Zero(two.Count);
+            Assert.That(Math.Min(x, y), Is.EqualTo(1));
+            Assert.That(Math.Max(x, y), Is.EqualTo(2));
+            Assert.That(two, Is.Empty);
         }
 
         [Test]
