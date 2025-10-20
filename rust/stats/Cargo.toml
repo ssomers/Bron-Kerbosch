@@ -5,4 +5,4 @@ authors = ["Stein Somers <git@steinsomers.be>"]
 edition = "2021"
 
 [dev-dependencies]
-proptest = "1.7.0"
+proptest = "1.8.0"
