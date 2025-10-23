@@ -22,7 +22,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     var secs = sw.ElapsedMilliseconds / 1e3;
     Console.WriteLine($"{VertexSetMgr.Name()}-based random graph of order {orderstr},"
         + $" {size} edges, {graph.CliqueCount} cliques: (generating took {secs:.3}s)");
-    SampleStatistics[] times = new SampleStatistics[Portfolio.FuncNames.Length];
+    var times = new SampleStatistics[Portfolio.FuncNames.Length];
 
     List<ImmutableArray<Vertex>>? firstResult = null;
     for (var sample = 0; sample <= timed_samples; ++sample)

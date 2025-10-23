@@ -11,17 +11,22 @@ namespace BronKerbosch
     {
         private readonly ImmutableArray<TVertexSet> itsAdjacencies;
 
-        public UndirectedGraph(ImmutableArray<TVertexSet> adjacencies)
+        public bool areValidAdjacencies(ImmutableArray<TVertexSet> adjacencies)
         {
-            for (int i = 0; i < adjacencies.Length; ++i)
+            foreach (var v in Enumerable.Range(0, adjacencies.Length).Select(Vertex.Nth))
             {
-                var v = Vertex.Nth(i);
                 foreach (var w in adjacencies[v.Index()])
                 {
-                    Debug.Assert(v != w);
-                    Debug.Assert(adjacencies[w.Index()].Contains(v));
+                    if (v == w) return false;
+                    if (!adjacencies[w.Index()].Contains(v)) return false;
                 }
             }
+            return true;
+        }
+
+        public UndirectedGraph(ImmutableArray<TVertexSet> adjacencies)
+        {
+            Debug.Assert(areValidAdjacencies(adjacencies));
             itsAdjacencies = adjacencies;
         }
 

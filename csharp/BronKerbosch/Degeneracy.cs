@@ -15,10 +15,10 @@ namespace BronKerbosch
         {
             Debug.Assert(drop >= 0);
             const int NO_PRIORITY = -1;
-            int[] priorityPerVertex = new int[graph.Order];
+            var priorityPerVertex = new int[graph.Order];
             var maxPriority = 0;
             var numLeftToPick = 0;
-            foreach (int i in Enumerable.Range(0, graph.Order))
+            foreach (var i in Enumerable.Range(0, graph.Order))
             {
                 var c = Vertex.Nth(i);
                 var degree = graph.Degree(c);
@@ -81,7 +81,7 @@ namespace BronKerbosch
         public void Put(int priority, Vertex element)
         {
             Debug.Assert(priority >= 0);
-            itsQueuePerPriority[priority] ??= new List<Vertex>();
+            itsQueuePerPriority[priority] ??= [];
             itsQueuePerPriority[priority].Add(element);
         }
 

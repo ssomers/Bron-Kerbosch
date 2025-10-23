@@ -11,12 +11,12 @@ namespace BronKerboschStudy
             if (orderstr.EndsWith("M", StringComparison.Ordinal))
             {
                 factor = 1_000_000;
-                orderstr = orderstr.Remove(orderstr.Length - 1);
+                orderstr = orderstr[..^1];
             }
             else if (orderstr.EndsWith("k", StringComparison.Ordinal))
             {
                 factor = 1_000;
-                orderstr = orderstr.Remove(orderstr.Length - 1);
+                orderstr = orderstr[..^1];
             }
             return int.Parse(orderstr, CultureInfo.InvariantCulture) * factor;
         }

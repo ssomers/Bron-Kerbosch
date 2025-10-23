@@ -6,7 +6,7 @@ namespace BronKerbosch
 {
     public sealed class CollectingReporter : IReporter
     {
-        public List<ImmutableArray<Vertex>> Cliques { get; } = new List<ImmutableArray<Vertex>>();
+        public List<ImmutableArray<Vertex>> Cliques { get; } = [];
 
         public void Record(ImmutableArray<Vertex> clique)
         {

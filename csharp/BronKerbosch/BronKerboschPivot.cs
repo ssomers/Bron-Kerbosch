@@ -54,7 +54,7 @@ namespace BronKerbosch
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
             Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
             Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
-            int numCandidates = candidates.Count();
+            var numCandidates = candidates.Count();
             Debug.Assert(numCandidates >= 1);
             if (numCandidates == 1)
             {

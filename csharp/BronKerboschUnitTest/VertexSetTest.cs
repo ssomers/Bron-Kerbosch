@@ -10,7 +10,7 @@ namespace BronKerboschUnitTest
         [Test]
         public void PopArbitrary1()
         {
-            HashSet<Vertex> one = new() { Vertex.Nth(1) };
+            HashSet<Vertex> one = [Vertex.Nth(1)];
             var x = HashSetMgr.PopArbitrary(one).Index();
             Assert.That(x, Is.EqualTo(1));
             Assert.That(one, Is.Empty);
@@ -19,7 +19,7 @@ namespace BronKerboschUnitTest
         [Test]
         public void PopArbitrary2()
         {
-            HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
+            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
             var x = HashSetMgr.PopArbitrary(two).Index();
             var y = HashSetMgr.PopArbitrary(two).Index();
             Assert.That(Math.Min(x, y), Is.EqualTo(1));
@@ -30,11 +30,11 @@ namespace BronKerboschUnitTest
         [Test]
         public void Overlaps()
         {
-            HashSet<Vertex> empty = new();
-            HashSet<Vertex> one = new() { Vertex.Nth(1) };
-            HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
-            HashSet<Vertex> six = new() { Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) };
+            HashSet<Vertex> empty = [];
+            HashSet<Vertex> one = [Vertex.Nth(1)];
+            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
+            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
             Assert.That(!HashSetMgr.Overlaps(empty, one));
             Assert.That(!HashSetMgr.Overlaps(one, empty));
             Assert.That(!HashSetMgr.Overlaps(empty, two));
@@ -55,11 +55,11 @@ namespace BronKerboschUnitTest
         [Test]
         public void Intersection()
         {
-            HashSet<Vertex> empty = new();
-            HashSet<Vertex> one = new() { Vertex.Nth(1) };
-            HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
-            HashSet<Vertex> six = new() { Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) };
+            HashSet<Vertex> empty = [];
+            HashSet<Vertex> one = [Vertex.Nth(1)];
+            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
+            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
             Assert.That(HashSetMgr.Intersection(empty, one).SetEquals(empty));
             Assert.That(HashSetMgr.Intersection(one, empty).SetEquals(empty));
             Assert.That(HashSetMgr.Intersection(empty, two).SetEquals(empty));
@@ -80,11 +80,11 @@ namespace BronKerboschUnitTest
         [Test]
         public void IntersectCount()
         {
-            HashSet<Vertex> empty = new();
-            HashSet<Vertex> one = new() { Vertex.Nth(1) };
-            HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
-            HashSet<Vertex> six = new() { Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) };
+            HashSet<Vertex> empty = [];
+            HashSet<Vertex> one = [Vertex.Nth(1)];
+            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
+            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
             Assert.That(HashSetMgr.IntersectionSize(empty, one).Equals(0));
             Assert.That(HashSetMgr.IntersectionSize(one, empty).Equals(0));
             Assert.That(HashSetMgr.IntersectionSize(empty, two).Equals(0));
@@ -105,11 +105,11 @@ namespace BronKerboschUnitTest
         [Test]
         public void Difference()
         {
-            HashSet<Vertex> empty = new();
-            HashSet<Vertex> one = new() { Vertex.Nth(1) };
-            HashSet<Vertex> two = new() { Vertex.Nth(1), Vertex.Nth(2) };
-            HashSet<Vertex> six = new() { Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) };
+            HashSet<Vertex> empty = [];
+            HashSet<Vertex> one = [Vertex.Nth(1)];
+            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
+            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
             Assert.That(HashSetMgr.Difference(empty, one).SetEquals(empty));
             Assert.That(HashSetMgr.Difference(empty, two).SetEquals(empty));
             Assert.That(HashSetMgr.Difference(empty, six).SetEquals(empty));
