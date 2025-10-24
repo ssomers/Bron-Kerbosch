@@ -269,6 +269,7 @@ To obtain these results:
 Perform:
 
     cd rust
+    (once) cargo install cargo-edit
     (sometimes) rustup update
     (sometimes) cargo upgrade && cargo update
     cargo clippy --workspace
@@ -360,7 +361,7 @@ Perform:
 
 ## Finally
 
-Python and Rust publish results to detail_* files automatically, the others need a push:
+Python and Rust publish results to `detail_*` files automatically, the others need a push:
 
     python python3\publish.py go 100 10k 1M
     python python3\publish.py csharp 100 10k 1M
