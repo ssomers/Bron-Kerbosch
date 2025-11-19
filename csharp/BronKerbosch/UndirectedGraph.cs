@@ -11,7 +11,7 @@ namespace BronKerbosch
     {
         private readonly ImmutableArray<TVertexSet> itsAdjacencies;
 
-        public bool areValidAdjacencies(ImmutableArray<TVertexSet> adjacencies)
+        public bool AreValidAdjacencies(ImmutableArray<TVertexSet> adjacencies)
         {
             foreach (var v in Enumerable.Range(0, adjacencies.Length).Select(Vertex.Nth))
             {
@@ -26,7 +26,7 @@ namespace BronKerbosch
 
         public UndirectedGraph(ImmutableArray<TVertexSet> adjacencies)
         {
-            Debug.Assert(areValidAdjacencies(adjacencies));
+            Debug.Assert(AreValidAdjacencies(adjacencies));
             itsAdjacencies = adjacencies;
         }
 

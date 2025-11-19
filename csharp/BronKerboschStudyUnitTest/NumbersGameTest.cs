@@ -22,6 +22,7 @@ namespace BronKerboschStudyUnitTest
         public void ParseNegativeInt()
         {
             Assert.That(NumbersGame.ParseInt("-1"), Is.EqualTo(-1));
+            Assert.That(NumbersGame.ParseInt("-1M"), Is.EqualTo(-1_000_000));
         }
 
         [Test]

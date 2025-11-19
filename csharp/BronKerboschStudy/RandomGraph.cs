@@ -48,7 +48,7 @@ namespace BronKerboschStudy
             using (var file = new StreamReader(path))
             {
                 string? line;
-                while (linenum < size && (line = file!.ReadLine()) != null)
+                while (linenum < size && (line = file.ReadLine()) != null)
                 {
                     ++linenum;
                     var fields = line.Split(' ');
@@ -74,7 +74,7 @@ namespace BronKerboschStudy
         {
             var prefix = $"{orderstr}\t{size}\t";
             using var file = new StreamReader(path);
-            var header = file.ReadLine()!;
+            var header = file.ReadLine();
             string? line;
             while ((line = file.ReadLine()) != null)
             {

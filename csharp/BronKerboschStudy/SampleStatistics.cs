@@ -15,7 +15,7 @@ namespace BronKerboschStudy
             : double.NaN;
 
         public readonly double Variance => Samples > 1
-            ? Math.Max(0, SumOfSquares - Sum * Sum / Samples) / (Samples - 1)
+            ? Math.Max(0, SumOfSquares - (Sum * Sum / Samples)) / (Samples - 1)
             : double.NaN;
 
         public readonly double Deviation => Math.Min(Max - Min, Math.Sqrt(Variance));

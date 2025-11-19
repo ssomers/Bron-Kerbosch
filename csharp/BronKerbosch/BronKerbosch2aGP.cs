@@ -2,7 +2,6 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr>
@@ -20,7 +19,7 @@ internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr>
                 PivotChoice.MaxDegreeLocal,
                 candidates,
                 VertexSetMgr.Empty(),
-                ImmutableArray.Create<Vertex>());
+                []);
         }
     }
 }

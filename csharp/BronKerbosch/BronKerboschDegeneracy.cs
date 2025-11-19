@@ -3,7 +3,6 @@
 
 using BronKerbosch;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -26,7 +25,7 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
                 var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                 Pivot<VertexSet, VertexSetMgr>.Visit(graph, reporter, pivotChoice,
                     neighbouringCandidates, neighbouringExcluded,
-                    ImmutableArray.Create(v));
+                    [v]);
             }
             var added = VertexSetMgr.Add(excluded, v);
             Debug.Assert(added);

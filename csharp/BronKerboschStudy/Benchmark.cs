@@ -74,8 +74,8 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     return times;
 }
 
-SampleStatistics[] Bk_core
-(SetType setType, string orderstr, int size, int[] funcIndices, int timed_samples) => setType switch
+#pragma warning disable IDE0061 // Use block body for local function
+SampleStatistics[] Bk_core(SetType setType, string orderstr, int size, int[] funcIndices, int timed_samples) => setType switch
 {
     SetType.HashSet => BronKerboschTimed<HashSet<Vertex>, HashSetMgr>(orderstr, size, funcIndices, timed_samples),
     SetType.SortedSet => BronKerboschTimed<SortedSet<Vertex>, SortedSetMgr>(orderstr, size, funcIndices, timed_samples),
@@ -88,6 +88,7 @@ string SetTypeName(SetType setType) => setType switch
     SetType.SortedSet => SortedSetMgr.Name(),
     _ => throw new ArgumentOutOfRangeException(nameof(setType)),
 };
+#pragma warning restore IDE0061 // Use block body for local function
 
 void Bk(
     string orderstr,
@@ -103,7 +104,7 @@ void Bk(
         foreach (var size in sizes)
         {
             var stats = new Dictionary<SetType, SampleStatistics[]>();
-            foreach (SetType setType in Enum.GetValues(typeof(SetType)))
+            foreach (SetType setType in Enum.GetValues<SetType>())
             {
                 var funcIndices = includedFuncs(setType, size).ToArray();
                 if (funcIndices.Length > 0)

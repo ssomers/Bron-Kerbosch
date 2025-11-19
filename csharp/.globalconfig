@@ -1,0 +1,3 @@
+# https://github.com/dotnet/aspnetcore/issues/47912
+is_global = true
+dotnet_diagnostic.EnableGenerateDocumentationFile.severity = none
