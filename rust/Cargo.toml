@@ -13,7 +13,7 @@ debug = true
 bron_kerbosch = { path="bron_kerbosch" }
 stats = { path="stats" }
 anyhow = "1.0.100"
-clap = {version = "4.5.51", features = ["cargo"]}
+clap = {version = "4.5.52", features = ["cargo"]}
 csv = "1.4.0"
 fnv = "1.0.7"
 hashbrown = "0.16.0"
