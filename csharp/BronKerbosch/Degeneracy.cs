@@ -6,7 +6,7 @@ using System.Linq;
 namespace BronKerbosch
 {
     internal static class Degeneracy<VertexSet, VertexSetMgr>
-        where VertexSet : IEnumerable<Vertex>
+        where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
         // Iterate connected vertices, lowest degree first.

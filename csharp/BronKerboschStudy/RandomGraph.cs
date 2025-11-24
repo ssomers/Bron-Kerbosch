@@ -9,7 +9,7 @@ using System.Linq;
 namespace BronKerboschStudy
 {
     public sealed class RandomUndirectedGraph<TVertexSet, TVertexSetMgr>
-        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
         public UndirectedGraph<TVertexSet, TVertexSetMgr> Graph { get; }

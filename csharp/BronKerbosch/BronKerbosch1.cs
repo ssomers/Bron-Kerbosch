@@ -7,20 +7,19 @@ using System.Diagnostics;
 using System.Linq;
 
 internal static class BronKerbosch1<VertexSet, VertexSetMgr>
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
     {
         var candidates = VertexSetMgr.From(graph.ConnectedVertices());
-        var numCandidates = candidates.Count();
-        if (numCandidates > 0)
+        if (candidates.Count > 0)
         {
             Visit(
                 graph,
                 reporter,
                 candidates,
-                VertexSetMgr.EmptyWithCapacity(numCandidates),
+                VertexSetMgr.EmptyWithCapacity(candidates.Count),
                 []);
         }
     }

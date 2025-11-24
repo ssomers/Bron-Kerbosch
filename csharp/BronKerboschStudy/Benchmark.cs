@@ -13,7 +13,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     int size,
     int[] funcIndices,
     int timed_samples)
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     var sw = Stopwatch.StartNew();

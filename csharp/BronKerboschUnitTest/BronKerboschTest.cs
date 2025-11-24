@@ -10,7 +10,7 @@ namespace BronKerboschUnitTest
     public class BronKerboschSortedTest : BronKerboschTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
     public class BronKerboschTestTemplate<TVertexSet, TVertexSetMgr>
-        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
         private static void Bk(int[][] adjacencies, int[][] cliques)

@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 
 internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice pivotChoice)
@@ -20,7 +20,7 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
             var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
-            if (neighbouringExcluded.Count() < neighbours.Count())
+            if (neighbouringExcluded.Count < neighbours.Count)
             {
                 var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                 Pivot<VertexSet, VertexSetMgr>.Visit(graph, reporter, pivotChoice,

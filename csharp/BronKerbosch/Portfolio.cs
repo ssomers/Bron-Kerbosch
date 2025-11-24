@@ -15,7 +15,7 @@ namespace BronKerbosch
         ];
 
         public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, IReporter reporter)
-            where TVertexSet : IEnumerable<Vertex>
+            where TVertexSet : ISet<Vertex>
             where TVertexSetMgr : IVertexSetMgr<TVertexSet>
         {
             switch (funcIndex)

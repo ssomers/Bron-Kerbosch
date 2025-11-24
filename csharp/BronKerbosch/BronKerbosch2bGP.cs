@@ -4,7 +4,7 @@ using BronKerbosch;
 using System.Collections.Generic;
 
 internal static class BronKerbosch2bGP<VertexSet, VertexSetMgr>
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
 #   pragma warning disable IDE0022 // Use expression body for method

@@ -6,7 +6,7 @@ using System.Linq;
 namespace BronKerbosch
 {
     public sealed class UndirectedGraph<TVertexSet, TVertexSetMgr>
-        where TVertexSet : IEnumerable<Vertex>
+        where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
         private readonly ImmutableArray<TVertexSet> itsAdjacencies;
@@ -44,7 +44,7 @@ namespace BronKerbosch
 
         public TVertexSet Neighbours(Vertex node) => itsAdjacencies[node.Index()];
 
-        public int Degree(Vertex node) => itsAdjacencies[node.Index()].Count();
+        public int Degree(Vertex node) => itsAdjacencies[node.Index()].Count;
 
         public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.Nth);
 

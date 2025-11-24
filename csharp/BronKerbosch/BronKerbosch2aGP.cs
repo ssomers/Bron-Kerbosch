@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr>
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)

@@ -14,7 +14,7 @@ namespace BronKerbosch
     }
 
     internal static class Pivot<VertexSet, VertexSetMgr>
-        where VertexSet : IEnumerable<Vertex>
+        where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
         public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice pivotChoice)
@@ -34,7 +34,7 @@ namespace BronKerbosch
                 if (neighbours.Any() && !neighbours.Contains(pivot))
                 {
                     var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
-                    if (neighbouringExcluded.Count() < neighbours.Count())
+                    if (neighbouringExcluded.Count < neighbours.Count)
                     {
                         var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                         Visit(graph, reporter, pivotChoice,
@@ -54,9 +54,8 @@ namespace BronKerbosch
             Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
             Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
             Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
-            var numCandidates = candidates.Count();
-            Debug.Assert(numCandidates >= 1);
-            if (numCandidates == 1)
+            Debug.Assert(candidates.Count >= 1);
+            if (candidates.Count == 1)
             {
                 // Same logic as below, stripped down
                 var v = candidates.First();
@@ -69,7 +68,7 @@ namespace BronKerbosch
             }
 
             Vertex pivot;
-            var remainingCandidates = new Vertex[numCandidates];
+            var remainingCandidates = new Vertex[candidates.Count];
             var remainingCandidateCount = 0;
             // Quickly handle locally unconnected candidates while finding pivot
             const int INVALID = int.MaxValue;

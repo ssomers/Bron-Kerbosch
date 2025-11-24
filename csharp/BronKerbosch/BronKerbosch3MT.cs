@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
-    where VertexSet : IEnumerable<Vertex>
+    where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
     internal sealed class NestedReporter(ITargetBlock<ImmutableArray<Vertex>>? target) : IReporter
