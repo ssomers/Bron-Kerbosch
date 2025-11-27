@@ -44,11 +44,13 @@ namespace BronKerbosch
 
         public TVertexSet Neighbours(Vertex node) => itsAdjacencies[node.Index()];
 
+        public bool HasNeighbours(Vertex node) => itsAdjacencies[node.Index()].Count > 0;
+
         public int Degree(Vertex node) => itsAdjacencies[node.Index()].Count;
 
         public IEnumerable<Vertex> Vertices() => Enumerable.Range(0, Order).Select(Vertex.Nth);
 
-        public IEnumerable<Vertex> ConnectedVertices() => Vertices().Where(v => Degree(v) > 0);
+        public IEnumerable<Vertex> ConnectedVertices() => Vertices().Where(HasNeighbours);
 
         public Vertex MaxDegreeVertex() => Vertices().MaxBy(Degree);
     }

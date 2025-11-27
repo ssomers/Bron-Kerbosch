@@ -28,13 +28,13 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
     private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter,
         VertexSet candidates, VertexSet excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
-        Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
-        Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
+        Debug.Assert(candidates.All(graph.HasNeighbours));
+        Debug.Assert(excluded.All(graph.HasNeighbours));
         Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
         Debug.Assert(candidates.Any());
         while (candidates.Any())
         {
-            var v = VertexSetMgr.PopArbitrary(candidates);
+            var v = candidates.PopArbitrary();
             var neighbours = graph.Neighbours(v);
             var neighbouringCandidates = VertexSetMgr.Intersection(candidates, neighbours);
             if (neighbouringCandidates.Any())

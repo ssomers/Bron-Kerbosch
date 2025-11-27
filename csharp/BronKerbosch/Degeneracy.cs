@@ -24,9 +24,8 @@ namespace BronKerbosch
                 var degree = graph.Degree(c);
                 if (degree > 0)
                 {
-                    var priority = degree;
-                    maxPriority = Math.Max(maxPriority, priority);
                     priorityPerVertex[i] = degree;
+                    maxPriority = Math.Max(maxPriority, degree);
                     numLeftToPick += 1;
                 }
             }

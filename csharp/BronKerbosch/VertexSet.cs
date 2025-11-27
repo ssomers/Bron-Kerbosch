@@ -5,19 +5,34 @@ using System.Linq;
 
 namespace BronKerbosch
 {
-    public interface IVertexSetMgr<TSet>
+    public static class VertexSetExtensions
+    {
+        public static Vertex PopArbitrary<TVertexSet>(this TVertexSet set) where TVertexSet : ISet<Vertex>
+        {
+            using var en = set.GetEnumerator();
+            bool ok = en.MoveNext();
+            if (!ok)
+                throw new ArgumentException("Attempt to pop from empty set");
+            Vertex result = en.Current;
+            ok = set.Remove(result);
+            if (!ok)
+                throw new ArgumentException("Attempt to pop from invalid set");
+            return result;
+        }
+    }
+
+    public interface IVertexSetMgr<TVertexSet> where TVertexSet : ISet<Vertex>
     {
         static abstract string Name();
-        static abstract TSet Empty();
-        static abstract TSet EmptyWithCapacity(int capacity);
-        static abstract TSet From(IEnumerable<Vertex> vertices);
-        static abstract bool Add(TSet s, Vertex v);
-        static abstract bool Remove(TSet s, Vertex v);
-        static abstract Vertex PopArbitrary(TSet s);
-        static abstract TSet Difference(TSet s1, TSet s2);
-        static abstract TSet Intersection(TSet s1, TSet s2);
-        static abstract int IntersectionSize(TSet s1, TSet s2);
-        static abstract bool Overlaps(TSet s1, TSet s2);
+        static abstract TVertexSet Empty();
+        static abstract TVertexSet EmptyWithCapacity(int capacity);
+        static abstract TVertexSet From(IEnumerable<Vertex> vertices);
+        static abstract bool Add(TVertexSet s, Vertex v);
+        static abstract bool Remove(TVertexSet s, Vertex v);
+        static abstract TVertexSet Difference(TVertexSet s1, TVertexSet s2);
+        static abstract TVertexSet Intersection(TVertexSet s1, TVertexSet s2);
+        static abstract int IntersectionSize(TVertexSet s1, TVertexSet s2);
+        static abstract bool Overlaps(TVertexSet s1, TVertexSet s2);
     }
 
     public record struct HashSetMgr : IVertexSetMgr<HashSet<Vertex>>
@@ -29,20 +44,10 @@ namespace BronKerbosch
         public static bool Add(HashSet<Vertex> s, Vertex v) => s.Add(v);
         public static bool Remove(HashSet<Vertex> s, Vertex v) => s.Remove(v);
 
-        public static Vertex PopArbitrary(HashSet<Vertex> s)
-        {
-            using var en = s.GetEnumerator();
-            var ok = en.MoveNext();
-            Debug.Assert(ok);
-            ok = s.Remove(en.Current);
-            Debug.Assert(ok);
-            return en.Current;
-        }
-
         public static HashSet<Vertex> Difference(HashSet<Vertex> s1, HashSet<Vertex> s2)
         {
-            var result = new HashSet<Vertex>(capacity: s1.Count);
-            foreach (var v in s1)
+            HashSet<Vertex> result = new(capacity: s1.Count);
+            foreach (Vertex v in s1)
             {
                 if (!s2.Contains(v))
                 {
@@ -51,17 +56,15 @@ namespace BronKerbosch
                 }
             }
             return result;
-            // much slower: s1.Except(s2).ToHashSet();
+            // much slower: [.. s1.Except(s2)]
         }
 
         public static HashSet<Vertex> Intersection(HashSet<Vertex> s1, HashSet<Vertex> s2)
         {
             if (s1.Count > s2.Count)
-            {
-                return Intersection(s2, s1);
-            }
+                (s1, s2) = (s2, s1);
 
-            var result = new HashSet<Vertex>(capacity: Math.Min(s1.Count, s2.Count));
+            HashSet<Vertex> result = new(capacity: s1.Count);
             foreach (var v in s1)
             {
                 if (s2.Contains(v))
@@ -71,8 +74,8 @@ namespace BronKerbosch
                 }
             }
             return result;
-            // much slower: return s2.Intersect(s1).ToHashSet();
-            // even slower: return s1.Intersect(s2).ToHashSet();
+            // much slower: [.. s2.Intersect(s1)]
+            // even slower: [.. s1.Intersect(s2)]
         }
 
         public static int IntersectionSize(HashSet<Vertex> s1, HashSet<Vertex> s2)
@@ -81,9 +84,9 @@ namespace BronKerbosch
                 return s2.Count(s1.Contains);
             else
                 return s1.Count(s2.Contains);
-            // wee bit slower: return s1.Where(v => s2.Contains(v)).Cardinality();
-            // much slower: return s2.Intersect(s1).Cardinality();
-            // even slower: return s1.Intersect(s2).Cardinality();
+            // wee bit slower: s1.Where(v => s2.Contains(v)).Count()
+            // much slower (Ver2-GP in particular): s2.Intersect(s1).Count()
+            // even slower: s1.Intersect(s2).Count()
         }
 
         public static bool Overlaps(HashSet<Vertex> s1, HashSet<Vertex> s2)
@@ -104,20 +107,10 @@ namespace BronKerbosch
         public static bool Add(SortedSet<Vertex> s, Vertex v) => s.Add(v);
         public static bool Remove(SortedSet<Vertex> s, Vertex v) => s.Remove(v);
 
-        public static Vertex PopArbitrary(SortedSet<Vertex> s)
-        {
-            using var en = s.GetEnumerator();
-            var ok = en.MoveNext();
-            Debug.Assert(ok);
-            ok = s.Remove(en.Current);
-            Debug.Assert(ok);
-            return en.Current;
-        }
-
         public static SortedSet<Vertex> Difference(SortedSet<Vertex> s1, SortedSet<Vertex> s2)
         {
-            var result = new SortedSet<Vertex>();
-            foreach (var v in s1)
+            SortedSet<Vertex> result = [];
+            foreach (Vertex v in s1)
             {
                 if (!s2.Contains(v))
                 {
@@ -131,12 +124,10 @@ namespace BronKerbosch
         public static SortedSet<Vertex> Intersection(SortedSet<Vertex> s1, SortedSet<Vertex> s2)
         {
             if (s1.Count > s2.Count)
-            {
-                return Intersection(s2, s1);
-            }
+                (s1, s2) = (s2, s1);
 
-            var result = new SortedSet<Vertex>();
-            foreach (var v in s1)
+            SortedSet<Vertex> result = [];
+            foreach (Vertex v in s1)
             {
                 if (s2.Contains(v))
                 {
@@ -145,6 +136,8 @@ namespace BronKerbosch
                 }
             }
             return result;
+            // much slower: [.. s2.Intersect(s1)]
+            // even slower: [.. s1.Intersect(s2)]
         }
 
         public static int IntersectionSize(SortedSet<Vertex> s1, SortedSet<Vertex> s2)

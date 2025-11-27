@@ -11,7 +11,7 @@ namespace BronKerboschUnitTest
         public void PopArbitrary1()
         {
             HashSet<Vertex> one = [Vertex.Nth(1)];
-            var x = HashSetMgr.PopArbitrary(one).Index();
+            var x = one.PopArbitrary().Index();
             Assert.That(x, Is.EqualTo(1));
             Assert.That(one, Is.Empty);
         }
@@ -20,8 +20,8 @@ namespace BronKerboschUnitTest
         public void PopArbitrary2()
         {
             HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
-            var x = HashSetMgr.PopArbitrary(two).Index();
-            var y = HashSetMgr.PopArbitrary(two).Index();
+            var x = two.PopArbitrary().Index();
+            var y = two.PopArbitrary().Index();
             Assert.That(Math.Min(x, y), Is.EqualTo(1));
             Assert.That(Math.Max(x, y), Is.EqualTo(2));
             Assert.That(two, Is.Empty);

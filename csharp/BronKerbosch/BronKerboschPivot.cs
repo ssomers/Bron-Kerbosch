@@ -51,8 +51,8 @@ namespace BronKerbosch
                                  VertexSet candidates, VertexSet excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
-            Debug.Assert(candidates.All(v => graph.Degree(v) > 0));
-            Debug.Assert(excluded.All(v => graph.Degree(v) > 0));
+            Debug.Assert(candidates.All(graph.HasNeighbours));
+            Debug.Assert(excluded.All(graph.HasNeighbours));
             Debug.Assert(!VertexSetMgr.Overlaps(candidates, excluded));
             Debug.Assert(candidates.Count >= 1);
             if (candidates.Count == 1)
