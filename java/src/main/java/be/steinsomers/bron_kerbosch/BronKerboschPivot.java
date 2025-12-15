@@ -58,7 +58,7 @@ final class BronKerboschPivot {
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
             var remainingCandidates = new ArrayList<>(mut_candidates);
-            int pivot = remainingCandidates.get(0);
+            int pivot = remainingCandidates.getFirst();
             visitAroundPivot(graph, cliqueConsumer, mut_candidates, mut_excluded, cliqueInProgress,
                     PivotChoice.Arbitrary, pivot, remainingCandidates);
         } else {

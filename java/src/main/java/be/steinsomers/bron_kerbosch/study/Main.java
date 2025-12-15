@@ -160,9 +160,9 @@ final class Main {
         bk(true, "10k", 10_000, sizes10K, 3, mostFuncIndices);
         bk(true, "1M", 1_000_000, sizes1M, 3, new int[]{2, 5, 7, 8});
         /*
-        int[] sizesT = {500_000};
+        int[] sizes = {500_000};
         int[] funcIndices = {8};
-        bk("tt", 1_000_000, sizesT, 3, funcIndices);
+        bk("tt", 1_000_000, sizes, 3, funcIndices);
         */
     }
 }
