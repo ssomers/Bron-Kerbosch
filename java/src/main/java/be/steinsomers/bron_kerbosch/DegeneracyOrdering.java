@@ -84,21 +84,16 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
 
     private static final class SimplePriorityQueue<T> {
         private final List<ArrayList<T>> stack_per_priority;
-        private final int sizeHint;
 
         SimplePriorityQueue(int maxPriority, int sizeHint) {
             stack_per_priority = Stream
-                    .generate((Supplier<ArrayList<T>>) ArrayList::new)
+                    .generate((Supplier<ArrayList<T>>) () -> new ArrayList<>(sizeHint))
                     .limit(maxPriority)
                     .collect(Collectors.toCollection(ArrayList::new));
-            this.sizeHint = sizeHint;
         }
 
         void put(int priority, T elt) {
             var stack = stack_per_priority.get(priority - 1);
-            if (stack == null) {
-                stack = new ArrayList<>(sizeHint);
-            }
             stack.add(elt);
         }
 
