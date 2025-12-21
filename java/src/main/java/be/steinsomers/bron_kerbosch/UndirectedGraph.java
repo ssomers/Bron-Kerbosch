@@ -9,12 +9,9 @@ import java.util.stream.Stream;
 
 public record UndirectedGraph(List<Set<Integer>> adjacencies) {
     public UndirectedGraph {
-        for (int v = 0; v < adjacencies.size(); ++v) {
-            for (int w : adjacencies.get(v)) {
-                assert v != w;
-                assert adjacencies.get(w).contains(v);
-            }
-        }
+        assert IntStream.range(0, adjacencies.size()).noneMatch(v -> adjacencies.get(v).contains(v));
+        assert IntStream.range(0, adjacencies.size()).allMatch(v -> adjacencies.get(v).stream().allMatch (
+                                                            w -> adjacencies.get(w).contains(v)));
     }
 
     public int order() {
@@ -31,12 +28,14 @@ public record UndirectedGraph(List<Set<Integer>> adjacencies) {
         return adjacencies.get(node).size();
     }
 
+    public boolean hasDegree(int node) { return !adjacencies.get(node).isEmpty(); }
+
     public Set<Integer> neighbours(int node) {
         return Collections.unmodifiableSet(adjacencies.get(node));
     }
 
     public Stream<Integer> connectedVertices() {
-        return IntStream.range(0, order()).filter(v -> degree(v) > 0).boxed();
+        return IntStream.range(0, order()).filter(this::hasDegree).boxed();
     }
 
     public int maxDegreeVertex() {

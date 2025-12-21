@@ -24,8 +24,8 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
     private static void visit(UndirectedGraph graph, Consumer<int[]> cliqueConsumer,
                               Set<Integer> mut_candidates, Set<Integer> mut_excluded,
                               int[] cliqueInProgress) {
-        assert mut_candidates.stream().allMatch(v -> graph.degree(v) > 0);
-        assert mut_excluded.stream().allMatch(v -> graph.degree(v) > 0);
+        assert mut_candidates.stream().allMatch(graph::hasDegree);
+        assert mut_excluded.stream().allMatch(graph::hasDegree);
         assert util.AreDisjoint(mut_candidates, mut_excluded);
         assert !mut_candidates.isEmpty();
         while (!mut_candidates.isEmpty()) {

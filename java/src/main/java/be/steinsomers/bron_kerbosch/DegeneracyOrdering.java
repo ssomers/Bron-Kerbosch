@@ -55,9 +55,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
 
     @Override
     public int nextInt() {
-        assert IntStream.range(0, priority_per_vertex.length)
-                .allMatch(v -> priority_per_vertex[v] == 0
-                        || queue.contains(priority_per_vertex[v], v));
+        assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> queue.ensure(priority_per_vertex[v], v));
         var i = queue.pop();
         while (priority_per_vertex[i] == 0) {
             // v was requeued with a more urgent priority and therefore already picked
@@ -109,8 +107,9 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
             throw new NoSuchElementException("attempt to pop more than was put");
         }
 
-        boolean contains(int priority, T elt) {
-            return stack_per_priority.get(priority - 1).contains(elt);
+        // Inefficiently check that the queue contains the element at the right priority, if any
+        boolean ensure(int priority, T elt) {
+            return priority == 0 || stack_per_priority.get(priority - 1).contains(elt);
         }
     }
 
