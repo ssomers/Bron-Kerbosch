@@ -33,6 +33,9 @@ public final class util {
     }
 
     public static <T> boolean AreDisjoint(Set<T> set1, Set<T> set2) {
-        return Intersect(set1, set2).findFirst().isEmpty();
+        if (set1.size() <= set2.size())
+            return set1.stream().noneMatch(set2::contains);
+        else
+            return set2.stream().noneMatch(set1::contains);
     }
 }
