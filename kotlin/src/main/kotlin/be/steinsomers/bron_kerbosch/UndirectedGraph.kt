@@ -6,8 +6,8 @@ import java.util.stream.Stream
 
 data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
     init {
-        Debug.Assert { adjacencies.indices.none { v -> adjacencies[v].contains(v) } }
-        Debug.Assert { adjacencies.indices.all { v -> adjacencies[v].all { w -> adjacencies[w].contains(v) } } }
+        Debug.assert { adjacencies.indices.none { v -> adjacencies[v].contains(v) } }
+        Debug.assert { adjacencies.indices.all { v -> adjacencies[v].all { w -> adjacencies[w].contains(v) } } }
     }
 
     val order: Int

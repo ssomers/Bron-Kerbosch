@@ -47,7 +47,7 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
     }
 
     override fun nextInt(): Int {
-        Debug.Assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], v) } }
+        Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], v) } }
         var i = queue.pop()
         while (priorityPerVertex[i] == 0) {
             // v was requeued with a more urgent priority and therefore already picked

@@ -141,7 +141,7 @@ internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        assert(false) { "Omit -ea for meaningful measurements" }
+        Debug.assert({ false }, { "Omit -ea for meaningful measurements" })
 
         val allFuncIndices = FUNCS.indices.toList().toIntArray()
         val mostFuncIndices = (1..<FUNCS.size).toList().toIntArray()

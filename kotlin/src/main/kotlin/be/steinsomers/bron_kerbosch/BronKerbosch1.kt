@@ -24,10 +24,10 @@ class BronKerbosch1 : BronKerboschAlgorithm {
             candidates: MutableSet<Int>, excluded: MutableSet<Int>,
             cliqueInProgress: IntArray
         ) {
-            Debug.Assert { candidates.all(graph::hasDegree) }
-            Debug.Assert { excluded.all(graph::hasDegree) }
-            Debug.Assert { Util.areDisjoint(candidates, excluded) }
-            Debug.Assert { !candidates.isEmpty() }
+            Debug.assert { candidates.all(graph::hasDegree) }
+            Debug.assert { excluded.all(graph::hasDegree) }
+            Debug.assert { Util.areDisjoint(candidates, excluded) }
+            Debug.assert { !candidates.isEmpty() }
             while (!candidates.isEmpty()) {
                 val v = Util.popArbitrary(candidates)
                 val neighbours = graph.neighbours(v)

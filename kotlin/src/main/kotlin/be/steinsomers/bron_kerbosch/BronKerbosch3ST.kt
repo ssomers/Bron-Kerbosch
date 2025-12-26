@@ -44,7 +44,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
                 require(!neighbours.isEmpty())
                 val neighbouringCandidates = neighbours subtract excluded
                 if (neighbouringCandidates.isEmpty()) {
-                    Debug.Assert { !Util.areDisjoint(neighbours, excluded) }
+                    Debug.assert { !Util.areDisjoint(neighbours, excluded) }
                 } else {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     job = VisitJob.Work(

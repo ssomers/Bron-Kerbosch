@@ -40,10 +40,10 @@ internal object BronKerboschPivot {
         excluded: MutableSet<Int>,
         cliqueInProgress: IntArray
     ) {
-        Debug.Assert { candidates.all(graph::hasDegree) }
-        Debug.Assert { excluded.all(graph::hasDegree) }
-        Debug.Assert { Util.areDisjoint(candidates, excluded) }
-        Debug.Assert { candidates.isNotEmpty() }
+        Debug.assert { candidates.all(graph::hasDegree) }
+        Debug.assert { excluded.all(graph::hasDegree) }
+        Debug.assert { Util.areDisjoint(candidates, excluded) }
+        Debug.assert { candidates.isNotEmpty() }
         if (candidates.size == 1) {
             // Same logic as below, stripped down for this common case
             val v = candidates.iterator().next()
