@@ -1,0 +1,50 @@
+// Naive Bron-Kerbosch algorithm
+package be.steinsomers.bron_kerbosch
+
+import java.util.function.Consumer
+import java.util.function.Supplier
+import java.util.stream.Collectors
+import java.util.stream.Stream
+
+class BronKerbosch1 : BronKerboschAlgorithm {
+    override fun explore(graph: UndirectedGraph): Stream<IntArray> {
+        val cliqueStream = Stream.builder<IntArray>()
+        val candidates: MutableSet<Int> = graph.connectedVertices()
+            .collect(Collectors.toCollection(Supplier { HashSet() }))
+        if (!candidates.isEmpty()) {
+            val excluded: MutableSet<Int> = HashSet(candidates.size)
+            visit(graph, cliqueStream, candidates, excluded, BronKerboschAlgorithm.EMPTY_CLIQUE)
+        }
+        return cliqueStream.build()
+    }
+
+    companion object {
+        private fun visit(
+            graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>,
+            candidates: MutableSet<Int>, excluded: MutableSet<Int>,
+            cliqueInProgress: IntArray
+        ) {
+            Debug.Assert { candidates.all(graph::hasDegree) }
+            Debug.Assert { excluded.all(graph::hasDegree) }
+            Debug.Assert { Util.areDisjoint(candidates, excluded) }
+            Debug.Assert { !candidates.isEmpty() }
+            while (!candidates.isEmpty()) {
+                val v = Util.popArbitrary(candidates)
+                val neighbours = graph.neighbours(v)
+                val neighbouringCandidates = Util.intersect(candidates, neighbours)
+                if (!neighbouringCandidates.isEmpty()) {
+                    val neighbouringExcluded = Util.intersect(excluded, neighbours)
+                    visit(
+                        graph, cliqueConsumer,
+                        neighbouringCandidates.toMutableSet(),
+                        neighbouringExcluded.toMutableSet(),
+                        Util.append(cliqueInProgress, v)
+                    )
+                } else if (Util.areDisjoint(excluded, neighbours)) {
+                    cliqueConsumer.accept(Util.append(cliqueInProgress, v))
+                }
+                excluded.add(v)
+            }
+        }
+    }
+}
