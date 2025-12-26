@@ -16,10 +16,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             val startVertex: Int,
             val candidates: MutableSet<Int>,
             val excluded: MutableSet<Int>
-        ) : VisitJob() { init {
-            require(startVertex >= 0)
-        }
-        }
+        ) : VisitJob()
     }
 
     private class Worker(private val graph: UndirectedGraph) {
@@ -41,7 +38,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             fun createJob(startVtx: Int): VisitJob? {
                 var job: VisitJob? = null
                 val neighbours = graph.neighbours(startVtx)
-                require(!neighbours.isEmpty())
+                require(neighbours.isNotEmpty())
                 val neighbouringCandidates = neighbours subtract excluded
                 if (neighbouringCandidates.isEmpty()) {
                     Debug.assert { !Util.areDisjoint(neighbours, excluded) }

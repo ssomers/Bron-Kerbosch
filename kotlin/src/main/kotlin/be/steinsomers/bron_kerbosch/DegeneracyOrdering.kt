@@ -1,6 +1,5 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.function.Supplier
 import java.util.PrimitiveIterator
 import java.util.Spliterator
 import java.util.Spliterators
@@ -74,9 +73,9 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
 
     private class SimplePriorityQueue<T>(maxPriority: Int, private val sizeHint: Int) {
         private val stackPerPriority: MutableList<ArrayList<T>> = Stream
-            .generate(Supplier { ArrayList<T>(sizeHint) })
+            .generate { ArrayList<T>(sizeHint) }
             .limit(maxPriority.toLong())
-            .collect(Collectors.toCollection(Supplier { ArrayList() }))
+            .collect(Collectors.toList())
 
         fun put(priority: Int, elt: T) {
             stackPerPriority[priority - 1].add(elt)
@@ -84,7 +83,7 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
 
         fun pop(): T {
             for (stack in stackPerPriority) {
-                if (!stack.isEmpty()) {
+                if (stack.isNotEmpty()) {
                     val last = stack.size - 1
                     val elt = stack[last]
                     stack.removeAt(last)

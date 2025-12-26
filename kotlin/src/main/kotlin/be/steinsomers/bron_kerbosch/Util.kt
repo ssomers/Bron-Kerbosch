@@ -1,11 +1,9 @@
 package be.steinsomers.bron_kerbosch
 
-@OptIn(ExperimentalStdlibApi::class) // doesn't help
 object Util {
+    @OptIn(ExperimentalStdlibApi::class)
     fun append(head: IntArray, tail: Int): IntArray {
-        val result = head.copyOf(newSize = head.size + 1) // TODO: where's that init argument?
-        result[head.size] = tail
-        return result
+        return head.copyOf(newSize = head.size + 1) { tail }
     }
 
     fun <T> popArbitrary(c: MutableCollection<out T>): T {

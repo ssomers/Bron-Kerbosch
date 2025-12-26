@@ -65,7 +65,7 @@ internal object Main {
                     if (firstOrdered.isEmpty) {
                         require(
                             cliques.size == testData.cliqueCount
-                        ) { "Got $cliques.size cliques, expected $testData.cliqueCount" }
+                        ) { "Got ${cliques.size} cliques, expected ${testData.cliqueCount}" }
                         firstOrdered = Optional.of(ordered)
                     } else {
                         require(firstOrdered.get() == ordered) { "Inconsistent results" }
@@ -76,7 +76,7 @@ internal object Main {
                     val elapsed = System.nanoTime() - start
                     require(
                         cliqueCount == testData.cliqueCount.toLong()
-                    ) { "Got $cliqueCount cliques after sample $sample, expected $testData.cliqueCount" }
+                    ) { "Got $cliqueCount cliques after sample $sample, expected ${testData.cliqueCount}" }
                     times[funcIndex].put(elapsed)
                 }
             }

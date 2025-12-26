@@ -21,9 +21,7 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
             require(order > 2)
             require(size >= 0)
             val fullyMeshedSize = (order.toLong()) * (order - 1) / 2
-            require(size <= fullyMeshedSize) {
-                String.format("%d nodes accommodate at most %d edges", order, fullyMeshedSize)
-            }
+            require(size <= fullyMeshedSize) { "$order nodes accommodate at most $fullyMeshedSize edges" }
 
             val edgesPath = Paths.get("..", "data", "random_edges_order_$orderStr.txt")
             val statsPath = Paths.get("..", "data", "random_stats.txt")
@@ -64,7 +62,7 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
 
         @Throws(IOException::class)
         private fun readStats(path: Path, orderStr: String, size: Int): Int {
-            val prefix = String.format("%s\t%d\t", orderStr, size)
+            val prefix = "$orderStr\t$size\t"
             var cliqueCount = 0
             Files.newBufferedReader(path).use { br ->
                 br.forEachLine { line ->
@@ -81,8 +79,8 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
                     }
                 }
             }
-//            if (cliqueCount == 0)
-//                throw IOException("File $path lacks order $orderStr size $size")
+            if (cliqueCount == 0)
+                throw IOException("File $path lacks order $orderStr size $size")
             return cliqueCount
         }
     }

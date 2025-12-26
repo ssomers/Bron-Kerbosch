@@ -7,7 +7,6 @@ import java.util.Arrays
 import java.util.SortedSet
 import java.util.TreeSet
 import java.util.function.IntConsumer
-import java.util.function.Supplier
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import kotlin.math.max
@@ -75,8 +74,7 @@ internal class DegeneracyOrderingTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val connectedVertices: SortedSet<Int> =
-            g.connectedVertices().collect(Collectors.toCollection(Supplier { TreeSet() }))
+        val connectedVertices: SortedSet<Int> = g.connectedVertices().collect(Collectors.toCollection { TreeSet() })
         return sortedDegeneracyOrdering(g, 0) == connectedVertices
     }
 

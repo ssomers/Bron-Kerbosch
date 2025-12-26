@@ -23,9 +23,10 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         object DirtyEnd : StartJob()
         data class Work(
             val startVertex: Int,
-        ) : StartJob() { init {
-            require(startVertex >= 0)
-        }
+        ) : StartJob() {
+            init {
+                require(startVertex >= 0) // as if to enable Kotlin to enumerate the end cases as negatives
+            }
         }
     }
 
@@ -36,9 +37,10 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             val startVertex: Int,
             val candidates: MutableSet<Int>,
             val excluded: MutableSet<Int>
-        ) : VisitJob() { init {
-            require(startVertex >= 0)
-        }
+        ) : VisitJob() {
+            init {
+                require(startVertex >= 0) // as if to enable Kotlin to enumerate the end cases as negatives
+            }
         }
     }
 
@@ -88,7 +90,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                             is StartJob.Work -> {
                                 val v = job.startVertex
                                 val neighbours = graph.neighbours(v)
-                                require(!neighbours.isEmpty())
+                                require(neighbours.isNotEmpty())
                                 val neighbouringCandidates = neighbours subtract excluded
                                 if (neighbouringCandidates.isEmpty()) {
                                     Debug.assert { !Util.areDisjoint(neighbours, excluded) }

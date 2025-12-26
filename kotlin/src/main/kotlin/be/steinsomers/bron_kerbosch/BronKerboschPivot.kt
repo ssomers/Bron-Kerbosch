@@ -92,7 +92,7 @@ internal object BronKerboschPivot {
                 remainingCandidates.add(v)
             }
         }
-        if (pivotChoice == PivotChoice.MaxDegreeLocalX && !remainingCandidates.isEmpty()) {
+        if (pivotChoice == PivotChoice.MaxDegreeLocalX && remainingCandidates.isNotEmpty()) {
             for (v in excluded) {
                 val neighbours = graph.neighbours(v)
                 val localDegree = Util.intersect(neighbours, candidates).size
@@ -119,7 +119,7 @@ internal object BronKerboschPivot {
             if (!neighbours.contains(pivot)) {
                 candidates.remove(v)
                 val neighbouringCandidates = Util.intersect(neighbours, candidates)
-                if (!neighbouringCandidates.isEmpty()) {
+                if (neighbouringCandidates.isNotEmpty()) {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     visit(
                         graph, cliqueConsumer,

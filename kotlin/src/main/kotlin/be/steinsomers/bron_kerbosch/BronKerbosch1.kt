@@ -2,16 +2,14 @@
 package be.steinsomers.bron_kerbosch
 
 import java.util.function.Consumer
-import java.util.function.Supplier
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
 class BronKerbosch1 : BronKerboschAlgorithm {
     override fun explore(graph: UndirectedGraph): Stream<IntArray> {
         val cliqueStream = Stream.builder<IntArray>()
-        val candidates: MutableSet<Int> = graph.connectedVertices()
-            .collect(Collectors.toCollection(Supplier { HashSet() }))
-        if (!candidates.isEmpty()) {
+        val candidates: MutableSet<Int> = graph.connectedVertices().collect(Collectors.toSet())
+        if (candidates.isNotEmpty()) {
             val excluded: MutableSet<Int> = HashSet(candidates.size)
             visit(graph, cliqueStream, candidates, excluded, BronKerboschAlgorithm.EMPTY_CLIQUE)
         }
@@ -27,12 +25,12 @@ class BronKerbosch1 : BronKerboschAlgorithm {
             Debug.assert { candidates.all(graph::hasDegree) }
             Debug.assert { excluded.all(graph::hasDegree) }
             Debug.assert { Util.areDisjoint(candidates, excluded) }
-            Debug.assert { !candidates.isEmpty() }
-            while (!candidates.isEmpty()) {
+            Debug.assert { candidates.isNotEmpty() }
+            while (candidates.isNotEmpty()) {
                 val v = Util.popArbitrary(candidates)
                 val neighbours = graph.neighbours(v)
                 val neighbouringCandidates = Util.intersect(candidates, neighbours)
-                if (!neighbouringCandidates.isEmpty()) {
+                if (neighbouringCandidates.isNotEmpty()) {
                     val neighbouringExcluded = Util.intersect(excluded, neighbours)
                     visit(
                         graph, cliqueConsumer,

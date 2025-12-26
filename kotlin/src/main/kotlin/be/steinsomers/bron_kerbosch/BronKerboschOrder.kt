@@ -12,7 +12,7 @@ internal object BronKerboschOrder {
         val vertices = Iterable { DegeneracyOrdering(graph, -1) }
         for (v in vertices) {
             val neighbours = graph.neighbours(v)
-            require(!neighbours.isEmpty())
+            require(neighbours.isNotEmpty())
             val neighbouringExcluded = Util.intersect(neighbours, excluded)
             if (neighbouringExcluded.size < neighbours.size) {
                 val neighbouringCandidates = neighbours subtract neighbouringExcluded
