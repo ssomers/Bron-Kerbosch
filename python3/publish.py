@@ -18,6 +18,7 @@ class Language(Enum):
     csharp = auto()
     go = auto()
     java = auto()
+    kotlin = auto()
     python = auto()
     python310 = auto()
     python311 = auto()
@@ -30,6 +31,7 @@ class Language(Enum):
             Language.csharp: "C# .NET 9",
             Language.go: "Go 1.25",
             Language.java: "Java 24",
+            Language.kotlin: "Kotlin 2",
             Language.python: "Python",
             Language.python310: "Python 3.10",
             Language.python311: "Python 3.11",
@@ -43,6 +45,7 @@ class Language(Enum):
             Language.csharp: "C#",
             Language.go: "Go",
             Language.java: "Java",
+            Language.kotlin: "Kotlin",
             Language.python: "Python",
             Language.python310: "Python",
             Language.python311: "Python",
@@ -118,6 +121,7 @@ def color_by_language(case: Case) -> str:
         Language.python313: "#000099",
         Language.rust: "#CC0033",
         Language.java: "#009933",
+        Language.kotlin: "#CC9933",
         Language.csharp: "#666600",
         Language.cpp: "#990000",
         Language.go: "#0000CC",
@@ -601,10 +605,11 @@ def publish_reports() -> None:
             orderstr=orderstr,
             langlibs=[
                 LangLib(Language.python313),
-                LangLib(Language.java),
+                LangLib(Language.kotlin),
                 LangLib(Language.go),
-                LangLib(Language.csharp, "HashSet"),
+                LangLib(Language.java),
                 LangLib(Language.cpp, "hashset"),
+                LangLib(Language.csharp, "HashSet"),
                 LangLib(Language.rust, "Hash"),
             ],
             versions=["Ver3½-GP"],
@@ -617,6 +622,7 @@ def publish_reports() -> None:
             orderstr=orderstr,
             langlibs=[
                 LangLib(Language.java),
+                LangLib(Language.kotlin),
                 LangLib(Language.go),
                 LangLib(Language.csharp, "HashSet"),
                 LangLib(Language.cpp, "hashset"),
