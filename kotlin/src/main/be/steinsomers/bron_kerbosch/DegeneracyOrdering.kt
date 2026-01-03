@@ -3,9 +3,7 @@ package be.steinsomers.bron_kerbosch
 import java.util.PrimitiveIterator
 import java.util.Spliterator
 import java.util.Spliterators
-import java.util.stream.Collectors
 import java.util.stream.IntStream
-import java.util.stream.Stream
 import java.util.stream.StreamSupport
 import kotlin.math.max
 
@@ -72,10 +70,7 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
     }
 
     private class SimplePriorityQueue<T>(maxPriority: Int, private val sizeHint: Int) {
-        private val stackPerPriority: MutableList<ArrayList<T>> = Stream
-            .generate { ArrayList<T>(sizeHint) }
-            .limit(maxPriority.toLong())
-            .collect(Collectors.toList())
+        private val stackPerPriority = Array<ArrayList<T>>(size = maxPriority) { _ -> ArrayList(sizeHint) }
 
         fun put(priority: Int, elt: T) {
             stackPerPriority[priority - 1].add(elt)

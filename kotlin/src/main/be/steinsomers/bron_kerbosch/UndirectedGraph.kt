@@ -1,8 +1,5 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.stream.IntStream
-import java.util.stream.Stream
-
 data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
     init {
         Debug.assert { adjacencies.indices.none { v -> adjacencies[v].contains(v) } }
@@ -31,13 +28,11 @@ data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
         return adjacencies[node]
     }
 
-    fun connectedVertices(): Stream<Int> {
-        return IntStream.range(0, order).filter(::hasDegree).boxed()
+    fun connectedVertices(): Sequence<Int> {
+        return (0..<order).filter(this::hasDegree).asSequence()
     }
 
-    fun maxDegreeVertex(): Int {
-        return IntStream.range(0, order).boxed()
-            .max(Comparator.comparingInt(this::degree))
-            .orElseThrow()
+    fun maxDegreeVertex(): Int? {
+        return (0..<order).maxByOrNull(this::degree)
     }
 }

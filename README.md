@@ -12,7 +12,7 @@ It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Br
 * (hopefully) clarified and statically typed
 * extended with variations on the algorithms
 * extended with unit tests, property based testing, and this performance test on random graphs
-* and done over in Rust, Java, Go, C++ and C#, with parallelism added
+* and done over in Rust, Java, Kotlin, Go, C++ and C#, with parallelism added
 
 All charts below show the amount of time spent on the same particular Windows machine with a 6 core CPU,
 all on the same predetermined random graph, with error bars showing the minimum and maximum
@@ -352,7 +352,21 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_java_1M.svg)
 
 Perform:
-  - open folder java with IntelliJ IDEA 2022 (Community Edition)
+  - open folder java with IntelliJ IDEA 2025 (Community Edition)
+  - set run configuration to "Test"
+  - Run > Run 'Test'
+  - set run configuration to "Main"
+  - Run > Run 'Main'
+
+
+## Kotlin
+To obtain these results:
+  - [dense graph of order 100](doc/details_kotlin_100.svg)
+  - [plain graph of order 10k](doc/details_kotlin_10k.svg)
+  - [sparse graph of order 1M](doc/details_kotlin_1M.svg)
+
+Perform:
+  - open folder kotlin with IntelliJ IDEA 2025 (Community Edition)
   - set run configuration to "Test"
   - Run > Run 'Test'
   - set run configuration to "Main"
@@ -367,6 +381,7 @@ Python and Rust publish results to `detail_*` files automatically, the others ne
     python python3\publish.py csharp 100 10k 1M
     python python3\publish.py cpp 100 10k 1M
     python python3\publish.py java 100 10k 1M
+    python python3\publish.py kotlin 100 10k 1M
 
 And finally, generate report images:
 

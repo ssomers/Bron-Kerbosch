@@ -6,15 +6,15 @@ import java.util.stream.Stream
 internal object BronKerboschPivot {
     fun explore(graph: UndirectedGraph, pivotChoice: PivotChoice): Stream<IntArray> {
         val cliqueStream = Stream.builder<IntArray>()
-        if (graph.order > 0) {
-            val pivot = graph.maxDegreeVertex()
+        val pivot = graph.maxDegreeVertex()
+        if (pivot != null) {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             val excluded: MutableSet<Int> = HashSet(graph.order)
             for (v in 0..<graph.order) {
                 val neighbours = graph.neighbours(v)
                 if (!neighbours.contains(pivot)) {
-                    val neighbouringExcluded = neighbours intersect excluded
+                    val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     if (neighbouringExcluded.size < neighbours.size) {
                         val neighbouringCandidates = neighbours subtract neighbouringExcluded
                         visit(

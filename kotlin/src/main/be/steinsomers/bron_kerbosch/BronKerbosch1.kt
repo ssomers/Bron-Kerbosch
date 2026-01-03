@@ -2,13 +2,12 @@
 package be.steinsomers.bron_kerbosch
 
 import java.util.function.Consumer
-import java.util.stream.Collectors
 import java.util.stream.Stream
 
 class BronKerbosch1 : BronKerboschAlgorithm {
     override fun explore(graph: UndirectedGraph): Stream<IntArray> {
         val cliqueStream = Stream.builder<IntArray>()
-        val candidates: MutableSet<Int> = graph.connectedVertices().collect(Collectors.toSet())
+        val candidates: MutableSet<Int> = graph.connectedVertices().toMutableSet()
         if (candidates.isNotEmpty()) {
             val excluded: MutableSet<Int> = HashSet(candidates.size)
             visit(graph, cliqueStream, candidates, excluded, BronKerboschAlgorithm.EMPTY_CLIQUE)
