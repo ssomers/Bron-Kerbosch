@@ -155,7 +155,7 @@ Ways to implement parallelism varies per language:
 * **Ver3½=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
 * **Ver3½=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
 * **Ver3½=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
-* **Ver3½=GPc:** (Go only) using channels and providing 64 goroutines for the nested iterations
+* **Ver3½=GP3:** (Go only) using channels and providing 64 goroutines for the nested iterations
 * **Ver3½=GP4:** (Go only) using channels and providing 256 goroutines for the nested iterations
 
 ### Results
