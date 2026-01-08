@@ -12,76 +12,75 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 record GraphTestData(UndirectedGraph graph, int cliqueCount) {
-    private static List<Set<Integer>> new_sets(int n) {
+    private static List<Set<Integer>> new_sets(final int n) {
         return Stream
                 .generate(() -> (Set<Integer>) new HashSet<Integer>(16))
                 .limit(n)
                 .toList();
     }
 
-    static GraphTestData readUndirected(String orderStr, int order, int size) throws IOException {
+    static GraphTestData readUndirected(final String orderStr, final int order, final int size) throws IOException {
         assert order > 2;
         assert size >= 0;
-        var fullyMeshedSize = ((long) order) * (order - 1) / 2;
+        final var fullyMeshedSize = ((long) order) * (order - 1) / 2;
         if (size > fullyMeshedSize) {
-            throw new IllegalArgumentException(String.format(
-                    "%d nodes accommodate at most %d edges", order, fullyMeshedSize));
+            throw new IllegalArgumentException(
+                    "%d nodes accommodate at most %d edges".formatted(order, fullyMeshedSize));
         }
 
-        var edgesPath = Paths.get("..", "data", "random_edges_order_" + orderStr + ".txt");
-        var statsPath = Paths.get("..", "data", "random_stats.txt");
-        var adjacencies = readEdges(edgesPath, order, size);
-        var cliqueCount = readStats(statsPath, orderStr, size);
+        final var edgesPath = Paths.get("..", "data", "random_edges_order_" + orderStr + ".txt");
+        final var statsPath = Paths.get("..", "data", "random_stats.txt");
+        final var adjacencies = readEdges(edgesPath, order, size);
+        final var cliqueCount = readStats(statsPath, orderStr, size);
 
-        var g = new UndirectedGraph(adjacencies);
+        final var g = new UndirectedGraph(adjacencies);
         if (g.order() != order) throw new AssertionError("order mishap");
         if (g.size() != size) throw new AssertionError("size mishap");
         return new GraphTestData(g, cliqueCount);
     }
 
-    private static List<Set<Integer>> readEdges(Path path, int order, int size) throws IOException {
-        var adjacencies = new_sets(order);
-        try (var br = Files.newBufferedReader(path)) {
-            String line;
-            int lineNum = 0;
-            while (lineNum < size && (line = br.readLine()) != null) {
-                ++lineNum;
-                var fields = line.split(" ", 2);
-                int v;
-                int w;
+    private static List<Set<Integer>> readEdges(final Path path, final int order, final int size) throws IOException {
+        final var adjacencies = new_sets(order);
+        try (final var br = Files.newBufferedReader(path)) {
+            for (int lineNum = 0; lineNum < size; ++lineNum) {
+                final var line = br.readLine();
+                if (line == null) {
+                    throw new IOException("File %s has only %d of the requested %d lines"
+                            .formatted(path, lineNum, size));
+                }
+                final var fields = line.split(" ", 2);
+                final int v;
+                final int w;
                 //noinspection ProhibitedExceptionCaught
                 try {
                     v = Integer.parseInt(fields[0]);
                     w = Integer.parseInt(fields[1]);
-                } catch (NumberFormatException | ArrayIndexOutOfBoundsException err) {
+                } catch (final NumberFormatException | ArrayIndexOutOfBoundsException err) {
                     //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-                    throw new IOException("File " + path + " contains bogus text " + line);
+                    throw new IOException("File %s contains bogus text %s".formatted(path, line));
                 }
                 adjacencies.get(v).add(w);
                 adjacencies.get(w).add(v);
-            }
-            if (lineNum < size) {
-                throw new IOException("Exhausted list of " + lineNum + " edges in " + path);
             }
         }
         return adjacencies;
     }
 
-    private static int readStats(Path path, String orderStr, int size) throws IOException {
-        var prefix = String.format("%s\t%d\t", orderStr, size);
-        try (var br = Files.newBufferedReader(path)) {
+    private static int readStats(final Path path, final String orderStr, final int size) throws IOException {
+        final var prefix = String.format("%s\t%d\t", orderStr, size);
+        try (final var br = Files.newBufferedReader(path)) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(prefix)) {
                     try {
                         return Integer.parseInt(line.substring(prefix.length()));
-                    } catch (NumberFormatException err) {
+                    } catch (final NumberFormatException err) {
                         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-                        throw new IOException("File " + path + " has bogus line “" + line + "”");
+                        throw new IOException("File %s contains bogus line %s".formatted(path, line));
                     }
                 }
             }
-            throw new IOException("File " + path + " lacks order " + orderStr + " size " + size);
+            throw new IOException("File %s lacks order %s size %d".formatted(path, orderStr, size));
         }
     }
 }

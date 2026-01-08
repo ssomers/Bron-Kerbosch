@@ -19,18 +19,18 @@ public record UndirectedGraph(List<Set<Integer>> adjacencies) {
     }
 
     public int size() {
-        int total = adjacencies.stream().mapToInt(Set::size).sum();
+        final int total = adjacencies.stream().mapToInt(Set::size).sum();
         assert total % 2 == 0;
         return total / 2;
     }
 
-    public int degree(int node) {
+    public int degree(final int node) {
         return adjacencies.get(node).size();
     }
 
-    public boolean hasDegree(int node) { return !adjacencies.get(node).isEmpty(); }
+    public boolean hasDegree(final int node) { return !adjacencies.get(node).isEmpty(); }
 
-    public Set<Integer> neighbours(int node) {
+    public Set<Integer> neighbours(final int node) {
         return Collections.unmodifiableSet(adjacencies.get(node));
     }
 

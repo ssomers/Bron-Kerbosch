@@ -1,11 +1,8 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.Collections
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
-import java.util.stream.Stream
-import kotlin.math.floor
-import kotlin.math.sqrt
+import java.util.function.Consumer
 
 class BronKerbosch3MT : BronKerboschAlgorithm {
     companion object {
@@ -13,9 +10,9 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
     }
 
     @Throws(InterruptedException::class)
-    override fun explore(graph: UndirectedGraph): Stream<IntArray> {
-        val worker = Worker(graph)
-        return worker.stream()
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+        val worker = Worker(graph, cliqueConsumer)
+        worker.work()
     }
 
     private sealed class StartJob {
@@ -34,9 +31,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         object CleanEnd : VisitJob()
         object DirtyEnd : VisitJob()
         data class Work(
-            val startVertex: Int,
-            val candidates: MutableSet<Int>,
-            val excluded: MutableSet<Int>
+            val startVertex: Int, val candidates: MutableSet<Int>, val excluded: MutableSet<Int>
         ) : VisitJob() {
             init {
                 require(startVertex >= 0) // as if to enable Kotlin to enumerate the end cases as negatives
@@ -44,22 +39,14 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
     }
 
-    private class Worker(private val graph: UndirectedGraph) {
-        private val startQueue: BlockingQueue<StartJob>
-        private val visitQueue: BlockingQueue<VisitJob>
-        private val cliques: MutableCollection<IntArray>
-
-        init {
-            val initialCap = floor(sqrt(graph.size().toDouble())).toInt()
-            cliques = Collections.synchronizedCollection(ArrayDeque(initialCap))
-            startQueue = ArrayBlockingQueue(64)
-            visitQueue = ArrayBlockingQueue(64)
-        }
+    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: Consumer<IntArray>) {
+        private val startQueue: BlockingQueue<StartJob> = ArrayBlockingQueue(64)
+        private val visitQueue: BlockingQueue<VisitJob> = ArrayBlockingQueue(64)
 
         private inner class StartProducer : Runnable {
             override fun run() {
                 try {
-                    val vertices = Iterable { DegeneracyOrdering(graph, drop=1) }
+                    val vertices = Iterable { DegeneracyOrdering(graph, drop = 1) }
                     for (v in vertices) {
                         startQueue.put(StartJob.Work(v))
                     }
@@ -91,17 +78,13 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                                 val v = job.startVertex
                                 val neighbours = graph.neighbours(v)
                                 require(neighbours.isNotEmpty())
-                                val neighbouringCandidates = neighbours subtract excluded
+                                val neighbouringCandidates = (neighbours subtract excluded).toMutableSet()
                                 if (neighbouringCandidates.isEmpty()) {
                                     Debug.assert { !Util.areDisjoint(neighbours, excluded) }
                                 } else {
                                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                                     visitQueue.put(
-                                        VisitJob.Work(
-                                            job.startVertex,
-                                            neighbouringCandidates.toMutableSet(),
-                                            neighbouringExcluded.toMutableSet()
-                                        )
+                                        VisitJob.Work(job.startVertex, neighbouringCandidates, neighbouringExcluded)
                                     )
                                 }
                                 excluded.add(v)
@@ -117,32 +100,28 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
 
         private inner class Visitor : Runnable {
             override fun run() {
-                try {
-                    var job: VisitJob
-                    while (true) {
-                        job = visitQueue.take()
-                        when (job) {
-                            is VisitJob.CleanEnd -> return
-                            is VisitJob.DirtyEnd -> return
-                            is VisitJob.Work -> {
-                                BronKerboschPivot.visit(
-                                    graph, { e: IntArray -> cliques.add(e) },
-                                    pivotChoice=PivotChoice.MaxDegreeLocal,
-                                    candidates=job.candidates,
-                                    excluded=job.excluded,
-                                    cliqueInProgress=intArrayOf(job.startVertex)
-                                )
-                            }
+                var job: VisitJob
+                while (true) {
+                    job = visitQueue.take()
+                    when (job) {
+                        is VisitJob.CleanEnd -> return
+                        is VisitJob.DirtyEnd -> return
+                        is VisitJob.Work -> {
+                            BronKerboschPivot.visit(
+                                graph = graph, cliqueConsumer = cliqueConsumer,
+                                pivotChoice = PivotChoice.MaxDegreeLocal,
+                                candidates = job.candidates,
+                                excluded = job.excluded,
+                                cliqueInProgress = intArrayOf(job.startVertex)
+                            )
                         }
                     }
-                } catch (_: InterruptedException) {
-                    cliques.clear()
                 }
             }
         }
 
         @Throws(InterruptedException::class)
-        fun stream(): Stream<IntArray> {
+        fun work() {
             val startProducer = Thread(StartProducer())
             val visitorProducer = Thread(VisitProducer())
             val visitors = Array(NUM_VISITING_THREADS) { Thread(Visitor()) }
@@ -150,7 +129,6 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             visitorProducer.start()
             visitors.forEach { v -> v.start() }
             visitors.forEach { v -> v.join() }
-            return cliques.stream()
         }
     }
 }

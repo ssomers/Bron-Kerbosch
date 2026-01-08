@@ -3,9 +3,7 @@ package be.steinsomers.bron_kerbosch
 import net.jqwik.api.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.util.Arrays
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 import java.util.function.IntConsumer
 import java.util.stream.Stream
 import kotlin.math.max
@@ -13,7 +11,7 @@ import kotlin.math.max
 internal class DegeneracyOrderingTest {
     private fun sortedDegeneracyOrdering(g: UndirectedGraph, drop: Int): SortedSet<Int> {
         val vertices: SortedSet<Int> = TreeSet()
-        DegeneracyOrdering(g, drop=drop).forEachRemaining(IntConsumer { v: Int ->
+        DegeneracyOrdering(g, drop = drop).forEachRemaining(IntConsumer { v: Int ->
             val added = vertices.add(v)
             Assertions.assertTrue(added)
         })
@@ -48,23 +46,23 @@ internal class DegeneracyOrderingTest {
     @Test
     fun empty() {
         val g = UndirectedGraph(listOf())
-        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop=0).isEmpty())
-        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop=1).isEmpty())
+        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop = 0).isEmpty())
+        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop = 1).isEmpty())
     }
 
     @Test
     fun pair() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0)))
-        Assertions.assertEquals(setOf(0, 1), sortedDegeneracyOrdering(g, drop=0))
-        Assertions.assertEquals(1, sortedDegeneracyOrdering(g, drop=1).size)
-        Assertions.assertEquals(0, sortedDegeneracyOrdering(g, drop=2).size)
+        Assertions.assertEquals(setOf(0, 1), sortedDegeneracyOrdering(g, drop = 0))
+        Assertions.assertEquals(1, sortedDegeneracyOrdering(g, drop = 1).size)
+        Assertions.assertEquals(0, sortedDegeneracyOrdering(g, drop = 2).size)
     }
 
     @Test
     fun split() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0, 2), setOf(1)))
-        Assertions.assertNotEquals(1, DegeneracyOrdering(g, drop=0).next())
-        Assertions.assertEquals(setOf(0, 1, 2), sortedDegeneracyOrdering(g, drop=0))
+        Assertions.assertNotEquals(1, DegeneracyOrdering(g, drop = 0).next())
+        Assertions.assertEquals(setOf(0, 1, 2), sortedDegeneracyOrdering(g, drop = 0))
     }
 
     @Property
@@ -73,8 +71,8 @@ internal class DegeneracyOrderingTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val connectedVertices = g.connectedVertices().toSortedSet()
-        return sortedDegeneracyOrdering(g, drop=0) == connectedVertices
+        val connectedVertices: SortedSet<Int> = g.connectedVertices(TreeSet())
+        return sortedDegeneracyOrdering(g, drop = 0) == connectedVertices
     }
 
     @Property
@@ -83,8 +81,8 @@ internal class DegeneracyOrderingTest {
     ): Boolean {
         val adjacencies: List<Set<Int>> = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val ordering = DegeneracyOrdering(g, drop=0).stream().toArray()
-        val ordering1 = DegeneracyOrdering(g, drop=1).stream().toArray()
+        val ordering = DegeneracyOrdering(g, drop = 0).stream().toArray()
+        val ordering1 = DegeneracyOrdering(g, drop = 1).stream().toArray()
         return ordering1.size == max(0, ordering.size - 1)
                 && Arrays.equals(ordering, 0, ordering1.size, ordering1, 0, ordering1.size)
     }
@@ -95,7 +93,7 @@ internal class DegeneracyOrderingTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val ordering = DegeneracyOrdering(g, drop=0)
+        val ordering = DegeneracyOrdering(g, drop = 0)
         val first: Int
         try {
             first = ordering.nextInt()

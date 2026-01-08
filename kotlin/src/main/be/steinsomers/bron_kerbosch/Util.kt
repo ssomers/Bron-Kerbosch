@@ -13,8 +13,12 @@ object Util {
         return arbitrary
     }
 
-    fun <T> intersect(set1: Set<T>, set2: Set<T>): Set<T> {
-        return if (set1.size <= set2.size) set1 intersect set2 else set2 intersect set1
+    fun <T> intersect(set1: Set<T>, set2: Set<T>): MutableSet<T> {
+        return (if (set1.size <= set2.size) set1 intersect set2 else set2 intersect set1).toMutableSet()
+    }
+
+    fun <T> intersectionSize(set1: Set<T>, set2: Set<T>): Int {
+        return if (set1.size <= set2.size) set1.count(set2::contains) else set2.count(set1::contains)
     }
 
     fun <T> areDisjoint(set1: Set<T>, set2: Set<T>): Boolean {

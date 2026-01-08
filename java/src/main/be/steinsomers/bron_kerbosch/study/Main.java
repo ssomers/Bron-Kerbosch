@@ -16,15 +16,13 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("UseOfConcreteClass")
-final class Main {
+enum Main {
+    ;
     static final String[] FUNC_NAMES = {
             "Ver1½",
             "Ver2½",
@@ -48,7 +46,7 @@ final class Main {
             new BronKerbosch3_ST(),
     };
 
-    static List<List<Integer>> OrderCliques(Collection<int[]> cliques) {
+    static List<List<Integer>> OrderCliques(final Collection<int[]> cliques) {
         assert cliques.stream().allMatch(clique -> clique.length > 1);
         return cliques.stream()
                 .map(clique -> Arrays.stream(clique).sorted().boxed().toList())
@@ -57,23 +55,27 @@ final class Main {
                                 .map((int i) -> clique1.get(i) - clique2.get(i))
                                 .filter((int diff) -> diff != 0)
                                 .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException(String.format(
-                                        "got overlapping or equal cliques %s <> %s",
-                                        clique1, clique2))))
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "got overlapping or equal cliques %s <> %s".formatted(clique1, clique2)
+                                )))
                 .toList();
     }
 
-    private static SampleStatistics[] bron_kerbosch_timed(GraphTestData testData,
-                                                          int timedSamples, int[] funcIndices)
+    private static SampleStatistics[] bron_kerbosch_timed(final GraphTestData testData,
+                                                          final int timedSamples, final int[] funcIndices)
             throws InterruptedException {
         Optional<List<List<Integer>>> firstOrdered = Optional.empty();
-        var times = new SampleStatistics[FUNCS.length];
+        final var graph = testData.graph();
+        final var times = new SampleStatistics[FUNCS.length];
         IntStream.range(0, FUNCS.length).forEach(i -> times[i] = new SampleStatistics());
         for (int sample = 0; sample <= timedSamples; ++sample) {
-            for (int funcIndex : funcIndices) {
+            for (final int funcIndex : funcIndices) {
                 if (sample == 0) {
-                    var cliques = FUNCS[funcIndex].explore(testData.graph()).toList();
-                    var ordered = OrderCliques(cliques);
+                    @SuppressWarnings({"LawOfDemeter", "NumericCastThatLosesPrecision"})
+                    final var initialCap = (int) Math.ceil(Math.sqrt(graph.size()));
+                    final var cliques = Collections.synchronizedCollection(new ArrayDeque<int[]>(initialCap));
+                    FUNCS[funcIndex].explore(graph, cliques::add);
+                    final var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
                         if (cliques.size() != testData.cliqueCount()) {
                             throw new AssertionError("Inconsistent results");
@@ -85,9 +87,11 @@ final class Main {
                         }
                     }
                 } else {
-                    var start = System.nanoTime();
-                    var cliqueCount = FUNCS[funcIndex].explore(testData.graph()).count();
-                    var elapsed = System.nanoTime() - start;
+                    final var start = System.nanoTime();
+                    final var cliqueCounter = new AtomicInteger();
+                    FUNCS[funcIndex].explore(graph, (int[] _) -> cliqueCounter.incrementAndGet());
+                    final var elapsed = System.nanoTime() - start;
+                    final var cliqueCount = cliqueCounter.get();
                     if (cliqueCount != testData.cliqueCount()) {
                         throw new AssertionError("Inconsistent results");
                     }
@@ -98,39 +102,39 @@ final class Main {
         return times;
     }
 
-    private static void bk(boolean genuine,
-                           String orderStr,
-                           int order,
-                           int[] sizes,
-                           int timedSamples,
-                           int[] funcIndices) {
-        var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
-        var path = Paths.get("..", name + ".csv");
-        try (Writer fo = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+    private static void bk(final boolean genuine,
+                           final String orderStr,
+                           final int order,
+                           final int[] sizes,
+                           final int timedSamples,
+                           final int[] funcIndices) {
+        final var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
+        final var path = Paths.get("..", name + ".csv");
+        try (final Writer fo = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fo.write("Size");
-            for (var funcIndex : funcIndices) {
-                var fn = FUNC_NAMES[funcIndex];
+            for (final var funcIndex : funcIndices) {
+                final var fn = FUNC_NAMES[funcIndex];
                 fo.write(String.format(Locale.US, ",%s min,%s mean,%s max", fn, fn, fn));
             }
             fo.write(System.lineSeparator());
 
-            for (var size : sizes) {
-                var start = System.nanoTime();
-                var testData = GraphTestData.readUndirected(orderStr, order, size);
-                var elapsed = System.nanoTime() - start;
+            for (final var size : sizes) {
+                final var start = System.nanoTime();
+                final var testData = GraphTestData.readUndirected(orderStr, order, size);
+                final var elapsed = System.nanoTime() - start;
                 if (genuine) {
                     System.out.printf("%4s nodes, %7d edges, creation: %6.3f%n",
                             orderStr, size, elapsed / 1e9);
                 }
-                var times = bron_kerbosch_timed(testData, timedSamples, funcIndices);
+                final var times = bron_kerbosch_timed(testData, timedSamples, funcIndices);
 
                 fo.write(String.format(Locale.US, "%d", size));
-                for (var funcIndex : funcIndices) {
-                    var funcName = FUNC_NAMES[funcIndex];
-                    double max = times[funcIndex].max() / 1e9;
-                    double min = times[funcIndex].min() / 1e9;
-                    double mean = times[funcIndex].mean() / 1e9;
-                    double dev = times[funcIndex].deviation() / 1e9;
+                for (final var funcIndex : funcIndices) {
+                    final var funcName = FUNC_NAMES[funcIndex];
+                    final double max = times[funcIndex].max() / 1e9;
+                    final double min = times[funcIndex].min() / 1e9;
+                    final double mean = times[funcIndex].mean() / 1e9;
+                    final double dev = times[funcIndex].deviation() / 1e9;
                     fo.write(String.format(Locale.US, ",%f,%f,%f", min, mean, max));
                     if (genuine) {
                         System.out.printf("%4s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
@@ -139,23 +143,23 @@ final class Main {
                 }
                 fo.write(System.lineSeparator());
             }
-        } catch (InterruptedException x) {
+        } catch (final InterruptedException x) {
             System.err.format("InterruptedException: %s%n", x);
-        } catch (IOException x) {
+        } catch (final IOException x) {
             System.err.format("IOException: %s%n", x);
         }
     }
 
     @SuppressWarnings("CommentedOutCode")
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(final String[] args) throws InterruptedException {
         assert false : "Omit -ea for meaningful measurements";
 
-        int[] allFuncIndices = IntStream.range(0, FUNCS.length).toArray();
-        int[] mostFuncIndices = IntStream.range(1, FUNCS.length).toArray();
-        int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
-        int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000,
+        final int[] allFuncIndices = IntStream.range(0, FUNCS.length).toArray();
+        final int[] mostFuncIndices = IntStream.range(1, FUNCS.length).toArray();
+        final int[] sizes100 = IntStream.iterate(2_000, s -> s <= 3_000, s -> s + 50).toArray();
+        final int[] sizes10K = IntStream.iterate(10_000, s -> s <= 200_000,
                 s -> s + (s < 100_000 ? 10_000 : 25_000)).toArray();
-        int[] sizes1M = IntStream.iterate(500_000, s -> s <= 4_000_000,
+        final int[] sizes1M = IntStream.iterate(500_000, s -> s <= 5_000_000,
                 s -> s + (s < 2_000_000 ? 250_000 : 1_000_000)).toArray();
 
         bk(false, "100", 100, new int[]{2000}, 3, allFuncIndices); // warm up

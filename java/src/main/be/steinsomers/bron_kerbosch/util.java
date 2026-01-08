@@ -7,32 +7,34 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @SuppressWarnings("TypeMayBeWeakened")
-public final class util {
-    public static int[] Append(int[] head, int tail) {
-        var result = Arrays.copyOf(head, head.length + 1);
+public enum util {
+    ;
+
+    public static int[] Append(final int[] head, final int tail) {
+        final var result = Arrays.copyOf(head, head.length + 1);
         result[head.length] = tail;
         return result;
     }
 
-    public static <T> T PopArbitrary(Collection<? extends T> c) {
-        Iterator<? extends T> it = c.iterator();
-        T arbitrary = it.next();
+    public static <T> T PopArbitrary(final Collection<? extends T> c) {
+        final Iterator<? extends T> it = c.iterator();
+        final T arbitrary = it.next();
         it.remove();
         return arbitrary;
     }
 
-    public static <T> Stream<T> Difference(Set<T> set1, Set<T> set2) {
+    public static <T> Stream<T> Difference(final Set<T> set1, final Set<T> set2) {
         return set1.stream().filter(v -> !set2.contains(v));
     }
 
-    public static <T> Stream<T> Intersect(Set<T> set1, Set<T> set2) {
+    public static <T> Stream<T> Intersect(final Set<T> set1, final Set<T> set2) {
         if (set1.size() <= set2.size())
             return set1.stream().filter(set2::contains);
         else
             return set2.stream().filter(set1::contains);
     }
 
-    public static <T> boolean AreDisjoint(Set<T> set1, Set<T> set2) {
+    public static <T> boolean AreDisjoint(final Set<T> set1, final Set<T> set2) {
         if (set1.size() <= set2.size())
             return set1.stream().noneMatch(set2::contains);
         else

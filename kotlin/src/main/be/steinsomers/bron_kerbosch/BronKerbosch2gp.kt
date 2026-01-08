@@ -1,9 +1,7 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.stream.Stream
-
 class BronKerbosch2gp : BronKerboschAlgorithm {
-    override fun explore(graph: UndirectedGraph): Stream<IntArray> {
-        return BronKerboschPivot.explore(graph, PivotChoice.MaxDegreeLocal)
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+        BronKerboschPivot.explore(graph, cliqueConsumer, PivotChoice.MaxDegreeLocal)
     }
 }

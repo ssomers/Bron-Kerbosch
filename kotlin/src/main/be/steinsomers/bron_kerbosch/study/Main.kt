@@ -5,11 +5,14 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Arrays
-import java.util.Locale
-import java.util.Optional
+import java.util.*
 import java.util.stream.IntStream
+import kotlin.collections.ArrayDeque
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.math.ceil
 import kotlin.math.min
+import kotlin.math.sqrt
 
 internal object Main {
     val FUNC_NAMES: Array<String> = arrayOf(
@@ -49,6 +52,7 @@ internal object Main {
             .toList()
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     @Throws(InterruptedException::class)
     private fun bkTimed(
         testData: GraphTestData,
@@ -60,7 +64,9 @@ internal object Main {
         for (sample in 0..timedSamples) {
             for (funcIndex in funcIndices) {
                 if (sample == 0) {
-                    val cliques = FUNCS[funcIndex].explore(testData.graph).toList()
+                    val initialCap = ceil(sqrt(testData.graph.size().toDouble())).toInt()
+                    val cliques = Collections.synchronizedCollection(ArrayDeque<IntArray>(initialCap))
+                    FUNCS[funcIndex].explore(testData.graph, cliques::add)
                     val ordered = orderCliques(cliques)
                     if (firstOrdered.isEmpty) {
                         require(
@@ -72,10 +78,12 @@ internal object Main {
                     }
                 } else {
                     val start = System.nanoTime()
-                    val cliqueCount = FUNCS[funcIndex].explore(testData.graph).count()
+                    val cliqueCounter = AtomicInt(0)
+                    FUNCS[funcIndex].explore(testData.graph) { _ -> cliqueCounter.addAndFetch(1) }
                     val elapsed = System.nanoTime() - start
+                    val cliqueCount = cliqueCounter.load()
                     require(
-                        cliqueCount == testData.cliqueCount.toLong()
+                        cliqueCount == testData.cliqueCount
                     ) { "Got $cliqueCount cliques after sample $sample, expected ${testData.cliqueCount}" }
                     times[funcIndex].put(elapsed)
                 }
@@ -140,7 +148,7 @@ internal object Main {
     }
 
     @JvmStatic
-    fun main(args: Array<String>) {
+    fun main(@Suppress("unused", "RedundantSuppression") args: Array<String>) {
         Debug.assert({ false }, { "Omit -ea for meaningful measurements" })
 
         val allFuncIndices = FUNCS.indices.toList().toIntArray()
@@ -150,16 +158,16 @@ internal object Main {
             10_000, { s -> s <= 200_000 },
             { s -> s + (if (s < 100_000) 10_000 else 25_000) }).toArray()
         val sizes1M = IntStream.iterate(
-            500_000, { s -> s <= 3_000_000 },
+            500_000, { s -> s <= 5_000_000 },
             { s -> s + (if (s < 2_000_000) 250_000 else 1_000_000) }).toArray()
 
         // First warm up.
         bk(false, "100", order = 100, sizes = intArrayOf(2_000), samples = 3, funcIndices = allFuncIndices)
         Thread.sleep(3210) // give IntelliJ launcher some time to cool down
-/*
-        bk(true, "10k", order = 10_000, sizes = intArrayOf(200_000), samples = 5, funcIndices = intArrayOf(7))
-        return
- */
+        /*
+                bk(true, "10k", order = 10_000, sizes = intArrayOf(200_000), samples = 5, funcIndices = intArrayOf(7))
+                return
+         */
         bk(true, "100", order = 100, sizes = sizes100, samples = 5, funcIndices = allFuncIndices)
         bk(true, "10k", order = 10_000, sizes = sizes10K, samples = 3, funcIndices = mostFuncIndices)
         bk(true, "1M", order = 1_000_000, sizes = sizes1M, samples = 3, funcIndices = intArrayOf(2, 5, 7, 8))

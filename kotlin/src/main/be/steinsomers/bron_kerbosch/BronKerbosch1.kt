@@ -2,17 +2,18 @@
 package be.steinsomers.bron_kerbosch
 
 import java.util.function.Consumer
-import java.util.stream.Stream
 
 class BronKerbosch1 : BronKerboschAlgorithm {
-    override fun explore(graph: UndirectedGraph): Stream<IntArray> {
-        val cliqueStream = Stream.builder<IntArray>()
-        val candidates: MutableSet<Int> = graph.connectedVertices().toMutableSet()
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+        val candidates: MutableSet<Int> = graph.connectedVertices(HashSet())
         if (candidates.isNotEmpty()) {
             val excluded: MutableSet<Int> = HashSet(candidates.size)
-            visit(graph, cliqueStream, candidates, excluded, BronKerboschAlgorithm.EMPTY_CLIQUE)
+            visit(
+                graph = graph, cliqueConsumer = cliqueConsumer,
+                candidates = candidates, excluded = excluded,
+                cliqueInProgress = intArrayOf()
+            )
         }
-        return cliqueStream.build()
     }
 
     companion object {
@@ -33,10 +34,9 @@ class BronKerbosch1 : BronKerboschAlgorithm {
                 if (neighbouringCandidates.isNotEmpty()) {
                     val neighbouringExcluded = Util.intersect(excluded, neighbours)
                     visit(
-                        graph, cliqueConsumer,
-                        neighbouringCandidates.toMutableSet(),
-                        neighbouringExcluded.toMutableSet(),
-                        Util.append(cliqueInProgress, v)
+                        graph = graph, cliqueConsumer = cliqueConsumer,
+                        candidates = neighbouringCandidates, excluded = neighbouringExcluded,
+                        cliqueInProgress = Util.append(cliqueInProgress, v)
                     )
                 } else if (Util.areDisjoint(excluded, neighbours)) {
                     cliqueConsumer.accept(Util.append(cliqueInProgress, v))

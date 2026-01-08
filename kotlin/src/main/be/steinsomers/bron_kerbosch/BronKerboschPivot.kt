@@ -1,11 +1,9 @@
 package be.steinsomers.bron_kerbosch
 
 import java.util.function.Consumer
-import java.util.stream.Stream
 
 internal object BronKerboschPivot {
-    fun explore(graph: UndirectedGraph, pivotChoice: PivotChoice): Stream<IntArray> {
-        val cliqueStream = Stream.builder<IntArray>()
+    fun explore(graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>, pivotChoice: PivotChoice) {
         val pivot = graph.maxDegreeVertex()
         if (pivot != null) {
             // In this initial iteration, we don't need to represent the set of candidates
@@ -16,11 +14,11 @@ internal object BronKerboschPivot {
                 if (!neighbours.contains(pivot)) {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     if (neighbouringExcluded.size < neighbours.size) {
-                        val neighbouringCandidates = neighbours subtract neighbouringExcluded
+                        val neighbouringCandidates = (neighbours subtract neighbouringExcluded).toMutableSet()
                         visit(
-                            graph, cliqueStream, pivotChoice = pivotChoice,
-                            candidates = neighbouringCandidates.toMutableSet(),
-                            excluded = neighbouringExcluded.toMutableSet(),
+                            graph = graph, cliqueConsumer = cliqueConsumer,
+                            pivotChoice = pivotChoice,
+                            candidates = neighbouringCandidates, excluded = neighbouringExcluded,
                             cliqueInProgress = intArrayOf(v)
                         )
                     }
@@ -28,7 +26,6 @@ internal object BronKerboschPivot {
                 }
             }
         }
-        return cliqueStream.build()
     }
 
     fun visit(
@@ -55,14 +52,11 @@ internal object BronKerboschPivot {
             val remainingCandidates = ArrayList<Int>(candidates)
             val pivot = remainingCandidates[0]
             visitAroundPivot(
-                graph, cliqueConsumer, candidates, excluded, cliqueInProgress,
-                PivotChoice.Arbitrary, pivot, remainingCandidates
+                graph, cliqueConsumer, candidates, excluded, cliqueInProgress, PivotChoice.Arbitrary,
+                pivot, remainingCandidates
             )
         } else {
-            visitMaxDegree(
-                graph, cliqueConsumer, candidates, excluded, cliqueInProgress,
-                pivotChoice
-            )
+            visitMaxDegree(graph, cliqueConsumer, candidates, excluded, cliqueInProgress, pivotChoice)
         }
     }
 
@@ -78,7 +72,7 @@ internal object BronKerboschPivot {
         var seenLocalDegree = 0
         for (v in candidates) {
             val neighbours = graph.neighbours(v)
-            val localDegree = Util.intersect(neighbours, candidates).size
+            val localDegree = Util.intersectionSize(neighbours, candidates)
             if (localDegree == 0) {
                 // Same logic as below, stripped down
                 if (Util.areDisjoint(neighbours, excluded)) {
@@ -95,7 +89,7 @@ internal object BronKerboschPivot {
         if (pivotChoice == PivotChoice.MaxDegreeLocalX && remainingCandidates.isNotEmpty()) {
             for (v in excluded) {
                 val neighbours = graph.neighbours(v)
-                val localDegree = Util.intersect(neighbours, candidates).size
+                val localDegree = Util.intersectionSize(neighbours, candidates)
                 if (seenLocalDegree < localDegree) {
                     seenLocalDegree = localDegree
                     pivot = v
@@ -103,8 +97,7 @@ internal object BronKerboschPivot {
             }
         }
         visitAroundPivot(
-            graph, cliqueConsumer, candidates, excluded, cliqueInProgress,
-            pivotChoice, pivot, remainingCandidates
+            graph, cliqueConsumer, candidates, excluded, cliqueInProgress, pivotChoice, pivot, remainingCandidates
         )
     }
 
@@ -122,10 +115,9 @@ internal object BronKerboschPivot {
                 if (neighbouringCandidates.isNotEmpty()) {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     visit(
-                        graph, cliqueConsumer,
+                        graph = graph, cliqueConsumer = cliqueConsumer,
                         pivotChoice = furtherPivotChoice,
-                        candidates = neighbouringCandidates.toMutableSet(),
-                        excluded = neighbouringExcluded.toMutableSet(),
+                        candidates = neighbouringCandidates, excluded = neighbouringExcluded,
                         cliqueInProgress = Util.append(cliqueInProgress, v)
                     )
                 } else if (Util.areDisjoint(neighbours, excluded)) {

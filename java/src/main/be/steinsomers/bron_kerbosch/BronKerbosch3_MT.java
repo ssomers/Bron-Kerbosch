@@ -3,21 +3,18 @@ package be.steinsomers.bron_kerbosch;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     @Override
-    public Stream<int[]> explore(UndirectedGraph graph) throws InterruptedException {
-        var worker = new Worker(graph);
-        return worker.stream();
+    public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) throws InterruptedException {
+        final var worker = new Worker(graph, cliqueConsumer);
+        worker.work();
     }
 
     @RequiredArgsConstructor
@@ -34,13 +31,13 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             return new StartJob(DIRTY_END_VERTEX);
         }
 
-        final boolean ok() {
+        final boolean isGenuine() {
             return startVertex >= 0;
         }
     }
 
     private static final class VisitJob extends StartJob {
-        VisitJob(StartJob start, Set<Integer> candidates, Set<Integer> excluded) {
+        VisitJob(final StartJob start, final Set<Integer> candidates, final Set<Integer> excluded) {
             super(start.startVertex);
             this.candidates = candidates;
             this.excluded = excluded;
@@ -54,9 +51,9 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         private static final int NUM_VISITING_THREADS = 5;
 
         private final UndirectedGraph graph;
+        private final Consumer<int[]> cliqueConsumer;
         private final BlockingQueue<StartJob> startQueue;
         private final BlockingQueue<VisitJob> visitQueue;
-        private final Collection<int[]> cliques;
         private final StartProducer startProducer = new StartProducer();
         private final VisitProducer visitProducer = new VisitProducer();
 
@@ -65,12 +62,12 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             @Override
             public void run() {
                 try {
-                    Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
-                    for (var v : vertices) {
+                    final Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
+                    for (final var v : vertices) {
                         startQueue.put(new StartJob(v));
                     }
                     startQueue.put(StartJob.CleanEnd());
-                } catch (InterruptedException consumed) {
+                } catch (final InterruptedException consumed) {
                     startQueue.clear();
                     startQueue.add(StartJob.DirtyEnd());
                 }
@@ -83,20 +80,20 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             @Override
             public void run() {
                 try {
-                    Set<Integer> mut_excluded = new HashSet<>(graph.order());
+                    final Set<Integer> mut_excluded = new HashSet<>(graph.order());
                     StartJob startJob;
-                    while ((startJob = startQueue.take()).ok()) {
-                        var v = startJob.startVertex;
-                        var neighbours = graph.neighbours(v);
+                    while ((startJob = startQueue.take()).isGenuine()) {
+                        final var v = startJob.startVertex;
+                        final var neighbours = graph.neighbours(v);
                         assert !neighbours.isEmpty();
-                        var candidates = util.Difference(neighbours, mut_excluded)
+                        final var candidates = util.Difference(neighbours, mut_excluded)
                                 .collect(Collectors.toCollection(HashSet::new));
                         if (candidates.isEmpty()) {
                             assert !util.AreDisjoint(neighbours, mut_excluded);
                         } else {
-                            var excluded = util.Intersect(neighbours, mut_excluded)
+                            final var excluded = util.Intersect(neighbours, mut_excluded)
                                     .collect(Collectors.toCollection(HashSet::new));
-                            VisitJob job = new VisitJob(startJob, candidates, excluded);
+                            final VisitJob job = new VisitJob(startJob, candidates, excluded);
                             visitQueue.put(job);
                         }
                         mut_excluded.add(v);
@@ -120,32 +117,30 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             public void run() {
                 try {
                     VisitJob job;
-                    while ((job = visitQueue.take()).startVertex >= 0) {
-                        BronKerboschPivot.visit(graph, cliques::add,
+                    while ((job = visitQueue.take()).isGenuine()) {
+                        BronKerboschPivot.visit(graph, cliqueConsumer,
                                 PivotChoice.MaxDegreeLocal,
                                 job.candidates,
                                 job.excluded,
                                 new int[]{job.startVertex});
                     }
-                } catch (InterruptedException consumed) {
-                    cliques.clear();
+                } catch (final InterruptedException consumed) {
+                    // assume that thread remembers it
                 }
             }
         }
 
-        private Worker(UndirectedGraph graph) {
+        private Worker(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
             this.graph = graph;
-            @SuppressWarnings("NumericCastThatLosesPrecision")
-            var initialCap = (int) Math.floor(Math.sqrt(graph.size()));
-            cliques = Collections.synchronizedCollection(new ArrayDeque<>(initialCap));
+            this.cliqueConsumer = cliqueConsumer;
             startQueue = new ArrayBlockingQueue<>(64);
             visitQueue = new ArrayBlockingQueue<>(64);
         }
 
-        public Stream<int[]> stream() throws InterruptedException {
+        void work() throws InterruptedException {
             new Thread(startProducer).start();
             new Thread(visitProducer).start();
-            var visitors = new Thread[NUM_VISITING_THREADS];
+            final var visitors = new Thread[NUM_VISITING_THREADS];
             for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
                 visitors[i] = new Thread(new Visitor());
                 visitors[i].start();
@@ -153,7 +148,11 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
                 visitors[i].join();
             }
-            return cliques.stream();
+            for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
+                if (visitors[i].isInterrupted()) {
+                    throw new InterruptedException("Some thread got interrupted");
+                }
+            }
         }
     }
 }

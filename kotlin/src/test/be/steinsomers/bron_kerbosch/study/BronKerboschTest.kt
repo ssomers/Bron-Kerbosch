@@ -3,6 +3,8 @@ package be.steinsomers.bron_kerbosch.study
 import be.steinsomers.bron_kerbosch.UndirectedGraph
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.util.Collections
+import kotlin.collections.ArrayDeque
 
 internal class BronKerboschTest {
     @Test
@@ -211,7 +213,8 @@ internal class BronKerboschTest {
             val graph = UndirectedGraph(adjacencies)
             for (funcIndex in Main.FUNCS.indices) {
                 val funcName = Main.FUNC_NAMES[funcIndex]
-                val rawCliques = Main.FUNCS[funcIndex].explore(graph).toList()
+                val rawCliques = Collections.synchronizedCollection(ArrayDeque<IntArray>())
+                Main.FUNCS[funcIndex].explore(graph, rawCliques::add)
                 val cliques = Main.orderCliques(rawCliques)
                 Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for $funcName")
             }

@@ -22,17 +22,17 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
     private final SimplePriorityQueue<Integer> queue;
     private int num_left_to_pick;
 
-    DegeneracyOrdering(UndirectedGraph graph, int drop) {
+    DegeneracyOrdering(final UndirectedGraph graph, final int drop) {
         assert drop <= 0;
         this.graph = graph;
-        var order = graph.order();
+        final var order = graph.order();
         var maxPriority = 0;
         priority_per_vertex = new int[order];
         var numCandidates = 0;
         for (int candidate = 0; candidate < order; ++candidate) {
-            var degree = graph.degree(candidate);
+            final var degree = graph.degree(candidate);
             if (degree > 0) {
-                var priority = degree + 1;
+                final var priority = degree + 1;
                 maxPriority = Math.max(maxPriority, priority);
                 priority_per_vertex[candidate] = priority;
                 numCandidates += 1;
@@ -40,7 +40,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
         }
         queue = new SimplePriorityQueue<>(maxPriority, numCandidates);
         for (int candidate = 0; candidate < order; ++candidate) {
-            var priority = priority_per_vertex[candidate];
+            final var priority = priority_per_vertex[candidate];
             if (priority != 0) {
                 queue.put(priority, candidate);
             }
@@ -55,7 +55,7 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
 
     @Override
     public int nextInt() {
-        assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> queue.ensure(priority_per_vertex[v], v));
+        assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> queue.contains(priority_per_vertex[v], v));
         var i = queue.pop();
         while (priority_per_vertex[i] == 0) {
             // v was requeued with a more urgent priority and therefore already picked
@@ -63,12 +63,12 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
         }
 
         priority_per_vertex[i] = 0;
-        for (var v : graph.neighbours(i)) {
-            var oldPriority = priority_per_vertex[v];
+        for (final var v : graph.neighbours(i)) {
+            final var oldPriority = priority_per_vertex[v];
             if (oldPriority != 0) {
                 // Since this is an unvisited neighbour of a vertex just being picked,
                 // its priority can't be down to the minimum.
-                var newPriority = oldPriority - 1;
+                final var newPriority = oldPriority - 1;
                 assert newPriority > 0;
                 // Requeue with a more urgent priority, but don't bother to remove
                 // the original entry - it will be skipped if it's reached at all.
@@ -83,23 +83,23 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
     private static final class SimplePriorityQueue<T> {
         private final List<ArrayList<T>> stack_per_priority;
 
-        SimplePriorityQueue(int maxPriority, int sizeHint) {
+        SimplePriorityQueue(final int maxPriority, final int sizeHint) {
             stack_per_priority = Stream
                     .generate((Supplier<ArrayList<T>>) () -> new ArrayList<>(sizeHint))
                     .limit(maxPriority)
                     .collect(Collectors.toCollection(ArrayList::new));
         }
 
-        void put(int priority, T elt) {
-            var stack = stack_per_priority.get(priority - 1);
+        void put(final int priority, final T elt) {
+            final var stack = stack_per_priority.get(priority - 1);
             stack.add(elt);
         }
 
         T pop() {
-            for (var stack : stack_per_priority) {
+            for (final var stack : stack_per_priority) {
                 if (!stack.isEmpty()) {
-                    var last = stack.size() - 1;
-                    var elt = stack.get(last);
+                    final var last = stack.size() - 1;
+                    final var elt = stack.get(last);
                     stack.remove(last);
                     return elt;
                 }
@@ -108,17 +108,17 @@ final class DegeneracyOrdering implements PrimitiveIterator.OfInt {
         }
 
         // Inefficiently check that the queue contains the element at the right priority, if any
-        boolean ensure(int priority, T elt) {
+        boolean contains(final int priority, final T elt) {
             return priority == 0 || stack_per_priority.get(priority - 1).contains(elt);
         }
     }
 
     IntStream stream() {
-        var characteristics = Spliterator.ORDERED
+        final var characteristics = Spliterator.ORDERED
                 | Spliterator.DISTINCT
                 | Spliterator.NONNULL
                 | Spliterator.IMMUTABLE;
-        var spliterator = Spliterators.spliterator(this, num_left_to_pick, characteristics);
+        final var spliterator = Spliterators.spliterator(this, num_left_to_pick, characteristics);
         return StreamSupport.intStream(spliterator, false);
     }
 }

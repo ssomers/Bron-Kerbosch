@@ -1,10 +1,10 @@
 package be.steinsomers.bron_kerbosch;
 
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 public final class BronKerbosch3_gpx implements BronKerboschAlgorithm {
     @Override
-    public Stream<int[]> explore(UndirectedGraph graph) {
-        return BronKerboschOrder.explore(graph, PivotChoice.MaxDegreeLocalX);
+    public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
+        BronKerboschOrder.explore(graph, cliqueConsumer, PivotChoice.MaxDegreeLocalX);
     }
 }

@@ -1,13 +1,12 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.Objects
+import java.util.*
 import java.util.function.IntFunction
-import java.util.stream.Stream
 
 class BronKerbosch3ST : BronKerboschAlgorithm {
-    override fun explore(graph: UndirectedGraph): Stream<IntArray> {
-        val worker = Worker(graph)
-        return worker.stream()
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+        val worker = Worker(graph, cliqueConsumer)
+        worker.work()
     }
 
     private sealed class VisitJob {
@@ -19,8 +18,8 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         ) : VisitJob()
     }
 
-    private class Worker(private val graph: UndirectedGraph) {
-        fun stream(): Stream<IntArray> {
+    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: (IntArray) -> Unit) {
+        fun work() {
             val visitProducer = VisitProducer()
             val visitor = Visitor()
             val ordering = DegeneracyOrdering(graph, drop = 1)
@@ -29,7 +28,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
                 .filter { job: VisitJob? -> Objects.nonNull(job) }
                 .toList()
                 .parallelStream()
-                .flatMap { job: VisitJob? -> visitor.visit(job!!) }
+                .forEach { job: VisitJob -> visitor.visit(job) }
         }
 
         private inner class VisitProducer {
@@ -39,16 +38,12 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
                 var job: VisitJob? = null
                 val neighbours = graph.neighbours(startVtx)
                 require(neighbours.isNotEmpty())
-                val neighbouringCandidates = neighbours subtract excluded
+                val neighbouringCandidates = (neighbours subtract excluded).toMutableSet()
                 if (neighbouringCandidates.isEmpty()) {
                     Debug.assert { !Util.areDisjoint(neighbours, excluded) }
                 } else {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
-                    job = VisitJob.Work(
-                        startVtx,
-                        neighbouringCandidates.toMutableSet(),
-                        neighbouringExcluded.toMutableSet()
-                    )
+                    job = VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
                 }
                 excluded.add(startVtx)
                 return job
@@ -56,19 +51,17 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         }
 
         private inner class Visitor {
-            fun visit(job: VisitJob): Stream<IntArray> {
-                val cliqueStream = Stream.builder<IntArray>()
+            fun visit(job: VisitJob) {
                 when (job) {
                     is VisitJob.Work ->
                         BronKerboschPivot.visit(
-                            graph, cliqueStream,
+                            graph = graph, cliqueConsumer = cliqueConsumer,
                             pivotChoice = PivotChoice.MaxDegreeLocal,
                             candidates = job.candidates,
                             excluded = job.excluded,
                             cliqueInProgress = intArrayOf(job.startVertex)
                         )
                 }
-                return cliqueStream.build()
             }
         }
     }

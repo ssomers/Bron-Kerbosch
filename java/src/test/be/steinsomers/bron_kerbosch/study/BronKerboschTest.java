@@ -4,26 +4,23 @@ import be.steinsomers.bron_kerbosch.UndirectedGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 final class BronKerboschTest {
-    private static void bk(Collection<List<Integer>> adjacenciesList,
-                           List<List<Integer>> expectedCliques) {
-        var adjacencies = adjacenciesList.stream().map(Set::copyOf).toList();
-        var graph = new UndirectedGraph(adjacencies);
+    private static void bk(final Collection<List<Integer>> adjacenciesList,
+                           final List<List<Integer>> expectedCliques) {
+        final var adjacencies = adjacenciesList.stream().map(Set::copyOf).toList();
+        final var graph = new UndirectedGraph(adjacencies);
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
-            var funcName = Main.FUNC_NAMES[funcIndex];
-            Collection<int[]> rawCliques;
+            final var funcName = Main.FUNC_NAMES[funcIndex];
+            final var rawCliques = Collections.synchronizedCollection(new ArrayDeque<int[]>());
             try {
-                rawCliques = Main.FUNCS[funcIndex].explore(graph).toList();
-            } catch (InterruptedException ex) {
+                Main.FUNCS[funcIndex].explore(graph, rawCliques::add);
+            } catch (final InterruptedException ex) {
                 throw new AssertionError(ex);
             }
-            var cliques = Main.OrderCliques(rawCliques);
-            Assertions.assertEquals(expectedCliques, cliques,
-                    String.format("Unexpected result for %s", funcName));
+            final var cliques = Main.OrderCliques(rawCliques);
+            Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for " + funcName);
         }
     }
 

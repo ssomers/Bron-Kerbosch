@@ -6,43 +6,42 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-final class BronKerboschPivot {
-    public static Stream<int[]> explore(UndirectedGraph graph, PivotChoice pivotChoice) {
-        Stream.Builder<int[]> cliqueStream = Stream.builder();
-        var order = graph.order();
+enum BronKerboschPivot {
+    ;
+
+    public static void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+                               final PivotChoice pivotChoice) {
+        final var order = graph.order();
         if (order > 0) {
-            var pivot = graph.maxDegreeVertex();
+            final var pivot = graph.maxDegreeVertex();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            Set<Integer> mut_excluded = new HashSet<>(order);
+            final Set<Integer> mut_excluded = new HashSet<>(order);
             for (int v = 0; v < order; ++v) {
-                var neighbours = graph.neighbours(v);
+                final var neighbours = graph.neighbours(v);
                 if (!neighbours.contains(pivot)) {
-                    var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
+                    final var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
                             .collect(Collectors.toCollection(HashSet::new));
                     if (neighbouringExcluded.size() < neighbours.size()) {
-                        var neighbouringCandidates = util.Difference(neighbours,
-                                        neighbouringExcluded)
+                        final var neighbouringCandidates = util.Difference(neighbours, neighbouringExcluded)
                                 .collect(Collectors.toCollection(HashSet::new));
-                        visit(graph, cliqueStream, pivotChoice,
-                                neighbouringCandidates, neighbouringExcluded, new int[]{v});
+                        visit(graph, cliqueConsumer, pivotChoice, neighbouringCandidates, neighbouringExcluded,
+                                new int[]{v});
                     }
                     mut_excluded.add(v);
                 }
             }
         }
-        return cliqueStream.build();
     }
 
     public static void visit(
-            UndirectedGraph graph,
-            Consumer<int[]> cliqueConsumer,
-            PivotChoice pivotChoice,
-            Set<Integer> mut_candidates,
-            Set<Integer> mut_excluded,
-            int[] cliqueInProgress
+            final UndirectedGraph graph,
+            final Consumer<int[]> cliqueConsumer,
+            final PivotChoice pivotChoice,
+            final Set<Integer> mut_candidates,
+            final Set<Integer> mut_excluded,
+            final int[] cliqueInProgress
     ) {
         assert mut_candidates.stream().allMatch(graph::hasDegree);
         assert mut_excluded.stream().allMatch(graph::hasDegree);
@@ -51,34 +50,32 @@ final class BronKerboschPivot {
         assert mut_candidates.size() >= 1;
         if (mut_candidates.size() == 1) {
             // Same logic as below, stripped down for this common case
-            var v = mut_candidates.iterator().next();
-            var neighbours = graph.neighbours(v);
+            final var v = mut_candidates.iterator().next();
+            final var neighbours = graph.neighbours(v);
             if (util.AreDisjoint(neighbours, mut_excluded)) {
                 cliqueConsumer.accept(util.Append(cliqueInProgress, v));
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
-            var remainingCandidates = new ArrayList<>(mut_candidates);
-            int pivot = remainingCandidates.getFirst();
+            final var remainingCandidates = new ArrayList<>(mut_candidates);
+            final int pivot = remainingCandidates.getFirst();
             visitAroundPivot(graph, cliqueConsumer, mut_candidates, mut_excluded, cliqueInProgress,
                     PivotChoice.Arbitrary, pivot, remainingCandidates);
         } else {
-            visitMaxDegree(graph, cliqueConsumer, mut_candidates, mut_excluded, cliqueInProgress,
-                    pivotChoice);
+            visitMaxDegree(graph, cliqueConsumer, mut_candidates, mut_excluded, cliqueInProgress, pivotChoice);
         }
     }
 
-    private static void visitMaxDegree(UndirectedGraph graph, Consumer<int[]> cliqueConsumer,
-                                       Set<Integer> mut_candidates, Set<Integer> mut_excluded,
-                                       int[] cliqueInProgress, PivotChoice pivotChoice) {
-        assert pivotChoice == PivotChoice.MaxDegreeLocal ||
-                pivotChoice == PivotChoice.MaxDegreeLocalX;
+    private static void visitMaxDegree(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+                                       final Set<Integer> mut_candidates, final Set<Integer> mut_excluded,
+                                       final int[] cliqueInProgress, final PivotChoice pivotChoice) {
+        assert pivotChoice == PivotChoice.MaxDegreeLocal || pivotChoice == PivotChoice.MaxDegreeLocalX;
         // Quickly handle locally unconnected candidates while finding pivot
         int pivot = -1;
-        Collection<Integer> remainingCandidates = new ArrayList<>(mut_candidates.size());
+        final Collection<Integer> remainingCandidates = new ArrayList<>(mut_candidates.size());
         long seenLocalDegree = 0;
-        for (var v : mut_candidates) {
-            var neighbours = graph.neighbours(v);
-            long localDegree = util.Intersect(neighbours, mut_candidates).count();
+        for (final var v : mut_candidates) {
+            final var neighbours = graph.neighbours(v);
+            final long localDegree = util.Intersect(neighbours, mut_candidates).count();
             if (localDegree == 0) {
                 // Same logic as below, stripped down
                 if (util.AreDisjoint(neighbours, mut_excluded)) {
@@ -93,9 +90,9 @@ final class BronKerboschPivot {
             }
         }
         if (pivotChoice == PivotChoice.MaxDegreeLocalX && !remainingCandidates.isEmpty()) {
-            for (var v : mut_excluded) {
-                var neighbours = graph.neighbours(v);
-                var localDegree = util.Intersect(neighbours, mut_candidates).count();
+            for (final var v : mut_excluded) {
+                final var neighbours = graph.neighbours(v);
+                final var localDegree = util.Intersect(neighbours, mut_candidates).count();
                 if (seenLocalDegree < localDegree) {
                     seenLocalDegree = localDegree;
                     pivot = v;
@@ -106,23 +103,21 @@ final class BronKerboschPivot {
                 pivotChoice, pivot, remainingCandidates);
     }
 
-    private static void visitAroundPivot(UndirectedGraph graph, Consumer<int[]> cliqueConsumer,
-                                         Set<Integer> mut_candidates, Set<Integer> mut_excluded,
-                                         int[] cliqueInProgress, PivotChoice furtherPivotChoice,
-                                         int pivot, Iterable<Integer> remainingCandidates) {
-        for (var v : remainingCandidates) {
-            var neighbours = graph.neighbours(v);
+    private static void visitAroundPivot(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+                                         final Set<Integer> mut_candidates, final Set<Integer> mut_excluded,
+                                         final int[] cliqueInProgress, final PivotChoice furtherPivotChoice,
+                                         final int pivot, final Iterable<Integer> remainingCandidates) {
+        for (final var v : remainingCandidates) {
+            final var neighbours = graph.neighbours(v);
             if (!neighbours.contains(pivot)) {
                 mut_candidates.remove(v);
-                var neighbouringCandidates = util.Intersect(neighbours, mut_candidates)
+                final var neighbouringCandidates = util.Intersect(neighbours, mut_candidates)
                         .collect(Collectors.toCollection(HashSet::new));
                 if (!neighbouringCandidates.isEmpty()) {
-                    var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
+                    final var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
                             .collect(Collectors.toCollection(HashSet::new));
-                    visit(graph, cliqueConsumer,
-                            furtherPivotChoice,
-                            neighbouringCandidates,
-                            neighbouringExcluded,
+                    visit(graph, cliqueConsumer, furtherPivotChoice,
+                            neighbouringCandidates, neighbouringExcluded,
                             util.Append(cliqueInProgress, v));
                 } else if (util.AreDisjoint(neighbours, mut_excluded)) {
                     cliqueConsumer.accept(util.Append(cliqueInProgress, v));

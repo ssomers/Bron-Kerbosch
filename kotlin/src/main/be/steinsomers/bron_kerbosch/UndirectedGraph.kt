@@ -28,8 +28,8 @@ data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
         return adjacencies[node]
     }
 
-    fun connectedVertices(): Sequence<Int> {
-        return (0..<order).filter(this::hasDegree).asSequence()
+    fun <C : MutableCollection<Int>> connectedVertices(destination: C): C {
+        return (0..<order).filterTo(destination, this::hasDegree)
     }
 
     fun maxDegreeVertex(): Int? {
