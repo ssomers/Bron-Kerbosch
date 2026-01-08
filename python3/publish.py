@@ -628,7 +628,7 @@ def publish_reports() -> None:
                 LangLib(Language.cpp, "hashset"),
                 LangLib(Language.rust, "Hash"),
             ],
-            versions=["Ver3½=GPc", "Ver3½=GP3"],
+            versions=["Ver3½=GPc", "Ver3½=GP2"],
             linestyle_per_version=[None, None],
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="parallel Ver3½=GP using channels",
