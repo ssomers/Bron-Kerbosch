@@ -7,7 +7,7 @@ import (
 
 const NumFuncs = 9
 
-var Funcs = [NumFuncs]func(*UndirectedGraph, Reporter){
+var Funcs = [NumFuncs]func(*UndirectedGraph, chan<- []Vertex){
 	bronKerbosch1,
 	bronKerbosch2aGP,
 	bronKerbosch2bGP,
@@ -23,6 +23,12 @@ var FuncNames = [NumFuncs]string{
 	"Ver1½",
 	"Ver2-GP", "Ver2½-GP",
 	"Ver3½-GP", "Ver3½=GP0", "Ver3½=GP1", "Ver3½=GP2", "Ver3½=GP3", "Ver3½=GP4",
+}
+
+func Append(head []Vertex, tail Vertex) []Vertex {
+	r := make([]Vertex, len(head)+1)
+	r[copy(r, head)] = tail
+	return r
 }
 
 func SortCliques(cliques [][]Vertex) {

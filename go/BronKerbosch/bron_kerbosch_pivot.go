@@ -7,15 +7,18 @@ const (
 	MaxDegreeLocalX                = iota
 )
 
-func visit(graph *UndirectedGraph, reporter Reporter,
+func visit(graph *UndirectedGraph, cliques chan<- []Vertex,
 	pivotSelection PivotSelection,
 	candidates VertexSet, excluded VertexSet, clique []Vertex) {
-	if len(candidates) == 1 {
+	switch len(candidates) {
+	case 0:
+		return
+	case 1:
 		for v := range candidates {
 			// Same logic as below, stripped down
 			neighbours := graph.neighbours(v)
 			if excluded.IsDisjoint(neighbours) {
-				reporter.Record(append(clique, v))
+				cliques <- Append(clique, v)
 			}
 		}
 		return
@@ -31,7 +34,7 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		if localDegree == 0 {
 			// Same logic as below, stripped down
 			if neighbours.IsDisjoint(excluded) {
-				reporter.Record(append(clique, v))
+				cliques <- Append(clique, v)
 			}
 		} else {
 			if seenLocalDegree < localDegree {
@@ -65,14 +68,14 @@ func visit(graph *UndirectedGraph, reporter Reporter,
 		if !neighbouringCandidates.IsEmpty() {
 			neighbouringExcluded := neighbours.Intersection(excluded)
 			visit(
-				graph, reporter,
+				graph, cliques,
 				pivotSelection,
 				neighbouringCandidates,
 				neighbouringExcluded,
 				append(clique, v))
 		} else {
 			if neighbours.IsDisjoint(excluded) {
-				reporter.Record(append(clique, v))
+				cliques <- Append(clique, v)
 			}
 		}
 		excluded.Add(v)

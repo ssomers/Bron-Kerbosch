@@ -103,7 +103,7 @@ func (q *priorityQueue[T]) put(priority int, element T) {
 
 func (q *priorityQueue[T]) pop() T {
 	for p := 0; ; p++ {
-		l := len(q.stackPerPriority[p])
+		l := len(q.stackPerPriority[p]) // IndexError when attempting to pop more than was put
 		if l > 0 {
 			last := q.stackPerPriority[p][l-1]
 			q.stackPerPriority[p] = q.stackPerPriority[p][:l-1]

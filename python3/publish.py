@@ -109,9 +109,9 @@ def color_by_ver(case: Case) -> str:
         "Ver3½=GPs": "#669966",
         "Ver3½=GP0": "#3399CC",
         "Ver3½=GP1": "#669999",
-        "Ver3½=GP2": "#669966",
-        "Ver3½=GP3": "#669933",
-        "Ver3½=GP4": "#669900",
+        "Ver3½=GP2": "#996666",
+        "Ver3½=GP3": "#CC9966",
+        "Ver3½=GP4": "#CCCC66",
     }[case.Ver]
 
 

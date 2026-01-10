@@ -2,43 +2,41 @@ package BronKerbosch
 
 import "sync"
 
-func bronKerbosch3gp0(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 1)
+func bronKerbosch3gp0(graph *UndirectedGraph, cliques chan<- []Vertex) {
+	bronKerbosch3om(graph, cliques, 1)
 }
 
-func bronKerbosch3gp1(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 4)
+func bronKerbosch3gp1(graph *UndirectedGraph, cliques chan<- []Vertex) {
+	bronKerbosch3om(graph, cliques, 4)
 }
 
-func bronKerbosch3gp2(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 16)
+func bronKerbosch3gp2(graph *UndirectedGraph, cliques chan<- []Vertex) {
+	bronKerbosch3om(graph, cliques, 16)
 }
 
-func bronKerbosch3gp3(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 64)
+func bronKerbosch3gp3(graph *UndirectedGraph, cliques chan<- []Vertex) {
+	bronKerbosch3om(graph, cliques, 64)
 }
 
-func bronKerbosch3gp4(graph *UndirectedGraph, reporter Reporter) {
-	bronKerbosch3om(graph, reporter, 256)
+func bronKerbosch3gp4(graph *UndirectedGraph, cliques chan<- []Vertex) {
+	bronKerbosch3om(graph, cliques, 256)
 }
 
-func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors int) {
+func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitors int) {
 	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
 
 	starts := make(chan Vertex, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
-	cliques := make(chan []Vertex)
 	go degeneracyOrdering(graph, &ChannelVertexVisitor{starts}, -1)
 	go func() {
-		excluded := make(VertexSet, graph.connectedVertexCount()-1)
-		reporter := ChannelReporter{cliques}
+		excluded := make(VertexSet, graph.connectedVertexCount-1)
 		var wg sync.WaitGroup
 		wg.Add(numVisitors)
 		for range numVisitors {
 			go func() {
 				for job := range visits {
 					visit(
-						graph, &reporter,
+						graph, cliques,
 						MaxDegreeLocal,
 						job.candidates,
 						job.excluded,
@@ -58,11 +56,8 @@ func bronKerbosch3om(graph *UndirectedGraph, finalReporter Reporter, numVisitors
 		}
 		close(visits)
 		wg.Wait()
-		close(reporter.cliques)
+		close(cliques)
 	}()
-	for clique := range cliques {
-		finalReporter.Record(clique)
-	}
 }
 
 type VisitJob struct {

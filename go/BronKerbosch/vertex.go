@@ -34,11 +34,15 @@ func (vset VertexSet) Difference(term VertexSet) VertexSet {
 	return result
 }
 
-func (vset VertexSet) Intersection(other VertexSet) VertexSet {
-	small, large := vset, other
-	if len(small) > len(large) {
-		small, large = other, vset
+func ordered(a VertexSet, b VertexSet) (VertexSet, VertexSet) {
+	if len(a) > len(b) {
+		return b, a
 	}
+	return a, b
+}
+
+func (vset VertexSet) Intersection(other VertexSet) VertexSet {
+	small, large := ordered(vset, other)
 	result := make(VertexSet, len(small))
 	for v := range small {
 		if large.Contains(v) {
@@ -49,24 +53,18 @@ func (vset VertexSet) Intersection(other VertexSet) VertexSet {
 }
 
 func (vset VertexSet) IntersectionLen(other VertexSet) int {
-	small, large := vset, other
-	if len(small) > len(large) {
-		small, large = other, vset
-	}
+	small, large := ordered(vset, other)
 	result := 0
 	for v := range small {
 		if large.Contains(v) {
-			result++
+			result += 1
 		}
 	}
 	return result
 }
 
 func (vset VertexSet) IsDisjoint(other VertexSet) bool {
-	small, large := vset, other
-	if len(small) > len(large) {
-		small, large = other, vset
-	}
+	small, large := ordered(vset, other)
 	for v := range small {
 		if large.Contains(v) {
 			return false
@@ -81,13 +79,6 @@ func (vset VertexSet) Add(v Vertex) {
 
 func (vset VertexSet) Remove(v Vertex) {
 	delete(vset, v)
-}
-
-func (vset VertexSet) PickArbitrary() Vertex {
-	for v := range vset {
-		return v
-	}
-	panic("attempt to pick from empty set")
 }
 
 func (vset VertexSet) PopArbitrary() Vertex {

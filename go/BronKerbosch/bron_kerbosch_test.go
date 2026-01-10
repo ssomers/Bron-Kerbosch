@@ -73,9 +73,13 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 	graph := NewUndirectedGraph(adjacencies)
 	checkDegeneracyOrder(&graph)
 	for funcIndex, bronKerboschFunc := range Funcs {
-		var reporter CollectingReporter
-		bronKerboschFunc(&graph, &reporter)
-		obtainedCliques := reporter.Cliques
+		cliques := make(chan []Vertex)
+		go bronKerboschFunc(&graph, cliques)
+
+		var obtainedCliques [][]Vertex
+		for clique := range cliques {
+			obtainedCliques = append(obtainedCliques, clique)
+		}
 		SortCliques(obtainedCliques)
 		CompareCliques(obtainedCliques, expectedCliques,
 			func(e string) { t.Errorf("%s: %s", FuncNames[funcIndex], e) })

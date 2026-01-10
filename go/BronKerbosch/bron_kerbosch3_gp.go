@@ -1,6 +1,6 @@
 package BronKerbosch
 
-func bronKerbosch3gp(graph *UndirectedGraph, reporter Reporter) {
+func bronKerbosch3gp(graph *UndirectedGraph, cliques chan<- []Vertex) {
 	// Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
 	// choosing a pivot from candidates only (IK_GP).
 	var ordering SimpleVertexVisitor
@@ -14,7 +14,7 @@ func bronKerbosch3gp(graph *UndirectedGraph, reporter Reporter) {
 		if len(neighbouringExcluded) < len(neighbours) {
 			neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 			visit(
-				graph, reporter,
+				graph, cliques,
 				MaxDegreeLocal,
 				neighbouringCandidates,
 				neighbouringExcluded,
@@ -22,4 +22,5 @@ func bronKerbosch3gp(graph *UndirectedGraph, reporter Reporter) {
 		}
 		excluded.Add(v)
 	}
+	close(cliques)
 }

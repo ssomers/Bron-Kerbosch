@@ -4,11 +4,14 @@ import (
 	"fmt"
 )
 
+// Designed and to be used entirely immutably.
 type UndirectedGraph struct {
-	adjacencies []VertexSet
+	adjacencies          []VertexSet
+	connectedVertexCount int
 }
 
 func NewUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
+	connectedVertexCount := 0
 	for i, adjacentToV := range adjacencies {
 		v := Vertex(i)
 		for w := range adjacentToV {
@@ -19,9 +22,13 @@ func NewUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 				panic(fmt.Sprintf("%d is adjacent to %d but not vice versa", w, v))
 			}
 		}
+		if !adjacentToV.IsEmpty() {
+			connectedVertexCount += 1
+		}
 	}
 	g := UndirectedGraph{}
 	g.adjacencies = adjacencies
+	g.connectedVertexCount = connectedVertexCount
 	return g
 }
 
@@ -56,16 +63,6 @@ func (g *UndirectedGraph) connectedVertices() VertexSet {
 		}
 	}
 	return result
-}
-
-func (g *UndirectedGraph) connectedVertexCount() int {
-	var count int
-	for _, neighbours := range g.adjacencies {
-		if !neighbours.IsEmpty() {
-			count++
-		}
-	}
-	return count
 }
 
 func (g *UndirectedGraph) maxDegreeVertex() Vertex {

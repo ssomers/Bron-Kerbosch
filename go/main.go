@@ -24,36 +24,44 @@ func timed(orderstr string, size int, funcIndices []int, timedSamples int) [Bron
 	for sample := range timedSamples {
 		for _, funcIndex := range funcIndices {
 			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
-			var collectingReporter BronKerbosch.CollectingReporter
-			var countingReporter BronKerbosch.CountingReporter
 			begin := time.Now()
+			cliques := make(chan []BronKerbosch.Vertex, 64)
+			go bronKerboschFunc(&graph, cliques)
 			if sample == 0 {
-				bronKerboschFunc(&graph, &collectingReporter)
-			} else {
-				bronKerboschFunc(&graph, &countingReporter)
-			}
-			secs := time.Since(begin).Seconds()
-			if sample == 0 {
-				if secs >= 3.0 {
-					fmt.Printf("  %-8s: %5.2fs\n", BronKerbosch.FuncNames[funcIndex], secs)
+				warning_interval := 3 * time.Second
+				var ticker *time.Timer
+				warnings := 0
+				ticker = time.AfterFunc(warning_interval, func() {
+					ticker.Reset(warning_interval)
+					warnings += 1
+					fmt.Printf("  %d seconds in, %s is still busy collecting\n", warnings*int(warning_interval.Seconds()), BronKerbosch.FuncNames[funcIndex])
+				})
+				var collectedCliques [][]BronKerbosch.Vertex
+				for clique := range cliques {
+					collectedCliques = append(collectedCliques, clique)
 				}
-				current := collectingReporter.Cliques
-				BronKerbosch.SortCliques(current)
+				ticker.Stop()
+				BronKerbosch.SortCliques(collectedCliques)
 				if len(first) == 0 {
-					if len(current) != cliqueCount {
+					if len(collectedCliques) != cliqueCount {
 						fmt.Printf("  %s: expected %d cliques, obtained %d\n",
-							BronKerbosch.FuncNames[funcIndex], cliqueCount, len(current))
+							BronKerbosch.FuncNames[funcIndex], cliqueCount, len(collectedCliques))
 					}
-					first = current
+					first = collectedCliques
 				} else {
-					BronKerbosch.CompareCliques(current, first, func(e string) {
+					BronKerbosch.CompareCliques(collectedCliques, first, func(e string) {
 						fmt.Printf("  %s: %s\n", BronKerbosch.FuncNames[funcIndex], e)
 					})
 				}
 			} else {
-				if countingReporter.Cliques != cliqueCount {
+				var countedCliques int
+				for range cliques {
+					countedCliques += 1
+				}
+				secs := time.Since(begin).Seconds()
+				if countedCliques != cliqueCount {
 					fmt.Printf("  %s: expected %d cliques, obtained %d\n",
-						BronKerbosch.FuncNames[funcIndex], cliqueCount, countingReporter.Cliques)
+						BronKerbosch.FuncNames[funcIndex], cliqueCount, countedCliques)
 				}
 				times[funcIndex].Put(secs)
 			}
