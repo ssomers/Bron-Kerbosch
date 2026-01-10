@@ -9,7 +9,7 @@ class UndirectedGraph(object):
         for v, adjacent_to_v in enumerate(adjacencies):
             for w in adjacent_to_v:
                 assert 0 <= w < order
-                assert v != w
+                assert v != w, f"{v} is adjacent to itself"
                 assert v in adjacencies[w], f"{w} is adjacent to {v} but not vice versa"
         self.adjacencies = adjacencies
 
@@ -25,5 +25,8 @@ class UndirectedGraph(object):
     def degree(self, node: Vertex) -> int:
         return len(self.adjacencies[node])
 
+    def has_degree(self, node: Vertex) -> bool:
+        return bool(self.adjacencies[node])
+
     def connected_vertices(self) -> Set[Vertex]:
-        return {node for node in range(self.order) if self.adjacencies[node]}
+        return {node for node in range(self.order) if self.has_degree(node)}

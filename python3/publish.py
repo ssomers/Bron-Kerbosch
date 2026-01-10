@@ -91,7 +91,6 @@ class Case:
         return (self.LangLib, self.Ver) == (them.LangLib, them.Ver)
 
 
-
 def color_by_ver(case: Case) -> str:
     return {
         "Ver1": "#000099",

@@ -39,8 +39,8 @@ def degeneracy_ordering(
             max_degree = max(max_degree, degree)
             num_candidates += 1
     # Possible values of priority_per_node:
-    #   -2: if unconnected (should never come up again)
-    #   -1: when yielded
+    #   -2: if unconnected (should never be queried)
+    #   -1: after having been yielded
     #   0..max_degree: candidates still queued with priority equal to
     #                  (degree - number of yielded neighbours).
     q = PriorityQueue(max_priority=max_degree)

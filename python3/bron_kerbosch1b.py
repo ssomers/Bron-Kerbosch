@@ -24,8 +24,8 @@ def visit(
     excluded: Set[Vertex],
     clique: List[Vertex],
 ) -> None:
-    assert all(graph.degree(v) > 0 for v in candidates)
-    assert all(graph.degree(v) > 0 for v in excluded)
+    assert all(graph.has_degree(v) for v in candidates)
+    assert all(graph.has_degree(v) for v in excluded)
     assert candidates.isdisjoint(excluded)
     assert candidates
     while candidates:

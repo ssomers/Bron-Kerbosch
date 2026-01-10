@@ -5,11 +5,7 @@ from graph_degeneracy import degeneracy_ordering
 
 from hypothesis import given
 from hypothesis.strategies import builds, integers, lists, sets
-from typing import Any, List, Set
-
-
-def is_like_set(lst: List[Any], st: Set[Any]) -> bool:
-    return len(lst) == len(st) and set(lst) == st
+from typing import List, Set
 
 
 def symmetric_adjacencies(adjac: List[Set[Vertex]]) -> List[Set[Vertex]]:
@@ -47,7 +43,7 @@ def test_degeneracy_ordering_nonempty(adjacencies: List[Set[Vertex]]) -> None:
 
     ordering = list(degeneracy_ordering(g))
     assert set(ordering) == connected_vertices
-    assert all(g.degree(ordering[0]) <= g.degree(v) for v in ordering[1:])
+    assert all(g.degree(ordering[0]) <= g.degree(v) for v in ordering)
 
     ordering_min1 = list(degeneracy_ordering(g, drop=1))
     assert ordering_min1 == ordering[:-1]
