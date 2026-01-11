@@ -39,15 +39,16 @@ internal object Main {
     )
 
     fun orderCliques(cliques: Collection<IntArray>): List<List<Int>> {
-        assert(cliques.all { clique: IntArray -> clique.size > 1 })
-        return cliques.stream()
-            .map { clique: IntArray -> Arrays.stream(clique).sorted().boxed().toList() }
-            .sorted { clique1: List<Int>, clique2: List<Int> ->
-                IntStream.range(0, min(clique1.size, clique2.size))
+        require(cliques.all { clique -> clique.size > 1 })
+        return cliques
+            .map(IntArray::sorted)
+            .sortedWith { clique1: List<Int>, clique2: List<Int> ->
+                when (val diff = (0..<min(clique1.size, clique2.size)).asSequence()
                     .map { i -> clique1[i] - clique2[i] }
-                    .filter { diff -> diff != 0 }
-                    .findFirst()
-                    .orElseThrow { IllegalArgumentException("got overlapping or equal cliques $clique1 <> $clique2") }
+                    .firstOrNull { diff -> diff != 0 }) {
+                    null -> throw IllegalArgumentException("got overlapping or equal cliques $clique1 <> $clique2")
+                    else -> diff
+                }
             }
             .toList()
     }

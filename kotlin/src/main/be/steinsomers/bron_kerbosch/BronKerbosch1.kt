@@ -6,14 +6,12 @@ import java.util.function.Consumer
 class BronKerbosch1 : BronKerboschAlgorithm {
     override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
         val candidates: MutableSet<Int> = graph.connectedVertices(HashSet())
-        if (candidates.isNotEmpty()) {
-            val excluded: MutableSet<Int> = HashSet(candidates.size)
-            visit(
-                graph = graph, cliqueConsumer = cliqueConsumer,
-                candidates = candidates, excluded = excluded,
-                cliqueInProgress = intArrayOf()
-            )
-        }
+        val excluded: MutableSet<Int> = HashSet(candidates.size)
+        visit(
+            graph = graph, cliqueConsumer = cliqueConsumer,
+            candidates = candidates, excluded = excluded,
+            cliqueInProgress = intArrayOf()
+        )
     }
 
     companion object {
@@ -22,11 +20,9 @@ class BronKerbosch1 : BronKerboschAlgorithm {
             candidates: MutableSet<Int>, excluded: MutableSet<Int>,
             cliqueInProgress: IntArray
         ) {
-            @Suppress("DuplicatedCode")
             Debug.assert { candidates.all(graph::hasDegree) }
             Debug.assert { excluded.all(graph::hasDegree) }
             Debug.assert { Util.areDisjoint(candidates, excluded) }
-            Debug.assert { candidates.isNotEmpty() }
             while (candidates.isNotEmpty()) {
                 val v = Util.popArbitrary(candidates)
                 val neighbours = graph.neighbours(v)

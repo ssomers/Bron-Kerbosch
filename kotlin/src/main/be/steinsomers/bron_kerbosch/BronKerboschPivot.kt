@@ -36,7 +36,6 @@ internal object BronKerboschPivot {
         excluded: MutableSet<Int>,
         cliqueInProgress: IntArray
     ) {
-        @Suppress("DuplicatedCode")
         Debug.assert { candidates.all(graph::hasDegree) }
         Debug.assert { excluded.all(graph::hasDegree) }
         Debug.assert { Util.areDisjoint(candidates, excluded) }
