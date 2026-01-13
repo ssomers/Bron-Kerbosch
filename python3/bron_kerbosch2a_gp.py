@@ -2,10 +2,10 @@
 
 from bron_kerbosch_pivot import visit
 from graph import UndirectedGraph
-from reporter import Reporter
+from consumer import CliqueConsumer
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
+def explore(graph: UndirectedGraph, consumer: CliqueConsumer) -> None:
     """
     Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
     chosen from candidates only (IK_GP)
@@ -13,7 +13,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
     if candidates := graph.connected_vertices():
         visit(
             graph=graph,
-            reporter=reporter,
+            consumer=consumer,
             pivot_choice_X=False,
             candidates=candidates,
             excluded=set(),

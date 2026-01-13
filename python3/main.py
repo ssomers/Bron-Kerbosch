@@ -10,7 +10,7 @@ import bron_kerbosch3_gpx
 from data import NEIGHBORS as SAMPLE_ADJACENCY_LIST
 from graph import UndirectedGraph as Graph, Vertex
 from random_graph import to_int, read_random_graph
-from reporter import CollectingReporter, CountingReporter, Reporter
+from consumer import CliqueCollector, CliqueCounter, CliqueConsumer
 from stats import SampleStatistics
 from publish import publish
 
@@ -20,9 +20,10 @@ from math import isnan
 import pytest
 import sys
 import time
+import threading
 from typing import Callable, Iterable, List, Set
 
-FUNC = Callable[[Graph, Reporter], None]
+FUNC = Callable[[Graph, CliqueConsumer], None]
 
 FUNCS: List[FUNC] = [
     bron_kerbosch1a.explore,
@@ -56,6 +57,27 @@ def are_maximal(cliques: List[List[Vertex]]) -> bool:
     return True
 
 
+class Ticker:
+    def __init__(self, func_index: int) -> None:
+        self.interval = 3
+        self.func_index = func_index
+        self.seconds_passed = 0
+        self.restart()
+
+    def restart(self) -> None:
+        self.timer = threading.Timer(self.interval, self.tick)
+        self.timer.start()
+
+    def cancel(self) -> None:
+        self.timer.cancel()
+
+    def tick(self) -> None:
+        self.seconds_passed += self.interval
+        print(
+            f"  {self.seconds_passed} seconds in, {FUNC_NAMES[self.func_index]} is still busy collecting"
+        )
+
+
 def bron_kerbosch_timed(
     graph: Graph, clique_count: int, func_indices: List[int], timed_samples: int
 ) -> List[SampleStatistics]:
@@ -65,52 +87,45 @@ def bron_kerbosch_timed(
         for func_index in func_indices:
             func = FUNCS[func_index]
             func_name = FUNC_NAMES[func_index]
-            collecting_reporter = CollectingReporter()
-            counting_reporter = CountingReporter()
-            begin = time.perf_counter()
-            try:
-                if sample == 0:
-                    func(graph, collecting_reporter)
-                else:
-                    func(graph, counting_reporter)
-            except RecursionError:
-                print(f"{func_name} recursed out!")
-            secs = time.perf_counter() - begin
             if sample == 0:
-                if secs >= 3.0:
-                    print(f"  {func_name:<8}: {secs:6.3f}s")
-                current = sorted(
-                    sorted(clique) for clique in collecting_reporter.cliques
-                )
+                ticker = Ticker(func_index=func_index)
+                collector = CliqueCollector()
+                func(graph, collector)
+                ticker.cancel()
+                obtained = sorted(sorted(clique) for clique in collector.cliques)
                 if first is None:
-                    if len(current) != clique_count:
+                    if len(obtained) != clique_count:
                         print(
                             f"{func_name}: expected {clique_count},"
-                            f" obtained {len(current)} cliques!"
+                            f" obtained {len(obtained)} cliques!"
                         )
-                    if graph.order < 100 and not are_maximal(current):
+                    if graph.order < 100 and not are_maximal(obtained):
                         print(f"  {func_name} not maximal")
-                    first = current
-                elif first != current:
+                    first = obtained
+                elif first != obtained:
                     print(
                         f"{func_name}: "
                         + f"expected {len(first)} cliques, "
-                        + f"obtained {len(current)} different cliques!"
+                        + f"obtained {len(obtained)} different cliques!"
                     )
             else:
-                if counting_reporter.cliques != clique_count:
+                begin = time.perf_counter()
+                counter = CliqueCounter()
+                func(graph, counter)
+                secs = time.perf_counter() - begin
+                if counter.cliques != clique_count:
                     print(
                         f"{func_name}: expected {clique_count},"
-                        f" obtained {counting_reporter.cliques} cliques!"
+                        f" obtained {counter.cliques} cliques!"
                     )
                 times[func_index].put(secs)
     return times
 
 
 def bkf(func: FUNC, adjacencies: List[Set[Vertex]]) -> List[List[Vertex]]:
-    reporter = CollectingReporter()
-    func(Graph(adjacencies=adjacencies), reporter)
-    return sorted(sorted(clique) for clique in reporter.cliques)
+    consumer = CliqueCollector()
+    func(Graph(adjacencies=adjacencies), consumer)
+    return sorted(sorted(clique) for clique in consumer.cliques)
 
 
 @pytest.mark.parametrize("func", FUNCS)
@@ -316,7 +331,7 @@ def bk(
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
         publish(
-            languagestr="python313",
+            languagestr="python314",
             orderstr=orderstr,
             case_names=FUNC_NAMES,
             stats_per_func_by_size=stats_per_func_by_size,
@@ -348,6 +363,7 @@ if __name__ == "__main__":
         )
     else:
         assert False, "Run with -O for meaningful measurements"
+        """
         bk(
             orderstr="100",
             sizes=range(2_000, 3_001, 50),  # max 4_950
@@ -364,6 +380,7 @@ if __name__ == "__main__":
             timed_samples=3,
         )
         time.sleep(7)
+        """
         bk(
             orderstr="1M",
             sizes=itertools.chain(

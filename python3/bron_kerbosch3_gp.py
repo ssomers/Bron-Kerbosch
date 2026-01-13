@@ -3,11 +3,11 @@
 from bron_kerbosch_pivot import visit
 from graph import UndirectedGraph, Vertex
 from graph_degeneracy import degeneracy_ordering
-from reporter import Reporter
+from consumer import CliqueConsumer
 from typing import Set
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
+def explore(graph: UndirectedGraph, consumer: CliqueConsumer) -> None:
     """
     Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
     choosing a pivot from candidates only (IK_GP)
@@ -23,7 +23,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
             neighbouring_candidates = neighbours.difference(neighbouring_excluded)
             visit(
                 graph=graph,
-                reporter=reporter,
+                consumer=consumer,
                 pivot_choice_X=False,
                 candidates=neighbouring_candidates,
                 excluded=neighbouring_excluded,

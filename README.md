@@ -252,11 +252,12 @@ Perform:
     cd python3
     (once) python -m venv venv
     venv\Scripts\activate.bat
-    (once or twice) pip install --upgrade mypy ruff pytest hypothesis matplotlib
-    ruff check . --exclude "venv*"
-    mypy .
-    pytest
-    python -O test_maximal_cliques.py
+    (once or twice) pip install --upgrade black mypy ruff pytest hypothesis matplotlib
+    (if edited) black .
+    (if edited) ruff check . --exclude "venv*"
+    (if edited) mypy .
+    (if edited) pytest
+    python -O main.py
 
 ## Rust
 To obtain these results:
@@ -272,8 +273,8 @@ Perform:
     (once) cargo install cargo-edit
     (sometimes) rustup update
     (sometimes) cargo upgrade && cargo update
-    cargo clippy --workspace
-    cargo test --workspace
+    (if edited) cargo clippy --workspace
+    (if edited) cargo test --workspace
     cargo run --release
 
 ## Go
@@ -285,12 +286,12 @@ To obtain these results:
 Perform:
 
     cd go
-    go vet ./...
-    go test ./...
-    go test ./Stats -fuzz=Stats1 -fuzztime=1s
-    go test ./Stats -fuzz=Stats2 -fuzztime=2s
-    go test ./Stats -fuzz=StatsN -fuzztime=5s
-    go test ./BronKerbosch -fuzz=DegeneracyOrder -fuzztime=20s
+    (if edited) go vet ./...
+    (if edited) go test ./...
+    (if edited) go test ./Stats -fuzz=Stats1 -fuzztime=1s
+    (if edited) go test ./Stats -fuzz=Stats2 -fuzztime=2s
+    (if edited) go test ./Stats -fuzz=StatsN -fuzztime=5s
+    (if edited) go test ./BronKerbosch -fuzz=DegeneracyOrder -fuzztime=20s
     go run main.go
 
 Optionally, on MSYS2:
@@ -307,10 +308,9 @@ To obtain these results:
 
 Perform:
   - open csharp\BronKerboschStudy.sln with Visual Studio 2022
-  - set configuration to Debug
-  - Test > Run > All Tests
+  - (if edited) set configuration to Debug
+  - (if edited) Test > Run > All Tests
   - set configuration to Release
-  - Solution Explorer > BronKerboschStudy > Set as Startup Project
   - Debug > Start Without Debugging
 
 
@@ -339,8 +339,8 @@ Perform:
     - View > Other Windows > Property Manager
     - in the tree, descend to any project and configuration, open propery page "BronKerboschStudyGeneral"
     - in User Macros, set `CppcoroDir`
-  - set configuration to Debug
-  - Test > Run > All Tests
+  - (if edited) set configuration to Debug
+  - (if edited) Test > Run > All Tests
   - set configuration to Release
   - Debug > Start Without Debugging
 
@@ -353,8 +353,8 @@ To obtain these results:
 
 Perform:
   - open folder java with IntelliJ IDEA 2025 (Community Edition)
-  - set run configuration to "Test"
-  - Run > Run 'Test'
+  - (if edited) set run configuration to "Test"
+  - (if edited) Run > Run 'Test'
   - set run configuration to "Main"
   - Run > Run 'Main'
 
@@ -367,8 +367,8 @@ To obtain these results:
 
 Perform:
   - open folder kotlin with IntelliJ IDEA 2025 (Community Edition)
-  - set run configuration to "Test"
-  - Run > Run 'Test'
+  - (if edited) set run configuration to "Test"
+  - (if edited) Run > Run 'Test'
   - set run configuration to "Main"
   - Run > Run 'Main'
 

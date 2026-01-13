@@ -1,16 +1,16 @@
 # coding: utf-8
 
 from graph import UndirectedGraph, Vertex
-from reporter import Reporter
+from consumer import CliqueConsumer
 from typing import List, Set
 
 
-def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
+def explore(graph: UndirectedGraph, consumer: CliqueConsumer) -> None:
     """Naive Bron-Kerbosch algorithm, optimized"""
     if candidates := graph.connected_vertices():
         visit(
             graph=graph,
-            reporter=reporter,
+            consumer=consumer,
             candidates=candidates,
             excluded=set(),
             clique=[],
@@ -19,7 +19,7 @@ def explore(graph: UndirectedGraph, reporter: Reporter) -> None:
 
 def visit(
     graph: UndirectedGraph,
-    reporter: Reporter,
+    consumer: CliqueConsumer,
     candidates: Set[Vertex],
     excluded: Set[Vertex],
     clique: List[Vertex],
@@ -36,11 +36,11 @@ def visit(
             neighbouring_excluded = excluded.intersection(neighbours)
             visit(
                 graph,
-                reporter,
+                consumer,
                 candidates=neighbouring_candidates,
                 excluded=neighbouring_excluded,
                 clique=clique + [v],
             )
         elif excluded.isdisjoint(neighbours):
-            reporter.record(clique + [v])
+            consumer.accept(clique + [v])
         excluded.add(v)

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from graph import UndirectedGraph, Vertex
-from reporter import Reporter
+from consumer import CliqueConsumer
 
 from typing import Callable, List, Set
 
@@ -10,7 +10,7 @@ PivotChoice = Callable[[UndirectedGraph, Set[Vertex]], Vertex]
 
 def visit(
     graph: UndirectedGraph,
-    reporter: Reporter,
+    consumer: CliqueConsumer,
     pivot_choice_X: bool,
     candidates: Set[Vertex],
     excluded: Set[Vertex],
@@ -26,7 +26,7 @@ def visit(
             neighbours = graph.adjacencies[v]
             assert neighbours
             if excluded.isdisjoint(neighbours):
-                reporter.record(clique + [v])
+                consumer.accept(clique + [v])
         return
 
     # Quickly handle locally unconnected candidates while finding pivot
@@ -38,7 +38,7 @@ def visit(
         if local_degree == 0:
             # Same logic as below, stripped down
             if neighbours.isdisjoint(excluded):
-                reporter.record(clique + [v])
+                consumer.accept(clique + [v])
         else:
             if seen_local_degree < local_degree:
                 seen_local_degree = local_degree
@@ -63,12 +63,12 @@ def visit(
                 neighbouring_excluded = excluded.intersection(neighbours)
                 visit(
                     graph=graph,
-                    reporter=reporter,
+                    consumer=consumer,
                     pivot_choice_X=pivot_choice_X,
                     candidates=neighbouring_candidates,
                     excluded=neighbouring_excluded,
                     clique=clique + [v],
                 )
             elif excluded.isdisjoint(neighbours):
-                reporter.record(clique + [v])
+                consumer.accept(clique + [v])
             excluded.add(v)

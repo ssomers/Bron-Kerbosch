@@ -22,7 +22,7 @@ class Language(Enum):
     python = auto()
     python310 = auto()
     python311 = auto()
-    python313 = auto()
+    python314 = auto()
     rust = auto()
 
     def long_name(self) -> str:
@@ -35,7 +35,7 @@ class Language(Enum):
             Language.python: "Python",
             Language.python310: "Python 3.10",
             Language.python311: "Python 3.11",
-            Language.python313: "Python 3.13",
+            Language.python314: "Python 3.14",
             Language.rust: "Rust 1.90",
         }[self]
 
@@ -49,7 +49,7 @@ class Language(Enum):
             Language.python: "Python",
             Language.python310: "Python",
             Language.python311: "Python",
-            Language.python313: "Python",
+            Language.python314: "Python",
             Language.rust: "Rust",
         }[self]
 
@@ -117,7 +117,7 @@ def color_by_ver(case: Case) -> str:
 def color_by_language(case: Case) -> str:
     return {
         Language.python: "#000099",
-        Language.python313: "#000099",
+        Language.python314: "#000099",
         Language.rust: "#CC0033",
         Language.java: "#009933",
         Language.kotlin: "#CC9933",
@@ -510,7 +510,7 @@ def publish_reports() -> None:
     publish_report(
         basename="report_1",
         orderstr="100",
-        langlibs=[LangLib(Language.python313), LangLib(Language.rust, "Hash")],
+        langlibs=[LangLib(Language.python314), LangLib(Language.rust, "Hash")],
         versions=["Ver1", "Ver1½"],
         linestyle_per_version=["dotted", None],
         label_by_case=lambda case: f"{case.LangLib.Language.short_name()} {case.Ver}",
@@ -539,7 +539,7 @@ def publish_reports() -> None:
     # 4. Ver2 vs. Ver3
     for orderstr in ["10k", "1M"]:
         for langlib in [
-            LangLib(Language.python313),
+            LangLib(Language.python314),
             LangLib(Language.csharp, "HashSet"),
         ]:
             publish_version_report(
@@ -559,7 +559,7 @@ def publish_reports() -> None:
     # 5. Ver3 variants
     for orderstr in ["10k", "1M"]:
         for langlib in [
-            LangLib(Language.python313),
+            LangLib(Language.python314),
             LangLib(Language.csharp, "HashSet"),
         ]:
             publish_version_report(
@@ -603,7 +603,7 @@ def publish_reports() -> None:
             basename=f"report_7_sequential_{orderstr}",
             orderstr=orderstr,
             langlibs=[
-                LangLib(Language.python313),
+                LangLib(Language.python314),
                 LangLib(Language.kotlin),
                 LangLib(Language.go),
                 LangLib(Language.java),
@@ -662,7 +662,7 @@ def publish_reports() -> None:
             basename=f"report_9_python_{orderstr}",
             orderstr=orderstr,
             language=Language.python,
-            languages=[Language.python310, Language.python311, Language.python313],
+            languages=[Language.python310, Language.python311, Language.python314],
             ver="Ver3½-GP",
         )
 
