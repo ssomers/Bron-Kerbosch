@@ -17,7 +17,6 @@ where
         self.samples == 0
     }
     pub fn put(&mut self, v: T) {
-        let vf = f64::from(v);
         if self.is_empty() {
             self.min = v;
             self.max = v;
@@ -27,8 +26,9 @@ where
             self.max = v;
         }
         self.samples += 1;
+        let vf = f64::from(v);
         self.sum += vf;
-        self.sum_of_squares += vf.powi(2);
+        self.sum_of_squares += vf * vf;
     }
 
     pub fn max(&self) -> T {
