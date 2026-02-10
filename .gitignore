@@ -10,8 +10,8 @@ target
 /cpp/a.exe
 /cpp/x64
 /cpp/*/x64
-/csharp/*/bin
-/csharp/*/obj
+/[cf]sharp/*/bin
+/[cf]sharp/*/obj
 /csharp/*/*.user
 /csharp/packages
 /go/Stats/testdata
@@ -42,3 +42,4 @@ target
 /scala/.idea/workspace.xml
 /scala/.idea/.name
 /scala/target
+/zig/.zig-cache
