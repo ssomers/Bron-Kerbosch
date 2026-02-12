@@ -14,19 +14,19 @@ namespace BronKerbosch
             "Ver3½=GPc"
         ];
 
-        public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, IReporter reporter)
+        public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, ICliqueConsumer consumer)
             where TVertexSet : ISet<Vertex>
             where TVertexSetMgr : IVertexSetMgr<TVertexSet>
         {
             switch (funcIndex)
             {
-                case 0: BronKerbosch1<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 1: BronKerbosch2aGP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 2: BronKerbosch2bGP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
-                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, reporter); break;
+                case 0: BronKerbosch1<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 1: BronKerbosch2aGP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 2: BronKerbosch2bGP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

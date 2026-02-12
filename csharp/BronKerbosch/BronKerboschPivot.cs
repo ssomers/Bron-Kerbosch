@@ -17,7 +17,7 @@ namespace BronKerbosch
         where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
-        public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice pivotChoice)
+        public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice pivotChoice)
         {
             var order = graph.Order;
             if (order == 0)
@@ -37,7 +37,7 @@ namespace BronKerbosch
                     if (neighbouringExcluded.Count < neighbours.Count)
                     {
                         var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
-                        Visit(graph, reporter, pivotChoice,
+                        Visit(graph, consumer, pivotChoice,
                               neighbouringCandidates, neighbouringExcluded,
                               [v]);
                     }
@@ -47,7 +47,7 @@ namespace BronKerbosch
             }
         }
 
-        public static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter, PivotChoice choice,
+        public static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice choice,
                                  VertexSet candidates, VertexSet excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
@@ -62,7 +62,7 @@ namespace BronKerbosch
                 var neighbours = graph.Neighbours(v);
                 if (!VertexSetMgr.Overlaps(neighbours, excluded))
                 {
-                    reporter.Record([.. cliqueInProgress, v]);
+                    consumer.Accept([.. cliqueInProgress, v]);
                 }
                 return;
             }
@@ -83,7 +83,7 @@ namespace BronKerbosch
                     // Same logic as below, stripped down
                     if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
-                        reporter.Record([.. cliqueInProgress, v]);
+                        consumer.Accept([.. cliqueInProgress, v]);
                     }
                 }
                 else
@@ -130,13 +130,13 @@ namespace BronKerbosch
                     if (neighbouringCandidates.Any())
                     {
                         var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
-                        Visit(graph, reporter, choice,
+                        Visit(graph, consumer, choice,
                               neighbouringCandidates, neighbouringExcluded,
                               [.. cliqueInProgress, v]);
                     }
                     else if (!VertexSetMgr.Overlaps(neighbours, excluded))
                     {
-                        reporter.Record([.. cliqueInProgress, v]);
+                        consumer.Accept([.. cliqueInProgress, v]);
                     }
                     var added = VertexSetMgr.Add(excluded, v);
                     Debug.Assert(added);

@@ -10,14 +10,14 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
     {
-        var candidates = VertexSetMgr.From(graph.ConnectedVertices());
+        VertexSet candidates = VertexSetMgr.From(graph.ConnectedVertices());
         if (candidates.Count > 0)
         {
             Visit(
                 graph,
-                reporter,
+                consumer,
                 candidates,
                 VertexSetMgr.EmptyWithCapacity(candidates.Count),
                 []);
@@ -25,7 +25,7 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
     }
 
 
-    private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter,
+    private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer,
         VertexSet candidates, VertexSet excluded, ImmutableArray<Vertex> cliqueInProgress)
     {
         Debug.Assert(candidates.All(graph.HasNeighbours));
@@ -34,19 +34,19 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
         Debug.Assert(candidates.Any());
         while (candidates.Any())
         {
-            var v = candidates.PopArbitrary();
-            var neighbours = graph.Neighbours(v);
-            var neighbouringCandidates = VertexSetMgr.Intersection(candidates, neighbours);
+            Vertex v = candidates.PopArbitrary();
+            VertexSet neighbours = graph.Neighbours(v);
+            VertexSet neighbouringCandidates = VertexSetMgr.Intersection(candidates, neighbours);
             if (neighbouringCandidates.Any())
             {
-                var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
-                Visit(graph, reporter,
+                VertexSet neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
+                Visit(graph, consumer,
                     neighbouringCandidates, neighbouringExcluded,
                     [.. cliqueInProgress, v]);
             }
             else if (!VertexSetMgr.Overlaps(excluded, neighbours))
             {
-                reporter.Record([.. cliqueInProgress, v]);
+                consumer.Accept([.. cliqueInProgress, v]);
             }
             var added = VertexSetMgr.Add(excluded, v);
             Debug.Assert(added);

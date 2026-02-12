@@ -9,8 +9,8 @@ internal static class BronKerbosch3GP<VertexSet, VertexSetMgr>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
 #   pragma warning disable IDE0022 // Use expression body for method
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, IReporter reporter)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
     {
-        BronKerboschDegeneracy<VertexSet, VertexSetMgr>.Explore(graph, reporter, PivotChoice.MaxDegreeLocal);
+        BronKerboschDegeneracy<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocal);
     }
 }

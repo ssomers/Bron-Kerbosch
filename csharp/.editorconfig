@@ -12,7 +12,7 @@ indent_size = 4
 [*.cs]
 dotnet_analyzer_diagnostic.severity = warning
 dotnet_diagnostic.CA1000.severity = suggestion
-dotnet_diagnostic.CA1707.severity = suggestion
+dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.IDE0007.severity = suggestion
 dotnet_diagnostic.IDE0008.severity = suggestion
 dotnet_diagnostic.IDE0046.severity = suggestion

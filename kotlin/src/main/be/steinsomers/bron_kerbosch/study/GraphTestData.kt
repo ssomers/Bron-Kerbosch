@@ -40,8 +40,7 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
             Files.newBufferedReader(path).use { br ->
                 for (lineNum in 0..<size) {
                     val line = br.readLine()
-                    if (line == null)
-                        throw IOException("File $path has only $lineNum of the requested $size lines")
+                        ?: throw IOException("File $path has only $lineNum of the requested $size lines")
                     val fields: Array<String> = line.split(" ".toRegex(), limit = 2).toTypedArray()
                     val v: Int
                     val w: Int
