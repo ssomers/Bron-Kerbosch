@@ -28,7 +28,7 @@ class Language(Enum):
     def long_name(self) -> str:
         return {
             Language.cpp: "C++",
-            Language.csharp: "C# .NET 9",
+            Language.csharp: "C# .NET 10",
             Language.go: "Go 1.25",
             Language.java: "Java 24",
             Language.kotlin: "Kotlin 2",

@@ -12,5 +12,6 @@ namespace BronKerbosch
         public static Vertex Nth(Index idx) => new() { Idx = idx };
         public int CompareTo(Vertex other) => Idx.CompareTo(other.Idx);
         public Index Index() => Idx;
+        public override string ToString() => $"vertex {Idx}";
     }
 }

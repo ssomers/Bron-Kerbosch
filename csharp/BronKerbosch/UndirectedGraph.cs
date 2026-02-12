@@ -11,22 +11,20 @@ namespace BronKerbosch
     {
         private readonly ImmutableArray<TVertexSet> itsAdjacencies;
 
-        public bool AreValidAdjacencies(ImmutableArray<TVertexSet> adjacencies)
-        {
-            foreach (var v in Enumerable.Range(0, adjacencies.Length).Select(Vertex.Nth))
-            {
-                foreach (var w in adjacencies[v.Index()])
-                {
-                    if (v == w) return false;
-                    if (!adjacencies[w.Index()].Contains(v)) return false;
-                }
-            }
-            return true;
-        }
+        public bool AreSymmetrical(ImmutableArray<TVertexSet> adjacencies) => adjacencies
+            .Select((neighbours, i) => (Vertex.Nth(i), neighbours))
+            .All(((Vertex vertex, TVertexSet neighbours) the) =>
+                 the.neighbours.All(w => adjacencies[w.Index()].Contains(the.vertex)));
+
+        public bool AreLoopFree(ImmutableArray<TVertexSet> adjacencies) => adjacencies
+            .Select((neighbours, i) => (Vertex.Nth(i), neighbours))
+            .All(((Vertex vertex, TVertexSet neighbours) the) =>
+                 !the.neighbours.Contains(the.vertex));
 
         public UndirectedGraph(ImmutableArray<TVertexSet> adjacencies)
         {
-            Debug.Assert(AreValidAdjacencies(adjacencies));
+            Debug.Assert(AreSymmetrical(adjacencies));
+            Debug.Assert(AreLoopFree(adjacencies));
             itsAdjacencies = adjacencies;
         }
 
@@ -36,7 +34,7 @@ namespace BronKerbosch
         {
             get
             {
-                var total = Enumerable.Range(0, Order).Select(Vertex.Nth).Sum(Degree);
+                var total = Vertices().Sum(Degree);
                 Debug.Assert(total % 2 == 0);
                 return total / 2;
             }

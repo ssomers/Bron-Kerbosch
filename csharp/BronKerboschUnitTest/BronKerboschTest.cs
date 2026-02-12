@@ -13,20 +13,21 @@ namespace BronKerboschUnitTest
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
-        private static void Bk(int[][] adjacencies, int[][] cliques)
+        private static void Bk(int[][] adjacencies, int[][] expectedCliques)
         {
             var adjacencies2 = adjacencies.Select(neighbours => TVertexSetMgr.From(neighbours.Select(i => Vertex.Nth(i))))
                                  .ToImmutableArray();
-            var cliques2 = cliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray()).ToArray();
+            var expectedCliques2 = expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray()).ToArray();
             var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
-                var reporter = new CollectingReporter();
-                Portfolio.Explore(funcIndex, graph, reporter);
-                Assert.That(cliques2.Length, Is.EqualTo(reporter.Cliques.Count));
-                Portfolio.SortCliques(reporter.Cliques);
-                foreach ((var reportedClique, var i) in reporter.Cliques.Select((v, i) => (v, i)))
-                    Assert.That(reportedClique.SequenceEqual(cliques2[i]));
+                var consumer = new CliqueCollector();
+                Portfolio.Explore(funcIndex, graph, consumer);
+                var result = consumer.List();
+                Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
+                Portfolio.SortCliques(result);
+                foreach ((var reportedClique, var i) in result.Select((v, i) => (v, i)))
+                    Assert.That(reportedClique.SequenceEqual(expectedCliques2[i]));
             }
         }
 
@@ -34,119 +35,119 @@ namespace BronKerboschUnitTest
         public void TestOrder0()
         {
             Bk(adjacencies: [],
-               cliques: []);
+               expectedCliques: []);
         }
 
         [Test]
         public void TestOrder1()
         {
             Bk(adjacencies: [[]],
-               cliques: []);
+               expectedCliques: []);
         }
 
         [Test]
         public void TestOrder2_Isolated()
         {
             Bk(adjacencies: [[], []],
-               cliques: []);
+               expectedCliques: []);
         }
 
         [Test]
         public void TestOrder2_Connected()
         {
             Bk(adjacencies: [[1], [0]],
-               cliques: [[0, 1]]);
+               expectedCliques: [[0, 1]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Left()
         {
             Bk(adjacencies: [[1], [0], []],
-               cliques: [[0, 1]]);
+               expectedCliques: [[0, 1]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Long()
         {
             Bk(adjacencies: [[2], [], [0]],
-               cliques: [[0, 2]]);
+               expectedCliques: [[0, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size1_Right()
         {
             Bk(adjacencies: [[], [2], [1]],
-               cliques: [[1, 2]]);
+               expectedCliques: [[1, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size2()
         {
             Bk(adjacencies: [[1], [0, 2], [1]],
-               cliques: [[0, 1], [1, 2]]);
+               expectedCliques: [[0, 1], [1, 2]]);
         }
 
         [Test]
         public void TestOrder3_Size3()
         {
             Bk(adjacencies: [[1, 2], [0, 2], [0, 1]],
-               cliques: [[0, 1, 2]]);
+               expectedCliques: [[0, 1, 2]]);
         }
 
         [Test]
         public void TestOrder4_Size2()
         {
             Bk(adjacencies: [[1], [0], [3], [2]],
-               cliques: [[0, 1], [2, 3]]);
+               expectedCliques: [[0, 1], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size3_Bus()
         {
             Bk(adjacencies: [[1], [0, 2], [1, 3], [2]],
-               cliques: [[0, 1], [1, 2], [2, 3]]);
+               expectedCliques: [[0, 1], [1, 2], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size3_Star()
         {
             Bk(adjacencies: [[1, 2, 3], [0], [0], [0]],
-               cliques: [[0, 1], [0, 2], [0, 3]]);
+               expectedCliques: [[0, 1], [0, 2], [0, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size4_p()
         {
             Bk(adjacencies: [[1], [0, 2, 3], [1, 3], [1, 2]],
-               cliques: [[0, 1], [1, 2, 3]]);
+               expectedCliques: [[0, 1], [1, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size4_Square()
         {
             Bk(adjacencies: [[1, 3], [0, 2], [1, 3], [0, 2]],
-               cliques: [[0, 1], [0, 3], [1, 2], [2, 3]]);
+               expectedCliques: [[0, 1], [0, 3], [1, 2], [2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size5()
         {
             Bk(adjacencies: [[1, 2, 3], [0, 2], [0, 1, 3], [0, 2]],
-               cliques: [[0, 1, 2], [0, 2, 3]]);
+               expectedCliques: [[0, 1, 2], [0, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size6()
         {
             Bk(adjacencies: [[1, 2, 3], [0, 2, 3], [0, 1, 3], [0, 1, 2]],
-               cliques: [[0, 1, 2, 3]]);
+               expectedCliques: [[0, 1, 2, 3]]);
         }
 
         [Test]
         public void TestOrder4_Size6_Penultimate()
         {
             Bk(adjacencies: [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4], [0, 1, 2], [0, 1, 2]],
-               cliques: [[0, 1, 2, 3], [0, 1, 2, 4]]);
+               expectedCliques: [[0, 1, 2, 3], [0, 1, 2, 4]]);
         }
 
         [Test]
@@ -163,7 +164,7 @@ namespace BronKerboschUnitTest
                     [5, 7],
                     [5, 6]
                 ],
-               cliques:
+               expectedCliques:
                 [
                     [1, 2, 3, 4],
                     [2, 3, 5],
@@ -187,7 +188,7 @@ namespace BronKerboschUnitTest
                     [1, 2],
                     [1, 2, 3, 4, 6, 7]
                 ],
-               cliques:
+               expectedCliques:
                 [
                     [0, 1, 3],
                     [0, 1, 6],

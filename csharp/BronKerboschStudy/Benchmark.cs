@@ -6,9 +6,11 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using static System.Globalization.CultureInfo;
 
 static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
+    bool genuine,
     string orderstr,
     int size,
     int[] funcIndices,
@@ -16,12 +18,15 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
+    const int warning_interval = 3000;
     var sw = Stopwatch.StartNew();
     var graph = RandomUndirectedGraph<VertexSet, VertexSetMgr>.Read(orderstr, size);
     sw.Stop();
-    var secs = sw.ElapsedMilliseconds / 1e3;
-    Console.WriteLine($"{VertexSetMgr.Name()}-based random graph of order {orderstr},"
-        + $" {size} edges, {graph.CliqueCount} cliques: (generating took {secs:.3}s)");
+    if (genuine)
+    {
+        Console.WriteLine($"{VertexSetMgr.Name()}-based random graph of order {orderstr},"
+            + $" {size} edges, {graph.CliqueCount} cliques: (generating took {sw.ElapsedMilliseconds}ms)");
+    }
     var times = new SampleStatistics[Portfolio.FuncNames.Length];
 
     List<ImmutableArray<Vertex>>? firstResult = null;
@@ -31,54 +36,62 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
         {
             if (sample == 0)
             {
-                CollectingReporter reporter = new();
-                sw.Restart();
-                Portfolio.Explore(funcIndex, graph.Graph, reporter);
-                sw.Stop();
-                secs = sw.ElapsedMilliseconds / 1e3;
-                if (timed_samples == 0 || secs >= 3.0)
-                    Console.WriteLine($"  {Portfolio.FuncNames[funcIndex],10} {secs,6:N2}s");
-                Portfolio.SortCliques(reporter.Cliques);
+                int warnings = 0;
+                var ticker = new Timer((_) =>
+                {
+                    warnings += 1;
+                    int secs = warnings * warning_interval / 1000;
+                    Console.WriteLine($"  {secs} seconds in, {Portfolio.FuncNames[funcIndex]} is still busy collecting");
+                }, null, warning_interval, warning_interval);
+                CliqueCollector consumer = new();
+                Portfolio.Explore(funcIndex, graph.Graph, consumer);
+                ticker.Dispose();
+                var result = consumer.List();
+                Portfolio.SortCliques(result);
                 if (firstResult == null)
                 {
-                    if (reporter.Cliques.Count != graph.CliqueCount)
+                    if (result.Count != graph.CliqueCount)
                     {
                         throw new InvalidProgramException(
-                            $"Expected {graph.CliqueCount} cliques, got {reporter.Cliques.Count}");
+                            $"Expected {graph.CliqueCount} cliques, got {result.Count}");
                     }
-                    firstResult = reporter.Cliques;
+                    firstResult = result;
                 }
                 else
                 {
-                    Portfolio.AssertSameCliques(firstResult, reporter.Cliques);
+                    Portfolio.AssertSameCliques(firstResult, result);
                 }
             }
             else
             {
-                CountingReporter reporter = new();
+                CliqueCounter consumer = new();
                 sw.Restart();
-                Portfolio.Explore(funcIndex, graph.Graph, reporter);
+                Portfolio.Explore(funcIndex, graph.Graph, consumer);
                 sw.Stop();
-                secs = sw.ElapsedMilliseconds / 1e3;
+                var secs = sw.ElapsedMilliseconds / 1e3;
+                Debug.Assert(consumer.Count() == firstResult!.Count);
                 times[funcIndex].Put(secs);
             }
         }
     }
-    foreach (var funcIndex in funcIndices)
+    if (genuine)
     {
-        var funcName = Portfolio.FuncNames[funcIndex];
-        var mean = times[funcIndex].Mean;
-        var reldev = times[funcIndex].Deviation / mean;
-        Console.WriteLine($"  {funcName,-10} {mean,6:N3}s ± {reldev:P0}");
+        foreach (var funcIndex in funcIndices)
+        {
+            var funcName = Portfolio.FuncNames[funcIndex];
+            var mean = times[funcIndex].Mean;
+            var reldev = times[funcIndex].Deviation / mean;
+            Console.WriteLine($"  {funcName,-10} {mean,6:N3}s ± {reldev:P0}");
+        }
     }
     return times;
 }
 
 #pragma warning disable IDE0061 // Use block body for local function
-SampleStatistics[] Bk_core(SetType setType, string orderstr, int size, int[] funcIndices, int timed_samples) => setType switch
+SampleStatistics[] Bk_core(bool genuine, SetType setType, string orderstr, int size, int[] funcIndices, int timed_samples) => setType switch
 {
-    SetType.HashSet => BronKerboschTimed<HashSet<Vertex>, HashSetMgr>(orderstr, size, funcIndices, timed_samples),
-    SetType.SortedSet => BronKerboschTimed<SortedSet<Vertex>, SortedSetMgr>(orderstr, size, funcIndices, timed_samples),
+    SetType.HashSet => BronKerboschTimed<HashSet<Vertex>, HashSetMgr>(genuine, orderstr, size, funcIndices, timed_samples),
+    SetType.SortedSet => BronKerboschTimed<SortedSet<Vertex>, SortedSetMgr>(genuine, orderstr, size, funcIndices, timed_samples),
     _ => throw new ArgumentOutOfRangeException(nameof(setType)),
 };
 
@@ -91,6 +104,7 @@ string SetTypeName(SetType setType) => setType switch
 #pragma warning restore IDE0061 // Use block body for local function
 
 void Bk(
+    bool genuine,
     string orderstr,
     IEnumerable<int> sizes, Func<SetType, int, IEnumerable<int>> includedFuncs,
     int timed_samples)
@@ -109,7 +123,7 @@ void Bk(
                 var funcIndices = includedFuncs(setType, size).ToArray();
                 if (funcIndices.Length > 0)
                 {
-                    stats.Add(setType, Bk_core(setType, orderstr, size, funcIndices, timed_samples));
+                    stats.Add(setType, Bk_core(genuine, setType, orderstr, size, funcIndices, timed_samples));
                 }
             }
 
@@ -132,7 +146,7 @@ void Bk(
             fo.Write($"{size}");
             foreach (var setType in setTypesUsed)
             {
-                var times = stats.GetValueOrDefault(setType, new SampleStatistics[Portfolio.FuncNames.Length]);
+                SampleStatistics[] times = stats.GetValueOrDefault(setType, new SampleStatistics[Portfolio.FuncNames.Length]);
                 foreach ((var funcIndex, var funcName) in Portfolio.FuncNames.Select((n, i) => (i, n)))
                 {
                     var max = times[funcIndex].Max;
@@ -148,7 +162,7 @@ void Bk(
         }
     }
 
-    var path = $"..\\bron_kerbosch_csharp_order_{orderstr}.csv";
+    var path = $"..\\bron_kerbosch_csharp_order_{(genuine ? orderstr : "warmup")}.csv";
     if (File.Exists(path))
         File.Delete(path);
     File.Move(tmpfname, path);
@@ -167,15 +181,16 @@ IEnumerable<int> Range(int start, int stop, int step)
 Debug.Fail("Run Release build for meaningful measurements");
 
 var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
-var mostFuncIndices = Enumerable.Range(1, Portfolio.FuncNames.Length - 1);
-Bk("100", Range(2_000, 3_001, 50), (_, size) => allFuncIndices, 5); // max 4_950
-Bk("10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
-    (_, size) => mostFuncIndices, 3);
-Bk("1M", Range(500_000, 2_000_000, 250_000)
+Bk(false, "100", [2000], (_, _) => allFuncIndices, 3); // warm up
+Thread.Sleep(321);
+Bk(true, "100", Range(2_000, 3_001, 50), (_, size) => allFuncIndices, 5); // max 4_950
+Bk(true, "10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
+    (_, size) => allFuncIndices.Skip(1), 3);
+Bk(true, "1M", Range(500_000, 2_000_000, 250_000)
         .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
     (setType, size) => setType switch
     {
-        SetType.HashSet => size > 2_000_000 ? [4, 5, 6] : mostFuncIndices,
+        SetType.HashSet => allFuncIndices.Skip(size > 2_000_000 ? 2 : 1),
         SetType.SortedSet => [],
         _ => throw new ArgumentOutOfRangeException(nameof(setType)),
     }, 3);
