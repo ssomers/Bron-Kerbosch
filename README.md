@@ -37,7 +37,7 @@ comes in cliques, some of which are near-maximal and cause the heartaches descri
 * Collection libraries don't matter much, though hashing-based collection reach sizes that a B-tree can only dream of.
 
 
-# Report of results
+# Detailed reports
 ## Local optimization
 
 Let's first get one thing out of the way: what does some local optimization yield in the simplest,
@@ -88,7 +88,7 @@ These are all single-threaded implementations (using only one CPU core).
 ![Time spent on graphs of order 100](doc/report_3_java_100.svg)
 ![Time spent on graphs of order 100](doc/report_3_rust_100.svg)
 
-* …but GPX looses ground in big graphs
+* …but GPX looses ground in big, sparse graphs
 
 ![Time spent on graphs of order 10k](doc/report_3_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_3_rust_10k.svg)
@@ -102,17 +102,17 @@ These are all single-threaded implementations (using only one CPU core).
 
 ![Time spent on graphs of order 1M](doc/report_4_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_4_java_10k.svg)
-![Time spent on graphs of order 10k](doc/report_4_python313_10k.svg)
-![Time spent on graphs of order 1M](doc/report_4_python313_1M.svg)
+![Time spent on graphs of order 10k](doc/report_4_python314_10k.svg)
+![Time spent on graphs of order 1M](doc/report_4_python314_1M.svg)
 
-* Ver3-GP seems to cope better at scale than Ver3-GPX
+* Ver3-GP seems to cope slightly better at scale than Ver3-GPX
 
 ![Time spent on graphs of order 1M](doc/report_5_csharp_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_5_csharp_1M.svg)
 ![Time spent on graphs of order 10k](doc/report_5_java_10k.svg)
 ![Time spent on graphs of order 10k](doc/report_5_rust_10k.svg)
-![Time spent on graphs of order 10k](doc/report_5_python313_10k.svg)
-![Time spent on graphs of order 1M](doc/report_5_python313_1M.svg)
+![Time spent on graphs of order 10k](doc/report_5_python314_10k.svg)
+![Time spent on graphs of order 1M](doc/report_5_python314_1M.svg)
 
 ## Introducing parallelism
 
@@ -190,7 +190,7 @@ Ways to implement parallelism varies per language:
 
 ## Comparing versions of languages
 
-* Python 3.10 versus 3.11
+* Python 3.10 versus 3.11 (performance boost) versus 3.14 (latest)
 
 ![Time spent on graphs of order 100](doc/report_9_python_100.svg)
 ![Time spent on graphs of order 10k](doc/report_9_python_10k.svg)
@@ -377,15 +377,15 @@ Perform:
 
 Python and Rust publish results to `detail_*` files automatically, the others need a push:
 
-    python python3\publish.py go 100 10k 1M
-    python python3\publish.py csharp 100 10k 1M
-    python python3\publish.py cpp 100 10k 1M
-    python python3\publish.py java 100 10k 1M
-    python python3\publish.py kotlin 100 10k 1M
+    python ..\python3\publish.py go 100 10k 1M
+    python ..\python3\publish.py csharp 100 10k 1M
+    python ..\python3\publish.py cpp 100 10k 1M
+    python ..\python3\publish.py java 100 10k 1M
+    python ..\python3\publish.py kotlin 100 10k 1M
 
 And finally, generate report images:
 
-    python python3\publish.py
+    python ..\python3\publish.py
 
 ## License
 
