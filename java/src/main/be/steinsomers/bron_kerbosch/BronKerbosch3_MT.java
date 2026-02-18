@@ -62,7 +62,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             @Override
             public void run() {
                 try {
-                    final Iterable<Integer> vertices = () -> new DegeneracyOrdering(graph, -1);
+                    final Iterable<Integer> vertices = () -> new DegeneracyFilter(graph);
                     for (final var v : vertices) {
                         startQueue.put(new StartJob(v));
                     }

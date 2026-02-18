@@ -27,7 +27,7 @@ func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitor
 
 	starts := make(chan Vertex, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
-	go degeneracyOrdering(graph, &ChannelVertexVisitor{starts}, -1)
+	go degeneracyOrdering(graph, &ChannelVertexVisitor{starts})
 	go func() {
 		excluded := make(VertexSet, graph.connectedVertexCount-1)
 		var wg sync.WaitGroup

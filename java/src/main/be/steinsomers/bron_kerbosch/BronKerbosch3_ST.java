@@ -20,7 +20,7 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
             void work() {
                 final var visitProducer = new VisitProducer();
                 final var visitor = new Visitor();
-                final var ordering = new DegeneracyOrdering(graph, -1);
+                final var ordering = new DegeneracyFilter(graph);
                 ordering.stream()
                         .mapToObj(visitProducer::createJob)
                         .filter(Objects::nonNull)

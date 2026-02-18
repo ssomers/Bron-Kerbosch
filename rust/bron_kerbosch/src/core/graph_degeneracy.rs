@@ -1,31 +1,30 @@
 use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 use std::iter::FusedIterator;
 
-pub fn degeneracy_ordering<Graph>(graph: &Graph, drop: isize) -> DegeneracyOrderIter<'_, Graph>
+// Enumerate connected vertices in degeneracy order, skipping vertices
+// whose neighbours have all been enumerated already.
+pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
 {
-    debug_assert!(drop <= 0);
     let order = graph.order();
-    let mut priority_per_vertex: VertexMap<Option<Priority>> = VertexMap::new(None, order);
-    let mut max_priority: Option<Priority> = None;
-    let mut num_candidates: isize = 0;
-    for c in 0..order {
-        let c = Vertex::new(c);
-        let degree = graph.degree(c);
-        if degree > 0 {
-            let priority = Priority::new(degree + 1);
-            priority_per_vertex[c] = priority;
-            max_priority = max_priority.iter().copied().chain(priority).max();
-            debug_assert!(max_priority.is_some());
+    let mut priority_per_vertex = VertexMap::new(None, order);
+    let mut max_priority: usize = 0;
+    let mut num_candidates: usize = 0;
+    for i in 0..order {
+        let v = Vertex::new(i);
+        let degree = graph.degree(v);
+        if let Some(priority) = Priority::new(degree) {
+            priority_per_vertex[v] = Some(priority);
+            max_priority = max_priority.max(priority.get());
             num_candidates += 1;
         }
     }
     let mut queue = PriorityQueue::new(max_priority);
-    for c in 0..order {
-        let c = Vertex::new(c);
-        if let Some(priority) = priority_per_vertex[c] {
-            queue.put(priority, c);
+    for i in 0..order {
+        let v = Vertex::new(i);
+        if let Some(priority) = priority_per_vertex[v] {
+            queue.put(priority, v);
         }
     }
 
@@ -33,11 +32,11 @@ where
         graph,
         priority_per_vertex,
         queue,
-        num_left_to_pick: num_candidates + drop,
+        num_left_to_pick: num_candidates,
     }
 }
 
-type Priority = std::num::NonZeroUsize;
+type Priority = std::num::NonZero<usize>; // = degree - #of yielded neighbours
 
 struct PriorityQueue<T> {
     stack_per_priority: Vec<Vec<T>>,
@@ -47,12 +46,9 @@ impl<T> PriorityQueue<T>
 where
     T: Copy + Eq,
 {
-    fn new(max_priority: Option<Priority>) -> Self {
+    fn new(max_priority: usize) -> Self {
         PriorityQueue {
-            stack_per_priority: match max_priority {
-                None => vec![],
-                Some(max_priority) => vec![vec![]; max_priority.get()],
-            },
+            stack_per_priority: vec![vec![]; max_priority],
         }
     }
 
@@ -69,7 +65,6 @@ where
         None
     }
 
-    #[allow(clippy::nonminimal_bool)]
     fn contains(&self, priority: Priority, element: T) -> bool {
         if !(cfg!(debug_assertions)) {
             panic!("not suitable for use in release code")
@@ -81,27 +76,43 @@ where
 pub struct DegeneracyOrderIter<'a, Graph> {
     graph: &'a Graph,
     priority_per_vertex: VertexMap<Option<Priority>>,
-    // If priority is None, vertex was already picked or was always irrelevant (unconnected);
-    // otherwise, vertex is still queued and priority = degree - number of picked neighbours +1.
-    // +1 because we want the priority number to be NonZero to allow free wrapping inside Option.
+    // If priority is None, the vertex either:
+    // - was always irrelevant (unconnected);
+    // - was already picked itself;
+    // - had all its neighbours picked.
     queue: PriorityQueue<Vertex>,
-    num_left_to_pick: isize,
+    num_left_to_pick: usize,
 }
 
 impl<Graph> DegeneracyOrderIter<'_, Graph> {
-    fn pick_with_lowest_degree(&mut self) -> Vertex {
-        debug_assert!(self.priority_per_vertex.iter().all(|(v, &p)| match p {
-            None => true, // might still be in some stack
-            Some(p) => self.queue.contains(p, v),
-        }));
-        loop {
-            let v = self.queue.pop().expect("Cannot pop more than has been put");
-            if self.priority_per_vertex[v].is_some() {
-                self.priority_per_vertex[v] = None;
-                return v;
+    fn is_consistent(&self) -> bool {
+        self.priority_per_vertex
+            .iter()
+            .all(|(v, &priority)| match priority {
+                None => true,
+                Some(priority) => self.queue.contains(priority, v),
+            })
+    }
+
+    fn requeue<VertexSet: VertexSetLike>(&mut self, neighbours: &VertexSet) {
+        neighbours.for_each(|v| {
+            match self.priority_per_vertex[v] {
+                None => {}
+                Some(old_priority) => {
+                    // Requeue with a more urgent priority or unqueue.
+                    // Don't bother to remove the original entry from the queue,
+                    // since the vertex will be skipped when popped, and thanks to
+                    // num_left_to_pick we might not need to pop it at all.
+                    let new_priority = Priority::new(old_priority.get() - 1);
+                    self.priority_per_vertex[v] = new_priority;
+                    if let Some(new_priority) = new_priority {
+                        self.queue.put(new_priority, v);
+                    } else {
+                        self.num_left_to_pick -= 1;
+                    }
+                }
             }
-            // else v was requeued with a more urgent priority and therefore already picked
-        }
+        });
     }
 }
 
@@ -113,24 +124,16 @@ where
     type Item = Vertex;
 
     fn next(&mut self) -> Option<Vertex> {
-        if self.num_left_to_pick > 0 {
-            self.num_left_to_pick -= 1;
-            let i = self.pick_with_lowest_degree();
-            self.graph.neighbours(i).for_each(|v| {
-                if let Some(old_priority) = self.priority_per_vertex[v] {
-                    // Since this is an unvisited neighbour of a vertex just being picked,
-                    // its priority can't be down to the minimum.
-                    let new_priority = Priority::new(old_priority.get() - 1);
-                    debug_assert!(new_priority.is_some());
-                    // Requeue with a more urgent priority, but don't bother to remove
-                    // the original entry - it will be skipped if it's reached at all.
-                    self.priority_per_vertex[v] = new_priority;
-                    self.queue.put(new_priority.unwrap(), v);
-                }
-            });
-            Some(i)
-        } else {
-            None
+        while self.num_left_to_pick > 0 {
+            debug_assert!(self.is_consistent());
+            let pick = self.queue.pop().expect("Cannot pop more than has been put");
+            if self.priority_per_vertex[pick].is_some() {
+                self.priority_per_vertex[pick] = None;
+                self.num_left_to_pick -= 1;
+                self.requeue(self.graph.neighbours(pick));
+                return Some(pick);
+            }
         }
+        None
     }
 }

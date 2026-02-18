@@ -46,7 +46,7 @@ internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
             });
 
         // Step 1: order vertices.
-        foreach (Vertex v in Degeneracy<VertexSet, VertexSetMgr>.Ordering(graph, drop: 1))
+        foreach (Vertex v in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
         {
             var posted = visitor.Post(v);
             Trace.Assert(posted);

@@ -3,70 +3,76 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using Priority = int;
+
 namespace BronKerbosch
 {
     internal static class Degeneracy<VertexSet, VertexSetMgr>
         where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
-        // Iterate connected vertices, lowest degree first.
-        // drop=N: omit last N vertices
-        public static IEnumerable<Vertex> Ordering(UndirectedGraph<VertexSet, VertexSetMgr> graph, int drop)
+        // Enumerate connected vertices in degeneracy order, skipping vertices
+        // whose neighbours have all been enumerated already.
+        public static IEnumerable<Vertex> Iter(UndirectedGraph<VertexSet, VertexSetMgr> graph)
         {
-            Debug.Assert(drop >= 0);
-            const int NO_PRIORITY = -1;
-            var priorityPerVertex = new int[graph.Order];
-            var maxPriority = 0;
-            var numLeftToPick = 0;
+            // Possible values of priorityPerVertex (after initialization):
+            //   0: never queued because not connected (degree 0),
+            //      or no longer queued because it has been yielded itself,
+            //      or no longer queued because all neighbours have been yielded
+            //   1..maxPriority: candidates queued with priority (degree - #of yielded neighbours)
+            var priorityPerVertex = new Priority[graph.Order];
+            Priority maxPriority = 0;
             foreach (var i in Enumerable.Range(0, graph.Order))
             {
-                var c = Vertex.Nth(i);
-                var degree = graph.Degree(c);
-                if (degree > 0)
+                Vertex v = Vertex.Nth(i);
+                var degree = graph.Degree(v);
+                priorityPerVertex[i] = degree;
+                maxPriority = Math.Max(maxPriority, degree);
+            }
+
+            var q = new PriorityQueue(maxPriority);
+            var numLeftToPick = 0;
+            foreach ((Vertex v, Priority priority) in priorityPerVertex.Select((p, i) => (Vertex.Nth(i), p)))
+            {
+                if (priority > 0)
                 {
-                    priorityPerVertex[i] = degree;
-                    maxPriority = Math.Max(maxPriority, degree);
+                    q.Put(priority: priority, element: v);
                     numLeftToPick += 1;
                 }
             }
 
-            // Possible values of priority_per_vertex:
-            //   no_priority: when yielded or if unconnected
-            //   0..maxPriority: candidates still queued with priority (degree - #of yielded neighbours)
-            var q = new PriorityQueue(maxPriority);
-            foreach (var (c, p) in priorityPerVertex.Select((p, i) => (Vertex.Nth(i), p)))
+            while (numLeftToPick > 0)
             {
-                if (p > 0)
+                Vertex pick = q.Pop();
+                Priority priority = priorityPerVertex[pick.Index()];
+                if (priority > 0)
                 {
-                    q.Put(priority: p, element: c);
-                }
-            }
-
-            numLeftToPick -= drop;
-            while (numLeftToPick >= 0)
-            {
-                numLeftToPick -= 1;
-                var i = q.Pop();
-                while (priorityPerVertex[i.Index()] == NO_PRIORITY)
-                {
-                    // was requeued with a more urgent priority and therefore already picked
-                    i = q.Pop();
-                }
-                Debug.Assert(priorityPerVertex[i.Index()] >= 0);
-                priorityPerVertex[i.Index()] = NO_PRIORITY;
-                yield return i;
-                foreach (var v in graph.Neighbours(i))
-                {
-                    var oldPriority = priorityPerVertex[v.Index()];
-                    if (oldPriority != NO_PRIORITY)
+                    // In contrast to most languages, C# allows spawning as soon as possible,
+                    // before we adjust the data. Not that we know it makes a difference.
+                    yield return pick;
+                    priorityPerVertex[pick.Index()] = 0;
+                    numLeftToPick -= 1;
+                    foreach (Vertex v in graph.Neighbours(pick))
                     {
-                        // Since this is an unvisited neighbour of a vertex just being picked,
-                        // its priority can't be down to the minimum.
-                        Debug.Assert(oldPriority > 0);
-                        // Requeue with a more urgent priority, but don't bother to remove
-                        // the original entry - it will be skipped if it's reached at all.
-                        priorityPerVertex[v.Index()] = oldPriority - 1;
-                        q.Put(priority: oldPriority - 1, element: v);
+                        var oldPriority = priorityPerVertex[v.Index()];
+                        if (oldPriority != 0)
+                        {
+                            // Requeue with a more urgent priority or dequeue.
+                            // Don't bother to remove the original entry from the queue,
+                            // since the vertex will be skipped when popped, and thanks to
+                            // numLeftToPick we might not need to pop it at all.
+                            var newPriority = oldPriority - 1;
+                            priorityPerVertex[v.Index()] = newPriority;
+                            if (newPriority > 0)
+                            {
+                                q.Put(priority: newPriority, element: v);
+                            }
+                            else
+                            {
+                                Debug.Assert(numLeftToPick > 0);
+                                numLeftToPick -= 1;
+                            }
+                        }
                     }
                 }
             }
@@ -77,11 +83,10 @@ namespace BronKerbosch
     {
         private readonly List<Vertex>[] itsQueuePerPriority = new List<Vertex>[maxPriority + 1];
 
-        public void Put(int priority, Vertex element)
+        public void Put(Priority priority, Vertex element)
         {
-            Debug.Assert(priority >= 0);
-            itsQueuePerPriority[priority] ??= [];
-            itsQueuePerPriority[priority].Add(element);
+            Debug.Assert(priority > 0);
+            (itsQueuePerPriority[priority - 1] ??= []).Add(element);
         }
 
         public Vertex Pop()
@@ -93,7 +98,7 @@ namespace BronKerbosch
                     var last = queue.Count - 1;
                     if (last >= 0)
                     {
-                        var v = queue[last];
+                        Vertex v = queue[last];
                         queue.RemoveAt(last);
                         return v;
                     }

@@ -22,44 +22,46 @@ class PriorityQueue:
             raise ValueError("attempt to pop more than was put")
 
 
-def degeneracy_ordering(
-    graph: UndirectedGraph, drop: int = 0
-) -> Generator[Vertex, None, None]:
+def degeneracy_filter(graph: UndirectedGraph) -> Generator[Vertex, None, None]:
     """
-    Iterate connected vertices, lowest degree first.
-    drop=N: omit last N vertices
+    Iterate connected vertices, lowest degree first, skipping vertices whose neighbours
+    have all been yielded.
     """
-    assert drop >= 0
-    priority_per_node = [-2] * graph.order
+    priority_per_node = [0] * graph.order
     max_degree = 0
-    num_candidates = 0
     for c in range(graph.order):
         if degree := graph.degree(c):
             priority_per_node[c] = degree
             max_degree = max(max_degree, degree)
-            num_candidates += 1
     # Possible values of priority_per_node:
     #   -2: if unconnected (should never be queried)
     #   -1: after having been yielded
     #   0..max_degree: candidates still queued with priority equal to
     #                  (degree - number of yielded neighbours).
     q = PriorityQueue(max_priority=max_degree)
+    num_left_to_pick = 0
     for c, p in enumerate(priority_per_node):
         if p > 0:
             q.put(priority=p, element=c)
+            num_left_to_pick += 1
 
-    for _ in range(num_candidates - drop):
-        i = q.pop()
-        while priority_per_node[i] == -1:
-            # was requeued with a more urgent priority and therefore already picked
-            i = q.pop()
-        assert priority_per_node[i] >= 0
-        priority_per_node[i] = -1
-        yield i
-        for v in graph.adjacencies[i]:
-            if (p := priority_per_node[v]) != -1:
-                assert p > 0
-                # Requeue with a more urgent priority, but don't bother to remove
-                # the original entry - it will be skipped if it's reached at all.
-                priority_per_node[v] = p - 1
-                q.put(priority=p - 1, element=v)
+    while num_left_to_pick > 0:
+        pick = q.pop()
+        if priority_per_node[pick] > 0:
+            # In contrast to most languages, python allows spawning as soon as possible,
+            # before we adjust the data. Not that we know it makes a difference.
+            yield pick
+            priority_per_node[pick] = 0
+            num_left_to_pick -= 1
+            for v in graph.adjacencies[pick]:
+                if (old_priority := priority_per_node[v]) > 0:
+                    # Requeue with a more urgent priority or dequeue.
+                    # Don't bother to remove the original entry from the queue,
+                    # since the vertex will be skipped when popped, and thanks to
+                    # num_left_to_pick we might not need to pop it at all.
+                    new_priority = old_priority - 1
+                    priority_per_node[v] = new_priority
+                    if new_priority > 0:
+                        q.put(priority=new_priority, element=v)
+                    else:
+                        num_left_to_pick -= 1

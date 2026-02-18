@@ -28,10 +28,7 @@ func (g *ChannelVertexVisitor) Close() {
 	close(g.vertices)
 }
 
-func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int) {
-	if drop > 0 {
-		panic("expecting negative drop value")
-	}
+func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor) {
 	defer func() { visitor.Close() }()
 	order := graph.Order()
 	// Possible values of priorityPerNode:
@@ -39,51 +36,47 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor, drop int)
 	//   0..maxDegree: candidates still queued with priority (degree - #of yielded neighbours)
 	priorityPerNode := make([]int, order)
 	maxDegree := 0
-	numLeftToVisit := 0
-	for c := range order {
-		degree := graph.degree(Vertex(c))
+	for v := range order {
+		degree := graph.degree(Vertex(v))
 		if degree > 0 {
-			priorityPerNode[Vertex(c)] = degree
+			priorityPerNode[Vertex(v)] = degree
 			if maxDegree < degree {
 				maxDegree = degree
 			}
+		}
+	}
+
+	numLeftToVisit := 0
+	var q priorityQueue[Vertex]
+	q.init(maxDegree)
+	for v, priority := range priorityPerNode {
+		if priority > 0 {
+			q.put(priority, Vertex(v))
 			numLeftToVisit++
 		}
 	}
-	numLeftToVisit += drop
-	if numLeftToVisit <= 0 {
-		return
-	}
 
-	var q priorityQueue[Vertex]
-	q.init(maxDegree)
-	for c, p := range priorityPerNode {
-		if p > 0 {
-			q.put(p, Vertex(c))
-		}
-	}
-
-	for {
-		i := q.pop()
-		for priorityPerNode[i] == -1 {
-			// was requeued with a more urgent priority and therefore already visited
-			i = q.pop()
-		}
-
-		visitor.visit(i)
-		numLeftToVisit--
-		if numLeftToVisit == 0 {
-			return
-		}
-
-		priorityPerNode[i] = -1
-		for v := range graph.neighbours(i) {
-			p := priorityPerNode[v]
-			if p != -1 {
-				// Requeue with a more urgent priority, but don't bother to remove
-				// the original entry - it will be skipped if it's reached at all.
-				priorityPerNode[v] = p - 1
-				q.put(p-1, v)
+	for numLeftToVisit > 0 {
+		pick := q.pop()
+		if priorityPerNode[pick] > 0 {
+			visitor.visit(pick)
+			priorityPerNode[pick] = 0
+			numLeftToVisit--
+			for v := range graph.neighbours(pick) {
+				oldPriority := priorityPerNode[v]
+				if oldPriority > 0 {
+					// Requeue with a more urgent priority or unqueue.
+                    // Don't bother to remove the original entry from the queue,
+                    // since the vertex will be skipped when popped, and thanks to
+                    // numLeftToVisit we might not need to pop it at all.
+					newPriority := oldPriority - 1
+					priorityPerNode[v] = newPriority
+					if newPriority > 0 {
+						q.put(newPriority, v)
+					} else {
+						numLeftToVisit--
+					}
+				}
 			}
 		}
 	}

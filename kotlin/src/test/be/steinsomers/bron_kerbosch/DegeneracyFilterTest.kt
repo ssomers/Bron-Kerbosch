@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.function.IntConsumer
 import java.util.stream.Stream
-import kotlin.math.max
 
-internal class DegeneracyOrderingTest {
-    private fun sortedDegeneracyOrdering(g: UndirectedGraph, drop: Int): SortedSet<Int> {
+internal class DegeneracyFilterTest {
+    private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Int> {
         val vertices: SortedSet<Int> = TreeSet()
-        DegeneracyOrdering(g, drop = drop).forEachRemaining(IntConsumer { v: Int ->
-            val added = vertices.add(v)
-            Assertions.assertTrue(added)
+        DegeneracyFilter(g).forEachRemaining(IntConsumer { v: Int ->
+            vertices.add(v)
+            vertices.addAll(g.neighbours(v))
         })
         return vertices
     }
@@ -46,23 +45,30 @@ internal class DegeneracyOrderingTest {
     @Test
     fun empty() {
         val g = UndirectedGraph(listOf())
-        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop = 0).isEmpty())
-        Assertions.assertTrue(sortedDegeneracyOrdering(g, drop = 1).isEmpty())
+        val f = DegeneracyFilter(g)
+        Assertions.assertFalse(f.hasNext())
     }
 
     @Test
     fun pair() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0)))
-        Assertions.assertEquals(setOf(0, 1), sortedDegeneracyOrdering(g, drop = 0))
-        Assertions.assertEquals(1, sortedDegeneracyOrdering(g, drop = 1).size)
-        Assertions.assertEquals(0, sortedDegeneracyOrdering(g, drop = 2).size)
+        val f = DegeneracyFilter(g)
+        Assertions.assertTrue(f.hasNext())
+        f.nextInt()
+        Assertions.assertFalse(f.hasNext())
     }
 
     @Test
     fun split() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0, 2), setOf(1)))
-        Assertions.assertNotEquals(1, DegeneracyOrdering(g, drop = 0).next())
-        Assertions.assertEquals(setOf(0, 1, 2), sortedDegeneracyOrdering(g, drop = 0))
+        val f = DegeneracyFilter(g)
+        Assertions.assertTrue(f.hasNext())
+        val first = f.nextInt()
+        Assertions.assertNotEquals(1, first)
+        Assertions.assertTrue(f.hasNext())
+        val second = f.nextInt()
+        Assertions.assertNotEquals(first, second)
+        Assertions.assertFalse(f.hasNext())
     }
 
     @Property
@@ -72,19 +78,22 @@ internal class DegeneracyOrderingTest {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
         val connectedVertices: SortedSet<Int> = g.connectedVertices(TreeSet())
-        return sortedDegeneracyOrdering(g, drop = 0) == connectedVertices
+        return sortedDegeneracyOrderingIncludingNeighbours(g) == connectedVertices
     }
 
     @Property
-    fun degeneracyOrderingDrops1(
+    fun degeneracyOrderingDropsSome(
         @ForAll("arbitraryAdjacencyLikes") adjacencyLikes: List<Set<Int>>
     ): Boolean {
         val adjacencies: List<Set<Int>> = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val ordering = DegeneracyOrdering(g, drop = 0).stream().toArray()
-        val ordering1 = DegeneracyOrdering(g, drop = 1).stream().toArray()
-        return ordering1.size == max(0, ordering.size - 1)
-                && Arrays.equals(ordering, 0, ordering1.size, ordering1, 0, ordering1.size)
+        val connectedVertices = g.connectedVertices(HashSet())
+        val filtered = DegeneracyFilter(g).stream().count()
+        return if (connectedVertices.isEmpty()) {
+            filtered == 0L
+        } else {
+            filtered < connectedVertices.size
+        }
     }
 
     @Property
@@ -93,14 +102,13 @@ internal class DegeneracyOrderingTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val ordering = DegeneracyOrdering(g, drop = 0)
-        val first: Int
-        try {
-            first = ordering.nextInt()
-        } catch (_: NoSuchElementException) {
-            return true
+        val f = DegeneracyFilter(g)
+        return if (f.hasNext()) {
+            val first = f.nextInt()
+            f.stream().allMatch { v -> g.degree(first) <= g.degree(v) }
+        } else {
+            true
         }
-        return ordering.stream().allMatch { v -> g.degree(first) <= g.degree(v) }
     }
 
     private fun arbitraryNeighbours(order: Int): Arbitrary<Set<Int>> {

@@ -24,11 +24,11 @@ namespace BronKerbosch
             {
                 return;
             }
-            var pivot = graph.MaxDegreeVertex();
+            Vertex pivot = graph.MaxDegreeVertex();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             var excluded = VertexSetMgr.EmptyWithCapacity(order);
-            foreach (var v in Enumerable.Range(0, order).Select(Vertex.Nth))
+            foreach (Vertex v in Enumerable.Range(0, order).Select(Vertex.Nth))
             {
                 var neighbours = graph.Neighbours(v);
                 if (neighbours.Any() && !neighbours.Contains(pivot))
@@ -58,7 +58,7 @@ namespace BronKerbosch
             if (candidates.Count == 1)
             {
                 // Same logic as below, stripped down
-                var v = candidates.First();
+                Vertex v = candidates.First();
                 var neighbours = graph.Neighbours(v);
                 if (!VertexSetMgr.Overlaps(neighbours, excluded))
                 {
@@ -74,7 +74,7 @@ namespace BronKerbosch
             const int INVALID = int.MaxValue;
             pivot = Vertex.Nth(INVALID);
             var seenLocalDegree = 0;
-            foreach (var v in candidates)
+            foreach (Vertex v in candidates)
             {
                 var neighbours = graph.Neighbours(v);
                 var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
@@ -105,7 +105,7 @@ namespace BronKerbosch
             Debug.Assert(pivot.Index() != INVALID);
             if (choice == PivotChoice.MaxDegreeLocalX)
             {
-                foreach (var v in excluded)
+                foreach (Vertex v in excluded)
                 {
                     var neighbours = graph.Neighbours(v);
                     var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
@@ -119,7 +119,7 @@ namespace BronKerbosch
 
             for (var i = 0; i < remainingCandidateCount; ++i)
             {
-                var v = remainingCandidates[i];
+                Vertex v = remainingCandidates[i];
                 var neighbours = graph.Neighbours(v);
                 Debug.Assert(neighbours.Any());
                 if (!neighbours.Contains(pivot))

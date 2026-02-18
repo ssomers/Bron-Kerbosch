@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from graph import Vertex, UndirectedGraph
-from graph_degeneracy import degeneracy_ordering
+from graph_degeneracy import degeneracy_filter
 
 from hypothesis import given
 from hypothesis.strategies import builds, integers, lists, sets
@@ -19,10 +19,9 @@ def symmetric_adjacencies(adjac: List[Set[Vertex]]) -> List[Set[Vertex]]:
     return adjacencies
 
 
-def test_degeneracy_ordering_empty() -> None:
+def test_degeneracy_filter_empty() -> None:
     g = UndirectedGraph(adjacencies=[])
-    assert list(degeneracy_ordering(g)) == []
-    assert list(degeneracy_ordering(g, drop=1)) == []
+    assert list(degeneracy_filter(g)) == []
 
 
 @given(
@@ -37,13 +36,11 @@ def test_degeneracy_ordering_empty() -> None:
         ),
     )
 )
-def test_degeneracy_ordering_nonempty(adjacencies: List[Set[Vertex]]) -> None:
+def test_degeneracy_filter_nonempty(adjacencies: List[Set[Vertex]]) -> None:
     g = UndirectedGraph(adjacencies=adjacencies)
     connected_vertices = g.connected_vertices()
 
-    ordering = list(degeneracy_ordering(g))
-    assert set(ordering) == connected_vertices
-    assert all(g.degree(ordering[0]) <= g.degree(v) for v in ordering)
-
-    ordering_min1 = list(degeneracy_ordering(g, drop=1))
-    assert ordering_min1 == ordering[:-1]
+    ordered = list(degeneracy_filter(g))
+    assert set(ordered).issubset(connected_vertices)
+    assert len(ordered) < max(1, len(connected_vertices))
+    assert all(g.degree(ordered[0]) <= g.degree(v) for v in ordered)

@@ -87,7 +87,7 @@ namespace BronKerbosch {
             cppcoro::single_producer_sequencer<size_t>& start_sequencer,
             Vertex (*starts)[STARTS],  // pass-by-reference avoiding ICE
             cppcoro::static_thread_pool& tp) {
-            auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph, -1);
+            auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph);
             while (auto next = ordering.next()) {
                 size_t seq = co_await start_sequencer.claim_one(tp);
                 (*starts)[seq % STARTS] = *next;

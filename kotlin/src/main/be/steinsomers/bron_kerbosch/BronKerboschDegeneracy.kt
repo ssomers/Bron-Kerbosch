@@ -3,12 +3,12 @@ package be.steinsomers.bron_kerbosch
 
 import java.util.function.Consumer
 
-internal object BronKerboschOrder {
+internal object BronKerboschDegeneracy {
     fun explore(graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>, furtherPivotChoice: PivotChoice) {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
         val excluded: MutableSet<Int> = HashSet(graph.order)
-        for (v in DegeneracyOrdering(graph, drop = 1)) {
+        for (v in DegeneracyFilter(graph)) {
             val neighbours = graph.neighbours(v)
             require(neighbours.isNotEmpty())
             val neighbouringExcluded = Util.intersect(neighbours, excluded)

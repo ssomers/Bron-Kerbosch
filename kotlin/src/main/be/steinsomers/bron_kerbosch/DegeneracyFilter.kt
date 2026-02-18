@@ -1,42 +1,39 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.PrimitiveIterator
-import java.util.Spliterator
-import java.util.Spliterators
+import java.util.*
 import java.util.stream.IntStream
 import java.util.stream.StreamSupport
 import kotlin.math.max
 
-internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int) : PrimitiveIterator.OfInt {
-    // priority_per_vertex:
-    // If priority is 0, vertex was already picked or was always irrelevant (unconnected);
-    // otherwise, vertex is still queued and priority = degree + 1 - number of picked neighbours.
+internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveIterator.OfInt {
+    // Possible values of priorityPerVertex (after initialization):
+    //   0: never queued because not connected (degree 0),
+    //      or no longer queued because it has been yielded itself,
+    //      or no longer queued because all neighbours have been yielded
+    //   1...maxPriority: candidates queued with priority (degree - #of yielded neighbours)
     private val priorityPerVertex: IntArray
     private val queue: SimplePriorityQueue<Int>
     private var numLeftToPick: Int
 
     init {
-        require(drop >= 0)
         var maxPriority = 0
         priorityPerVertex = IntArray(graph.order)
-        var numCandidates = 0
+        numLeftToPick = 0
         for (candidate in 0..<graph.order) {
             val degree = graph.degree(candidate)
             if (degree > 0) {
-                val priority = degree + 1
-                maxPriority = max(maxPriority, priority)
-                priorityPerVertex[candidate] = priority
-                numCandidates += 1
+                maxPriority = max(maxPriority, degree)
+                priorityPerVertex[candidate] = degree
+                numLeftToPick += 1
             }
         }
-        queue = SimplePriorityQueue(maxPriority, numCandidates)
+        queue = SimplePriorityQueue(maxPriority, numLeftToPick)
         for (candidate in 0..<graph.order) {
             val priority = priorityPerVertex[candidate]
             if (priority != 0) {
                 queue.put(priority, candidate)
             }
         }
-        numLeftToPick = numCandidates - drop
     }
 
     override fun hasNext(): Boolean {
@@ -44,29 +41,33 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
     }
 
     override fun nextInt(): Int {
-        Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], v) } }
-        var pick = queue.pop()
-        while (priorityPerVertex[pick] == 0) {
-            // v was requeued with a more urgent priority and therefore already picked
-            pick = queue.pop()
-        }
+        while (true) {
+            Debug.assert { hasNext() }
+            Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], v) } }
 
-        priorityPerVertex[pick] = 0
-        for (v in graph.neighbours(pick)) {
-            val oldPriority = priorityPerVertex[v]
-            if (oldPriority != 0) {
-                // Since this is an unvisited neighbour of a vertex just being picked,
-                // its priority can't be down to the minimum.
-                val newPriority = oldPriority - 1
-                require(newPriority > 0)
-                // Requeue with a more urgent priority, but don't bother to remove
-                // the original entry - it will be skipped if it's reached at all.
-                priorityPerVertex[v] = newPriority
-                queue.put(newPriority, v)
+            val pick = queue.pop()
+            if (priorityPerVertex[pick] != 0) {
+                priorityPerVertex[pick] = 0
+                numLeftToPick -= 1
+                for (v in graph.neighbours(pick)) {
+                    val oldPriority = priorityPerVertex[v]
+                    if (oldPriority != 0) {
+                        val newPriority = oldPriority - 1
+                        // Requeue with a more urgent priority or dequeue.
+                        // Don't bother to remove the original entry from the queue,
+                        // since the vertex will be skipped when popped, and thanks to
+                        // numLeftToPick we might not need to pop it at all.
+                        priorityPerVertex[v] = newPriority
+                        if (newPriority != 0) {
+                            queue.put(newPriority, v)
+                        } else {
+                            numLeftToPick -= 1
+                        }
+                    }
+                }
+                return pick
             }
         }
-        numLeftToPick -= 1
-        return pick
     }
 
     private class SimplePriorityQueue<T>(maxPriority: Int, private val sizeHint: Int) {
@@ -99,7 +100,7 @@ internal class DegeneracyOrdering(private val graph: UndirectedGraph, drop: Int)
                 or Spliterator.DISTINCT
                 or Spliterator.NONNULL
                 or Spliterator.IMMUTABLE)
-        val spliterator = Spliterators.spliterator(this, numLeftToPick.toLong(), characteristics)
+        val spliterator = Spliterators.spliteratorUnknownSize(this, characteristics)
         return StreamSupport.intStream(spliterator, false)
     }
 

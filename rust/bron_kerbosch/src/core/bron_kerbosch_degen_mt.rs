@@ -4,7 +4,7 @@ use super::base::{Clique, CliqueConsumer};
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
-use super::graph_degeneracy::degeneracy_ordering;
+use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;
 use crossbeam_channel::{Receiver, Sender};
 
@@ -54,7 +54,7 @@ where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
 {
-    for vertex in degeneracy_ordering(graph, -1) {
+    for vertex in degeneracy_iter(graph) {
         start_tx.send(vertex).unwrap();
     }
 }
@@ -73,17 +73,15 @@ fn dispatch<VertexSet, Graph>(
     while let Ok(v) = start_rx.recv() {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
-        if neighbouring_excluded.len() < neighbours.len() {
-            let neighbouring_candidates: VertexSet =
-                neighbours.difference_collect(&neighbouring_excluded);
-            let visit = VisitJob {
-                start: v,
-                candidates: neighbouring_candidates,
-                excluded: neighbouring_excluded,
-            };
-            visit_tx.send(visit).unwrap();
-        }
+        let neighbouring_excluded = neighbours.intersection_collect(&excluded);
+        debug_assert!(neighbouring_excluded.len() < neighbours.len());
+        let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
+        let visit = VisitJob {
+            start: v,
+            candidates: neighbouring_candidates,
+            excluded: neighbouring_excluded,
+        };
+        visit_tx.send(visit).unwrap();
         excluded.insert(v);
     }
 }

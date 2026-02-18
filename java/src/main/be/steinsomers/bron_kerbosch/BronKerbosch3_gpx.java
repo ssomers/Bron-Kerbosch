@@ -5,6 +5,6 @@ import java.util.function.Consumer;
 public final class BronKerbosch3_gpx implements BronKerboschAlgorithm {
     @Override
     public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
-        BronKerboschOrder.explore(graph, cliqueConsumer, PivotChoice.MaxDegreeLocalX);
+        BronKerboschDegeneracy.explore(graph, cliqueConsumer, PivotChoice.MaxDegreeLocalX);
     }
 }

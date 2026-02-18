@@ -15,7 +15,7 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
         var excluded = VertexSetMgr.EmptyWithCapacity(graph.Order);
-        foreach (var v in Degeneracy<VertexSet, VertexSetMgr>.Ordering(graph, drop: 1))
+        foreach (Vertex v in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());

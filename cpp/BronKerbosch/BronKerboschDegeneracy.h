@@ -19,7 +19,7 @@ namespace BronKerbosch {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
-            auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph, -1);
+            auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph);
             while (auto next = ordering.next()) {
                 Vertex v = *next;
                 auto const& neighbours = graph.neighbours(v);

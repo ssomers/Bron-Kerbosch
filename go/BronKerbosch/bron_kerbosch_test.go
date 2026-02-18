@@ -8,21 +8,31 @@ import (
 
 func checkDegeneracyOrder(graph *UndirectedGraph) {
 	var ordering SimpleVertexVisitor
-	degeneracyOrdering(graph, &ordering, 0)
+	degeneracyOrdering(graph, &ordering)
 	ordered := ordering.vertices
 	unordered := graph.connectedVertices()
+	forgotten := graph.connectedVertices() // mutable clone of unordered
+	if len(ordered) > len(unordered) {
+		panic(fmt.Sprintf("degeneracy ordering returns %d out of %d vertices", len(ordered), len(unordered)))
+	}
+	if len(ordered) == len(unordered) && len(unordered) > 0 {
+		panic(fmt.Sprintf("degeneracy ordering returns all %d vertices", len(ordered)))
+	}
 	for _, v := range ordered {
 		if _, ok := unordered[v]; !ok {
-			panic(fmt.Sprintf("degeneracy ordering %v invented vertex %d", ordered, v))
+			panic(fmt.Sprintf("degeneracy ordering invented vertex %d", v))
 		}
-		delete(unordered, v)
-
 		if graph.degree(v) < graph.degree(ordered[0]) {
-			panic(fmt.Sprintf("degeneracy ordering %v violates degree at vertex %d", ordered, v))
+			panic(fmt.Sprintf("degeneracy ordering violates degree at vertex %d", v))
+		}
+
+		delete(forgotten, v)
+		for n := range graph.neighbours(v) {
+			delete(forgotten, n)
 		}
 	}
-	if len(unordered) != 0 {
-		panic(fmt.Sprintf("degeneracy ordering %v forgot %d vertices", ordered, len(unordered)))
+	if len(forgotten) > 0 {
+		panic(fmt.Sprintf("degeneracy ordering forgot %d vertices", len(forgotten)))
 	}
 }
 
