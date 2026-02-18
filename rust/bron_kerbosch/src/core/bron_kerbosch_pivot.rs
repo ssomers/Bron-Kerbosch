@@ -1,8 +1,8 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
+use super::base::CliqueConsumer;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use super::pile::Pile;
-use super::reporter::Reporter;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
@@ -14,14 +14,14 @@ pub enum PivotChoice {
 
 type Clique<'a> = Pile<'a, Vertex>;
 
-pub fn explore_with_pivot<VertexSet, Graph, Rprtr>(
+pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     graph: &Graph,
-    reporter: &mut Rprtr,
+    consumer: &mut Consumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
     let order = graph.order();
     if let Some(pivot) = (0..order).map(Vertex::new).max_by_key(|&v| graph.degree(v)) {
@@ -35,7 +35,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Rprtr>(
                         neighbours.difference_collect(&neighbouring_excluded);
                     visit(
                         graph,
-                        reporter,
+                        consumer,
                         pivot_selection,
                         neighbouring_candidates,
                         neighbouring_excluded,
@@ -48,9 +48,9 @@ pub fn explore_with_pivot<VertexSet, Graph, Rprtr>(
     }
 }
 
-pub fn visit<VertexSet, Graph, Rprtr>(
+pub fn visit<VertexSet, Graph, Consumer>(
     graph: &Graph,
-    reporter: &mut Rprtr,
+    consumer: &mut Consumer,
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
@@ -58,7 +58,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
@@ -69,7 +69,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
             if neighbours.is_disjoint(&excluded) {
-                reporter.record(Pile::on(clique, v).collect());
+                consumer.accept(Pile::on(clique, v).collect());
             }
         });
         return;
@@ -87,7 +87,7 @@ pub fn visit<VertexSet, Graph, Rprtr>(
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
                     if neighbours.is_disjoint(&excluded) {
-                        reporter.record(Pile::on(clique, v).collect());
+                        consumer.accept(Pile::on(clique, v).collect());
                     }
                 } else {
                     if seen_local_degree < local_degree {
@@ -133,14 +133,14 @@ pub fn visit<VertexSet, Graph, Rprtr>(
                 let neighbouring_excluded = neighbours.intersection_collect(&excluded);
                 visit(
                     graph,
-                    reporter,
+                    consumer,
                     pivot_selection,
                     neighbouring_candidates,
                     neighbouring_excluded,
                     Some(&Pile::on(clique, v)),
                 );
             } else if excluded.is_disjoint(neighbours) {
-                reporter.record(Pile::on(clique, v).collect());
+                consumer.accept(Pile::on(clique, v).collect());
             }
             excluded.insert(v);
         }

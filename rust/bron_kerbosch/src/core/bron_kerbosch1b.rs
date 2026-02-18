@@ -1,23 +1,23 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
+use super::base::CliqueConsumer;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
 use super::pile::Pile;
-use super::reporter::Reporter;
 
 type Clique<'a> = Pile<'a, Vertex>;
 
-pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
+pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
     let candidates = connected_vertices(graph);
     let num_candidates = candidates.len();
     if num_candidates > 0 {
         visit(
             graph,
-            reporter,
+            consumer,
             candidates,
             VertexSet::with_capacity(num_candidates),
             None,
@@ -25,16 +25,16 @@ where
     }
 }
 
-fn visit<VertexSet, Graph, Rprtr>(
+fn visit<VertexSet, Graph, Consumer>(
     graph: &Graph,
-    reporter: &mut Rprtr,
+    consumer: &mut Consumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Option<&Clique>,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
@@ -47,13 +47,13 @@ fn visit<VertexSet, Graph, Rprtr>(
         if !neighbouring_candidates.is_empty() {
             visit(
                 graph,
-                reporter,
+                consumer,
                 neighbouring_candidates,
                 excluded.intersection_collect(neighbours),
                 Some(&Pile::on(clique, v)),
             );
         } else if excluded.is_disjoint(neighbours) {
-            reporter.record(Pile::on(clique, v).collect());
+            consumer.accept(Pile::on(clique, v).collect());
         }
         excluded.insert(v);
     }

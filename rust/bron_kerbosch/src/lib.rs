@@ -3,8 +3,8 @@ mod core;
 mod degeneracy_tests;
 mod vertexsetlikes;
 
+pub use crate::core::cliqueconsumers::{CliqueCollector, CliqueCounter};
 pub use crate::core::graph::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
-pub use crate::core::reporters::{CollectingReporter, CountingReporter};
 pub use crate::core::slimgraph::SlimUndirectedGraph;
 pub use crate::core::{FUNC_NAMES, OrderedClique, OrderedCliques, explore, order_cliques};
 

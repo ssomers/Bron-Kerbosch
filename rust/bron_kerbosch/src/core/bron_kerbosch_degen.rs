@@ -1,20 +1,20 @@
 //! Core of Bron-Kerbosch algorithms using degeneracy ordering.
 
+use super::base::CliqueConsumer;
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::graph::{UndirectedGraph, VertexSetLike};
 use super::graph_degeneracy::degeneracy_ordering;
 use super::pile::Pile;
-use super::reporter::Reporter;
 
-pub fn explore_with_pivot<VertexSet, Graph, Rprtr>(
+pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     graph: &Graph,
-    reporter: &mut Rprtr,
+    consumer: &mut Consumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
@@ -28,7 +28,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Rprtr>(
                 neighbours.difference_collect(&neighbouring_excluded);
             visit(
                 graph,
-                reporter,
+                consumer,
                 pivot_selection,
                 neighbouring_candidates,
                 neighbouring_excluded,

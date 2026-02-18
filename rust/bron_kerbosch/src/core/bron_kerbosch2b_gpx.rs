@@ -1,14 +1,14 @@
 //! Bron-Kerbosch algorithm with pivot of highest degree towards the remaining candidates (IK_GPX)
 
+use super::base::CliqueConsumer;
 use super::bron_kerbosch_pivot::{PivotChoice, explore_with_pivot};
 use super::graph::{UndirectedGraph, VertexSetLike};
-use super::reporter::Reporter;
 
-pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)
+pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Rprtr: Reporter,
+    Consumer: CliqueConsumer,
 {
-    explore_with_pivot(graph, reporter, PivotChoice::MaxDegreeLocalX)
+    explore_with_pivot(graph, consumer, PivotChoice::MaxDegreeLocalX)
 }

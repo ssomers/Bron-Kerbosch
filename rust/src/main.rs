@@ -1,6 +1,6 @@
 mod random_graph;
 
-use bron_kerbosch::{CollectingReporter, CountingReporter};
+use bron_kerbosch::{CliqueCollector, CliqueCounter};
 use bron_kerbosch::{FUNC_NAMES, OrderedCliques, explore, order_cliques};
 use bron_kerbosch::{SlimUndirectedGraph, Vertex, VertexSetLike};
 use random_graph::{Size, parse_positive_int, read_undirected};
@@ -61,8 +61,8 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     // If we're genuinely sampling, first warm up.
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
-            let mut collecting_reporter = CollectingReporter::default();
-            let mut counting_reporter = CountingReporter::default();
+            let mut collecting_reporter = CliqueCollector::default();
+            let mut counting_reporter = CliqueCounter::default();
             let instant = Instant::now();
             if sample == 0 {
                 explore(func_index, &graph, &mut collecting_reporter);

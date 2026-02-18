@@ -1,14 +1,14 @@
-pub use crate::core::reporter::{Clique, Reporter};
+pub use crate::core::base::{Clique, CliqueConsumer};
 use crate::core::vertex::Vertex;
 use std::collections::BTreeSet;
 
 #[derive(Debug, Default)]
-pub struct CollectingReporter {
+pub struct CliqueCollector {
     pub cliques: Vec<Clique>,
 }
 
-impl Reporter for CollectingReporter {
-    fn record(&mut self, clique: Clique) {
+impl CliqueConsumer for CliqueCollector {
+    fn accept(&mut self, clique: Clique) {
         debug_assert!(clique.len() > 1);
         debug_assert_eq!(
             clique.iter().copied().collect::<BTreeSet<Vertex>>().len(),
@@ -19,12 +19,12 @@ impl Reporter for CollectingReporter {
 }
 
 #[derive(Debug, Default)]
-pub struct CountingReporter {
+pub struct CliqueCounter {
     pub count: usize,
 }
 
-impl Reporter for CountingReporter {
-    fn record(&mut self, _clique: Clique) {
+impl CliqueConsumer for CliqueCounter {
+    fn accept(&mut self, _clique: Clique) {
         self.count += 1;
     }
 }
