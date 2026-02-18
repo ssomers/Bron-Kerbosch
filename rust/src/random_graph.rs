@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use bron_kerbosch::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
 use std::fmt::Write;
 use std::fs::File;

@@ -1,5 +1,5 @@
 use super::*;
-use crate::core::graph::{connected_vertices, UndirectedGraph};
+use crate::core::graph::{UndirectedGraph, connected_vertices};
 use crate::core::graph_degeneracy::degeneracy_ordering;
 use proptest::prelude::*;
 use proptest::test_runner::{Config, TestRunner};

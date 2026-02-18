@@ -1,6 +1,6 @@
 use super::graph::{
-    are_valid_adjacencies, Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex,
-    VertexSetLike,
+    Adjacencies, NewableUndirectedGraph, UndirectedGraph, Vertex, VertexSetLike,
+    are_valid_adjacencies,
 };
 
 #[derive(Debug)]

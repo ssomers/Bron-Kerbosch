@@ -1,9 +1,9 @@
 mod random_graph;
 
-use bron_kerbosch::{explore, order_cliques, OrderedCliques, FUNC_NAMES};
 use bron_kerbosch::{CollectingReporter, CountingReporter};
+use bron_kerbosch::{FUNC_NAMES, OrderedCliques, explore, order_cliques};
 use bron_kerbosch::{SlimUndirectedGraph, Vertex, VertexSetLike};
-use random_graph::{parse_positive_int, read_undirected, Size};
+use random_graph::{Size, parse_positive_int, read_undirected};
 use stats::SampleStatistics;
 
 use clap::{arg, command};

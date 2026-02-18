@@ -1,7 +1,7 @@
 use crate::core::vertexsetlike::{Vertex, VertexSetLike};
 
 use fnv::{FnvBuildHasher, FnvHashSet};
-use rand::{prelude::IndexedRandom, seq::IteratorRandom, Rng};
+use rand::{Rng, prelude::IndexedRandom, seq::IteratorRandom};
 use std::collections::{BTreeSet, HashSet};
 
 impl VertexSetLike for BTreeSet<Vertex> {

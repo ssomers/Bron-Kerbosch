@@ -1,7 +1,7 @@
 //! Core of Bron-Kerbosch algorithms using degeneracy ordering and multiple threads.
 
-use super::bron_kerbosch_pivot::visit;
 pub use super::bron_kerbosch_pivot::PivotChoice;
+use super::bron_kerbosch_pivot::visit;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use super::graph_degeneracy::degeneracy_ordering;
 use super::pile::Pile;

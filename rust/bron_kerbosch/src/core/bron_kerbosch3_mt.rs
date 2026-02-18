@@ -2,7 +2,7 @@
 //! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
-use super::bron_kerbosch_degen_mt::{explore_with_pivot_multithreaded, PivotChoice};
+use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_pivot_multithreaded};
 use super::graph::{UndirectedGraph, VertexSetLike};
 use super::reporter::Reporter;
 

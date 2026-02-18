@@ -2,7 +2,7 @@
 name = "stats"
 version = "1.0.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
-edition = "2021"
+edition = "2024"
 
 [dev-dependencies]
 proptest = "1.9.0"

@@ -2,7 +2,7 @@
 name = "compare_bron_kerbosch_on_random_graphs"
 version = "1.0.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
-edition = "2021"
+edition = "2024"
 
 [profile.release]
 debug = true

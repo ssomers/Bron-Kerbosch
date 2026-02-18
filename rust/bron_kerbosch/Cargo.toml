@@ -2,7 +2,7 @@
 name = "bron_kerbosch"
 version = "1.0.0"
 authors = ["Stein Somers <git@steinsomers.be>"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 crossbeam = "0.8.4"

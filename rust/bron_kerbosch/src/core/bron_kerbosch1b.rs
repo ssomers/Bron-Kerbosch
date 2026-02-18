@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use super::graph::{connected_vertices, UndirectedGraph, Vertex, VertexSetLike};
+use super::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
 use super::pile::Pile;
 use super::reporter::Reporter;
 

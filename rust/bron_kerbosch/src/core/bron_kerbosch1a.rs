@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm
 
-use super::graph::{connected_vertices, UndirectedGraph, VertexSetLike};
+use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 use super::reporter::{Clique, Reporter};
 
 pub fn explore<VertexSet, Graph, Rprtr>(graph: &Graph, reporter: &mut Rprtr)

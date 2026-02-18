@@ -1,7 +1,7 @@
 //! Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
 //! choosing a pivot from candidates only (IK_GP)
 
-use super::bron_kerbosch_degen::{explore_with_pivot, PivotChoice};
+use super::bron_kerbosch_degen::{PivotChoice, explore_with_pivot};
 use super::graph::{UndirectedGraph, VertexSetLike};
 use super::reporter::Reporter;
 
