@@ -80,11 +80,9 @@ namespace BronKerboschStudy
             {
                 if (line.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    if (!int.TryParse(line.AsSpan(prefix.Length), out var c))
-                    {
-                        throw new ArgumentException($"File {path} has bogus line “{line}”");
-                    }
-                    return c;
+                    var value = line.AsSpan(prefix.Length);
+                    return int.TryParse(value, out var count) ? count
+                        : throw new ArgumentException($"File {path} has bogus line “{line}”");
                 }
             }
 

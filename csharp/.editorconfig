@@ -3,18 +3,19 @@
 # All files
 [*]
 indent_style = space
-end_of_line= lf
-insert_final_newline=true
-guidelines = 96
 tab_width = 4
 indent_size = 4
+guidelines = 96
+end_of_line= lf
+insert_final_newline=true
 
 [*.cs]
-dotnet_analyzer_diagnostic.severity = warning
+dotnet_analyzer_diagnostic.severity = error
 dotnet_diagnostic.CA1000.severity = suggestion
 dotnet_diagnostic.CA1707.severity = none
-dotnet_diagnostic.IDE0007.severity = suggestion
+dotnet_diagnostic.IDE0007.severity = none
 dotnet_diagnostic.IDE0008.severity = suggestion
+dotnet_diagnostic.IDE0028.severity = suggestion
 dotnet_diagnostic.IDE0046.severity = suggestion
 csharp_prefer_braces = when_multiline
 csharp_style_expression_bodied_methods = when_on_single_line
