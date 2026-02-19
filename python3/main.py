@@ -331,7 +331,7 @@ def bk(
         stats_per_func_by_size[size] = stats
     if len(stats_per_func_by_size) > 1:
         publish(
-            languagestr="python314",
+            languagestr="python" + sys.winver.replace(".", ""),
             orderstr=orderstr,
             case_names=FUNC_NAMES,
             stats_per_func_by_size=stats_per_func_by_size,
@@ -363,7 +363,6 @@ if __name__ == "__main__":
         )
     else:
         assert False, "Run with -O for meaningful measurements"
-        """
         bk(
             orderstr="100",
             sizes=range(2_000, 3_001, 50),  # max 4_950
@@ -380,7 +379,6 @@ if __name__ == "__main__":
             timed_samples=3,
         )
         time.sleep(7)
-        """
         bk(
             orderstr="1M",
             sizes=itertools.chain(
