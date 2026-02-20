@@ -8,7 +8,7 @@
 
 namespace BronKerbosch {
     class BronKerbosch1 {
-       public:
+      public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
             auto candidates = graph.connected_vertices();

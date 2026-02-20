@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
 #include "Vertex.h"
+#include <vector>
 
 namespace BronKerbosch {
     class VertexPile {
-       public:
+      public:
         /// Create a pile, optionally on top of an existing pile
         explicit VertexPile(Vertex v, const VertexPile* lower = NULL)
             : top(v), height(lower ? lower->height : 1), lower(lower) {
@@ -19,7 +19,7 @@ namespace BronKerbosch {
             return result;
         }
 
-       private:
+      private:
         void push_to(std::vector<Vertex>& result) const {
             if (lower)
                 lower->push_to(result);

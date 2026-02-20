@@ -6,7 +6,7 @@
 
 namespace BronKerbosch {
     class BronKerbosch2GPX {
-       public:
+      public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
             return BronKerboschPivot::explore<Reporter>(graph, PivotChoice::MaxDegreeLocalX);

@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
 
-#include <stdexcept>
 #include "BronKerbosch/Portfolio.h"
 #include "BronKerbosch/UndirectedGraph.h"
 #include "Console.h"
 #include "RandomGraph.h"
 #include "SampleStatistics.h"
+#include <stdexcept>
 
 using BronKerbosch::ordered_vector;
 using BronKerbosch::Portfolio;
@@ -35,7 +35,8 @@ class Benchmark {
             for (int func_index : func_indices) {
                 if (sample == 0) {
                     auto begin = std::chrono::steady_clock::now();
-                    auto result = Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(func_index, graph);
+                    auto result = Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(
+                        func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     if (duration >= std::chrono::seconds(3)) {
@@ -60,7 +61,8 @@ class Benchmark {
                     }
                 } else {
                     auto begin = std::chrono::steady_clock::now();
-                    auto cliques = Portfolio::explore<Portfolio::CountingReporter, VertexSet>(func_index, graph);
+                    auto cliques = Portfolio::explore<Portfolio::CountingReporter, VertexSet>(
+                        func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     if (cliques != graph.clique_count) {
                         std::cerr << "Expected " << graph.clique_count << ", "
@@ -116,7 +118,7 @@ class Benchmark {
         throw std::logic_error("unreachable");
     }
 
-   public:
+  public:
     static void bk(std::string const& orderstr,
                    std::vector<unsigned> const& sizes,
                    std::function<std::vector<int>(SetType, unsigned size)> includedFuncs,

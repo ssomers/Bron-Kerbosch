@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <cassert>
-#include <stdexcept>
 #include "CliqueList.h"
 #include "UndirectedGraph.h"
 #include "VertexPile.h"
+#include <cassert>
+#include <stdexcept>
 
 namespace BronKerbosch {
     enum class PivotChoice {
@@ -15,7 +15,7 @@ namespace BronKerbosch {
     };
 
     class BronKerboschPivot {
-       public:
+      public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph,
                                         PivotChoice pivot_choice) {
@@ -33,11 +33,11 @@ namespace BronKerbosch {
                             auto neighbouring_candidates =
                                 Util::difference(neighbours, neighbouring_excluded);
                             auto newclique = VertexPile(v);
-                            Reporter::add_all(
-                                cliques,
-                                visit<Reporter>(graph, pivot_choice, pivot_choice,
-                                                std::move(neighbouring_candidates),
-                                                std::move(neighbouring_excluded), &newclique));
+                            Reporter::add_all(cliques,
+                                              visit<Reporter>(graph, pivot_choice, pivot_choice,
+                                                              std::move(neighbouring_candidates),
+                                                              std::move(neighbouring_excluded),
+                                                              &newclique));
                         }
                         excluded.insert(v);
                     }

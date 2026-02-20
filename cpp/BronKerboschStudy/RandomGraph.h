@@ -9,15 +9,15 @@ namespace BronKerboschStudy {
 
     template <typename VertexSet>
     class RandomGraph : public UndirectedGraph<VertexSet> {
-       public:
+      public:
         const size_t clique_count;
 
-       private:
+      private:
         RandomGraph(std::vector<VertexSet>&& adjacencies, size_t clique_count)
             : UndirectedGraph<VertexSet>(std::move(adjacencies)), clique_count(clique_count) {
         }
 
-       public:
+      public:
         static RandomGraph<VertexSet> readUndirected(std::string const& orderstr, unsigned size) {
             unsigned order = parseInt(orderstr);
             auto fully_meshed_size = (unsigned long)order * (order - 1) / 2;
@@ -39,10 +39,9 @@ namespace BronKerboschStudy {
             return g;
         }
 
-       private:
-        static std::vector<VertexSet> readEdges(std::string const& path,
-                                                std::string const& orderstr,
-                                                unsigned size) {
+      private:
+        static std::vector<VertexSet>
+        readEdges(std::string const& path, std::string const& orderstr, unsigned size) {
             unsigned order = parseInt(orderstr);
             unsigned line_idx = 0;
             std::vector<VertexSet> adjacencies(order);
@@ -73,9 +72,8 @@ namespace BronKerboschStudy {
             return adjacencies;
         }
 
-        static size_t readStats(std::string const& path,
-                                std::string const& orderstr,
-                                unsigned size) {
+        static size_t
+        readStats(std::string const& path, std::string const& orderstr, unsigned size) {
             std::ifstream file(path.c_str());
             if (!file) {
                 std::cerr << "Missing " << path << "\n";

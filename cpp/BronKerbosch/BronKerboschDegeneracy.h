@@ -11,7 +11,7 @@
 
 namespace BronKerbosch {
     class BronKerboschDegeneracy {
-       public:
+      public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph,
                                         PivotChoice pivot_choice) {
