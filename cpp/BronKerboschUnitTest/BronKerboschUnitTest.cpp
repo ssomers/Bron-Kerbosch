@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace BronKerbosch {
     TEST_CLASS(BronKerboschUnitTest) {
-       public:
+      public:
         template <typename VertexSet>
         static void bk_core(std::vector<std::vector<Vertex>> const& adjacencies_in,
                             std::vector<std::vector<Vertex>> const& expected_cliques) {
@@ -17,7 +17,8 @@ namespace BronKerbosch {
                 [](std::vector<Vertex> const& v) { return VertexSet(v.begin(), v.end()); });
             auto graph = UndirectedGraph<VertexSet>{std::move(adjacencies)};
             for (int func_index = 0; func_index < Portfolio::NUM_FUNCS; ++func_index) {
-                auto result = Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(func_index, graph);
+                auto result =
+                    Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(func_index, graph);
                 auto obtained_cliques = std::vector<VertexList>(result.begin(), result.end());
                 Assert::AreEqual(expected_cliques.size(), obtained_cliques.size());
                 Portfolio::sort_cliques(obtained_cliques);

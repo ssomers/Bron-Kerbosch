@@ -7,7 +7,7 @@
 
 namespace BronKerbosch {
     class BronKerbosch3GP {
-       public:
+      public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
             return BronKerboschDegeneracy::explore<Reporter>(graph, PivotChoice::MaxDegreeLocal);

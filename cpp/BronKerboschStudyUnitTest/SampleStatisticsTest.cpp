@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace BronKerboschStudy {
     TEST_CLASS(BronKerboschStudyUnitTest) {
-       public:
+      public:
         TEST_METHOD(stats_0_int) {
             auto s = SampleStatistics<int>{};
             Assert::IsTrue(std::isnan(s.mean()));

@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace BronKerbosch {
     TEST_CLASS(GraphDegeneracyTest) {
-       public:
+      public:
         template <typename VertexSet>
         void test_empty() {
             UndirectedGraph<VertexSet> const g{typename UndirectedGraph<VertexSet>::Adjacencies{}};

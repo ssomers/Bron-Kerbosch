@@ -20,7 +20,7 @@
 namespace BronKerbosch {
     template <typename Reporter, typename VertexSet>
     class BronKerbosch3MT {
-       private:
+      private:
         static const size_t VISITORS = 8;
         static const size_t STARTS = 8;
         static const size_t CLIQUES = 8;
@@ -31,11 +31,11 @@ namespace BronKerbosch {
             VertexSet candidates;
             VertexSet excluded;
 #ifndef NDEBUG
-            std::atomic_bool busy;  // being read from or written to by a thread
-            std::atomic_bool full;  // having been written to
+            std::atomic_bool busy; // being read from or written to by a thread
+            std::atomic_bool full; // having been written to
 #endif
 
-           public:
+          public:
             VisitJob() noexcept = default;
             VisitJob(VisitJob&&) = delete;
             VisitJob(VisitJob const&) = delete;
@@ -82,11 +82,11 @@ namespace BronKerbosch {
             }
         };
 
-        static cppcoro::task<> start_producer(
-            UndirectedGraph<VertexSet> const& graph,
-            cppcoro::single_producer_sequencer<size_t>& start_sequencer,
-            Vertex (*starts)[STARTS],  // pass-by-reference avoiding ICE
-            cppcoro::static_thread_pool& tp) {
+        static cppcoro::task<>
+        start_producer(UndirectedGraph<VertexSet> const& graph,
+                       cppcoro::single_producer_sequencer<size_t>& start_sequencer,
+                       Vertex (*starts)[STARTS], // pass-by-reference avoiding ICE
+                       cppcoro::static_thread_pool& tp) {
             auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph);
             while (auto next = ordering.next()) {
                 size_t seq = co_await start_sequencer.claim_one(tp);
@@ -99,15 +99,15 @@ namespace BronKerbosch {
             start_sequencer.publish(seq);
         }
 
-        static cppcoro::task<> visit_producer(
-            UndirectedGraph<VertexSet> const& graph,
-            cppcoro::sequence_barrier<size_t>& start_barrier,
-            cppcoro::single_producer_sequencer<size_t> const& start_sequencer,
-            std::unique_ptr<cppcoro::single_producer_sequencer<size_t>> (
-                *visit_sequencers)[VISITORS],  // pass-by-reference avoiding ICE
-            Vertex const (*starts)[STARTS],    // pass-by-reference avoiding ICE
-            VisitJob (*visit_jobs)[VISITORS],  // pass-by-reference avoiding ICE
-            cppcoro::static_thread_pool& tp) {
+        static cppcoro::task<>
+        visit_producer(UndirectedGraph<VertexSet> const& graph,
+                       cppcoro::sequence_barrier<size_t>& start_barrier,
+                       cppcoro::single_producer_sequencer<size_t> const& start_sequencer,
+                       std::unique_ptr<cppcoro::single_producer_sequencer<size_t>> (
+                           *visit_sequencers)[VISITORS], // pass-by-reference avoiding ICE
+                       Vertex const (*starts)[STARTS],   // pass-by-reference avoiding ICE
+                       VisitJob (*visit_jobs)[VISITORS], // pass-by-reference avoiding ICE
+                       cppcoro::static_thread_pool& tp) {
             auto excluded = Util::with_capacity<VertexSet>(std::max(1u, graph.order()) - 1);
             size_t visitor = 0;
             bool producer = true;
@@ -153,15 +153,15 @@ namespace BronKerbosch {
             }
         }
 
-        static cppcoro::task<> clique_producer(
-            UndirectedGraph<VertexSet> const& graph,
-            cppcoro::sequence_barrier<size_t>& visit_barrier,
-            cppcoro::single_producer_sequencer<size_t> const& visit_sequencer,
-            cppcoro::multi_producer_sequencer<size_t>& clique_sequencer,
-            VisitJob& visit_job,
-            std::optional<typename Reporter::Result> (
-                *clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
-            cppcoro::static_thread_pool& tp) {
+        static cppcoro::task<>
+        clique_producer(UndirectedGraph<VertexSet> const& graph,
+                        cppcoro::sequence_barrier<size_t>& visit_barrier,
+                        cppcoro::single_producer_sequencer<size_t> const& visit_sequencer,
+                        cppcoro::multi_producer_sequencer<size_t>& clique_sequencer,
+                        VisitJob& visit_job,
+                        std::optional<typename Reporter::Result> (
+                            *clique_produce)[CLIQUES], // pass-by-reference avoiding ICE
+                        cppcoro::static_thread_pool& tp) {
             bool producer = true;
             size_t nextToRead = 0;
             while (producer) {
@@ -189,14 +189,14 @@ namespace BronKerbosch {
             clique_sequencer.publish(seq);
         }
 
-        static cppcoro::task<> clique_consumer(
-            cppcoro::sequence_barrier<size_t>& clique_barrier,
-            cppcoro::multi_producer_sequencer<size_t> const& clique_sequencer,
-            std::optional<typename Reporter::Result> (
-                *clique_produce)[CLIQUES],  // pass-by-reference avoiding ICE
-            size_t producers,
-            Reporter::Result& all_cliques,
-            cppcoro::static_thread_pool& tp) noexcept {
+        static cppcoro::task<>
+        clique_consumer(cppcoro::sequence_barrier<size_t>& clique_barrier,
+                        cppcoro::multi_producer_sequencer<size_t> const& clique_sequencer,
+                        std::optional<typename Reporter::Result> (
+                            *clique_produce)[CLIQUES], // pass-by-reference avoiding ICE
+                        size_t producers,
+                        Reporter::Result& all_cliques,
+                        cppcoro::static_thread_pool& tp) noexcept {
             size_t nextToRead = 0;
             while (producers) {
                 size_t const available =
@@ -215,7 +215,7 @@ namespace BronKerbosch {
             }
         }
 
-       public:
+      public:
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
             auto tp = cppcoro::static_thread_pool{6};
             auto start_barrier = cppcoro::sequence_barrier<size_t>{};

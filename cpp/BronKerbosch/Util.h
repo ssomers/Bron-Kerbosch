@@ -8,7 +8,7 @@ namespace BronKerbosch {
     class ordered_vector {
         std::vector<T> vals;
 
-       public:
+      public:
         using size_type = typename std::vector<T>::size_type;
         using iterator = typename std::vector<T>::iterator;
         using const_iterator = typename std::vector<T>::const_iterator;

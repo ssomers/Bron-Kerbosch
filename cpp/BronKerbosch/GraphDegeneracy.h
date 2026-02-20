@@ -1,13 +1,13 @@
 #pragma once
 
+#include "UndirectedGraph.h"
 #include <stdexcept>
 #include <vector>
-#include "UndirectedGraph.h"
 
 namespace BronKerbosch {
     template <typename VertexSet>
     class DegeneracyOrderIter {
-       private:
+      private:
         using Priority = unsigned;
         static constexpr Priority PRIORITY_NONE = 0;
 
@@ -59,13 +59,11 @@ namespace BronKerbosch {
                             std::vector<Priority>&& priority_per_vertex,
                             PriorityQueue<Vertex>&& queue,
                             int num_left_to_pick)
-            : graph(graph),
-              priority_per_vertex(priority_per_vertex),
-              queue(queue),
+            : graph(graph), priority_per_vertex(priority_per_vertex), queue(queue),
               num_left_to_pick(num_left_to_pick) {
         }
 
-       public:
+      public:
         static DegeneracyOrderIter degeneracy_ordering(UndirectedGraph<VertexSet> const& graph) {
             auto order = graph.order();
             std::vector<Priority> priority_per_vertex(size_t(order), PRIORITY_NONE);

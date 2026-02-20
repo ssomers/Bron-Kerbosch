@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace BronKerbosch {
     TEST_CLASS(VertexPileUnitTest) {
-       public:
+      public:
         TEST_METHOD(collect) {
             auto p1 = VertexPile{4};
             {

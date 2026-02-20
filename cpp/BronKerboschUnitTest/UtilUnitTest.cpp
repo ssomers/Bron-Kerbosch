@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace BronKerbosch {
     TEST_CLASS(UtilUnitTest) {
-       public:
+      public:
         template <typename VertexSet>
         void Util_pop_arbitray() {
             auto one = VertexSet{1};
