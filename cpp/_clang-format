@@ -1,7 +1,12 @@
-BasedOnStyle: Chromium
+BasedOnStyle: LLVM
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
-AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: false
+BinPackParameters: false
+BreakTemplateDeclarations: Yes
+IndentCaseLabels: true
+PointerAlignment: Left
+ReferenceAlignment: Left
 FixNamespaceComments: false
 NamespaceMacros: [TEST_CLASS, TEST_METHOD]
 IndentPPDirectives: AfterHash

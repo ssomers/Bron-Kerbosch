@@ -63,8 +63,8 @@ class Benchmark {
                     auto cliques = Portfolio::explore<Portfolio::CountingReporter, VertexSet>(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     if (cliques != graph.clique_count) {
-                        std::cerr << "Expected " << graph.clique_count << ", obtained "
-                                  << cliques << " cliques\n";
+                        std::cerr << "Expected " << graph.clique_count << ", "
+                                  << "obtained " << cliques << " cliques\n";
                         std::exit(EXIT_FAILURE);
                     }
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
