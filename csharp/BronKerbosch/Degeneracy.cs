@@ -30,7 +30,7 @@ namespace BronKerbosch
                 maxPriority = Math.Max(maxPriority, degree);
             }
 
-            var q = new PriorityQueue(maxPriority);
+            var q = new PriorityQueue<Vertex>(maxPriority);
             var numLeftToPick = 0;
             foreach ((Vertex v, Priority priority) in priorityPerVertex.Select((p, i) => (Vertex.Nth(i), p)))
             {
@@ -47,7 +47,7 @@ namespace BronKerbosch
                 Priority priority = priorityPerVertex[pick.Index()];
                 if (priority > 0)
                 {
-                    // In contrast to most languages, C# allows spawning as soon as possible,
+                    // In contrast to most languages, C# continuations allow spawning ASAP,
                     // before we adjust the data. Not that we know it makes a difference.
                     yield return pick;
                     priorityPerVertex[pick.Index()] = 0;
@@ -79,29 +79,27 @@ namespace BronKerbosch
         }
     }
 
-    internal sealed class PriorityQueue(int maxPriority)
+    internal sealed class PriorityQueue<T>(int maxPriority)
     {
-        private readonly List<Vertex>[] itsQueuePerPriority = new List<Vertex>[maxPriority + 1];
+        private readonly List<T>[] itsQueuePerPriority = [.. Enumerable.Repeat(true, maxPriority).Select(_ => new List<T>())];
 
-        public void Put(Priority priority, Vertex element)
+        public void Put(Priority priority, T element)
         {
             Debug.Assert(priority > 0);
-            (itsQueuePerPriority[priority - 1] ??= []).Add(element);
+            itsQueuePerPriority[priority - 1].Add(element);
         }
 
-        public Vertex Pop()
+        // We may return an element already popped earlier, in case its priority was promoted.
+        public T Pop()
         {
-            foreach (var queue in itsQueuePerPriority)
+            foreach (List<T> stack in itsQueuePerPriority)
             {
-                if (queue != null)
+                if (stack.Count > 0)
                 {
-                    var last = queue.Count - 1;
-                    if (last >= 0)
-                    {
-                        Vertex v = queue[last];
-                        queue.RemoveAt(last);
-                        return v;
-                    }
+                    var last = stack.Count - 1;
+                    T element = stack[last];
+                    stack.RemoveAt(last);
+                    return element;
                 }
             }
             throw new ArgumentException("Cannot pop more than has been put");
