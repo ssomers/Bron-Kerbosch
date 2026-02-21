@@ -5,22 +5,27 @@
 #include <vector>
 
 namespace BronKerbosch {
+    // Enumerate connected vertices in degeneracy order, skipping vertices
+    // whose neighbours have all been enumerated already.
     template <typename VertexSet>
-    class DegeneracyOrderIter {
+    class DegeneracyIter {
       private:
         using Priority = unsigned;
-        static constexpr Priority PRIORITY_NONE = 0;
 
         template <typename T>
         struct PriorityQueue {
             std::vector<std::vector<T>> stack_per_priority;
 
-            PriorityQueue(Priority max_priority)
-                : stack_per_priority(std::vector<std::vector<T>>(max_priority)) {
+          public:
+            void resize(Priority max_priority, size_t size) {
+                if (max_priority > 0) {
+                    stack_per_priority.resize(max_priority);
+                    stack_per_priority.front().reserve(size);
+                }
             }
 
             void put(Priority priority, T element) {
-                assert(priority != PRIORITY_NONE);
+                assert(priority > 0);
                 stack_per_priority[priority - 1].push_back(element);
             }
 
@@ -36,7 +41,7 @@ namespace BronKerbosch {
             }
 
             bool contains(Priority priority, T element) const {
-                assert(priority != PRIORITY_NONE);
+                assert(priority > 0);
 #ifdef NDEBUG
                 throw std::logic_error("not suitable for use in release code");
 #endif
@@ -46,79 +51,49 @@ namespace BronKerbosch {
         };
 
         UndirectedGraph<VertexSet> const& graph;
+        // Possible values of priority_per_vertex (after initialization):
+        //   0: never queued because not connected (degree 0),
+        //      or no longer queued because it has been yielded itself,
+        //      or no longer queued because all neighbours have been yielded
+        //   1..maxPriority: candidates queued with priority (degree - #of yielded neighbours)
         std::vector<Priority> priority_per_vertex;
-        // If priority is PRIORITY_NONE, the vertex:
-        // - was always irrelevant (unconnected);
-        // - was already picked itself;
-        // - had all its neighbours picked.
-        // Otherwise, vertex is still queued and priority = degree - number of picked neighbours.
         PriorityQueue<Vertex> queue;
         int num_left_to_pick;
 
-        DegeneracyOrderIter(UndirectedGraph<VertexSet> const& graph,
-                            std::vector<Priority>&& priority_per_vertex,
-                            PriorityQueue<Vertex>&& queue,
-                            int num_left_to_pick)
-            : graph(graph), priority_per_vertex(priority_per_vertex), queue(queue),
-              num_left_to_pick(num_left_to_pick) {
-        }
-
       public:
-        static DegeneracyOrderIter degeneracy_ordering(UndirectedGraph<VertexSet> const& graph) {
-            auto order = graph.order();
-            std::vector<Priority> priority_per_vertex(size_t(order), PRIORITY_NONE);
+        explicit DegeneracyIter(UndirectedGraph<VertexSet> const& graph)
+            : graph(graph), priority_per_vertex(graph.order(), 0), queue(), num_left_to_pick(0) {
+            unsigned const order = graph.order();
             Priority max_priority = 0;
-            for (Vertex c = 0; c < order; ++c) {
-                auto degree = graph.degree(c);
-                Priority priority = degree;
-                priority_per_vertex[c] = priority;
-                if (max_priority < priority) {
-                    max_priority = priority;
+            for (Vertex v = 0; v < order; ++v) {
+                auto degree = graph.degree(v);
+                if (degree > 0) {
+                    priority_per_vertex[v] = degree;
+                    num_left_to_pick += 1;
+                    if (max_priority < degree) {
+                        max_priority = degree;
+                    }
                 }
             }
 
-            int num_candidates = 0;
-            PriorityQueue<Vertex> queue{max_priority};
-            for (Vertex c = 0; c < order; ++c) {
-                Priority priority = priority_per_vertex[c];
-                if (priority != PRIORITY_NONE) {
-                    queue.put(priority, c);
-                    num_candidates += 1;
+            queue.resize(max_priority, num_left_to_pick);
+            for (Vertex v = 0; v < order; ++v) {
+                Priority priority = priority_per_vertex[v];
+                if (priority > 0) {
+                    queue.put(priority, v);
                 }
             }
-
-            return DegeneracyOrderIter{graph, std::move(priority_per_vertex), std::move(queue),
-                                       num_candidates};
         }
 
         bool invariant() const {
             auto order = priority_per_vertex.size();
             for (Vertex v = 0; v < order; ++v) {
-                Priority p = priority_per_vertex[v];
-                if (p == PRIORITY_NONE) {
-                    // might still be in some stack
-                } else if (!queue.contains(p, v)) {
+                Priority priority = priority_per_vertex[v];
+                if (priority > 0 && !queue.contains(priority, v)) {
                     return false;
                 }
             }
             return true;
-        }
-
-        void requeue(VertexSet const& neighbours) {
-            for (Vertex v : neighbours) {
-                Priority old_priority = priority_per_vertex[v];
-                if (old_priority != PRIORITY_NONE) {
-                    Priority new_priority = old_priority - 1;
-                    priority_per_vertex[v] = new_priority;
-                    if (new_priority > 0) {
-                        // Requeue with a more urgent priority, but don't bother to remove
-                        // the original entry - it will be skipped if it's reached at all.
-                        queue.put(new_priority, v);
-                    } else {
-                        num_left_to_pick -= 1;
-                    }
-                }
-            }
         }
 
         bool has_next() const {
@@ -128,16 +103,34 @@ namespace BronKerbosch {
         std::optional<Vertex> next() {
             while (num_left_to_pick > 0) {
                 Vertex pick = queue.pop();
-                if (priority_per_vertex[pick] == PRIORITY_NONE) {
-                    // v was requeued with a more urgent priority and therefore already picked
-                } else {
-                    priority_per_vertex[pick] = PRIORITY_NONE;
+                if (priority_per_vertex[pick] > 0) {
+                    priority_per_vertex[pick] = 0;
                     num_left_to_pick -= 1;
-                    requeue(graph.neighbours(pick));
+                    reassess(graph.neighbours(pick));
                     return std::make_optional(pick);
                 }
             }
             return std::optional<Vertex>{};
+        }
+
+      private:
+        void reassess(VertexSet const& neighbours) {
+            for (Vertex v : neighbours) {
+                Priority old_priority = priority_per_vertex[v];
+                if (old_priority > 0) {
+                    Priority new_priority = old_priority - 1;
+                    priority_per_vertex[v] = new_priority;
+                    // Requeue with a more urgent priority or dequeue.
+                    // Don't bother to remove the original entry from the queue,
+                    // since the vertex will be skipped when popped, and thanks to
+                    // num_left_to_pick we might not need to pop it at all.
+                    if (new_priority > 0) {
+                        queue.put(new_priority, v);
+                    } else {
+                        num_left_to_pick -= 1;
+                    }
+                }
+            }
         }
     };
 }
