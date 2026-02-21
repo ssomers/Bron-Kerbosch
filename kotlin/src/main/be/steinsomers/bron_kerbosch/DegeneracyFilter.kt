@@ -3,7 +3,6 @@ package be.steinsomers.bron_kerbosch
 import java.util.*
 import java.util.stream.IntStream
 import java.util.stream.StreamSupport
-import kotlin.math.max
 
 internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveIterator.OfInt {
     // Possible values of priorityPerVertex (after initialization):
@@ -11,33 +10,19 @@ internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveI
     //      or no longer queued because it has been yielded itself,
     //      or no longer queued because all neighbours have been yielded
     //   1...maxPriority: candidates queued with priority (degree - #of yielded neighbours)
-    private val priorityPerVertex: IntArray
-    private val queue: SimplePriorityQueue<Int>
-    private var numLeftToPick: Int
+    private val priorityPerVertex: IntArray = IntArray(graph.order)
+    private val queue: SimplePriorityQueue<Int> = SimplePriorityQueue(graph.maxDegree)
 
     init {
-        var maxPriority = 0
-        priorityPerVertex = IntArray(graph.order)
-        numLeftToPick = 0
-        for (candidate in 0..<graph.order) {
-            val degree = graph.degree(candidate)
-            if (degree > 0) {
-                maxPriority = max(maxPriority, degree)
-                priorityPerVertex[candidate] = degree
-                numLeftToPick += 1
-            }
-        }
-        queue = SimplePriorityQueue(maxPriority, numLeftToPick)
-        for (candidate in 0..<graph.order) {
-            val priority = priorityPerVertex[candidate]
-            if (priority != 0) {
-                queue.put(priority, candidate)
-            }
+        for (v in 0..<graph.order) {
+            val priority = graph.degree(v)
+            priorityPerVertex[v] = priority
+            queue.insert(v, priority)
         }
     }
 
     override fun hasNext(): Boolean {
-        return numLeftToPick > 0
+        return !queue.empty()
     }
 
     override fun nextInt(): Int {
@@ -48,7 +33,7 @@ internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveI
             val pick = queue.pop()
             if (priorityPerVertex[pick] != 0) {
                 priorityPerVertex[pick] = 0
-                numLeftToPick -= 1
+                queue.forget(pick)
                 for (v in graph.neighbours(pick)) {
                     val oldPriority = priorityPerVertex[v]
                     if (oldPriority != 0) {
@@ -58,11 +43,7 @@ internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveI
                         // since the vertex will be skipped when popped, and thanks to
                         // numLeftToPick we might not need to pop it at all.
                         priorityPerVertex[v] = newPriority
-                        if (newPriority != 0) {
-                            queue.put(newPriority, v)
-                        } else {
-                            numLeftToPick -= 1
-                        }
+                        queue.promote(v, newPriority)
                     }
                 }
                 return pick
@@ -70,11 +51,31 @@ internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveI
         }
     }
 
-    private class SimplePriorityQueue<T>(maxPriority: Int, private val sizeHint: Int) {
-        private val stackPerPriority = Array<ArrayList<T>>(size = maxPriority) { _ -> ArrayList(sizeHint) }
+    private class SimplePriorityQueue<T>(maxPriority: Int) {
+        private val stackPerPriority = Array<ArrayList<T>>(size = maxPriority) { _ -> ArrayList() }
+        private var numLeftToPick: Int = 0
 
-        fun put(priority: Int, elt: T) {
-            stackPerPriority[priority - 1].add(elt)
+        fun empty(): Boolean {
+            return numLeftToPick == 0
+        }
+
+        fun insert(elt: T, priority: Int) {
+            if (priority > 0) {
+                stackPerPriority[priority - 1].add(elt)
+                numLeftToPick += 1
+            }
+        }
+
+        fun promote(elt: T, priority: Int) {
+            if (priority > 0) {
+                stackPerPriority[priority - 1].add(elt)
+            } else {
+                forget(elt)
+            }
+        }
+
+        fun forget(elt: T) {
+            numLeftToPick -= 1
         }
 
         fun pop(): T {

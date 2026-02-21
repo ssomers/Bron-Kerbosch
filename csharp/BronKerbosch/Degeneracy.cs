@@ -19,29 +19,21 @@ namespace BronKerbosch
             //   0: never queued because not connected (degree 0),
             //      or no longer queued because it has been yielded itself,
             //      or no longer queued because all neighbours have been yielded
-            //   1..maxPriority: candidates queued with priority (degree - #of yielded neighbours)
-            var priorityPerVertex = new Priority[graph.Order];
-            Priority maxPriority = 0;
+            //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
+            Priority[] priorityPerVertex = [.. Enumerable.Range(0, graph.Order).Select(Vertex.Nth).Select(graph.Degree)];
+            var q = new PriorityQueue<Vertex>(graph.MaxDegree);
             foreach (var i in Enumerable.Range(0, graph.Order))
             {
                 Vertex v = Vertex.Nth(i);
                 var degree = graph.Degree(v);
-                priorityPerVertex[i] = degree;
-                maxPriority = Math.Max(maxPriority, degree);
-            }
-
-            var q = new PriorityQueue<Vertex>(maxPriority);
-            var numLeftToPick = 0;
-            foreach ((Vertex v, Priority priority) in priorityPerVertex.Select((p, i) => (Vertex.Nth(i), p)))
-            {
-                if (priority > 0)
+                if (degree > 0)
                 {
-                    q.Put(priority: priority, element: v);
-                    numLeftToPick += 1;
+                    priorityPerVertex[i] = degree;
+                    q.Insert(element: v, priority: degree);
                 }
             }
 
-            while (numLeftToPick > 0)
+            while (!q.Empty)
             {
                 Vertex pick = q.Pop();
                 Priority priority = priorityPerVertex[pick.Index()];
@@ -51,27 +43,15 @@ namespace BronKerbosch
                     // before we adjust the data. Not that we know it makes a difference.
                     yield return pick;
                     priorityPerVertex[pick.Index()] = 0;
-                    numLeftToPick -= 1;
+                    q.Forget(pick);
                     foreach (Vertex v in graph.Neighbours(pick))
                     {
                         var oldPriority = priorityPerVertex[v.Index()];
                         if (oldPriority != 0)
                         {
-                            // Requeue with a more urgent priority or dequeue.
-                            // Don't bother to remove the original entry from the queue,
-                            // since the vertex will be skipped when popped, and thanks to
-                            // numLeftToPick we might not need to pop it at all.
                             var newPriority = oldPriority - 1;
                             priorityPerVertex[v.Index()] = newPriority;
-                            if (newPriority > 0)
-                            {
-                                q.Put(priority: newPriority, element: v);
-                            }
-                            else
-                            {
-                                Debug.Assert(numLeftToPick > 0);
-                                numLeftToPick -= 1;
-                            }
+                            q.Promote(v, newPriority);
                         }
                     }
                 }
@@ -82,14 +62,49 @@ namespace BronKerbosch
     internal sealed class PriorityQueue<T>(int maxPriority)
     {
         private readonly List<T>[] itsQueuePerPriority = [.. Enumerable.Repeat(true, maxPriority).Select(_ => new List<T>())];
+        private int itsNumLeftToPick;
+#if DEBUG
+        private readonly HashSet<T> itsLeftToPick = [];
+#endif
 
-        public void Put(Priority priority, T element)
+        public bool Empty => itsNumLeftToPick == 0;
+
+        public void Insert(T element, Priority priority)
         {
             Debug.Assert(priority > 0);
             itsQueuePerPriority[priority - 1].Add(element);
+            itsNumLeftToPick += 1;
+#if DEBUG
+            bool added = itsLeftToPick.Add(element);
+            Debug.Assert(added);
+            Debug.Assert(itsNumLeftToPick == itsLeftToPick.Count);
+#endif
+        }
+
+        // Requeue with a more urgent priority or dequeue.
+        // Don't bother to remove the original entry from the queue,
+        // since the vertex will be skipped when popped, and thanks to
+        // itsNumLeftToPick we might not need to pop it at all.
+        //
+        // Assumes the given priority is less than the previous priority
+        // that the vertex was assigned.
+        public void Promote(T element, Priority priority)
+        {
+#if DEBUG
+            Debug.Assert(itsLeftToPick.Contains(element));
+#endif
+            if (priority > 0)
+            {
+                itsQueuePerPriority[priority - 1].Add(element);
+            }
+            else
+            {
+                Forget(element);
+            }
         }
 
         // We may return an element already popped earlier, in case its priority was promoted.
+        // That's why we do not count the element as picked, but wait for the caller to Forget it.
         public T Pop()
         {
             foreach (List<T> stack in itsQueuePerPriority)
@@ -103,6 +118,17 @@ namespace BronKerbosch
                 }
             }
             throw new ArgumentException("Cannot pop more than has been put");
+        }
+
+        public void Forget(T element)
+        {
+            Debug.Assert(itsNumLeftToPick > 0);
+            itsNumLeftToPick -= 1;
+#if DEBUG
+            bool removed = itsLeftToPick.Remove(element);
+            Debug.Assert(removed);
+            Debug.Assert(itsNumLeftToPick == itsLeftToPick.Count);
+#endif
         }
     }
 }
