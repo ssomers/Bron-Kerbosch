@@ -10,14 +10,14 @@ namespace BronKerbosch {
         template <typename VertexSet>
         void test_empty() {
             UndirectedGraph<VertexSet> const g{typename UndirectedGraph<VertexSet>::Adjacencies{}};
-            Assert::IsFalse(DegeneracyOrderIter<VertexSet>::degeneracy_ordering(g).has_next());
+            Assert::IsFalse(DegeneracyIter{g}.has_next());
         }
 
         template <typename VertexSet>
         void test_pair() {
             UndirectedGraph<VertexSet> const g{
                 typename UndirectedGraph<VertexSet>::Adjacencies{{1u}, {0u}}};
-            auto it = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(g);
+            auto it = DegeneracyIter{g};
             auto first = it.next();
             Assert::IsTrue(first.has_value());
             Assert::IsFalse(it.next().has_value());
@@ -27,7 +27,7 @@ namespace BronKerbosch {
         void test_split() {
             UndirectedGraph<VertexSet> const g{
                 typename UndirectedGraph<VertexSet>::Adjacencies{{1u}, {0u, 2u}, {1u}}};
-            auto it = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(g);
+            auto it = DegeneracyIter{g};
             auto first = it.next();
             Assert::IsTrue(first.has_value());
             Assert::AreNotEqual(1u, *first);

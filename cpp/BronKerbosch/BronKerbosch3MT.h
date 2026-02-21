@@ -7,14 +7,13 @@
 #include "GraphDegeneracy.h"
 #pragma warning(push)
 #pragma warning(disable : 4189 4265 4623 5204 26495)
-#include "cppcoro/async_generator.hpp"
 #include "cppcoro/multi_producer_sequencer.hpp"
 #include "cppcoro/sequence_barrier.hpp"
 #include "cppcoro/single_producer_sequencer.hpp"
 #include "cppcoro/static_thread_pool.hpp"
 #include "cppcoro/sync_wait.hpp"
 #include "cppcoro/task.hpp"
-#include "cppcoro/when_all.hpp"
+#include "cppcoro/when_all_ready.hpp"
 #pragma warning(pop)
 
 namespace BronKerbosch {
@@ -87,8 +86,8 @@ namespace BronKerbosch {
                        cppcoro::single_producer_sequencer<size_t>& start_sequencer,
                        Vertex (*starts)[STARTS], // pass-by-reference avoiding ICE
                        cppcoro::static_thread_pool& tp) {
-            auto ordering = DegeneracyOrderIter<VertexSet>::degeneracy_ordering(graph);
-            while (auto next = ordering.next()) {
+            auto degeneracy = DegeneracyIter{graph};
+            while (auto next = degeneracy.next()) {
                 size_t seq = co_await start_sequencer.claim_one(tp);
                 (*starts)[seq % STARTS] = *next;
                 start_sequencer.publish(seq);
@@ -126,18 +125,15 @@ namespace BronKerbosch {
                         auto const& neighbours = graph.neighbours(start);
                         assert(!neighbours.empty());
                         auto neighbouring_excluded = Util::intersection(neighbours, excluded);
-                        if (neighbouring_excluded.size() < neighbours.size()) {
-                            auto neighbouring_candidates =
-                                Util::difference(neighbours, neighbouring_excluded);
+                        auto neighbouring_candidates =
+                            Util::difference(neighbours, neighbouring_excluded);
 
-                            auto visit_sequencer = (*visit_sequencers)[visitor].get();
-                            size_t seq = co_await visit_sequencer->claim_one(tp);
-                            (*visit_jobs)[visitor].schedule(start,
-                                                            std::move(neighbouring_candidates),
-                                                            std::move(neighbouring_excluded));
-                            visit_sequencer->publish(seq);
-                            visitor = ++visitor < VISITORS ? visitor : 0;
-                        }
+                        auto visit_sequencer = (*visit_sequencers)[visitor].get();
+                        size_t seq = co_await visit_sequencer->claim_one(tp);
+                        (*visit_jobs)[visitor].schedule(start, std::move(neighbouring_candidates),
+                                                        std::move(neighbouring_excluded));
+                        visit_sequencer->publish(seq);
+                        visitor = ++visitor < VISITORS ? visitor : 0;
                         excluded.insert(start);
                     }
                 }
