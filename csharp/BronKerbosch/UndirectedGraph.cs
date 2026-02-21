@@ -26,19 +26,20 @@ namespace BronKerbosch
             Debug.Assert(AreSymmetrical(adjacencies));
             Debug.Assert(AreLoopFree(adjacencies));
             itsAdjacencies = adjacencies;
+            if (adjacencies.Any())
+            {
+                MaxDegree = Vertices().Max(Degree);
+                var total = Vertices().Sum(Degree);
+                Debug.Assert(total % 2 == 0);
+                Size = total / 2;
+            }
         }
 
         public int Order => itsAdjacencies.Length;
 
-        public int Size
-        {
-            get
-            {
-                var total = Vertices().Sum(Degree);
-                Debug.Assert(total % 2 == 0);
-                return total / 2;
-            }
-        }
+        public int Size { init; get; }
+
+        public int MaxDegree { init; get; }
 
         public TVertexSet Neighbours(Vertex node) => itsAdjacencies[node.Index()];
 
@@ -50,6 +51,6 @@ namespace BronKerbosch
 
         public IEnumerable<Vertex> ConnectedVertices() => Vertices().Where(HasNeighbours);
 
-        public Vertex MaxDegreeVertex() => Vertices().MaxBy(Degree);
+        public IEnumerable<Vertex> MaxDegreeVertices() => Vertices().Where(v => Degree(v) == MaxDegree);
     }
 }

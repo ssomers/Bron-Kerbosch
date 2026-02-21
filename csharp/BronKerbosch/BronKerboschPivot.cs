@@ -24,7 +24,7 @@ namespace BronKerbosch
             {
                 return;
             }
-            Vertex pivot = graph.MaxDegreeVertex();
+            Vertex pivot = graph.MaxDegreeVertices().First();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             var excluded = VertexSetMgr.EmptyWithCapacity(order);
