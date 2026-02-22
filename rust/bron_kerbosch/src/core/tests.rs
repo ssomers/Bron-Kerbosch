@@ -1,6 +1,7 @@
 use super::cliqueconsumers::CliqueCollector;
-use super::graph::{NewableUndirectedGraph, Vertex, VertexMap, VertexSetLike};
-use super::slimgraph::SlimUndirectedGraph;
+use super::graph::{Vertex, VertexMap, VertexSetLike};
+use super::graphfactory::UndirectedGraphFactory;
+use super::slimgraphfactory::SlimUndirectedGraphFactory;
 use super::*;
 
 pub struct TestData {
@@ -16,7 +17,7 @@ fn verticise(vertex_indices: &Vec<usize>) -> Vec<Vertex> {
 impl TestData {
     pub fn run<VertexSet: VertexSetLike>(&self) {
         let adjacencies = VertexMap::from_iter(self.adjacencies.iter().map(verticise));
-        let graph = SlimUndirectedGraph::new(adjacencies);
+        let graph = SlimUndirectedGraphFactory::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
             let mut consumer = CliqueCollector::default();

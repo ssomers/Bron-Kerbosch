@@ -36,7 +36,7 @@ class Language(Enum):
             Language.python310: "Python 3.10",
             Language.python311: "Python 3.11",
             Language.python314: "Python 3.14",
-            Language.rust: "Rust 1.90",
+            Language.rust: "Rust 1.94",
         }[self]
 
     def short_name(self) -> str:

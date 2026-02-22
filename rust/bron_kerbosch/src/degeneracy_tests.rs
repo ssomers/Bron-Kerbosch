@@ -39,7 +39,7 @@ pub fn test_degeneracy_order() {
                 }
             }
 
-            let g = SlimUndirectedGraph::new(adjacencies);
+            let g = SlimUndirectedGraphFactory::new(adjacencies);
             let connected: VertexSet = connected_vertices(&g).collect();
 
             let ordering = Vec::from_iter(degeneracy_iter(&g));

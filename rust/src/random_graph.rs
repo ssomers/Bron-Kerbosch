@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use bron_kerbosch::{Adjacencies, NewableUndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::{Adjacencies, UndirectedGraph, UndirectedGraphFactory, Vertex, VertexSetLike};
 use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -90,10 +90,18 @@ fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<
     Ok(None)
 }
 
-pub fn read_undirected<VertexSet, G>(orderstr: &str, size: Size) -> Result<(G, Option<usize>)>
+pub struct KnownRandomGraph<Graph: UndirectedGraph> {
+    pub graph: Graph,
+    pub clique_count: Option<usize>,
+}
+
+pub fn read_undirected<VertexSet, GraphFactory>(
+    orderstr: &str,
+    size: Size,
+) -> Result<KnownRandomGraph<impl UndirectedGraph<VertexSet = VertexSet>>>
 where
     VertexSet: VertexSetLike + Clone,
-    G: NewableUndirectedGraph<VertexSet>,
+    GraphFactory: UndirectedGraphFactory<VertexSet>,
 {
     let order = parse_positive_int(orderstr);
     assert!(order > 0);
@@ -114,8 +122,11 @@ where
     let adjacencies = read_edges(edges_pbuf.as_path(), orderstr, size)?;
     let clique_count = read_clique_count(stats_pbuf.as_path(), orderstr, size)?;
 
-    let g = G::new(adjacencies);
-    assert_eq!(g.order(), order);
-    assert_eq!(g.size(), size);
-    Ok((g, clique_count))
+    let graph = GraphFactory::new(adjacencies);
+    assert_eq!(graph.order(), order);
+    assert_eq!(graph.size(), size);
+    Ok(KnownRandomGraph {
+        graph,
+        clique_count,
+    })
 }

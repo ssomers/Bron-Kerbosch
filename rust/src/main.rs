@@ -2,7 +2,7 @@ mod random_graph;
 
 use bron_kerbosch::{CliqueCollector, CliqueCounter};
 use bron_kerbosch::{FUNC_NAMES, OrderedCliques, explore, order_cliques};
-use bron_kerbosch::{SlimUndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::{SlimUndirectedGraphFactory, Vertex, VertexSetLike};
 use random_graph::{Size, parse_positive_int, read_undirected};
 use stats::SampleStatistics;
 
@@ -35,6 +35,18 @@ enum SetType {
 const NUM_FUNCS: usize = FUNC_NAMES.len();
 type Seconds = f32;
 
+// Source - https://stackoverflow.com/a/67834588
+fn formatted(num: usize) -> String {
+    num.to_string()
+        .as_bytes()
+        .rchunks(3)
+        .rev()
+        .map(str::from_utf8)
+        .collect::<Result<Vec<&str>, _>>()
+        .unwrap()
+        .join("_")
+}
+
 fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     set_type: SetType,
     orderstr: &str,
@@ -43,16 +55,16 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     timed_samples: u32,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let instant = Instant::now();
-    let (graph, known_clique_count) =
-        read_undirected::<VertexSet, SlimUndirectedGraph<VertexSet>>(orderstr, Size::Of(size))
-            .unwrap();
+    let known =
+        read_undirected::<VertexSet, SlimUndirectedGraphFactory>(orderstr, Size::Of(size)).unwrap();
     let seconds = instant.elapsed().as_secs_f32();
+    let known_clique_count_str = known.clique_count.map_or(String::from("?"), formatted);
     println!(
         "{}-based random graph of order {}, {} edges, {} cliques: (generating took {:.3}s)",
         set_type,
         orderstr,
-        size,
-        known_clique_count.map_or("?".to_string(), |c| c.to_string()),
+        formatted(size),
+        known_clique_count_str,
         seconds
     );
 
@@ -65,9 +77,9 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
             let mut counting_reporter = CliqueCounter::default();
             let instant = Instant::now();
             if sample == 0 {
-                explore(func_index, &graph, &mut collecting_reporter);
+                explore(func_index, &known.graph, &mut collecting_reporter);
             } else {
-                explore(func_index, &graph, &mut counting_reporter);
+                explore(func_index, &known.graph, &mut counting_reporter);
             }
             let secs: Seconds = instant.elapsed().as_secs_f32();
             if sample == 0 {
@@ -85,7 +97,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                         );
                     }
                 } else {
-                    if let Some(clique_count) = known_clique_count {
+                    if let Some(clique_count) = known.clique_count {
                         if current.len() != clique_count {
                             eprintln!(
                                 "  {:8}: expected {} cliques, obtained {} cliques",
@@ -100,7 +112,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                     }
                     first = Some(current);
                 }
-            } else if let Some(clique_count) = known_clique_count {
+            } else if let Some(clique_count) = known.clique_count {
                 if counting_reporter.count != clique_count {
                     eprintln!(
                         "  {:8}: expected {} cliques, obtained {} cliques",
@@ -246,15 +258,6 @@ fn bk(
     if published {
         let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
         std::fs::rename(temppath, path)?;
-        let publish = Path::new("..")
-            .join(Path::new("python3"))
-            .join(Path::new("publish.py"));
-        let rc = std::process::Command::new("python")
-            .arg(publish)
-            .arg(LANGUAGE)
-            .arg(orderstr)
-            .status()?;
-        assert!(rc.success());
     }
     Ok(())
 }

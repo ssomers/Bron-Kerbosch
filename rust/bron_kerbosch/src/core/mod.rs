@@ -15,8 +15,9 @@ mod bron_kerbosch_pivot;
 pub mod cliqueconsumers;
 pub mod graph;
 pub(super) mod graph_degeneracy;
+pub mod graphfactory;
 mod pile;
-pub mod slimgraph;
+pub mod slimgraphfactory;
 #[cfg(test)]
 pub mod tests;
 pub mod vertex;

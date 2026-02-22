@@ -375,8 +375,9 @@ Perform:
 
 ## Finally
 
-Python and Rust publish results to `detail_*` files automatically, the others need a push:
+Python publishes results to `detail_*` files automatically, the others need a push:
 
+    python ..\python3\publish.py rust 100 10k 1M
     python ..\python3\publish.py go 100 10k 1M
     python ..\python3\publish.py csharp 100 10k 1M
     python ..\python3\publish.py cpp 100 10k 1M
