@@ -12,11 +12,11 @@ debug = true
 [dependencies]
 bron_kerbosch = { path="bron_kerbosch" }
 stats = { path="stats" }
-anyhow = "1.0.100"
-clap = {version = "4.5.54", features = ["cargo"]}
+anyhow = "1.0.102"
+clap = {version = "4.5.60", features = ["cargo"]}
 csv = "1.4.0"
 fnv = "1.0.7"
 hashbrown = "0.16.1"
 itertools = "0.14.0"
-strum = "0.27.2"
-strum_macros = "0.27.2"
+strum = "0.28.0"
+strum_macros = "0.28.0"
