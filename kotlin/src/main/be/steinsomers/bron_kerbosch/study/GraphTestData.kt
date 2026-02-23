@@ -30,7 +30,7 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
 
             val g = UndirectedGraph(adjacencies)
             require(g.order == order) { "order mishap" }
-            require(g.size() == size) { "size mishap" }
+            require(g.size == size) { "size mishap" }
             return GraphTestData(g, cliqueCount)
         }
 

@@ -65,7 +65,7 @@ internal object Main {
         for (sample in 0..timedSamples) {
             for (funcIndex in funcIndices) {
                 if (sample == 0) {
-                    val initialCap = ceil(sqrt(testData.graph.size().toDouble())).toInt()
+                    val initialCap = ceil(sqrt(testData.graph.size.toDouble())).toInt()
                     val cliques = Collections.synchronizedCollection(ArrayDeque<IntArray>(initialCap))
                     FUNCS[funcIndex].explore(testData.graph, cliques::add)
                     val ordered = orderCliques(cliques)

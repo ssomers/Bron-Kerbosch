@@ -24,7 +24,7 @@ namespace BronKerbosch {
                 // In this initial iteration, we don't need to represent the set of candidates
                 // because all neighbours are candidates until excluded.
                 auto excluded = Util::with_capacity<VertexSet>(order);
-                Vertex const pivot = graph.max_degree_vertex();
+                Vertex const pivot = graph.max_degree_vertices().front();
                 for (Vertex v : graph.vertices()) {
                     auto const& neighbours = graph.neighbours(v);
                     if (!neighbours.empty() && neighbours.count(pivot) == 0) {

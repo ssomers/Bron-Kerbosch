@@ -12,15 +12,15 @@ enum BronKerboschPivot {
 
     public static void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
                                final PivotChoice pivotChoice) {
-        final var order = graph.order();
-        if (order > 0) {
-            final var pivot = graph.maxDegreeVertex();
+        final var pivot = graph.maxDegreeVertices().findFirst();
+        if (pivot.isPresent()) {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
+            final var order = graph.order();
             final Set<Integer> mut_excluded = new HashSet<>(order);
             for (int v = 0; v < order; ++v) {
                 final var neighbours = graph.neighbours(v);
-                if (!neighbours.contains(pivot)) {
+                if (!neighbours.contains(pivot.get())) {
                     final var neighbouringExcluded = util.Intersect(neighbours, mut_excluded)
                             .collect(Collectors.toCollection(HashSet::new));
                     if (neighbouringExcluded.size() < neighbours.size()) {

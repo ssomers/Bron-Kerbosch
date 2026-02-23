@@ -86,9 +86,9 @@ namespace BronKerbosch {
 
         bool invariant() const {
             auto order = priority_per_vertex.size();
-            for (Vertex v = 0; v < order; ++v) {
+            for (size_t v = 0; v < order; ++v) {
                 Priority priority = priority_per_vertex[v];
-                if (priority > 0 && !queue.contains(priority, v)) {
+                if (priority > 0 && !queue.contains(priority, Vertex(v))) {
                     return false;
                 }
             }

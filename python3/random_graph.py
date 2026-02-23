@@ -81,7 +81,7 @@ def random_undirected_graph(order: int, size: int) -> UndirectedGraph:
     print(adjacencies)
     g = UndirectedGraph(adjacencies=adjacencies)
     assert g.order == order
-    assert g.size() == size
+    assert g.size == size
     return g
 
 
@@ -102,7 +102,7 @@ def read_random_graph(
     clique_count = read_stats(stats_path, orderstr, size)
     g = UndirectedGraph(adjacencies=adjacencies)
     assert g.order == order
-    assert g.size() == size
+    assert g.size == size
     return g, clique_count
 
 

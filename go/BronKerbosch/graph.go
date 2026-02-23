@@ -7,11 +7,15 @@ import (
 // Designed and to be used entirely immutably.
 type UndirectedGraph struct {
 	adjacencies          []VertexSet
+	size                 int
+	max_degree           int
 	connectedVertexCount int
 }
 
 func NewUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 	connectedVertexCount := 0
+	max_degree := 0
+	total_degree := 0
 	for i, adjacentToV := range adjacencies {
 		v := Vertex(i)
 		for w := range adjacentToV {
@@ -22,12 +26,22 @@ func NewUndirectedGraph(adjacencies []VertexSet) UndirectedGraph {
 				panic(fmt.Sprintf("%d is adjacent to %d but not vice versa", w, v))
 			}
 		}
-		if !adjacentToV.IsEmpty() {
+		degree := len(adjacentToV)
+		if degree > 0 {
+			total_degree += degree
+			if max_degree < degree {
+				max_degree = degree
+			}
 			connectedVertexCount += 1
 		}
 	}
+	if total_degree%2 != 0 {
+		panic("symmetry check should have enforced even total")
+	}
 	g := UndirectedGraph{}
 	g.adjacencies = adjacencies
+	g.size = total_degree / 2
+	g.max_degree = max_degree
 	g.connectedVertexCount = connectedVertexCount
 	return g
 }
@@ -37,14 +51,11 @@ func (g *UndirectedGraph) Order() int {
 }
 
 func (g *UndirectedGraph) Size() int {
-	var total int
-	for _, neighbours := range g.adjacencies {
-		total += neighbours.Cardinality()
-	}
-	if total%2 != 0 {
-		panic("symmetry check on initialisation should have enforced even total")
-	}
-	return total / 2
+	return g.size
+}
+
+func (g *UndirectedGraph) MaxDegree() int {
+	return g.max_degree
 }
 
 func (g *UndirectedGraph) neighbours(v Vertex) VertexSet {
@@ -66,16 +77,10 @@ func (g *UndirectedGraph) connectedVertices() VertexSet {
 }
 
 func (g *UndirectedGraph) maxDegreeVertex() Vertex {
-	order := g.Order()
-	maxDegree := 0
-	var maxVertex Vertex
-	for i := range order {
-		v := Vertex(i)
-		degree := g.degree(v)
-		if maxDegree < degree {
-			maxDegree = degree
-			maxVertex = v
+	for v, neighbours := range g.adjacencies {
+		if len(neighbours) == g.max_degree {
+			return Vertex(v)
 		}
 	}
-	return maxVertex
+	panic("attempt to find max-degree vertex in empty graph")
 }

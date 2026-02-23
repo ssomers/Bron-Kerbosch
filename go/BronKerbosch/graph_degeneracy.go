@@ -66,9 +66,9 @@ func degeneracyOrdering(graph *UndirectedGraph, visitor VertexVisitor) {
 				oldPriority := priorityPerNode[v]
 				if oldPriority > 0 {
 					// Requeue with a more urgent priority or unqueue.
-                    // Don't bother to remove the original entry from the queue,
-                    // since the vertex will be skipped when popped, and thanks to
-                    // numLeftToVisit we might not need to pop it at all.
+					// Don't bother to remove the original entry from the queue,
+					// since the vertex will be skipped when popped, and thanks to
+					// numLeftToVisit we might not need to pop it at all.
 					newPriority := oldPriority - 1
 					priorityPerNode[v] = newPriority
 					if newPriority > 0 {

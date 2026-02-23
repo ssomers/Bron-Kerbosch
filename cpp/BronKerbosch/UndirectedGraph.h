@@ -2,6 +2,7 @@
 
 #include "Util.h"
 #include "Vertex.h"
+#include <algorithm>
 #include <ranges>
 #include <vector>
 
@@ -11,8 +12,10 @@ namespace BronKerbosch {
       public:
         using Adjacencies = std::vector<VertexSet>;
 
-        explicit UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
-            assert(UndirectedGraph::are_valid_adjacencies(itsAdjacencies));
+        explicit UndirectedGraph(Adjacencies&& adjacencies)
+            : itsAdjacencies(assert_valid_adjacencies(adjacencies)),
+              itsSize(calc_size(itsAdjacencies)),
+              itsMaxDegree(calc_max_degree(itsAdjacencies)) {
         }
 
         unsigned order() const {
@@ -20,12 +23,11 @@ namespace BronKerbosch {
         }
 
         unsigned size() const {
-            size_t total = 0;
-            for (auto neighbours : itsAdjacencies) {
-                total += neighbours.size();
-            }
-            assert(total % 2 == 0);
-            return unsigned(total / 2);
+            return itsSize;
+        }
+
+        unsigned max_degree() const {
+            return itsMaxDegree;
         }
 
         unsigned degree(Vertex v) const {
@@ -45,11 +47,9 @@ namespace BronKerbosch {
             return vertices() | std::ranges::views::filter([&](Vertex v) { return degree(v) > 0; });
         }
 
-        Vertex max_degree_vertex() const {
-            assert(order() > 0);
-            auto vertices_stored = vertices();
-            return *std::ranges::max_element(
-                vertices_stored, [&](Vertex v, Vertex w) { return degree(v) < degree(w); });
+        auto max_degree_vertices() const {
+            return vertices() |
+                   std::ranges::views::filter([&](Vertex v) { return degree(v) == itsMaxDegree; });
         }
 
         static bool are_valid_adjacencies(Adjacencies const& adjacencies) {
@@ -66,7 +66,31 @@ namespace BronKerbosch {
             return true;
         }
 
+        static unsigned calc_size(Adjacencies const& adjacencies) {
+            size_t total = 0;
+            for (auto neighbours : adjacencies) {
+                total += neighbours.size();
+            }
+            assert(total % 2 == 0);
+            return unsigned(total / 2);
+        }
+
+        static unsigned calc_max_degree(Adjacencies const& adjacencies) {
+            unsigned max_degree = 0;
+            for (auto neighbours : adjacencies) {
+                max_degree = std::max(max_degree, unsigned(neighbours.size()));
+            }
+            return max_degree;
+        }
+
+        static Adjacencies&& assert_valid_adjacencies(Adjacencies& adjacencies) {
+            assert(are_valid_adjacencies(adjacencies));
+            return std::move(adjacencies);
+        }
+
       private:
         Adjacencies const itsAdjacencies;
+        unsigned const itsSize;
+        unsigned const itsMaxDegree;
     };
 }

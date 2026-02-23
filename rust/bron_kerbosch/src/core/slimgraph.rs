@@ -5,20 +5,24 @@ use super::graph::{
 
 #[derive(Debug)]
 pub struct SlimUndirectedGraph<VertexSet: VertexSetLike> {
-    adjacencies: Adjacencies<VertexSet>,
+    my_adjacencies: Adjacencies<VertexSet>,
+    my_size: usize,
+    my_max_degree: usize,
 }
 
 impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet> {
     type VertexSet = VertexSet;
 
     fn order(&self) -> usize {
-        self.adjacencies.len()
+        self.my_adjacencies.len()
     }
 
     fn size(&self) -> usize {
-        let total: usize = self.adjacencies.iter().map(|(_, a)| a.len()).sum();
-        assert!(total.is_multiple_of(2));
-        total / 2
+        self.my_size
+    }
+
+    fn max_degree(&self) -> usize {
+        self.my_max_degree
     }
 
     fn degree(&self, node: Vertex) -> usize {
@@ -26,7 +30,7 @@ impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet
     }
 
     fn neighbours(&self, node: Vertex) -> &VertexSet {
-        &self.adjacencies[node]
+        &self.my_adjacencies[node]
     }
 }
 
@@ -36,6 +40,13 @@ where
 {
     fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
         debug_assert!(are_valid_adjacencies(&adjacencies));
-        SlimUndirectedGraph { adjacencies }
+        let max_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).max().unwrap_or(0);
+        let sum_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).sum();
+        assert!(sum_degree.is_multiple_of(2));
+        SlimUndirectedGraph {
+            my_adjacencies: adjacencies,
+            my_size: sum_degree / 2,
+            my_max_degree: max_degree,
+        }
     }
 }

@@ -9,7 +9,7 @@ where
     Graph: UndirectedGraph<VertexSet = VertexSet>,
     Consumer: CliqueConsumer,
 {
-    let candidates = connected_vertices(graph);
+    let candidates: VertexSet = connected_vertices(graph).collect();
     if !candidates.is_empty() {
         visit(graph, consumer, candidates, VertexSet::new(), Clique::new());
     }

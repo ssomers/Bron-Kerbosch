@@ -1,7 +1,8 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
 use super::base::CliqueConsumer;
-use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
+use super::graph::max_degree_vertices;
+use super::graph::{UndirectedGraph, Vertex, VertexSetLike, vertices};
 use super::pile::Pile;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -23,10 +24,9 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     Graph: UndirectedGraph<VertexSet = VertexSet>,
     Consumer: CliqueConsumer,
 {
-    let order = graph.order();
-    if let Some(pivot) = (0..order).map(Vertex::new).max_by_key(|&v| graph.degree(v)) {
-        let mut excluded = Graph::VertexSet::with_capacity(order);
-        for v in (0..order).map(Vertex::new) {
+    if let Some(pivot) = max_degree_vertices(graph).next() {
+        let mut excluded = Graph::VertexSet::with_capacity(graph.order());
+        for v in vertices(graph) {
             let neighbours = graph.neighbours(v);
             if !neighbours.is_empty() && !neighbours.contains(pivot) {
                 let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);

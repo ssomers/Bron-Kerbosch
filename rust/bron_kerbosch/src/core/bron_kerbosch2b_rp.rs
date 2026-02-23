@@ -4,12 +4,13 @@ use super::base::CliqueConsumer;
 use super::bron_kerbosch_pivot::{PivotChoice, visit};
 use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 
-pub fn explore<Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
+pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
 where
-    Graph: UndirectedGraph,
+    VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
     Consumer: CliqueConsumer,
 {
-    let candidates = connected_vertices(graph);
+    let candidates: VertexSet = connected_vertices(graph).collect();
     if !candidates.is_empty() {
         visit(
             graph,

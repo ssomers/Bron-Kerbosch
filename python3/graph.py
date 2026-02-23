@@ -12,15 +12,14 @@ class UndirectedGraph(object):
                 assert v != w, f"{v} is adjacent to itself"
                 assert v in adjacencies[w], f"{w} is adjacent to {v} but not vice versa"
         self.adjacencies = adjacencies
+        self.max_degree = max(len(a) for a in self.adjacencies) if order else 0
+        total_degree = sum(len(a) for a in self.adjacencies)
+        assert total_degree % 2 == 0
+        self.size = total_degree / 2
 
     @property
     def order(self) -> int:
         return len(self.adjacencies)
-
-    def size(self) -> int:
-        total = sum(len(a) for a in self.adjacencies)
-        assert total % 2 == 0
-        return total // 2
 
     def degree(self, node: Vertex) -> int:
         return len(self.adjacencies[node])

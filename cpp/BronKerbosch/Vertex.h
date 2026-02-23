@@ -28,11 +28,6 @@ namespace BronKerbosch {
         unsigned index() const {
             return itsIndex;
         }
-
-        Vertex& operator++() {
-            ++itsIndex;
-            return *this;
-        }
     };
 }
 

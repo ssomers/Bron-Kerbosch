@@ -1,4 +1,4 @@
-use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike, vertices};
 use std::iter::FusedIterator;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
@@ -11,8 +11,7 @@ where
     let mut priority_per_vertex = VertexMap::new(None, order);
     let mut max_priority: usize = 0;
     let mut num_candidates: usize = 0;
-    for i in 0..order {
-        let v = Vertex::new(i);
+    for v in vertices(graph) {
         let degree = graph.degree(v);
         if let Some(priority) = Priority::new(degree) {
             priority_per_vertex[v] = Some(priority);
@@ -21,8 +20,7 @@ where
         }
     }
     let mut queue = PriorityQueue::new(max_priority);
-    for i in 0..order {
-        let v = Vertex::new(i);
+    for v in vertices(graph) {
         if let Some(priority) = priority_per_vertex[v] {
             queue.put(priority, v);
         }
