@@ -46,7 +46,7 @@ namespace BronKerbosch {
                 throw std::logic_error("not suitable for use in release code");
 #endif
                 auto const& stack = stack_per_priority[priority - 1];
-                return std::find(stack.begin(), stack.end(), element) != stack.end();
+                return std::count(stack.begin(), stack.end(), element) > 0;
             }
         };
 
@@ -63,12 +63,11 @@ namespace BronKerbosch {
       public:
         explicit DegeneracyIter(UndirectedGraph<VertexSet> const& graph)
             : graph(graph), priority_per_vertex(graph.order(), 0), queue(), num_left_to_pick(0) {
-            unsigned const order = graph.order();
             Priority max_priority = 0;
-            for (Vertex v = 0; v < order; ++v) {
+            for (Vertex v : graph.vertices()) {
                 auto degree = graph.degree(v);
                 if (degree > 0) {
-                    priority_per_vertex[v] = degree;
+                    priority_per_vertex[v.index()] = degree;
                     num_left_to_pick += 1;
                     if (max_priority < degree) {
                         max_priority = degree;
@@ -77,8 +76,8 @@ namespace BronKerbosch {
             }
 
             queue.resize(max_priority, num_left_to_pick);
-            for (Vertex v = 0; v < order; ++v) {
-                Priority priority = priority_per_vertex[v];
+            for (Vertex v : graph.vertices()) {
+                Priority priority = priority_per_vertex[v.index()];
                 if (priority > 0) {
                     queue.put(priority, v);
                 }
@@ -103,8 +102,9 @@ namespace BronKerbosch {
         std::optional<Vertex> next() {
             while (num_left_to_pick > 0) {
                 Vertex pick = queue.pop();
-                if (priority_per_vertex[pick] > 0) {
-                    priority_per_vertex[pick] = 0;
+                Priority& picked_priority = priority_per_vertex[pick.index()];
+                if (picked_priority > 0) {
+                    picked_priority = 0;
                     num_left_to_pick -= 1;
                     reassess(graph.neighbours(pick));
                     return std::make_optional(pick);
@@ -116,16 +116,15 @@ namespace BronKerbosch {
       private:
         void reassess(VertexSet const& neighbours) {
             for (Vertex v : neighbours) {
-                Priority old_priority = priority_per_vertex[v];
-                if (old_priority > 0) {
-                    Priority new_priority = old_priority - 1;
-                    priority_per_vertex[v] = new_priority;
+                Priority& priority = priority_per_vertex[v.index()];
+                if (priority > 0) {
+                    priority -= 1;
                     // Requeue with a more urgent priority or dequeue.
                     // Don't bother to remove the original entry from the queue,
                     // since the vertex will be skipped when popped, and thanks to
                     // num_left_to_pick we might not need to pop it at all.
-                    if (new_priority > 0) {
-                        queue.put(new_priority, v);
+                    if (priority > 0) {
+                        queue.put(priority, v);
                     } else {
                         num_left_to_pick -= 1;
                     }

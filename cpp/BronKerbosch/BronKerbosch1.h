@@ -11,7 +11,7 @@ namespace BronKerbosch {
       public:
         template <typename Reporter, typename VertexSet>
         static Reporter::Result explore(UndirectedGraph<VertexSet> const& graph) {
-            auto candidates = graph.connected_vertices();
+            auto candidates = graph.connected_vertices() | std::ranges::to<VertexSet>();
             auto num_candidates = candidates.size();
             if (num_candidates) {
                 return visit<Reporter>(graph, std::move(candidates),

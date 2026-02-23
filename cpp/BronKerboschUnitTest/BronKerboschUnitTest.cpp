@@ -8,13 +8,13 @@ namespace BronKerbosch {
     TEST_CLASS(BronKerboschUnitTest) {
       public:
         template <typename VertexSet>
-        static void bk_core(std::vector<std::vector<Vertex>> const& adjacencies_in,
-                            std::vector<std::vector<Vertex>> const& expected_cliques) {
+        static void bk_core(std::vector<std::vector<unsigned>> const& adjacencies_in,
+                            std::vector<std::vector<unsigned>> const& expected_cliques) {
             auto adjacencies = std::vector<VertexSet>{};
             adjacencies.resize(adjacencies_in.size());
             std::transform(
                 adjacencies_in.begin(), adjacencies_in.end(), adjacencies.begin(),
-                [](std::vector<Vertex> const& v) { return VertexSet(v.begin(), v.end()); });
+                [](std::vector<unsigned> const& v) { return VertexSet(v.begin(), v.end()); });
             auto graph = UndirectedGraph<VertexSet>{std::move(adjacencies)};
             for (int func_index = 0; func_index < Portfolio::NUM_FUNCS; ++func_index) {
                 auto result =
@@ -26,20 +26,20 @@ namespace BronKerbosch {
             }
         }
 
-        static void bk(std::vector<std::vector<Vertex>>&& adjacencies_in,
-                       std::vector<std::vector<Vertex>>&& expected_cliques) {
+        static void bk(std::vector<std::vector<unsigned>>&& adjacencies_in,
+                       std::vector<std::vector<unsigned>>&& expected_cliques) {
             bk_core<std::set<Vertex>>(adjacencies_in, expected_cliques);
             bk_core<ordered_vector<Vertex>>(adjacencies_in, expected_cliques);
             bk_core<std::unordered_set<Vertex>>(adjacencies_in, expected_cliques);
         }
 
-        static void assert_same_cliques(std::vector<std::vector<Vertex>> const& lhs,
+        static void assert_same_cliques(std::vector<std::vector<unsigned>> const& lhs,
                                         std::vector<std::vector<Vertex>> const& rhs) {
             Assert::AreEqual(lhs.size(), rhs.size());
             for (size_t i = 0; i < lhs.size(); ++i) {
                 Assert::AreEqual(lhs[i].size(), rhs[i].size());
                 for (size_t j = 0; j < lhs[i].size(); ++j) {
-                    Assert::AreEqual(lhs[i][j], rhs[i][j]);
+                    Assert::AreEqual(lhs[i][j], rhs[i][j].index());
                 }
             }
         }

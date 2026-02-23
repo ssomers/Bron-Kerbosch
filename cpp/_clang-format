@@ -3,6 +3,7 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
 AlwaysBreakTemplateDeclarations: false
 BinPackParameters: false
+PackConstructorInitializers: NextLine
 BreakTemplateDeclarations: Yes
 IndentCaseLabels: true
 PointerAlignment: Left

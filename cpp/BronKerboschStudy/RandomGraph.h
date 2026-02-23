@@ -6,6 +6,7 @@ namespace BronKerboschStudy {
     unsigned parseInt(std::string const&);
 
     using BronKerbosch::UndirectedGraph;
+    using BronKerbosch::Vertex;
 
     template <typename VertexSet>
     class RandomGraph : public UndirectedGraph<VertexSet> {
@@ -52,12 +53,12 @@ namespace BronKerboschStudy {
                     std::exit(EXIT_FAILURE);
                 }
                 for (; line_idx < size; ++line_idx) {
-                    int v, w;
+                    unsigned v, w;
                     if (!(file >> v >> w)) {
                         break;
                     }
-                    auto added1 = adjacencies[v].insert(w).second;
-                    auto added2 = adjacencies[w].insert(v).second;
+                    auto added1 = adjacencies[v].insert(Vertex(w)).second;
+                    auto added2 = adjacencies[w].insert(Vertex(v)).second;
                     if (!added1 || !added2) {
                         std::cerr << "Corrupt " << path << "\n";
                         std::exit(EXIT_FAILURE);

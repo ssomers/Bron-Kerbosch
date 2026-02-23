@@ -23,7 +23,7 @@ namespace BronKerbosch {
         static const size_t VISITORS = 8;
         static const size_t STARTS = 8;
         static const size_t CLIQUES = 8;
-        static const Vertex SENTINEL_VTX = std::numeric_limits<Vertex>::max();
+        static inline const Vertex SENTINEL_VTX = Vertex::sentinel();
 
         class VisitJob {
             Vertex start = SENTINEL_VTX;

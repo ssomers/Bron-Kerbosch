@@ -18,9 +18,10 @@ void BronKerbosch::Portfolio::sort_cliques(std::vector<std::vector<Vertex>>& cli
 bool BronKerbosch::Portfolio::clique_less(std::vector<Vertex> const& lhs,
                                           std::vector<Vertex> const& rhs) {
     for (size_t i = 0; i < lhs.size() && i < rhs.size(); ++i) {
-        int d = int(lhs[i]) - int(rhs[i]);
-        if (d != 0)
-            return d < 0;
+        if (lhs[i] < rhs[i])
+            return true;
+        if (rhs[i] < lhs[i])
+            return false;
     }
     throw std::logic_error("got overlapping or equal cliques");
 }

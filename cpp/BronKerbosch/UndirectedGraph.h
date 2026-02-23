@@ -11,7 +11,7 @@ namespace BronKerbosch {
       public:
         using Adjacencies = std::vector<VertexSet>;
 
-        UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
+        explicit UndirectedGraph(Adjacencies&& adjacencies) : itsAdjacencies(adjacencies) {
             assert(UndirectedGraph::are_valid_adjacencies(itsAdjacencies));
         }
 
@@ -29,36 +29,36 @@ namespace BronKerbosch {
         }
 
         unsigned degree(Vertex v) const {
-            return unsigned(itsAdjacencies[v].size());
+            return unsigned(neighbours(v).size());
         }
 
         VertexSet const& neighbours(Vertex v) const {
-            return itsAdjacencies[v];
+            return itsAdjacencies[v.index()];
         }
 
-        VertexSet connected_vertices() const {
-            auto order = this->order();
-            auto result = Util::with_capacity<VertexSet>(order);
-            for (Vertex v = 0; v < order; ++v) {
-                if (degree(v) > 0) {
-                    result.insert(v);
-                }
-            }
-            return result;
+        auto vertices() const {
+            return std::ranges::iota_view{0u, order()} |
+                   std::ranges::views::transform([](unsigned i) { return Vertex(i); });
+        }
+
+        auto connected_vertices() const {
+            return vertices() | std::ranges::views::filter([&](Vertex v) { return degree(v) > 0; });
         }
 
         Vertex max_degree_vertex() const {
+            assert(order() > 0);
+            auto vertices_stored = vertices();
             return *std::ranges::max_element(
-                std::ranges::iota_view{Vertex{0}, Vertex{order()}},
-                [&](Vertex v, Vertex w) { return degree(v) < degree(w); });
+                vertices_stored, [&](Vertex v, Vertex w) { return degree(v) < degree(w); });
         }
 
         static bool are_valid_adjacencies(Adjacencies const& adjacencies) {
             auto order = adjacencies.size();
-            for (Vertex v = 0; v < order; ++v) {
-                auto const& adjacent_to_v = adjacencies[v];
+            for (unsigned i = 0; i < order; ++i) {
+                auto const v = Vertex(i);
+                auto const& adjacent_to_v = adjacencies[i];
                 for (Vertex w : adjacent_to_v) {
-                    if (w == v || w >= order || adjacencies[w].count(v) == 0) {
+                    if (w == v || w.index() >= order || adjacencies[w.index()].count(v) == 0) {
                         return false;
                     }
                 }
@@ -67,6 +67,6 @@ namespace BronKerbosch {
         }
 
       private:
-        Adjacencies itsAdjacencies;
+        Adjacencies const itsAdjacencies;
     };
 }
