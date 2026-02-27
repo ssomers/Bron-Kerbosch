@@ -13,7 +13,7 @@ def degeneracy_filter(graph: UndirectedGraph) -> Generator[Vertex, None, None]:
     #   0: never queued because not connected (degree 0),
     #      or no longer queued because it has been yielded itself,
     #      or no longer queued because all neighbours have been yielded
-    #   1..max_degree: candidates queued with priority (degree - #of yielded neighbours)
+    #   1 or more: candidates queued with priority (degree - #of yielded neighbours)
     priority_per_node = [0] * graph.order
     queue = PriorityQueue(max_priority=graph.max_degree)
     for v in range(graph.order):
@@ -63,6 +63,10 @@ class PriorityQueue:
         assert self.num_left_to_pick > 0
         self.num_left_to_pick -= 1
 
+    # We may return an element already popped, even though it was passed to forget,
+    # in case its priority was promoted earlier on. That's why we do not count
+    # the element as picked, but wait for the caller to forget it. The caller must
+    # somehow ensure to forget the same element only once.
     def pop(self) -> int:
         for stack in self.stack_per_priority:
             try:

@@ -101,6 +101,10 @@ func (q *priorityQueue[T]) forget(element T) {
 	q.numLeftToPick -= 1
 }
 
+// We may return an element already popped, even though it was passed to forget,
+// in case its priority was promoted earlier on. That's why we do not count 
+// the element as picked, but wait for the caller to forget it. The caller must
+// somehow ensure to forget the same element only once.
 func (q *priorityQueue[T]) pop() T {
 	for p := 0; ; p++ {
 		l := len(q.stackPerPriority[p]) // IndexError when attempting to pop more than was put

@@ -46,7 +46,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         private inner class StartProducer : Runnable {
             override fun run() {
                 try {
-                    val vertices = Iterable { DegeneracyFilter(graph) }
+                    val vertices = Iterable { GraphDegeneracy(graph) }
                     for (v in vertices) {
                         startQueue.put(StartJob.Work(v))
                     }

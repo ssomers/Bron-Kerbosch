@@ -8,7 +8,7 @@ internal object BronKerboschDegeneracy {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
         val excluded: MutableSet<Int> = HashSet(graph.order)
-        for (v in DegeneracyFilter(graph)) {
+        for (v in GraphDegeneracy(graph)) {
             val neighbours = graph.neighbours(v)
             require(neighbours.isNotEmpty())
             val neighbouringExcluded = Util.intersect(neighbours, excluded)

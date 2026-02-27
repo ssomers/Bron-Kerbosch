@@ -4,12 +4,12 @@ import java.util.*
 import java.util.stream.IntStream
 import java.util.stream.StreamSupport
 
-internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveIterator.OfInt {
+internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIterator.OfInt {
     // Possible values of priorityPerVertex (after initialization):
     //   0: never queued because not connected (degree 0),
     //      or no longer queued because it has been yielded itself,
     //      or no longer queued because all neighbours have been yielded
-    //   1...maxPriority: candidates queued with priority (degree - #of yielded neighbours)
+    //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
     private val priorityPerVertex: IntArray = IntArray(graph.order)
     private val queue: SimplePriorityQueue<Int> = SimplePriorityQueue(graph.maxDegree)
 
@@ -78,6 +78,10 @@ internal class DegeneracyFilter(private val graph: UndirectedGraph) : PrimitiveI
             numLeftToPick -= 1
         }
 
+        // We may return an element already popped, even though it was passed to forget,
+        // in case its priority was promoted earlier on. That's why we do not count
+        // the element as picked, but wait for the caller to forget it. The caller must
+        // somehow ensure to forget the same element only once.
         fun pop(): T {
             for (stack in stackPerPriority) {
                 if (stack.isNotEmpty()) {

@@ -103,8 +103,10 @@ namespace BronKerbosch
             }
         }
 
-        // We may return an element already popped earlier, in case its priority was promoted.
-        // That's why we do not count the element as picked, but wait for the caller to Forget it.
+        // We may return an element already popped, even though it was passed to Forget,
+        // in case its priority was promoted earlier on. That's why we do not count 
+        // the element as picked, but wait for the caller to Forget it. The caller must
+        // somehow ensure to Forget the same element only once.
         public T Pop()
         {
             foreach (List<T> stack in itsQueuePerPriority)

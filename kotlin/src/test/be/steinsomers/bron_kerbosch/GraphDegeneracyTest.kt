@@ -7,10 +7,10 @@ import java.util.*
 import java.util.function.IntConsumer
 import java.util.stream.Stream
 
-internal class DegeneracyFilterTest {
+internal class GraphDegeneracyTest {
     private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Int> {
         val vertices: SortedSet<Int> = TreeSet()
-        DegeneracyFilter(g).forEachRemaining(IntConsumer { v: Int ->
+        GraphDegeneracy(g).forEachRemaining(IntConsumer { v: Int ->
             vertices.add(v)
             vertices.addAll(g.neighbours(v))
         })
@@ -45,14 +45,14 @@ internal class DegeneracyFilterTest {
     @Test
     fun empty() {
         val g = UndirectedGraph(listOf())
-        val f = DegeneracyFilter(g)
+        val f = GraphDegeneracy(g)
         Assertions.assertFalse(f.hasNext())
     }
 
     @Test
     fun pair() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0)))
-        val f = DegeneracyFilter(g)
+        val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
         f.nextInt()
         Assertions.assertFalse(f.hasNext())
@@ -61,7 +61,7 @@ internal class DegeneracyFilterTest {
     @Test
     fun split() {
         val g = UndirectedGraph(listOf(setOf(1), setOf(0, 2), setOf(1)))
-        val f = DegeneracyFilter(g)
+        val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
         val first = f.nextInt()
         Assertions.assertNotEquals(1, first)
@@ -88,7 +88,7 @@ internal class DegeneracyFilterTest {
         val adjacencies: List<Set<Int>> = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
         val connectedVertices = g.connectedVertices(HashSet())
-        val filtered = DegeneracyFilter(g).stream().count()
+        val filtered = GraphDegeneracy(g).stream().count()
         return if (connectedVertices.isEmpty()) {
             filtered == 0L
         } else {
@@ -102,7 +102,7 @@ internal class DegeneracyFilterTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val f = DegeneracyFilter(g)
+        val f = GraphDegeneracy(g)
         return if (f.hasNext()) {
             val first = f.nextInt()
             f.stream().allMatch { v -> g.degree(first) <= g.degree(v) }

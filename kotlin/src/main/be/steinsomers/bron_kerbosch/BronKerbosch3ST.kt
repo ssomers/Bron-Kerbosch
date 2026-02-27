@@ -22,7 +22,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         fun work() {
             val visitProducer = VisitProducer()
             val visitor = Visitor()
-            val ordering = DegeneracyFilter(graph)
+            val ordering = GraphDegeneracy(graph)
             return ordering.stream()
                 .mapToObj<VisitJob?>(IntFunction { startVtx: Int -> visitProducer.createJob(startVtx) })
                 .filter { job: VisitJob? -> Objects.nonNull(job) }

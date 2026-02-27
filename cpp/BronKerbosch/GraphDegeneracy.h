@@ -50,6 +50,10 @@ namespace BronKerbosch {
                 num_left_to_pick -= 1;
             }
 
+            // We may return an element already popped, even though it was passed to forget,
+            // in case its priority was promoted earlier on. That's why we do not count
+            // the element as picked, but wait for the caller to Forget it. The caller must
+            // somehow ensure to Forget the same element only once.
             T pop() {
                 for (auto& stack : stack_per_priority) {
                     if (!stack.empty()) {
