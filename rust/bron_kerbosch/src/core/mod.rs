@@ -13,6 +13,7 @@ mod bron_kerbosch_degen;
 mod bron_kerbosch_degen_mt;
 mod bron_kerbosch_pivot;
 pub mod cliqueconsumers;
+mod fortified_counter;
 pub mod graph;
 pub(super) mod graph_degeneracy;
 pub mod graphfactory;

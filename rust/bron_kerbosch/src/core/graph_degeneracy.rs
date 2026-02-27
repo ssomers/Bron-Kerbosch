@@ -1,3 +1,4 @@
+use super::fortified_counter::FortifiedCounter;
 use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 use std::iter::FusedIterator;
 
@@ -13,9 +14,10 @@ where
     for i in 0..order {
         let v = Vertex::new(i);
         let degree = graph.degree(v);
-        let priority = Priority::new(degree);
-        priority_per_vertex[v] = priority;
-        queue.insert(v, priority_per_vertex[v]);
+        if let Some(priority) = Priority::new(degree) {
+            priority_per_vertex[v] = Some(priority);
+            queue.insert(v, priority);
+        }
     }
 
     DegeneracyOrderIter {
@@ -29,7 +31,7 @@ type Priority = std::num::NonZero<usize>; // = degree - #of yielded neighbours
 
 struct PriorityQueue<T> {
     stack_per_priority: Vec<Vec<T>>,
-    num_left_to_pick: usize,
+    elements: FortifiedCounter<T>,
 }
 
 impl<T> PriorityQueue<T>
@@ -39,29 +41,38 @@ where
     fn new(max_priority: usize) -> Self {
         PriorityQueue {
             stack_per_priority: vec![vec![]; max_priority],
-            num_left_to_pick: 0,
+            elements: FortifiedCounter::new(),
         }
     }
 
     fn empty(&self) -> bool {
-        self.num_left_to_pick == 0
+        self.elements.empty()
     }
 
-    fn insert(&mut self, element: T, priority: Option<Priority>) {
-        if let Some(priority) = priority {
-            self.stack_per_priority[priority.get() - 1].push(element);
-            self.num_left_to_pick += 1
-        }
+    fn insert(&mut self, element: T, priority: Priority) {
+        self.elements.add(&element);
+        self.stack_per_priority[priority.get() - 1].push(element);
     }
 
-    fn promote(&mut self, element: T, priority: Option<Priority>) {
-        if let Some(priority) = priority {
-            self.stack_per_priority[priority.get() - 1].push(element);
+    // Requeue with a more urgent priority or dequeue.
+    // Don't bother to remove the original entry from the queue,
+    // since the vertex will be skipped when popped, and thanks to
+    // elements.count we might not need to pop it at all.
+    fn promote(&mut self, element: T, old_priority: Priority) -> Option<Priority> {
+        debug_assert!(self.elements.contains(&element));
+        let new_priority = Priority::new(old_priority.get() - 1);
+        if let Some(p) = new_priority {
+            self.stack_per_priority[p.get() - 1].push(element);
         } else {
             self.forget(element);
         }
+        new_priority
     }
 
+    // We may return an element already popped, even though it was passed to Forget,
+    // in case its priority was promoted earlier on. That's why we do not count
+    // the element as picked, but wait for the caller to Forget it. The caller must
+    // somehow ensure to Forget the same element only once.
     fn pop(&mut self) -> Option<T> {
         for stack in &mut self.stack_per_priority {
             if let Some(element) = stack.pop() {
@@ -71,8 +82,8 @@ where
         None
     }
 
-    fn forget(&mut self, _element: T) {
-        self.num_left_to_pick -= 1
+    fn forget(&mut self, element: T) {
+        self.elements.remove(&element);
     }
 
     fn contains(&self, priority: Priority, element: T) -> bool {
@@ -106,13 +117,8 @@ impl<Graph> DegeneracyOrderIter<'_, Graph> {
     fn reassess<VertexSet: VertexSetLike>(&mut self, neighbours: &VertexSet) {
         neighbours.for_each(|v| {
             if let Some(old_priority) = self.priority_per_vertex[v] {
-                // Requeue with a more urgent priority or dequeue.
-                // Don't bother to remove the original entry from the queue,
-                // since the vertex will be skipped when popped, and thanks to
-                // num_left_to_pick we might not need to pop it at all.
-                let new_priority = Priority::new(old_priority.get() - 1);
+                let new_priority = self.queue.promote(v, old_priority);
                 self.priority_per_vertex[v] = new_priority;
-                self.queue.promote(v, new_priority);
             }
         });
     }
