@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BronKerbosch\BronKerbosch.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\BronKerbosch\BronKerbosch.csproj" />
+    </ItemGroup>
 
 </Project>

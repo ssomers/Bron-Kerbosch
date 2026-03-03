@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerbosch", "BronKerbosc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerboschStudy", "BronKerboschStudy\BronKerboschStudy.csproj", "{8CBB6BC0-19A8-4520-AEFD-FC6FD39BCE23}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerboschUnitTest", "BronKerboschUnitTest\BronKerboschUnitTest.csproj", "{F4BBEA8C-51D4-4284-B124-660FFA066CD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerbosch.Test", "BronKerbosch.Test\BronKerbosch.Test.csproj", "{F4BBEA8C-51D4-4284-B124-660FFA066CD8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerboschStudyUnitTest", "BronKerboschStudyUnitTest\BronKerboschStudyUnitTest.csproj", "{48A3758F-7D3E-416C-B5F5-579508F4C406}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BronKerboschStudy.Test", "BronKerboschStudy.Test\BronKerboschStudy.Test.csproj", "{48A3758F-7D3E-416C-B5F5-579508F4C406}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

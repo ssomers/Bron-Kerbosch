@@ -1,8 +1,7 @@
-using BronKerboschStudy;
 using NUnit.Framework;
 using System;
 
-namespace BronKerboschStudyUnitTest
+namespace BronKerboschStudy.Test
 {
     public class SampleStatisticsTests
     {

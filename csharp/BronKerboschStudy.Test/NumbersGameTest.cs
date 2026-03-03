@@ -1,10 +1,9 @@
-﻿using BronKerboschStudy;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 #pragma warning disable IDE0022 // Use expression body for method
 #pragma warning disable IDE0058 // Expression value is never used
 
-namespace BronKerboschStudyUnitTest
+namespace BronKerboschStudy.Test
 {
     public class NumbersGameTests
     {

@@ -1,10 +1,9 @@
-﻿using BronKerbosch;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace BronKerboschUnitTest
+namespace BronKerbosch.Test
 {
     public class BronKerboschHashTest : BronKerboschTestTemplate<HashSet<Vertex>, HashSetMgr> { }
     public class BronKerboschSortedTest : BronKerboschTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }

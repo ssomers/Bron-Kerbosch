@@ -1,9 +1,8 @@
-using BronKerbosch;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace BronKerboschUnitTest
+namespace BronKerbosch.Test
 {
     public class VertexSetTests
     {
