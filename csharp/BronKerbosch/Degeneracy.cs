@@ -20,7 +20,7 @@ namespace BronKerbosch
             //      or no longer queued because it has been yielded itself,
             //      or no longer queued because all neighbours have been yielded
             //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
-            Priority[] priorityPerVertex = [.. Enumerable.Range(0, graph.Order).Select(Vertex.Nth).Select(graph.Degree)];
+            var priorityPerVertex = new Priority[graph.Order];
             var q = new PriorityQueue<Vertex>(graph.MaxDegree);
             foreach (var i in Enumerable.Range(0, graph.Order))
             {

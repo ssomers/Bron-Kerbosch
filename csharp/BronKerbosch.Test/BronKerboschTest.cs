@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -143,7 +143,7 @@ namespace BronKerbosch.Test
         }
 
         [Test]
-        public void TestOrder4_Size6_Penultimate()
+        public void TestOrder5_Size6_Penultimate()
         {
             Bk(adjacencies: [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4], [0, 1, 2], [0, 1, 2]],
                expectedCliques: [[0, 1, 2, 3], [0, 1, 2, 4]]);
