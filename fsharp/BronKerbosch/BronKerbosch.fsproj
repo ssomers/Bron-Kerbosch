@@ -1,8 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Vertex.fs" />
+    <Compile Include="CliqueConsumer.fs" />
+    <Compile Include="UndirectedGraph.fs" />
+    <Compile Include="BronKerbosch1.fs" />
+  </ItemGroup>
 
 </Project>
