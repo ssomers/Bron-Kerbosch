@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="nunit" />
         <PackageReference Include="NUnit3TestAdapter">

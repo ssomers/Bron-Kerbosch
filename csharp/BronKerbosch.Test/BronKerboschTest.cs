@@ -16,7 +16,7 @@ namespace BronKerbosch.Test
         {
             var adjacencies2 = adjacencies.Select(neighbours => TVertexSetMgr.From(neighbours.Select(i => Vertex.Nth(i))))
                                  .ToImmutableArray();
-            var expectedCliques2 = expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray()).ToArray();
+            Vertex[][] expectedCliques2 = [.. expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray())];
             var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
