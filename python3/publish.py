@@ -16,6 +16,7 @@ figsize_detail = (12, 9)  # in hectopixels
 class Language(Enum):
     cpp = auto()
     csharp = auto()
+    fsharp = auto()
     go = auto()
     java = auto()
     kotlin = auto()
@@ -29,6 +30,7 @@ class Language(Enum):
         return {
             Language.cpp: "C++",
             Language.csharp: "C# .NET 10",
+            Language.fsharp: "F# .NET 10",
             Language.go: "Go 1.25",
             Language.java: "Java 24",
             Language.kotlin: "Kotlin 2",
@@ -43,6 +45,7 @@ class Language(Enum):
         return {
             Language.cpp: "C++",
             Language.csharp: "C#",
+            Language.csharp: "F#",
             Language.go: "Go",
             Language.java: "Java",
             Language.kotlin: "Kotlin",
@@ -122,6 +125,7 @@ def color_by_language(case: Case) -> str:
         Language.java: "#009933",
         Language.kotlin: "#CC9933",
         Language.csharp: "#666600",
+        Language.fsharp: "#660066",
         Language.cpp: "#990000",
         Language.go: "#0000CC",
     }[case.LangLib.Language]

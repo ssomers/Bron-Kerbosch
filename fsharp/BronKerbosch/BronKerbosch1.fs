@@ -1,36 +1,39 @@
-// Na�ve Bron-Kerbosch algorithm
+// Naïve Bron-Kerbosch algorithm
 module BronKerbosch1
 
 open BronKerbosch
+open System.Diagnostics
 
 let rec visit
     (graph: UndirectedGraph)
     (consumer: CliqueConsumer)
-    (candidates: Set<Vertex>, excluded: Set<Vertex>, cliqueInProgress: Vertex array)
+    (candidates: Set<Vertex>, excluded: Set<Vertex>, clique_in_progress: Clique)
     : Unit =
-    assert (candidates |> Set.forall graph.HasNeighbours)
-    assert (excluded |> Set.forall graph.HasNeighbours)
-    assert (Set.intersect candidates excluded).IsEmpty
+    Debug.Assert(candidates |> Set.forall graph.hasNeighbours)
+    Debug.Assert(excluded |> Set.forall graph.hasNeighbours)
+    Debug.Assert(VertexSet.is_disjoint candidates excluded)
 
-    if not (candidates.IsEmpty) then
-        let v, candidates = VertexSet.pop_arbitrary (candidates)
-        let neighbours = graph.Neighbours(v)
-        let neighbouringCandidates = Set.intersect candidates neighbours
+    match VertexSet.pop_arbitrary (candidates) with
+    | (None, _) -> ()
+    | (Some v, remaining_candidates) ->
+        let neighbours = graph.neighbours (v)
+        let neighbouring_candidates = VertexSet.intersect remaining_candidates neighbours
 
-        if not (neighbouringCandidates.IsEmpty) then
-            let neighbouringExcluded: Set<Vertex> = Set.intersect excluded neighbours
-            let cliqueInProgress = Array.append cliqueInProgress [| v |]
+        if not neighbouring_candidates.IsEmpty then
+            let neighbouring_excluded: Set<Vertex> = VertexSet.intersect excluded neighbours
+            let clique_in_progress = Array.append clique_in_progress [| v |]
 
-            visit graph consumer (neighbouringCandidates, neighbouringExcluded, cliqueInProgress)
-        else if not (VertexSet.overlaps (excluded, neighbours)) then
-            let clique = Array.append cliqueInProgress [| v |]
+            visit graph consumer (neighbouring_candidates, neighbouring_excluded, clique_in_progress)
+        else if VertexSet.is_disjoint excluded neighbours then
+            let clique = Array.append clique_in_progress [| v |]
             consumer clique
 
-        assert not (excluded.Contains(v))
-        let excluded = excluded.Add(v)
-        visit graph consumer (candidates, excluded, cliqueInProgress)
+        Debug.Assert(not (excluded.Contains(v)))
+        visit graph consumer (remaining_candidates, excluded.Add(v), clique_in_progress)
 
 let public explore (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
     let candidates = graph.ConnectedVertices() |> Set.ofSeq
     let excluded = Set.empty // EmptyWithCapacity(candidates.Count)
     visit graph consumer (candidates, excluded, [||])
+
+let algorithm: Algorithm = { name = "Ver1½"; exec = explore }

@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="BronKerboschTest.fs" />
+    <Compile Include="VertexSetTest.fs" />
     <Compile Include="UndirectedGraphTest.fs" />
+    <Compile Include="MainTest.fs" />
   </ItemGroup>
 
   <ItemGroup>
