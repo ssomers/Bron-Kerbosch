@@ -1,18 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="SampleStatistics.fs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="NumbersGame.fs" />
+		<Compile Include="RandomGraph.fs" />
+		<Compile Include="SampleStatistics.fs" />
+		<Compile Include="Benchmark.fs" />
+		<Compile Include="Program.fs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BronKerbosch\BronKerbosch.fsproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\BronKerbosch\BronKerbosch.fsproj" />
+	</ItemGroup>
 
 </Project>

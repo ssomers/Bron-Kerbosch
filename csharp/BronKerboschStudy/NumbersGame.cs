@@ -4,20 +4,20 @@ namespace BronKerboschStudy
 {
     public sealed class NumbersGame
     {
-        public static int ParseInt(string orderstr)
+        public static int ParseInt(string numstr)
         {
             int factor = 1;
-            if (orderstr.EndsWith('k'))
+            if (numstr.EndsWith('k'))
             {
                 factor = 1_000;
-                orderstr = orderstr[..^1];
+                numstr = numstr[..^1];
             }
-            else if (orderstr.EndsWith('M'))
+            else if (numstr.EndsWith('M'))
             {
                 factor = 1_000_000;
-                orderstr = orderstr[..^1];
+                numstr = numstr[..^1];
             }
-            return int.Parse(orderstr, CultureInfo.InvariantCulture) * factor;
+            return int.Parse(numstr, CultureInfo.InvariantCulture) * factor;
         }
     }
 }

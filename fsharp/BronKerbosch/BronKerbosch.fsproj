@@ -8,10 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="PriorityQueue.fs" />
     <Compile Include="Vertex.fs" />
+    <Compile Include="VertexSet.fs" />
+    <Compile Include="Clique.fs" />
+    <Compile Include="Cliques.fs" />
     <Compile Include="CliqueConsumer.fs" />
     <Compile Include="UndirectedGraph.fs" />
+    <Compile Include="Algorithm.fs" />
     <Compile Include="BronKerbosch1.fs" />
+    <Compile Include="Degeneracy.fs" />
+    <Compile Include="Portfolio.fs" />
   </ItemGroup>
 
 </Project>
