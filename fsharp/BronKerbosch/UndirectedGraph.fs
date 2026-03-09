@@ -4,20 +4,16 @@ open System.Diagnostics
 
 [<AutoOpen>]
 module Adjacencies =
-    let vertex (index: int) : Vertex = { index = index }
-
-    let vertex2 ((index, neighbours): int * Set<Vertex>) : Vertex * Set<Vertex> = vertex index, neighbours
-
     let public areSymmetrical (adjacencies: Set<Vertex> array) : bool =
         let isSymmetric ((v, neighbours): Vertex * Set<Vertex>) : bool =
             neighbours |> Set.forall adjacencies[v.index].Contains
 
-        adjacencies |> Array.indexed |> Array.map vertex2 |> Array.forall isSymmetric
+        adjacencies |> Array.indexed |> Array.map Verticise.first |> Array.forall isSymmetric
 
     let public areLoopFree (adjacencies: Set<Vertex> array) : bool =
         let isLoopFree ((v, neighbours): Vertex * Set<Vertex>) : bool = not (neighbours.Contains(v))
 
-        adjacencies |> Array.indexed |> Array.map vertex2 |> Array.forall isLoopFree
+        adjacencies |> Array.indexed |> Array.map Verticise.first |> Array.forall isLoopFree
 
 type public UndirectedGraph =
     { Adjacencies: Set<Vertex> array

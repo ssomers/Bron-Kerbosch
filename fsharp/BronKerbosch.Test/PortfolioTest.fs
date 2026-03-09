@@ -6,7 +6,7 @@ open BronKerbosch.Test.UndirectedGraph
 
 let bk (graph: UndirectedGraph, expected_cliques: int list list) : Unit =
     let expected_cliques =
-        expected_cliques |> List.map (fun vertices -> vertices |> List.map vertex)
+        expected_cliques |> List.map (fun vertices -> vertices |> List.map Verticise.it)
 
     Portfolio.all_algos
     |> List.iter (fun algo ->
