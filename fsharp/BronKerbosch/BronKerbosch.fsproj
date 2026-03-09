@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="FortifiedCounter.fs" />
     <Compile Include="PriorityQueue.fs" />
+    <Compile Include="PriorityQueueWithDequeued.fs" />
     <Compile Include="Vertex.fs" />
     <Compile Include="VertexSet.fs" />
     <Compile Include="Clique.fs" />
