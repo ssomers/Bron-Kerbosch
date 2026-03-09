@@ -1,4 +1,4 @@
-module BronKerbosch.Test.Main
+module BronKerbosch.Test.Portfolio
 
 open NUnit.Framework
 open BronKerbosch

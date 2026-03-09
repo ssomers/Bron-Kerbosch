@@ -17,7 +17,12 @@
     <Compile Include="UndirectedGraph.fs" />
     <Compile Include="Algorithm.fs" />
     <Compile Include="BronKerbosch1.fs" />
+    <Compile Include="PivotBased.fs" />
+    <Compile Include="BronKerbosch2GP.fs" />
     <Compile Include="Degeneracy.fs" />
+    <Compile Include="DegeneracyBased.fs" />
+    <Compile Include="BronKerbosch3GP.fs" />
+    <Compile Include="BronKerbosch3GPX.fs" />
     <Compile Include="Portfolio.fs" />
   </ItemGroup>
 

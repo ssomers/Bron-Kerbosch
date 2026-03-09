@@ -6,7 +6,7 @@ module Degeneracy =
 
     // Enumerate connected vertices in degeneracy order, skipping vertices
     // whose neighbours have all been enumerated already.
-    let iter (graph: UndirectedGraph) : Vertex seq =
+    let iter (graph: UndirectedGraph) : (Vertex * Set<Vertex>) seq =
         seq {
             // Possible values of priorityPerVertex (after initialization):
             //   0: never queued because not connected (degree 0),
@@ -23,21 +23,17 @@ module Degeneracy =
                 q.Insert(v, degree))
 
             while not q.Empty do
+                let picked_earlier = q.dequeued
                 let pick = q.Pop()
-                let priority = priorityPerVertex[pick.index]
+                yield (pick, picked_earlier)
+                priorityPerVertex[pick.index] <- 0
 
-                if priority > 0 then
-                    yield pick
-
-                    priorityPerVertex[pick.index] <- 0
-                    q.Forget(pick)
-
-                    graph.neighbours (pick)
-                    |> Seq.iter (fun v ->
-                        let old_priority = priorityPerVertex[v.index]
-
-                        if old_priority > 0 then
-                            let new_priority = q.Promote(v, old_priority)
-                            priorityPerVertex[v.index] <- new_priority)
+                graph.neighbours pick
+                |> Seq.iter (fun v ->
+                    match priorityPerVertex[v.index] with
+                    | 0 -> ()
+                    | old_priority ->
+                        let new_priority = q.Promote(v, old_priority)
+                        priorityPerVertex[v.index] <- new_priority)
 
         }
