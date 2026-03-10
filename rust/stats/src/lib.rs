@@ -10,8 +10,8 @@ pub struct SampleStatistics<T> {
 impl<T> SampleStatistics<T>
 where
     T: Copy + PartialOrd + std::ops::Sub,
-    f64: std::convert::From<T>,
-    f64: std::convert::From<<T as std::ops::Sub>::Output>,
+    f64: From<T>,
+    f64: From<<T as std::ops::Sub>::Output>,
 {
     pub fn is_empty(&self) -> bool {
         self.samples == 0

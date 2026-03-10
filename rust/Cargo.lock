@@ -71,6 +71,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
+name = "benchmark"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "bron_kerbosch",
+ "clap",
+ "csv",
+ "fnv",
+ "hashbrown 0.16.1",
+ "itertools",
+ "stats",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
 name = "bit-set"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -101,7 +117,6 @@ dependencies = [
  "hashbrown 0.16.1",
  "proptest",
  "rand 0.10.0",
- "rand_chacha 0.10.0",
 ]
 
 [[package]]
@@ -153,22 +168,6 @@ name = "colorchoice"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
-
-[[package]]
-name = "compare_bron_kerbosch_on_random_graphs"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "bron_kerbosch",
- "clap",
- "csv",
- "fnv",
- "hashbrown 0.16.1",
- "itertools",
- "stats",
- "strum",
- "strum_macros",
-]
 
 [[package]]
 name = "cpufeatures"
@@ -483,7 +482,7 @@ dependencies = [
  "bitflags",
  "num-traits",
  "rand 0.9.2",
- "rand_chacha 0.9.0",
+ "rand_chacha",
  "rand_xorshift",
  "regex-syntax",
  "rusty-fork",
@@ -518,7 +517,7 @@ version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6db2770f06117d490610c7488547d543617b21bfa07796d7a12f6f1bd53850d1"
 dependencies = [
- "rand_chacha 0.9.0",
+ "rand_chacha",
  "rand_core 0.9.5",
 ]
 
@@ -541,16 +540,6 @@ checksum = "d3022b5f1df60f26e1ffddd6c66e8aa15de382ae63b3a0c1bfc0e4d3e3f325cb"
 dependencies = [
  "ppv-lite86",
  "rand_core 0.9.5",
-]
-
-[[package]]
-name = "rand_chacha"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e6af7f3e25ded52c41df4e0b1af2d047e45896c2f3281792ed68a1c243daedb"
-dependencies = [
- "ppv-lite86",
- "rand_core 0.10.0",
 ]
 
 [[package]]
