@@ -1,6 +1,6 @@
 mod core;
 #[cfg(test)]
-mod degeneracy_tests;
+mod graph_degeneracy_tests;
 mod vertexsetlikes;
 
 pub use crate::core::cliqueconsumers::{CliqueCollector, CliqueCounter};

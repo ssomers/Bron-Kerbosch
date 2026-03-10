@@ -90,7 +90,7 @@ fn descend<VertexSet, Graph>(
     graph: &Graph,
     pivot_selection: PivotChoice,
     visit_rx: Receiver<VisitJob<VertexSet>>,
-    consum_tx: Sender<Clique>,
+    consumer_tx: Sender<Clique>,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -101,7 +101,7 @@ fn descend<VertexSet, Graph>(
             self.0.send(clique).unwrap();
         }
     }
-    let mut consumer = SendingConsumer(consum_tx);
+    let mut consumer = SendingConsumer(consumer_tx);
 
     while let Ok(job) = visit_rx.recv() {
         visit(
