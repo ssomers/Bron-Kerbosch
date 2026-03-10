@@ -27,7 +27,7 @@ namespace BronKerbosch
             Vertex pivot = graph.MaxDegreeVertices().First();
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            var excluded = VertexSetMgr.EmptyWithCapacity(order);
+            var excluded = new bool[order];
             foreach (Vertex v in Enumerable.Range(0, order).Select(Vertex.Nth))
             {
                 var neighbours = graph.Neighbours(v);
@@ -41,8 +41,8 @@ namespace BronKerbosch
                               neighbouringCandidates, neighbouringExcluded,
                               [v]);
                     }
-                    var added = VertexSetMgr.Add(excluded, v);
-                    Debug.Assert(added);
+                    Debug.Assert(!excluded[v.Index()]);
+                    excluded[v.Index()] = true;
                 }
             }
         }

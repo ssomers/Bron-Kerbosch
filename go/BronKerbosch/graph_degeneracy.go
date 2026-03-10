@@ -38,12 +38,13 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor VertexVisitor) {
 	numLeftToPick := 0
 	var q priorityQueue[Vertex]
 	q.init(graph.max_degree)
-	for v := range order {
-		priority := graph.degree(Vertex(v))
+	for i := range order {
+		v := Vertex(i)
+		priority := graph.degree(v)
 		if priority > 0 {
-			priorityPerNode[Vertex(v)] = priority
+			priorityPerNode[v] = priority
 			numLeftToPick++
-			q.put(Vertex(v), priority)
+			q.put(v, priority)
 		}
 	}
 

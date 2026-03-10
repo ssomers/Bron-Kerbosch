@@ -17,7 +17,7 @@ enum BronKerboschPivot {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             final var order = graph.order();
-            final Set<Integer> mut_excluded = new HashSet<>(order);
+            final var mut_excluded = new boolean[order];
             for (int v = 0; v < order; ++v) {
                 final var neighbours = graph.neighbours(v);
                 if (!neighbours.contains(pivot.get())) {
@@ -29,7 +29,7 @@ enum BronKerboschPivot {
                         visit(graph, cliqueConsumer, pivotChoice, neighbouringCandidates, neighbouringExcluded,
                                 new int[]{v});
                     }
-                    mut_excluded.add(v);
+                    mut_excluded[v] = true;
                 }
             }
         }

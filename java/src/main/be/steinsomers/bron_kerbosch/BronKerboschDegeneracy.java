@@ -2,7 +2,6 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -13,7 +12,7 @@ enum BronKerboschDegeneracy {
                                final PivotChoice furtherPivotChoice) {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
-        final Set<Integer> mut_excluded = new HashSet<>(graph.order());
+        final var mut_excluded = new boolean[graph.order()];
         final Iterable<Integer> vertices = () -> new DegeneracyFilter(graph);
         for (final var v : vertices) {
             final var neighbours = graph.neighbours(v);
@@ -29,7 +28,7 @@ enum BronKerboschDegeneracy {
                     neighbouringExcluded,
                     new int[]{v}
             );
-            mut_excluded.add(v);
+            mut_excluded[v] = true;
         }
     }
 }

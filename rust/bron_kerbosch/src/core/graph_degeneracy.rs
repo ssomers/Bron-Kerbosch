@@ -6,6 +6,7 @@ use std::iter::FusedIterator;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
 // whose neighbours have all been enumerated already.
+// Along with the vertex picked, includes the subset of neighbours already picked.
 pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
@@ -40,10 +41,9 @@ pub struct DegeneracyOrderIter<'a, Graph> {
     left_to_pick: FortifiedCounter<Vertex>,
 }
 
-impl<VertexSet, Graph> DegeneracyOrderIter<'_, Graph>
+impl<Graph> DegeneracyOrderIter<'_, Graph>
 where
-    VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: UndirectedGraph,
 {
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
@@ -54,38 +54,46 @@ where
             })
     }
 
-    fn adjust_neighbours(&mut self, pick: Vertex) {
-        self.graph.neighbours(pick).for_each(|v| {
-            if let Some(old_priority) = self.priority_per_vertex[v] {
-                debug_assert!(self.queue.contains(v, old_priority));
-                debug_assert!(self.left_to_pick.contains(v));
-                let new_priority = Priority::new(old_priority.get() - 1);
-                self.priority_per_vertex[v] = new_priority;
-                if let Some(new_priority) = new_priority {
-                    self.queue.put(v, new_priority);
-                } else {
-                    self.left_to_pick.remove(v);
-                }
+    fn promote(&mut self, v: Vertex) {
+        if let Some(old_priority) = self.priority_per_vertex[v] {
+            debug_assert!(self.queue.contains(v, old_priority));
+            debug_assert!(self.left_to_pick.contains(v));
+            let new_priority = Priority::new(old_priority.get() - 1);
+            self.priority_per_vertex[v] = new_priority;
+            if let Some(new_priority) = new_priority {
+                self.queue.put(v, new_priority);
+            } else {
+                self.left_to_pick.remove(v);
             }
-        });
+        }
     }
 }
 
-impl<Graph> FusedIterator for DegeneracyOrderIter<'_, Graph> where Graph: UndirectedGraph {}
-impl<Graph> Iterator for DegeneracyOrderIter<'_, Graph>
+impl<VertexSet, Graph> FusedIterator for DegeneracyOrderIter<'_, Graph>
 where
-    Graph: UndirectedGraph,
+    VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
 {
-    type Item = Vertex;
+}
 
-    fn next(&mut self) -> Option<Vertex> {
+impl<VertexSet, Graph> Iterator for DegeneracyOrderIter<'_, Graph>
+where
+    VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
+{
+    type Item = (Vertex, VertexSet);
+
+    fn next(&mut self) -> Option<Self::Item> {
         while self.left_to_pick.count() > 0 {
             debug_assert!(self.is_consistent());
-            let pick = self.queue.pop().expect("Cannot pop more than was pushed");
+            let pick = self.queue.pop().expect("Cannot pop more than was put");
             if self.priority_per_vertex[pick].take().is_some() {
                 self.left_to_pick.remove(pick);
-                self.adjust_neighbours(pick);
-                return Some(pick);
+                let neighbours = self.graph.neighbours(pick);
+                let neighbouring_picked = neighbours
+                    .intersection_with_fn_collect(|v| self.priority_per_vertex[v].is_none());
+                neighbours.for_each(|v| self.promote(v));
+                return Some((pick, neighbouring_picked));
             }
         }
         None

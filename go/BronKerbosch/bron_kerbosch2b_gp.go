@@ -6,12 +6,14 @@ func bronKerbosch2bGP(graph *UndirectedGraph, cliques chan<- []Vertex) {
 	order := graph.Order()
 	if order > 0 {
 		pivot := graph.maxDegreeVertex()
-		excluded := make(VertexSet, order)
+		// In this initial iteration, we don't need to represent the set of candidates
+		// because all neighbours are candidates until excluded.
+		excluded := make([]bool, order, order)
 		for i := range order {
 			v := Vertex(i)
 			neighbours := graph.neighbours(v)
-			if !neighbours.Contains(pivot) {
-				neighbouringExcluded := neighbours.Intersection(excluded)
+			if !neighbours.IsEmpty() && !neighbours.Contains(pivot) {
+				neighbouringExcluded := neighbours.IntersectionWithMap(excluded)
 				if len(neighbouringExcluded) < len(neighbours) {
 					neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 					visit(
@@ -21,7 +23,7 @@ func bronKerbosch2bGP(graph *UndirectedGraph, cliques chan<- []Vertex) {
 						neighbouringExcluded,
 						[]Vertex{v})
 				}
-				excluded.Add(v)
+				excluded[v] = true
 			}
 		}
 	}

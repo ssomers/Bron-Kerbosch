@@ -275,7 +275,6 @@ def publish_whole_csv(language: Language, orderstr: str) -> None:
         if cutoff := {
             (Language.cpp, "10k"): 10_000,
             (Language.rust, "10k"): 50_000,
-            (Language.rust, "1M"): 500_000,
         }.get((language, orderstr)):
             idx = bisect_left(sizes, cutoff)
             sizes_1 = sizes[:idx]

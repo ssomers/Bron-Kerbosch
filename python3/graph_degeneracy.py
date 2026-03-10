@@ -26,11 +26,13 @@ def degeneracy_filter(graph: UndirectedGraph) -> Generator[Vertex, None, None]:
     while num_left_to_pick > 0:
         pick = q.pop()
         if priority_per_node[pick] > 0:
+            neighbours = graph.adjacencies[pick]
+            neighbouring_picked = set(v for v in neighbours if priority_per_node[v] == 0)
             # In contrast to most languages, python allows spawning as soon as possible,
             # before we adjust the data. Not that we know it makes a difference.
-            yield pick
+            yield pick, neighbouring_picked
             priority_per_node[pick] = 0
-            for v in graph.adjacencies[pick]:
+            for v in neighbours:
                 if (old_priority := priority_per_node[v]) > 0:
                     # Requeue with a more urgent priority or dequeue.
                     # Don't bother to remove the original entry from the queue,

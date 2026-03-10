@@ -40,7 +40,7 @@ def test_degeneracy_filter_nonempty(adjacencies: List[Set[Vertex]]) -> None:
     g = UndirectedGraph(adjacencies=adjacencies)
     connected_vertices = g.connected_vertices()
 
-    ordered = list(degeneracy_filter(g))
+    ordered = list([v for (v, neighbouring_excluded) in degeneracy_filter(g)])
     assert set(ordered).issubset(connected_vertices)
     assert len(ordered) < max(1, len(connected_vertices))
     assert all(g.degree(ordered[0]) <= g.degree(v) for v in ordered)

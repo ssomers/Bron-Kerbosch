@@ -8,10 +8,10 @@ internal object BronKerboschPivot {
         if (pivot != null) {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            val excluded: MutableSet<Int> = HashSet(graph.order)
+            val excluded = BooleanArray(graph.order)
             for (v in 0..<graph.order) {
                 val neighbours = graph.neighbours(v)
-                if (!neighbours.contains(pivot)) {
+                if (!neighbours.isEmpty() && !neighbours.contains(pivot)) {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     if (neighbouringExcluded.size < neighbours.size) {
                         val neighbouringCandidates = (neighbours subtract neighbouringExcluded).toMutableSet()
@@ -22,7 +22,7 @@ internal object BronKerboschPivot {
                             cliqueInProgress = intArrayOf(v)
                         )
                     }
-                    excluded.add(v)
+                    excluded[v] = true
                 }
             }
         }

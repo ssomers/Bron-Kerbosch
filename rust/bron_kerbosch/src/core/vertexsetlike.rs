@@ -1,4 +1,4 @@
-pub use super::vertex::Vertex;
+use super::vertex::Vertex;
 
 use rand::Rng;
 use std::fmt::Debug;
@@ -14,6 +14,7 @@ pub trait VertexSetLike: Debug + Eq + FromIterator<Vertex> + Send + Sync {
     fn is_disjoint(&self, other: &Self) -> bool;
     fn intersection_size(&self, other: &Self) -> usize;
     fn intersection_collect(&self, other: &Self) -> Self;
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: Vertex);

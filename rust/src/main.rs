@@ -7,6 +7,7 @@ use known_random_graph::{Size, parse_positive_int, read_undirected};
 use stats::SampleStatistics;
 
 use clap::{arg, command};
+use crossbeam_channel::{Receiver, RecvTimeoutError};
 use fnv::FnvHashSet;
 use itertools::Itertools;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -47,6 +48,22 @@ fn formatted(num: usize) -> String {
         .join("_")
 }
 
+fn ticker(end_rx: Receiver<()>, func_index: usize) {
+    let interval = Duration::from_secs(3);
+    let mut warnings = 0;
+    while matches!(
+        end_rx.recv_timeout(interval),
+        Err(RecvTimeoutError::Timeout)
+    ) {
+        warnings += 1;
+        eprintln!(
+            "  {} seconds in, {} is still busy collecting",
+            interval.as_secs() * warnings,
+            FUNC_NAMES[func_index]
+        );
+    }
+}
+
 fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     set_type: SetType,
     orderstr: &str,
@@ -75,17 +92,13 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
         for &func_index in func_indices {
             let mut collecting_reporter = CliqueCollector::default();
             let mut counting_reporter = CliqueCounter::default();
-            let instant = Instant::now();
             if sample == 0 {
+                let (ticker_tx, ticker_rx) = crossbeam_channel::bounded(0);
+                thread::spawn(move || ticker(ticker_rx, func_index));
                 explore(func_index, &known.graph, &mut collecting_reporter);
-            } else {
-                explore(func_index, &known.graph, &mut counting_reporter);
-            }
-            let secs: Seconds = instant.elapsed().as_secs_f32();
-            if sample == 0 {
-                if timed_samples == 0 || secs >= 3.0 {
-                    println!("  {:10} {}s", FUNC_NAMES[func_index], secs);
-                }
+                ticker_tx.send(()).unwrap();
+                drop(ticker_tx);
+
                 let current = order_cliques(collecting_reporter.cliques.into_iter());
                 if let Some(first_result) = first.as_ref() {
                     if *first_result != current {
@@ -112,8 +125,13 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                     }
                     first = Some(current);
                 }
-            } else if let Some(clique_count) = known.clique_count {
-                if counting_reporter.count != clique_count {
+            } else {
+                let instant = Instant::now();
+                explore(func_index, &known.graph, &mut counting_reporter);
+                let secs: Seconds = instant.elapsed().as_secs_f32();
+                if let Some(clique_count) = known.clique_count
+                    && clique_count != counting_reporter.count
+                {
                     eprintln!(
                         "  {:8}: expected {} cliques, obtained {} cliques",
                         FUNC_NAMES[func_index], clique_count, counting_reporter.count
@@ -271,6 +289,7 @@ fn main() -> Result<(), std::io::Error> {
         .get_matches();
     if !matches.args_present() {
         debug_assert!(false, "Run with --release for meaningful measurements");
+        thread::sleep(Duration::from_secs(3));
         bk(
             "100",
             (2_000..=3_000).step_by(50), // max 4_950
@@ -282,7 +301,7 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-        thread::sleep(Duration::from_secs(7));
+        thread::sleep(Duration::from_secs(3));
         bk(
             "10k",
             std::iter::empty()
@@ -297,21 +316,16 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-        thread::sleep(Duration::from_secs(7));
+        thread::sleep(Duration::from_secs(3));
         bk(
             "1M",
             std::iter::empty()
-                .chain((10_000..50_000).step_by(10_000))
-                .chain((50_000..250_000).step_by(50_000))
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
-            //.chain((5_000..=500_000).step_by(495_000)),
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::BTreeSet if size > 3_000_000 => vec![],
-                    SetType::OrdVec if size > 250_000 => vec![],
-                    SetType::OrdVec if size > 100_000 => vec![4],
+                    SetType::BTreeSet if size > 3_000_000 => vec![9],
                     _ => vec![4, 7, 9],
                 }
             },
