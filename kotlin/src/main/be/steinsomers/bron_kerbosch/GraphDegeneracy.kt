@@ -12,17 +12,22 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIt
     //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
     private val priorityPerVertex: IntArray = IntArray(graph.order)
     private val queue: SimplePriorityQueue<Int> = SimplePriorityQueue(graph.maxDegree)
+    private var numLeftToPick = 0
 
     init {
+
         for (v in 0..<graph.order) {
             val priority = graph.degree(v)
-            priorityPerVertex[v] = priority
-            queue.insert(v, priority)
+            if (priority > 0) {
+                priorityPerVertex[v] = priority
+                numLeftToPick += 1
+                queue.put(priority, v)
+            }
         }
     }
 
     override fun hasNext(): Boolean {
-        return !queue.empty()
+        return numLeftToPick > 0
     }
 
     override fun nextInt(): Int {
@@ -33,7 +38,6 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIt
             val pick = queue.pop()
             if (priorityPerVertex[pick] != 0) {
                 priorityPerVertex[pick] = 0
-                queue.forget(pick)
                 for (v in graph.neighbours(pick)) {
                     val oldPriority = priorityPerVertex[v]
                     if (oldPriority != 0) {
@@ -43,9 +47,15 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIt
                         // since the vertex will be skipped when popped, and thanks to
                         // numLeftToPick we might not need to pop it at all.
                         priorityPerVertex[v] = newPriority
-                        queue.promote(v, newPriority)
+                        if (newPriority != 0) {
+                            queue.put(newPriority, v)
+                        } else {
+                            numLeftToPick -= 1
+                        }
                     }
                 }
+                numLeftToPick -= 1
+                assert(numLeftToPick >= 0)
                 return pick
             }
         }
@@ -53,35 +63,11 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIt
 
     private class SimplePriorityQueue<T>(maxPriority: Int) {
         private val stackPerPriority = Array<ArrayList<T>>(size = maxPriority) { _ -> ArrayList() }
-        private var numLeftToPick: Int = 0
 
-        fun empty(): Boolean {
-            return numLeftToPick == 0
+        fun put(priority: Int, elt: T) {
+            stackPerPriority[priority - 1].add(elt)
         }
 
-        fun insert(elt: T, priority: Int) {
-            if (priority > 0) {
-                stackPerPriority[priority - 1].add(elt)
-                numLeftToPick += 1
-            }
-        }
-
-        fun promote(elt: T, priority: Int) {
-            if (priority > 0) {
-                stackPerPriority[priority - 1].add(elt)
-            } else {
-                forget(elt)
-            }
-        }
-
-        fun forget(elt: T) {
-            numLeftToPick -= 1
-        }
-
-        // We may return an element already popped, even though it was passed to forget,
-        // in case its priority was promoted earlier on. That's why we do not count
-        // the element as picked, but wait for the caller to forget it. The caller must
-        // somehow ensure to forget the same element only once.
         fun pop(): T {
             for (stack in stackPerPriority) {
                 if (stack.isNotEmpty()) {
