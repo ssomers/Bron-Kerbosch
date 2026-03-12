@@ -1,4 +1,4 @@
-use super::cliqueconsumers::CliqueCollector;
+use super::clique_collector::CliqueCollector;
 use super::graph::{Vertex, VertexMap, VertexSetLike};
 use super::graphfactory::UndirectedGraphFactory;
 use super::slimgraphfactory::SlimUndirectedGraphFactory;

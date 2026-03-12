@@ -3,11 +3,12 @@ mod core;
 mod graph_degeneracy_tests;
 mod vertexsetlikes;
 
-pub use crate::core::cliqueconsumers::{CliqueCollector, CliqueCounter};
-pub use crate::core::graph::{UndirectedGraph, Vertex, VertexSetLike};
-pub use crate::core::graphfactory::{Adjacencies, UndirectedGraphFactory};
-pub use crate::core::slimgraphfactory::SlimUndirectedGraphFactory;
-pub use crate::core::{FUNC_NAMES, OrderedClique, OrderedCliques, explore, order_cliques};
+pub use core::clique::{Clique, CliqueConsumer};
+pub use core::clique_collector::CliqueCollector;
+pub use core::graph::{UndirectedGraph, Vertex, VertexSetLike};
+pub use core::graphfactory::{Adjacencies, UndirectedGraphFactory};
+pub use core::slimgraphfactory::SlimUndirectedGraphFactory;
+pub use core::{FUNC_NAMES, OrderedClique, OrderedCliques, explore, order_cliques};
 
 #[cfg(test)]
 mod tests {

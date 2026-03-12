@@ -1,16 +1,20 @@
+mod clique_counter;
 mod known_random_graph;
 
-use bron_kerbosch::{CliqueCollector, CliqueCounter};
+use bron_kerbosch::CliqueCollector;
 use bron_kerbosch::{FUNC_NAMES, OrderedCliques, explore, order_cliques};
 use bron_kerbosch::{SlimUndirectedGraphFactory, Vertex, VertexSetLike};
+use clique_counter::CliqueCounter;
 use known_random_graph::{Size, parse_positive_int, read_undirected};
 use stats::SampleStatistics;
 
 use clap::{arg, command};
+use crossbeam_channel::{Receiver, RecvTimeoutError};
 use fnv::FnvHashSet;
 use itertools::Itertools;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
+use std::iter::once;
 use std::path::Path;
 use std::str::FromStr;
 use std::thread;
@@ -32,6 +36,13 @@ enum SetType {
     OrdVec,
 }
 
+#[derive(Copy, Clone, Debug, Display, Eq, PartialEq)]
+enum Run {
+    OneOff,
+    WarmUp,
+    Regular,
+}
+
 const NUM_FUNCS: usize = FUNC_NAMES.len();
 type Seconds = f32;
 
@@ -47,7 +58,24 @@ fn formatted(num: usize) -> String {
         .join("_")
 }
 
+fn ticker(end_rx: Receiver<()>, func_index: usize) {
+    let interval = Duration::from_secs(3);
+    let mut warnings = 0;
+    while matches!(
+        end_rx.recv_timeout(interval),
+        Err(RecvTimeoutError::Timeout)
+    ) {
+        warnings += 1;
+        eprintln!(
+            "  {} seconds in, {} is still busy collecting",
+            interval.as_secs() * warnings,
+            FUNC_NAMES[func_index]
+        );
+    }
+}
+
 fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
+    run: Run,
     set_type: SetType,
     orderstr: &str,
     size: usize,
@@ -55,38 +83,46 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     timed_samples: u32,
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let instant = Instant::now();
-    let known =
+    let (graph, known_clique_count) =
         read_undirected::<VertexSet, SlimUndirectedGraphFactory>(orderstr, Size::Of(size)).unwrap();
+    let known_clique_count = if run == Run::OneOff {
+        None
+    } else {
+        Some(known_clique_count.expect("no known clique count").0)
+    };
     let seconds = instant.elapsed().as_secs_f32();
-    let known_clique_count_str = known.clique_count.map_or(String::from("?"), formatted);
-    println!(
-        "{}-based random graph of order {}, {} edges, {} cliques: (generating took {:.3}s)",
-        set_type,
-        orderstr,
-        formatted(size),
-        known_clique_count_str,
-        seconds
-    );
+    if run == Run::Regular {
+        println!(
+            "{}-based random graph of order {}, {} edges, {} cliques: (generating took {:.3}s)",
+            set_type,
+            orderstr,
+            formatted(size),
+            formatted(known_clique_count.unwrap()),
+            seconds
+        );
+    }
 
     let mut times: [SampleStatistics<Seconds>; NUM_FUNCS] = Default::default();
     let mut first: Option<OrderedCliques> = None;
-    // If we're genuinely sampling, first warm up.
+
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
-            let mut collecting_reporter = CliqueCollector::default();
-            let mut counting_reporter = CliqueCounter::default();
-            let instant = Instant::now();
             if sample == 0 {
-                explore(func_index, &known.graph, &mut collecting_reporter);
-            } else {
-                explore(func_index, &known.graph, &mut counting_reporter);
-            }
-            let secs: Seconds = instant.elapsed().as_secs_f32();
-            if sample == 0 {
-                if timed_samples == 0 || secs >= 3.0 {
-                    println!("  {:10} {}s", FUNC_NAMES[func_index], secs);
+                let mut collector = CliqueCollector::default();
+                let (ticker_tx, ticker_rx) = crossbeam_channel::bounded(0);
+                thread::spawn(move || ticker(ticker_rx, func_index));
+                explore(func_index, &graph, &mut collector);
+                ticker_tx.send(()).unwrap();
+                drop(ticker_tx);
+
+                let current = order_cliques(collector.cliques.into_iter());
+                if run == Run::OneOff {
+                    println!(
+                        "{} cliques found by {}",
+                        current.len(),
+                        FUNC_NAMES[func_index]
+                    );
                 }
-                let current = order_cliques(collecting_reporter.cliques.into_iter());
                 if let Some(first_result) = first.as_ref() {
                     if *first_result != current {
                         eprintln!(
@@ -97,42 +133,48 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                         );
                     }
                 } else {
-                    if let Some(clique_count) = known.clique_count {
-                        if current.len() != clique_count {
-                            eprintln!(
-                                "  {:8}: expected {} cliques, obtained {} cliques",
-                                FUNC_NAMES[func_index],
-                                clique_count,
-                                current.len()
-                            );
-                        }
-                    } else {
-                        println!("  {} cliques", current.len());
-                        return times;
+                    if let Some(known_clique_count) = known_clique_count
+                        && current.len() != known_clique_count
+                    {
+                        eprintln!(
+                            "  {:8}: expected {} cliques, obtained {} cliques",
+                            FUNC_NAMES[func_index],
+                            known_clique_count,
+                            current.len()
+                        );
                     }
                     first = Some(current);
                 }
-            } else if let Some(clique_count) = known.clique_count {
-                if counting_reporter.count != clique_count {
+            } else {
+                let mut counter = CliqueCounter::default();
+                let instant = Instant::now();
+                explore(func_index, &graph, &mut counter);
+                let secs: Seconds = instant.elapsed().as_secs_f32();
+                if let Some(known_clique_count) = known_clique_count
+                    && counter.count != known_clique_count
+                {
                     eprintln!(
                         "  {:8}: expected {} cliques, obtained {} cliques",
-                        FUNC_NAMES[func_index], clique_count, counting_reporter.count
+                        FUNC_NAMES[func_index], known_clique_count, counter.count
                     );
                 }
                 times[func_index].put(secs);
             }
         }
     }
-    for &func_index in func_indices {
-        let func_name = FUNC_NAMES[func_index];
-        let mean = times[func_index].mean();
-        let reldev = times[func_index].deviation() / mean;
-        println!("{:10} {:6.3}s ± {:.0}%", func_name, mean, 100.0 * reldev);
+    if run == Run::Regular {
+        for &func_index in func_indices {
+            let func_name = FUNC_NAMES[func_index];
+            let mean = times[func_index].mean();
+            let reldev = times[func_index].deviation() / mean;
+            println!("{:10} {:6.3}s ± {:.0}%", func_name, mean, 100.0 * reldev);
+        }
     }
     times
 }
 
 fn bk_core(
+    run: Run,
     set_type: SetType,
     orderstr: &str,
     size: usize,
@@ -141,6 +183,7 @@ fn bk_core(
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     match set_type {
         SetType::BTreeSet => bron_kerbosch_timed::<BTreeSet<Vertex>>(
+            run,
             set_type,
             orderstr,
             size,
@@ -148,6 +191,7 @@ fn bk_core(
             timed_samples,
         ),
         SetType::HashSet => bron_kerbosch_timed::<HashSet<Vertex>>(
+            run,
             set_type,
             orderstr,
             size,
@@ -155,6 +199,7 @@ fn bk_core(
             timed_samples,
         ),
         SetType::Fnv => bron_kerbosch_timed::<FnvHashSet<Vertex>>(
+            run,
             set_type,
             orderstr,
             size,
@@ -162,6 +207,7 @@ fn bk_core(
             timed_samples,
         ),
         SetType::Hashbrown => bron_kerbosch_timed::<hashbrown::HashSet<Vertex>>(
+            run,
             set_type,
             orderstr,
             size,
@@ -169,6 +215,7 @@ fn bk_core(
             timed_samples,
         ),
         SetType::OrdVec => bron_kerbosch_timed::<Vec<Vertex>>(
+            run,
             set_type,
             orderstr,
             size,
@@ -179,6 +226,7 @@ fn bk_core(
 }
 
 fn bk(
+    run: Run,
     orderstr: &str,
     sizes: impl Iterator<Item = usize>,
     timed_samples: u32,
@@ -187,14 +235,13 @@ fn bk(
     const LANGUAGE: &str = "rust";
 
     let sizes = Vec::from_iter(sizes);
-    let published = sizes.len() > 1;
     let name = format!("bron_kerbosch_{LANGUAGE}_order_{orderstr}");
     let temppath = Path::new("tmp").with_extension("csv");
     {
-        let mut writer: Option<csv::Writer<File>> = if published {
-            Some(csv::Writer::from_writer(File::create(&temppath)?))
-        } else {
+        let mut writer: Option<csv::Writer<File>> = if run == Run::OneOff {
             None
+        } else {
+            Some(csv::Writer::from_writer(File::create(&temppath)?))
         };
         let mut set_types_used = vec![];
         for size in sizes {
@@ -205,7 +252,7 @@ fn bk(
                 if !func_indices.is_empty() {
                     stats.insert(
                         set_type,
-                        bk_core(set_type, orderstr, size, &func_indices, timed_samples),
+                        bk_core(run, set_type, orderstr, size, &func_indices, timed_samples),
                     );
                 }
             }
@@ -255,7 +302,7 @@ fn bk(
         }
     }
 
-    if published {
+    if run == Run::Regular {
         let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
         std::fs::rename(temppath, path)?;
     }
@@ -264,14 +311,19 @@ fn bk(
 
 fn main() -> Result<(), std::io::Error> {
     let matches = command!()
-        .arg(arg!(-v --ver <VER>).required(false))
-        .arg(arg!(-s --set <SET>).required(false))
+        .arg(arg!(-v - -ver[VER]).value_parser(clap::value_parser!(usize)))
+        .arg(arg!(-s - -set[SET]))
         .arg(arg!([order]))
         .arg(arg!([size] ... ))
         .get_matches();
     if !matches.args_present() {
+        bk(Run::WarmUp, "100", once(2_000), 3, |_, _| {
+            (0..NUM_FUNCS).collect()
+        })?;
         debug_assert!(false, "Run with --release for meaningful measurements");
+        thread::sleep(Duration::from_secs(3));
         bk(
+            Run::Regular,
             "100",
             (2_000..=3_000).step_by(50), // max 4_950
             5,
@@ -282,8 +334,9 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-        thread::sleep(Duration::from_secs(7));
+        thread::sleep(Duration::from_secs(3));
         bk(
+            Run::Regular,
             "10k",
             std::iter::empty()
                 .chain((10_000..100_000).step_by(10_000))
@@ -296,21 +349,17 @@ fn main() -> Result<(), std::io::Error> {
                 }
             },
         )?;
-        thread::sleep(Duration::from_secs(7));
+        thread::sleep(Duration::from_secs(3));
         bk(
+            Run::Regular,
             "1M",
             std::iter::empty()
-                .chain((10_000..50_000).step_by(10_000))
-                .chain((50_000..250_000).step_by(50_000))
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
-            //.chain((5_000..=500_000).step_by(495_000)),
             3,
             |set_type: SetType, size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::BTreeSet if size > 3_000_000 => vec![],
-                    SetType::OrdVec if size > 250_000 => vec![],
-                    SetType::OrdVec if size > 100_000 => vec![4],
+                    SetType::BTreeSet if size > 3_000_000 => vec![9],
                     _ => vec![4, 7, 9],
                 }
             },
@@ -332,7 +381,7 @@ fn main() -> Result<(), std::io::Error> {
                 (0..NUM_FUNCS).collect()
             }
         };
-        bk(order, sizes, 0, included_funcs)?;
+        bk(Run::OneOff, order, sizes, 0, included_funcs)?;
     } else {
         eprintln!("Specify order and size(s)")
     }

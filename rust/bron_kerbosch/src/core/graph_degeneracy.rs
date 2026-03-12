@@ -10,55 +10,54 @@ pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
 {
+    let mut left_to_pick = FortifiedCounter::new();
     let mut priority_per_vertex = VertexMap::new(None, graph.order());
     let mut queue = PriorityQueue::new(graph.max_degree());
-    let mut left_to_pick = FortifiedCounter::new();
     for v in vertices(graph) {
         if let Some(priority) = Priority::new(graph.degree(v)) {
+            left_to_pick.add(v);
             priority_per_vertex[v] = Some(priority);
             queue.put(v, priority);
-            left_to_pick.add(v);
         }
     }
 
     DegeneracyOrderIter {
         graph,
+        left_to_pick,
         priority_per_vertex,
         queue,
-        left_to_pick,
     }
 }
 
 pub struct DegeneracyOrderIter<'a, Graph> {
     graph: &'a Graph,
+    left_to_pick: FortifiedCounter<Vertex>,
     priority_per_vertex: VertexMap<Option<Priority>>,
     // If priority is None, the vertex either:
     // - was always irrelevant (unconnected);
     // - was already picked itself;
     // - had all its neighbours picked.
     queue: PriorityQueue<Vertex>,
-    left_to_pick: FortifiedCounter<Vertex>,
 }
 
-impl<VertexSet, Graph> DegeneracyOrderIter<'_, Graph>
+impl<Graph> DegeneracyOrderIter<'_, Graph>
 where
-    VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: UndirectedGraph,
 {
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
             .iter()
             .all(|(v, &priority)| match priority {
                 None => !self.left_to_pick.contains(v),
-                Some(priority) => self.queue.contains(v, priority) && self.left_to_pick.contains(v),
+                Some(priority) => self.left_to_pick.contains(v) && self.queue.contains(v, priority),
             })
     }
 
     fn adjust_neighbours(&mut self, pick: Vertex) {
         self.graph.neighbours(pick).for_each(|v| {
             if let Some(old_priority) = self.priority_per_vertex[v] {
-                debug_assert!(self.queue.contains(v, old_priority));
                 debug_assert!(self.left_to_pick.contains(v));
+                debug_assert!(self.queue.contains(v, old_priority));
                 let new_priority = Priority::new(old_priority.get() - 1);
                 self.priority_per_vertex[v] = new_priority;
                 if let Some(new_priority) = new_priority {

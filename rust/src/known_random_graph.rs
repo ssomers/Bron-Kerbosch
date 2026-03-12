@@ -73,7 +73,9 @@ where
     Ok(adjacencies)
 }
 
-fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<usize>> {
+pub struct KnownCliqueCount(pub usize);
+
+fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<KnownCliqueCount>> {
     let f = File::open(path).with_context(|| locator(path, 0))?;
     let reader = BufReader::new(f);
     let context = |line_num| move || locator(path, line_num);
@@ -81,24 +83,21 @@ fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<
     for (line_idx, line_result) in reader.lines().enumerate().skip(1) {
         let line = line_result.with_context(context(line_idx + 1))?;
         if line.starts_with(&prefix) {
-            let c: usize = line[prefix.len()..]
-                .parse()
-                .with_context(context(line_idx + 1))?;
-            return Ok(Some(c));
+            let s: &str = line[prefix.len()..].split("\t").next().unwrap();
+            let c: usize = s.parse().with_context(context(line_idx + 1))?;
+            return Ok(Some(KnownCliqueCount(c)));
         }
     }
     Ok(None)
 }
 
-pub struct KnownRandomGraph<Graph: UndirectedGraph> {
-    pub graph: Graph,
-    pub clique_count: Option<usize>,
-}
-
 pub fn read_undirected<VertexSet, GraphFactory>(
     orderstr: &str,
     size: Size,
-) -> Result<KnownRandomGraph<impl UndirectedGraph<VertexSet = VertexSet>>>
+) -> Result<(
+    impl UndirectedGraph<VertexSet = VertexSet>,
+    Option<KnownCliqueCount>,
+)>
 where
     VertexSet: VertexSetLike + Clone,
     GraphFactory: UndirectedGraphFactory<VertexSet>,
@@ -125,8 +124,5 @@ where
     let graph = GraphFactory::new(adjacencies);
     assert_eq!(graph.order(), order);
     assert_eq!(graph.size(), size);
-    Ok(KnownRandomGraph {
-        graph,
-        clique_count,
-    })
+    Ok((graph, clique_count))
 }

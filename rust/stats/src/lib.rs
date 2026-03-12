@@ -148,14 +148,14 @@ mod proptests {
         fn put_1_u32(x in proptest::num::u32::ANY) {
             let mut s: SampleStatistics<u32> = Default::default();
             s.put(x);
-            assert!(s.mean() == x.into());
+            assert_eq!(s.mean(), x.into());
         }
 
         #[test]
         fn put_1_f64(x in proptest::num::f64::NORMAL) {
             let mut s: SampleStatistics<f64> = Default::default();
             s.put(x);
-            assert!(s.mean() == x.into());
+            assert_eq!(s.mean(), x.into());
         }
 
         #[test]
