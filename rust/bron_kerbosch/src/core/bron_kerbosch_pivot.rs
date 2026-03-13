@@ -13,7 +13,7 @@ pub enum PivotChoice {
     MaxDegreeLocalX,
 }
 
-type Clique<'a> = Pile<'a, Vertex>;
+type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
 pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     graph: &Graph,
@@ -39,7 +39,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
                         pivot_selection,
                         neighbouring_candidates,
                         neighbouring_excluded,
-                        Some(&Pile::from(v)),
+                        &Pile::from(v),
                     );
                 }
                 excluded.insert(v);
@@ -54,7 +54,7 @@ pub fn visit<VertexSet, Graph, Consumer>(
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
-    clique: Option<&Clique>,
+    clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -69,7 +69,7 @@ pub fn visit<VertexSet, Graph, Consumer>(
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
             if neighbours.is_disjoint(&excluded) {
-                consumer.accept(Pile::on(clique, v).collect());
+                consumer.accept(clique_in_progress.pile(v).collect());
             }
         });
         return;
@@ -87,7 +87,7 @@ pub fn visit<VertexSet, Graph, Consumer>(
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
                     if neighbours.is_disjoint(&excluded) {
-                        consumer.accept(Pile::on(clique, v).collect());
+                        consumer.accept(clique_in_progress.pile(v).collect());
                     }
                 } else {
                     if seen_local_degree < local_degree {
@@ -137,10 +137,10 @@ pub fn visit<VertexSet, Graph, Consumer>(
                     pivot_selection,
                     neighbouring_candidates,
                     neighbouring_excluded,
-                    Some(&Pile::on(clique, v)),
+                    &clique_in_progress.pile(v),
                 );
             } else if excluded.is_disjoint(neighbours) {
-                consumer.accept(Pile::on(clique, v).collect());
+                consumer.accept(clique_in_progress.pile(v).collect());
             }
             excluded.insert(v);
         }

@@ -31,7 +31,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
             pivot_selection,
             neighbouring_candidates,
             neighbouring_excluded,
-            Some(&Pile::from(v)),
+            &Pile::from(v),
         );
         excluded.insert(v);
     }

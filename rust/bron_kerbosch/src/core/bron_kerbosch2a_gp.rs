@@ -3,6 +3,7 @@
 use super::bron_kerbosch_pivot::{PivotChoice, visit};
 use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
+use super::pile::Pile;
 
 pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
 where
@@ -18,7 +19,7 @@ where
             PivotChoice::MaxDegreeLocal,
             candidates,
             Graph::VertexSet::new(),
-            None,
+            &Pile::EMPTY,
         );
     }
 }

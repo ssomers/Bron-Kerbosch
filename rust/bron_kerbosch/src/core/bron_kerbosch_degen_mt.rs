@@ -110,7 +110,7 @@ fn descend<VertexSet, Graph>(
             pivot_selection,
             job.candidates,
             job.excluded,
-            Some(&Pile::from(job.start)),
+            &Pile::from(job.start),
         );
     }
 }

@@ -4,7 +4,7 @@ use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
 use super::pile::Pile;
 
-type Clique<'a> = Pile<'a, Vertex>;
+type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
 pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
 where
@@ -20,7 +20,7 @@ where
             consumer,
             candidates,
             VertexSet::with_capacity(num_candidates),
-            None,
+            &Pile::EMPTY,
         );
     }
 }
@@ -30,7 +30,7 @@ fn visit<VertexSet, Graph, Consumer>(
     consumer: &mut Consumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
-    clique: Option<&Clique>,
+    clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -50,10 +50,10 @@ fn visit<VertexSet, Graph, Consumer>(
                 consumer,
                 neighbouring_candidates,
                 excluded.intersection_collect(neighbours),
-                Some(&Pile::on(clique, v)),
+                &clique_in_progress.pile(v),
             );
         } else if excluded.is_disjoint(neighbours) {
-            consumer.accept(Pile::on(clique, v).collect());
+            consumer.accept(clique_in_progress.pile(v).collect());
         }
         excluded.insert(v);
     }
