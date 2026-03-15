@@ -7,14 +7,13 @@ use super::graph::{UndirectedGraph, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;
 
-pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
+pub fn explore_with_pivot<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    mut consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
@@ -25,7 +24,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
         let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
         visit(
             graph,
-            consumer,
+            &mut consumer,
             pivot_selection,
             neighbouring_candidates,
             neighbouring_excluded,

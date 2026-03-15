@@ -6,18 +6,17 @@ use super::pile::Pile;
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
+pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     let candidates: VertexSet = connected_vertices(graph).collect();
     let num_candidates = candidates.len();
     if num_candidates > 0 {
         visit(
             graph,
-            consumer,
+            &mut consumer,
             candidates,
             VertexSet::with_capacity(num_candidates),
             &Pile::EMPTY,
@@ -25,16 +24,15 @@ where
     }
 }
 
-fn visit<VertexSet, Graph, Consumer>(
+fn visit<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

@@ -2,43 +2,34 @@
 
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
-use super::clique::{Clique, CliqueConsumer};
+use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;
 use crossbeam_channel::{Receiver, Sender};
 
-pub fn explore_with_pivot_multithreaded<VertexSet, Graph, Consumer>(
+pub fn explore_with_pivot_multithreaded<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
     num_visiting_threads: usize,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     crossbeam::thread::scope(|scope| {
         let (start_tx, start_rx) = crossbeam_channel::bounded(64);
         let (visit_tx, visit_rx) = crossbeam_channel::bounded(64);
-        let (consumer_tx, consumer_rx) = crossbeam_channel::bounded(64);
 
         scope.spawn(move |_| initiate(graph, start_tx));
         scope.spawn(move |_| dispatch(graph, start_rx, visit_tx));
 
         for _ in 0..num_visiting_threads {
             let thread_visit_rx = visit_rx.clone();
-            let thread_consumer_tx = consumer_tx.clone();
-            scope.spawn(move |_| {
-                descend(graph, pivot_selection, thread_visit_rx, thread_consumer_tx)
-            });
+            let thread_consumer = consumer.clone();
+            scope.spawn(move |_| descend(graph, pivot_selection, thread_visit_rx, thread_consumer));
         }
         drop(visit_rx);
-        drop(consumer_tx);
-
-        while let Ok(clique) = consumer_rx.recv() {
-            consumer.accept(clique);
-        }
     })
     .unwrap();
 }
@@ -87,19 +78,11 @@ fn descend<VertexSet, Graph>(
     graph: &Graph,
     pivot_selection: PivotChoice,
     visit_rx: Receiver<VisitJob<VertexSet>>,
-    consumer_tx: Sender<Clique>,
+    mut consumer: CliqueConsumer,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
 {
-    struct SendingConsumer(Sender<Clique>);
-    impl CliqueConsumer for SendingConsumer {
-        fn accept(&mut self, clique: Clique) {
-            self.0.send(clique).unwrap();
-        }
-    }
-    let mut consumer = SendingConsumer(consumer_tx);
-
     while let Ok(job) = visit_rx.recv() {
         visit(
             graph,

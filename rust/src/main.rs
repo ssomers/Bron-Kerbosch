@@ -1,15 +1,14 @@
-mod clique_counter;
 mod known_random_graph;
+mod utils;
 
-use bron_kerbosch::CliqueCollector;
-use bron_kerbosch::{FUNC_NAMES, OrderedCliques, explore, order_cliques};
-use bron_kerbosch::{SlimUndirectedGraphFactory, Vertex, VertexSetLike};
-use clique_counter::CliqueCounter;
-use known_random_graph::{Size, parse_positive_int, read_undirected};
+use bron_kerbosch::{
+    CliqueHarvester, FUNC_NAMES, OrderedCliques, SlimUndirectedGraphFactory, Vertex, VertexSetLike,
+    explore, order_cliques,
+};
+use known_random_graph::{Size, read_undirected};
 use stats::SampleStatistics;
 
 use clap::{arg, command};
-use crossbeam_channel::{Receiver, RecvTimeoutError};
 use fnv::FnvHashSet;
 use itertools::Itertools;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -44,35 +43,8 @@ enum Run {
 }
 
 const NUM_FUNCS: usize = FUNC_NAMES.len();
+
 type Seconds = f32;
-
-// Source - https://stackoverflow.com/a/67834588
-fn formatted(num: usize) -> String {
-    num.to_string()
-        .as_bytes()
-        .rchunks(3)
-        .rev()
-        .map(str::from_utf8)
-        .collect::<Result<Vec<&str>, _>>()
-        .unwrap()
-        .join("_")
-}
-
-fn ticker(end_rx: Receiver<()>, func_index: usize) {
-    let interval = Duration::from_secs(3);
-    let mut warnings = 0;
-    while matches!(
-        end_rx.recv_timeout(interval),
-        Err(RecvTimeoutError::Timeout)
-    ) {
-        warnings += 1;
-        eprintln!(
-            "  {} seconds in, {} is still busy collecting",
-            interval.as_secs() * warnings,
-            FUNC_NAMES[func_index]
-        );
-    }
-}
 
 fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     run: Run,
@@ -96,8 +68,8 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
             "{}-based random graph of order {}, {} edges, {} cliques: (generating took {:.3}s)",
             set_type,
             orderstr,
-            formatted(size),
-            formatted(known_clique_count.unwrap()),
+            utils::formatted(size),
+            utils::formatted(known_clique_count.unwrap()),
             seconds
         );
     }
@@ -107,15 +79,18 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
 
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
+            let (consumer, collector) = CliqueHarvester::new(64);
             if sample == 0 {
-                let mut collector = CliqueCollector::default();
-                let (ticker_tx, ticker_rx) = crossbeam_channel::bounded(0);
-                thread::spawn(move || ticker(ticker_rx, func_index));
-                explore(func_index, &graph, &mut collector);
-                ticker_tx.send(()).unwrap();
-                drop(ticker_tx);
-
-                let current = order_cliques(collector.cliques.into_iter());
+                let cliques = utils::do_timely(
+                    || {
+                        thread::scope(|s| {
+                            s.spawn(|| explore(func_index, &graph, consumer));
+                            collector.collect_cliques()
+                        })
+                    },
+                    format!("{} is still busy collecting", FUNC_NAMES[func_index]),
+                );
+                let current = order_cliques(cliques.into_iter());
                 if run == Run::OneOff {
                     println!(
                         "{} cliques found by {}",
@@ -146,16 +121,17 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                     first = Some(current);
                 }
             } else {
-                let mut counter = CliqueCounter::default();
                 let instant = Instant::now();
-                explore(func_index, &graph, &mut counter);
+                let receiver = thread::spawn(move || collector.count_cliques());
+                explore(func_index, &graph, consumer);
+                let clique_count = receiver.join().unwrap();
                 let secs: Seconds = instant.elapsed().as_secs_f32();
                 if let Some(known_clique_count) = known_clique_count
-                    && counter.count != known_clique_count
+                    && clique_count != known_clique_count
                 {
                     eprintln!(
                         "  {:8}: expected {} cliques, obtained {} cliques",
-                        FUNC_NAMES[func_index], known_clique_count, counter.count
+                        FUNC_NAMES[func_index], known_clique_count, clique_count
                     );
                 }
                 times[func_index].put(secs);
@@ -371,7 +347,7 @@ fn main() -> Result<(), std::io::Error> {
         let forced_set_type = matches
             .get_one::<String>("set")
             .map(|t| SetType::from_str(t).unwrap());
-        let sizes = sizes.map(|s| parse_positive_int(s.as_str()));
+        let sizes = sizes.map(|s| utils::parse_positive_int(s.as_str()));
         let included_funcs = |set_type: SetType, _size: usize| -> Vec<usize> {
             if forced_set_type.is_some() && forced_set_type != Some(set_type) {
                 vec![]

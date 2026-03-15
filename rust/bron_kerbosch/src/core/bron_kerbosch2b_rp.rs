@@ -5,17 +5,16 @@ use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 use crate::core::pile::Pile;
 
-pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
+pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     let candidates: VertexSet = connected_vertices(graph).collect();
     if !candidates.is_empty() {
         visit(
             graph,
-            consumer,
+            &mut consumer,
             PivotChoice::Random,
             candidates,
             Graph::VertexSet::new(),

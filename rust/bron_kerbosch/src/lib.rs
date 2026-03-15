@@ -3,8 +3,8 @@ mod core;
 mod graph_degeneracy_tests;
 mod vertexsetlikes;
 
-pub use core::clique::{Clique, CliqueConsumer};
-pub use core::clique_collector::CliqueCollector;
+pub use core::clique::Clique;
+pub use core::clique_harvester::CliqueHarvester;
 pub use core::graph::{UndirectedGraph, Vertex, VertexSetLike};
 pub use core::graphfactory::{Adjacencies, UndirectedGraphFactory};
 pub use core::slimgraphfactory::SlimUndirectedGraphFactory;

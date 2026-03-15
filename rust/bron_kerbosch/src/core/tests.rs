@@ -1,8 +1,9 @@
-use super::clique_collector::CliqueCollector;
+use super::clique_harvester::CliqueHarvester;
 use super::graph::{Vertex, VertexMap, VertexSetLike};
 use super::graphfactory::UndirectedGraphFactory;
 use super::slimgraphfactory::SlimUndirectedGraphFactory;
 use super::*;
+use std::thread;
 
 pub struct TestData {
     name: &'static str,
@@ -20,9 +21,12 @@ impl TestData {
         let graph = SlimUndirectedGraphFactory::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-            let mut consumer = CliqueCollector::default();
-            explore(func_index, &graph, &mut consumer);
-            let cliques = order_cliques(consumer.cliques.into_iter());
+            let (consumer, collector) = CliqueHarvester::new(0);
+            let cliques = thread::scope(|s| {
+                s.spawn(|| explore(func_index, &graph, consumer));
+                collector.collect_cliques()
+            });
+            let cliques = order_cliques(cliques.into_iter());
             assert_eq!(cliques, expected, "for {} on {}", func_name, self.name);
         }
     }

@@ -4,11 +4,10 @@ use super::bron_kerbosch_pivot::{PivotChoice, explore_with_pivot};
 use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, VertexSetLike};
 
-pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
+pub fn explore<VertexSet, Graph>(graph: &Graph, consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     explore_with_pivot(graph, consumer, PivotChoice::MaxDegreeLocal)
 }

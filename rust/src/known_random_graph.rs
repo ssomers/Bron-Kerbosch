@@ -1,3 +1,4 @@
+use crate::utils;
 use anyhow::{Context, Result, anyhow};
 use bron_kerbosch::{Adjacencies, UndirectedGraph, UndirectedGraphFactory, Vertex, VertexSetLike};
 use std::fmt::Write;
@@ -9,20 +10,6 @@ use std::path::PathBuf;
 #[derive(Clone, Copy)]
 pub enum Size {
     Of(usize),
-}
-
-pub fn parse_positive_int(value: &str) -> usize {
-    let (numstr, factor) = if let Some(megas) = value.strip_suffix('M') {
-        (megas, 1_000_000)
-    } else if let Some(kilos) = value.strip_suffix('k') {
-        (kilos, 1_000)
-    } else {
-        (value, 1)
-    };
-    let num: usize = numstr
-        .parse()
-        .unwrap_or_else(|err| panic!("{numstr} is not a positive integer ({err})"));
-    num * factor
 }
 
 fn locator(path: &Path, line_num: usize) -> String {
@@ -37,7 +24,7 @@ fn read_edges<VertexSet>(path: &Path, orderstr: &str, size: usize) -> Result<Adj
 where
     VertexSet: VertexSetLike + Clone,
 {
-    let order = parse_positive_int(orderstr);
+    let order = utils::parse_positive_int(orderstr);
     let mut adjacencies = Adjacencies::new(VertexSet::new(), order);
     let context = |line_num| {
         move || {
@@ -102,7 +89,7 @@ where
     VertexSet: VertexSetLike + Clone,
     GraphFactory: UndirectedGraphFactory<VertexSet>,
 {
-    let order = parse_positive_int(orderstr);
+    let order = utils::parse_positive_int(orderstr);
     assert!(order > 0);
     let Size::Of(size) = size;
     let fully_meshed_size = order * (order - 1) / 2;

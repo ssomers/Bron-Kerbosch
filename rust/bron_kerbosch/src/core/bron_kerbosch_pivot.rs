@@ -16,14 +16,13 @@ pub enum PivotChoice {
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
+pub fn explore_with_pivot<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    mut consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     if let Some(pivot) = max_degree_vertices(graph).next() {
         let mut excluded = VertexMap::new(false, graph.order());
@@ -37,7 +36,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
                         neighbours.difference_collect(&neighbouring_excluded);
                     visit(
                         graph,
-                        consumer,
+                        &mut consumer,
                         pivot_selection,
                         neighbouring_candidates,
                         neighbouring_excluded,
@@ -50,9 +49,9 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     }
 }
 
-pub fn visit<VertexSet, Graph, Consumer>(
+pub fn visit<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer,
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
@@ -60,7 +59,6 @@ pub fn visit<VertexSet, Graph, Consumer>(
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

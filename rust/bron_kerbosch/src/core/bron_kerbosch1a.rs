@@ -3,28 +3,32 @@
 use super::clique::{Clique, CliqueConsumer};
 use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 
-pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)
+pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     let candidates: VertexSet = connected_vertices(graph).collect();
     if !candidates.is_empty() {
-        visit(graph, consumer, candidates, VertexSet::new(), Clique::new());
+        visit(
+            graph,
+            &mut consumer,
+            candidates,
+            VertexSet::new(),
+            Clique::new(),
+        );
     }
 }
 
-fn visit<VertexSet, Graph, Consumer>(
+fn visit<VertexSet, Graph>(
     graph: &Graph,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
-    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

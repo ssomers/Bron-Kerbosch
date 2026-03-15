@@ -12,7 +12,7 @@ mod bron_kerbosch_degen;
 mod bron_kerbosch_degen_mt;
 mod bron_kerbosch_pivot;
 pub mod clique;
-pub mod clique_collector;
+pub mod clique_harvester;
 mod fortified_counter;
 pub mod graph;
 pub(super) mod graph_degeneracy;
@@ -47,10 +47,9 @@ pub const FUNC_NAMES: &[&str; NUM_FUNCS] = &[
     "Ver3½=GPc",
 ];
 
-pub fn explore<Graph, Consumer>(func_index: usize, graph: &Graph, consumer: &mut Consumer)
+pub fn explore<Graph>(func_index: usize, graph: &Graph, consumer: CliqueConsumer)
 where
     Graph: UndirectedGraph,
-    Consumer: CliqueConsumer,
 {
     match func_index {
         0 => bron_kerbosch1a::explore(graph, consumer),
