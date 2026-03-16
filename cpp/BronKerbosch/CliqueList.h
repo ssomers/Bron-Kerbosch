@@ -6,6 +6,6 @@
 #include "Vertex.h"
 
 namespace BronKerbosch {
-    using VertexList = std::vector<Vertex>;
-    using CliqueList = std::list<VertexList>;
+    using Clique = std::vector<Vertex>;
+    using CliqueList = std::list<Clique>;
 }

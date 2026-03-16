@@ -6,9 +6,11 @@
 namespace BronKerbosch {
     class VertexPile {
       public:
+        unsigned const height;
+
         /// Create a pile, optionally on top of an existing pile
         explicit VertexPile(Vertex v, const VertexPile* lower = NULL)
-            : top(v), height(lower ? lower->height : 1), lower(lower) {
+            : height(lower ? lower->height + 1 : 1), top(v), lower(lower) {
         }
 
         /// Clone contained elements into a vector, in the order they were placed
@@ -16,6 +18,7 @@ namespace BronKerbosch {
             auto result = std::vector<Vertex>{};
             result.reserve(height);
             push_to(result);
+            assert(result.size() == height);
             return result;
         }
 
@@ -27,7 +30,6 @@ namespace BronKerbosch {
         }
 
         Vertex const top;
-        unsigned const height;
         const VertexPile* const lower;
     };
 }

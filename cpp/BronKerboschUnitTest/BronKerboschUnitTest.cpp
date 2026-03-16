@@ -19,7 +19,7 @@ namespace BronKerbosch {
             for (int func_index = 0; func_index < Portfolio::NUM_FUNCS; ++func_index) {
                 auto result =
                     Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(func_index, graph);
-                auto obtained_cliques = std::vector<VertexList>(result.begin(), result.end());
+                auto obtained_cliques = std::vector<Clique>(result.begin(), result.end());
                 Assert::AreEqual(expected_cliques.size(), obtained_cliques.size());
                 Portfolio::sort_cliques(obtained_cliques);
                 assert_same_cliques(expected_cliques, obtained_cliques);

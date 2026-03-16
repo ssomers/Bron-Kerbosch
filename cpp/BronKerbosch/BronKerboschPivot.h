@@ -52,7 +52,8 @@ namespace BronKerbosch {
                                       PivotChoice further_pivot_choice,
                                       VertexSet&& candidates,
                                       VertexSet&& excluded,
-                                      VertexPile* clique) {
+                                      VertexPile* clique_in_progress) {
+            assert(clique_in_progress != nullptr);
             assert(!candidates.empty());
             assert(Util::are_disjoint(candidates, excluded));
 
@@ -63,7 +64,7 @@ namespace BronKerbosch {
                 for (Vertex v : candidates) {
                     auto const& neighbours = graph.neighbours(v);
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        Reporter::add_one(cliques, VertexPile(v, clique));
+                        Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     }
                 }
                 return cliques;
@@ -80,7 +81,7 @@ namespace BronKerbosch {
                 if (local_degree == 0) {
                     // Same logic as below, but stripped down
                     if (Util::are_disjoint(neighbours, excluded)) {
-                        Reporter::add_one(cliques, VertexPile(v, clique));
+                        Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     }
                 } else {
                     if (seen_local_degree < local_degree) {
@@ -112,11 +113,11 @@ namespace BronKerbosch {
                     auto neighbouring_candidates = Util::intersection(neighbours, candidates);
                     if (neighbouring_candidates.empty()) {
                         if (Util::are_disjoint(neighbours, excluded)) {
-                            Reporter::add_one(cliques, VertexPile(v, clique));
+                            Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                         }
                     } else {
                         auto neighbouring_excluded = Util::intersection(neighbours, excluded);
-                        auto newclique = VertexPile(v, clique);
+                        auto newclique = VertexPile(v, clique_in_progress);
                         Reporter::add_all(
                             cliques,
                             visit<Reporter>(graph, further_pivot_choice, further_pivot_choice,

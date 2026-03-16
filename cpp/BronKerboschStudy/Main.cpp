@@ -7,11 +7,11 @@
 #include "SampleStatistics.h"
 #include <stdexcept>
 
+using BronKerbosch::Clique;
 using BronKerbosch::ordered_vector;
 using BronKerbosch::Portfolio;
 using BronKerbosch::UndirectedGraph;
 using BronKerbosch::Vertex;
-using BronKerbosch::VertexList;
 using BronKerboschStudy::RandomGraph;
 using BronKerboschStudy::SampleStatistics;
 
@@ -29,7 +29,7 @@ class Benchmark {
     static Times timed(RandomGraph<VertexSet> const& graph,
                        std::vector<int> const& func_indices,
                        int timed_samples) {
-        std::unique_ptr<std::vector<VertexList>> first;
+        std::unique_ptr<std::vector<Clique>> first;
         auto times = Times{};
         for (int sample = 0; sample <= timed_samples; ++sample) {
             for (int func_index : func_indices) {
@@ -43,7 +43,7 @@ class Benchmark {
                         std::cout << "  " << std::setw(8) << Portfolio::FUNC_NAMES[func_index]
                                   << ": " << std::setw(6) << secs << "s" << std::endl;
                     }
-                    auto obtained_cliques = std::vector<VertexList>(result.begin(), result.end());
+                    auto obtained_cliques = std::vector<Clique>(result.begin(), result.end());
                     Portfolio::sort_cliques(obtained_cliques);
                     if (first) {
                         if (*first != obtained_cliques) {
@@ -57,7 +57,7 @@ class Benchmark {
                                       << obtained_cliques.size() << " cliques\n";
                             std::exit(EXIT_FAILURE);
                         }
-                        first = std::make_unique<std::vector<VertexList>>(obtained_cliques);
+                        first = std::make_unique<std::vector<Clique>>(obtained_cliques);
                     }
                 } else {
                     auto begin = std::chrono::steady_clock::now();
@@ -204,16 +204,15 @@ std::vector<unsigned> concat(Args... args) {
 
 int main(int argc, char** argv) {
     console_init();
-#ifndef NDEBUG
-    std::cerr << "Run Release build instead for meaningful measurements\n";
-    // return EXIT_FAILURE;
-#endif
 
     std::vector<int> all_func_indices(Portfolio::NUM_FUNCS);
     std::iota(all_func_indices.begin(), all_func_indices.end(), 0);
     std::vector<int> most_func_indices(Portfolio::NUM_FUNCS - 1);
     std::iota(most_func_indices.begin(), most_func_indices.end(), 1);
     if (argc == 1) {
+#ifndef NDEBUG
+        std::cerr << "Run Release build instead for meaningful measurements\n";
+#endif
         Benchmark::bk(
             "100", range(2'000u, 3'000u, 50u), [&](SetType, unsigned) { return all_func_indices; },
             5);

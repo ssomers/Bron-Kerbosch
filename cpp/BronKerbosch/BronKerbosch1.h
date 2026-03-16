@@ -25,7 +25,7 @@ namespace BronKerbosch {
         static Reporter::Result visit(UndirectedGraph<VertexSet> const& graph,
                                       VertexSet&& candidates,
                                       VertexSet&& excluded,
-                                      const VertexPile* clique) {
+                                      const VertexPile* clique_in_progress) {
             assert(!candidates.empty());
             auto cliques = Reporter::empty();
             for (;;) {
@@ -35,13 +35,13 @@ namespace BronKerbosch {
                 auto neighbouring_candidates = Util::intersection(candidates, neighbours);
                 if (!neighbouring_candidates.empty()) {
                     auto neighbouring_excluded = Util::intersection(excluded, neighbours);
-                    auto newclique = VertexPile{v, clique};
+                    auto newclique = VertexPile{v, clique_in_progress};
                     Reporter::add_all(
                         cliques, visit<Reporter>(graph, std::move(neighbouring_candidates),
                                                  std::move(neighbouring_excluded), &newclique));
                 } else {
                     if (Util::are_disjoint(excluded, neighbours))
-                        Reporter::add_one(cliques, VertexPile(v, clique));
+                        Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     if (candidates.empty())
                         break;
                 }
