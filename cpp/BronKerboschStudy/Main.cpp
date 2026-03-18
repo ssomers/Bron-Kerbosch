@@ -217,25 +217,17 @@ int main(int argc, char** argv) {
             "100", range(2'000u, 3'000u, 50u), [&](SetType, unsigned) { return all_func_indices; },
             5);
         Benchmark::bk(
-            "10k",
-            concat(range(1'000u, 9'000u, 1'000u), range(10'000u, 90'000u, 10'000u),
-                   range(100'000u, 200'000u, 25'000u)),
-            [&](SetType set_type, unsigned size) {
-                switch (set_type) {
-                    case SetType::std_set:
-                        if (size > 7'000)
-                            return std::vector<int>{};
-                        else
-                            [[fallthrough]];
-                    case SetType::hashset: [[fallthrough]];
-                    case SetType::ord_vec: return most_func_indices;
-                }
-                throw std::logic_error("unreachable");
+            "10k", concat(range(10'000u, 90'000u, 10'000u), range(100'000u, 200'000u, 25'000u)),
+            [&](SetType set_type, unsigned) {
+                if (set_type == SetType::std_set)
+                    return std::vector<int>{1, 2, 3, 4};
+                else
+                    return most_func_indices;
             },
             3);
         Benchmark::bk(
             "1M",
-            concat(range(500'000u, 1'999'999u, 250'000u),
+            concat(range(250'000u, 1'999'999u, 250'000u),
                    range(2'000'000u, 5'000'000u, 1'000'000u)),
             [&](SetType set_type, unsigned) {
                 switch (set_type) {

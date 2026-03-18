@@ -286,7 +286,6 @@ fn main() -> Result<(), std::io::Error> {
         bk(
             "10k",
             std::iter::empty()
-                .chain((1_000..10_000).step_by(1_000))
                 .chain((10_000..100_000).step_by(10_000))
                 .chain((100_000..=200_000).step_by(25_000)),
             3,

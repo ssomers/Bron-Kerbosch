@@ -271,47 +271,12 @@ def import_matplotlib() -> bool:
 
 def publish_whole_csv(language: Language, orderstr: str) -> None:
     sizes, m_per_size_by_case = read_csv(language, orderstr)
-    if import_matplotlib():
-        if cutoff := {
-            (Language.cpp, "10k"): 10_000,
-            (Language.rust, "10k"): 50_000,
-            (Language.rust, "1M"): 500_000,
-        }.get((language, orderstr)):
-            idx = bisect_left(sizes, cutoff)
-            sizes_1 = sizes[:idx]
-            sizes = sizes[idx:]
-            m_per_size_by_case_1 = {
-                case: m_per_size[:idx]
-                for case, m_per_size in m_per_size_by_case.items()
-            }
-            m_per_size_by_case = {
-                case: m_per_size[idx:]
-                for case, m_per_size in m_per_size_by_case.items()
-                if not all(m.isnan() for m in m_per_size[idx:])
-            }
-            publish_details(
-                language,
-                orderstr,
-                sizes_1,
-                m_per_size_by_case_1,
-                basename_variant="_initial",
-            )
-        publish_details(language, orderstr, sizes, m_per_size_by_case)
-
-
-def publish_details(
-    language: Language,
-    orderstr: str,
-    sizes: List[int],
-    m_per_size_by_case: Mapping[Case, List[Measurement]],
-    basename_variant: str = "",
-) -> None:
     assert len(sizes)
     assert len(m_per_size_by_case)
     assert all(
         len(m_per_size) == len(sizes) for m_per_size in m_per_size_by_case.values()
     )
-    filename = f"details_{language.name}_{orderstr}{basename_variant}.svg"
+    filename = f"details_{language.name}_{orderstr}.svg"
     if import_matplotlib():
         from matplotlib import pyplot
 
@@ -322,8 +287,7 @@ def publish_details(
         )
         axes.set_xlabel("Size (#edges)")
         axes.set_ylabel("Seconds spent")
-        if not basename_variant:
-            axes.set_yscale("log")
+        axes.set_yscale("log")
         linestyles: Dict[str, object] = OrderedDict()
         for case, m_per_size in m_per_size_by_case.items():
             lib = case.LangLib.Lib
@@ -628,7 +592,6 @@ def publish_reports() -> None:
                 LangLib(Language.kotlin),
                 LangLib(Language.go),
                 LangLib(Language.csharp, "HashSet"),
-                LangLib(Language.cpp, "hashset"),
                 LangLib(Language.rust, "Hash"),
             ],
             versions=["Ver3½=GPc", "Ver3½=GP2"],
