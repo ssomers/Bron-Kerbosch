@@ -1,8 +1,8 @@
 //! Core of Bron-Kerbosch algorithms using degeneracy ordering.
 
-use super::base::CliqueConsumer;
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
+use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;

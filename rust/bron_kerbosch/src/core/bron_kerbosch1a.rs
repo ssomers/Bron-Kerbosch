@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm
 
-use super::base::{Clique, CliqueConsumer};
+use super::clique::{Clique, CliqueConsumer};
 use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 
 pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)

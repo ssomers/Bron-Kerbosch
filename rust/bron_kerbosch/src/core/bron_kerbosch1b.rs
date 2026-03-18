@@ -1,6 +1,6 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use super::base::CliqueConsumer;
+use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
 use super::pile::Pile;
 

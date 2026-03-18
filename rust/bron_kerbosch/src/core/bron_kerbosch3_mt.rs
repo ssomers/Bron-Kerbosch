@@ -2,8 +2,8 @@
 //! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
-use super::base::CliqueConsumer;
 use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_pivot_multithreaded};
+use super::clique::CliqueConsumer;
 use super::graph::{UndirectedGraph, VertexSetLike};
 
 pub fn explore<VertexSet, Graph, Consumer>(graph: &Graph, consumer: &mut Consumer)

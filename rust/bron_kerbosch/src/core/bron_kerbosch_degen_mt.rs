@@ -1,8 +1,8 @@
 //! Core of Bron-Kerbosch algorithms using degeneracy ordering and multiple threads.
 
-use super::base::{Clique, CliqueConsumer};
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
+use super::clique::{Clique, CliqueConsumer};
 use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;
@@ -90,7 +90,7 @@ fn descend<VertexSet, Graph>(
     graph: &Graph,
     pivot_selection: PivotChoice,
     visit_rx: Receiver<VisitJob<VertexSet>>,
-    consum_tx: Sender<Clique>,
+    consumer_tx: Sender<Clique>,
 ) where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
@@ -101,7 +101,7 @@ fn descend<VertexSet, Graph>(
             self.0.send(clique).unwrap();
         }
     }
-    let mut consumer = SendingConsumer(consum_tx);
+    let mut consumer = SendingConsumer(consumer_tx);
 
     while let Ok(job) = visit_rx.recv() {
         visit(

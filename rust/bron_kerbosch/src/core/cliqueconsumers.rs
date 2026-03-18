@@ -1,4 +1,4 @@
-pub use crate::core::base::{Clique, CliqueConsumer};
+pub use crate::core::clique::{Clique, CliqueConsumer};
 use crate::core::vertex::Vertex;
 use std::collections::BTreeSet;
 

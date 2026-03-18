@@ -1,4 +1,3 @@
-pub mod base;
 mod bron_kerbosch1a;
 mod bron_kerbosch1b;
 mod bron_kerbosch2a_gp;
@@ -12,6 +11,7 @@ mod bron_kerbosch3_mt;
 mod bron_kerbosch_degen;
 mod bron_kerbosch_degen_mt;
 mod bron_kerbosch_pivot;
+pub mod clique;
 pub mod cliqueconsumers;
 mod fortified_counter;
 pub mod graph;
@@ -24,7 +24,7 @@ pub mod tests;
 pub mod vertex;
 pub mod vertexsetlike;
 
-use base::{Clique, CliqueConsumer};
+use clique::{Clique, CliqueConsumer};
 use graph::{UndirectedGraph, Vertex};
 use std::collections::BTreeSet;
 
