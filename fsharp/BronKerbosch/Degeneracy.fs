@@ -5,7 +5,7 @@ open System.Diagnostics
 module Degeneracy =
     // Enumerate connected vertices in degeneracy order, skipping vertices
     // whose neighbours have all been enumerated already.
-    let iter (graph: UndirectedGraph) : (Vertex * Set<Vertex>) seq =
+    let iter (graph: UndirectedGraph) : (Vertex * VertexSet) seq =
         seq {
             // Possible values of priorityPerVertex (after initialization):
             //   0: never queued because not connected (degree 0),
@@ -13,41 +13,43 @@ module Degeneracy =
             //      or no longer queued because all neighbours have been yielded
             //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
             let mutable priorityPerVertex: Priority array = Array.create graph.Order 0
-            let q = PriorityQueueWithDequeued.create graph.MaxDegree
-            let mutable left_to_pick = FortifiedCounter.create ()
+            let q = PriorityQueue.empty graph.MaxDegree
+            let mutable leftToPick = FortifiedCounter.empty ()
 
-            graph.ConnectedVertices()
-            |> Seq.iter (fun v ->
+            for v in graph.ConnectedVertices() do
                 match graph.degree v with
                 | 0 -> ()
                 | priority ->
                     priorityPerVertex[v.index] <- priority
-                    q.Push(v, priority)
-                    left_to_pick.Add v)
+                    q.Put(priority, v)
+                    leftToPick.Add v
 
-            while left_to_pick.count > 0 do
-                let pick = q.Pick()
-                let picked_earlier = q.dequeued
-                yield (pick, picked_earlier)
-                priorityPerVertex[pick.index] <- 0
-                q.Dequeue(pick)
-                left_to_pick.Remove pick
+            while leftToPick.count > 0 do
+                let pick =
+                    match q.Pop() with
+                    | None -> failwith "Cannot pop more than was put"
+                    | Some(p) -> p
 
-                graph.neighbours pick
-                |> Seq.iter (fun v ->
-                    match priorityPerVertex[v.index] with
-                    | 0 -> ()
-                    | old_priority ->
-                        Debug.Assert(q.IsQueued(v, old_priority))
-                        Debug.Assert(left_to_pick.Contains(v))
-                        let new_priority = old_priority - 1
-                        priorityPerVertex[v.index] <- new_priority
+                if priorityPerVertex[pick.index] > 0 then
+                    priorityPerVertex[pick.index] <- 0
+                    leftToPick.Remove pick
 
-                        if new_priority > 0 then
-                            // Requeue with a more urgent priority.
-                            q.Push(v, new_priority)
-                        else
-                            q.Dequeue v
-                            left_to_pick.Remove v)
+                    let mutable neighboursPicked = Set.empty
 
+                    for v in graph.neighbours pick do
+                        match priorityPerVertex[v.index] with
+                        | 0 -> neighboursPicked <- neighboursPicked.Add(v)
+                        | old_priority ->
+                            Debug.Assert(q.Contains(old_priority, v))
+                            Debug.Assert(leftToPick.Contains(v))
+                            let new_priority = old_priority - 1
+                            priorityPerVertex[v.index] <- new_priority
+
+                            if new_priority > 0 then
+                                // Requeue with a more urgent priority.
+                                q.Put(new_priority, v)
+                            else
+                                leftToPick.Remove v
+
+                    yield (pick, neighboursPicked)
         }

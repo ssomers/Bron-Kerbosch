@@ -6,7 +6,7 @@ open BronKerbosch
 let graph (adjacencies: int list array) : UndirectedGraph =
     let adjacencies =
         adjacencies
-        |> Array.map (fun neighbours -> neighbours |> Set.ofList |> Set.map Verticise.it)
+        |> Array.map (fun neighbours -> neighbours |> Seq.map Verticise.it |> Set.ofSeq)
 
     UndirectedGraph.ofAdjacencies adjacencies
 
@@ -31,9 +31,9 @@ let order1 () =
     Assert.That(g.Order, Is.EqualTo 1)
     Assert.That(g.Size, Is.EqualTo 0)
     Assert.That(g.MaxDegree, Is.EqualTo 0)
-    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>(seq { { index = 0 } }))
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>(seq { Vertex 0 }))
     Assert.That(g.ConnectedVertices(), Is.Empty)
-    Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(seq { { index = 0 } }))
+    Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(seq { Vertex 0 }))
 
 
 let graph_order2_isolated = graph [| []; [] |]
@@ -45,15 +45,7 @@ let order2_isolated () =
     Assert.That(g.Size, Is.EqualTo 0)
     Assert.That(g.MaxDegree, Is.EqualTo 0)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1 ] |> Seq.map Verticise.it))
 
     Assert.That(g.ConnectedVertices(), Is.Empty)
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))
@@ -68,15 +60,7 @@ let order2_connected () =
     Assert.That(g.Size, Is.EqualTo 1)
     Assert.That(g.MaxDegree, Is.EqualTo 1)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1 ] |> Seq.map Verticise.it))
 
     Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))
@@ -91,26 +75,9 @@ let order3_size1_left () =
     Assert.That(g.Size, Is.EqualTo 1)
     Assert.That(g.MaxDegree, Is.EqualTo 1)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1; 2 ] |> Seq.map Verticise.it))
 
-    Assert.That(
-        g.ConnectedVertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-            }
-        )
-    )
+    Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>([ 0; 1 ] |> Seq.map Verticise.it))
 
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.ConnectedVertices()))
 
@@ -124,26 +91,9 @@ let order3_size1_long () =
     Assert.That(g.Size, Is.EqualTo 1)
     Assert.That(g.MaxDegree, Is.EqualTo 1)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1; 2 ] |> Seq.map Verticise.it))
 
-    Assert.That(
-        g.ConnectedVertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>([ 0; 2 ] |> Seq.map Verticise.it))
 
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.ConnectedVertices()))
 
@@ -157,26 +107,9 @@ let order3_size1_right () =
     Assert.That(g.Size, Is.EqualTo 1)
     Assert.That(g.MaxDegree, Is.EqualTo 1)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1; 2 ] |> Seq.map Verticise.it))
 
-    Assert.That(
-        g.ConnectedVertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>([ 1; 2 ] |> Seq.map Verticise.it))
 
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.ConnectedVertices()))
 
@@ -190,19 +123,10 @@ let order3_size2 () =
     Assert.That(g.Size, Is.EqualTo 2)
     Assert.That(g.MaxDegree, Is.EqualTo 2)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1; 2 ] |> Seq.map Verticise.it))
 
     Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))
-    Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(seq { { index = 1 } }))
+    Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(seq { Vertex 1 }))
 
 
 let graph_order3_size3 = graph [| [ 1; 2 ]; [ 0; 2 ]; [ 0; 1 ] |]
@@ -214,16 +138,7 @@ let order3_size3 () =
     Assert.That(g.Size, Is.EqualTo 3)
     Assert.That(g.MaxDegree, Is.EqualTo 2)
 
-    Assert.That(
-        g.Vertices(),
-        Is.EqualTo<Vertex seq>(
-            seq {
-                { index = 0 }
-                { index = 1 }
-                { index = 2 }
-            }
-        )
-    )
+    Assert.That(g.Vertices(), Is.EqualTo<Vertex seq>([ 0; 1; 2 ] |> Seq.map Verticise.it))
 
     Assert.That(g.ConnectedVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))
     Assert.That(g.MaxDegreeVertices(), Is.EqualTo<Vertex seq>(g.Vertices()))

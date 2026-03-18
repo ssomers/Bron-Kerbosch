@@ -24,7 +24,7 @@ let sort (cliques: Clique list) : Clique list =
 
     let result =
         cliques
-        |> List.map (fun clique -> clique |> List.sort)
+        |> List.map (fun clique -> clique |> Array.sort)
         |> List.sortWith compare_cliques
 
     // Because of structural equality, need to check for duplicates again.

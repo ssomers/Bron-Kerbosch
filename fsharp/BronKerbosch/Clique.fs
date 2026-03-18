@@ -1,3 +1,3 @@
 namespace BronKerbosch
 
-type Clique = Vertex list
+type Clique = Vertex array

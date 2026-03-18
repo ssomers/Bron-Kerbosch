@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="PriorityQueueTest.fs" />
     <Compile Include="VertexSetTest.fs" />
     <Compile Include="UndirectedGraphTest.fs" />
     <Compile Include="DegeneracyTest.fs" />

@@ -1,6 +1,5 @@
 // Bron-Kerbosch algorithm with degeneracy ordering,
 // choosing a pivot from both candidates and excluded vertices (IK_GPX).
-
 module BronKerbosch3GPX
 
 open BronKerbosch

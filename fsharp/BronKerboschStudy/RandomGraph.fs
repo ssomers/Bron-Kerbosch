@@ -11,10 +11,9 @@ type KnownUndirectedGraph =
       clique_count: int }
 
 module RandomUndirectedGraph =
-    let ReadEdges (path: string, orderstr: string, size: int) : Set<Vertex> array =
+    let ReadEdges (path: string, orderstr: string, size: int) : VertexSet array =
         let order = NumbersGame.ParseInt(orderstr)
-        let adjacencies: Set<Vertex> array = Array.init order (fun _ -> Set.empty)
-        let mut lines_read = 0
+        let adjacencies = Array.create order Set.empty
 
         let lines_read =
             File.ReadLines(path)
@@ -29,19 +28,21 @@ module RandomUndirectedGraph =
                     with :? System.ArgumentException ->
                         raise (RandomComplaint($"File {path} line {lineindex + 1} contains bogus text {line}"))
 
-                adjacencies[v] <- adjacencies[v].Add({ index = w })
-                adjacencies[w] <- adjacencies[w].Add({ index = v })
+                adjacencies[v] <- adjacencies[v].Add(Vertex w)
+                adjacencies[w] <- adjacencies[w].Add(Vertex v)
                 lineindex + 1)
             |> Seq.last
 
         if lines_read = size then
+            Trace.Assert(Adjacencies.areSymmetrical (adjacencies))
+            Trace.Assert(Adjacencies.areLoopFree (adjacencies))
             adjacencies
         else
             raise (RandomComplaint($"Exhausted generated list of {lines_read} edges in {path}"))
 
 
     let ReadStats (path: string, orderstr: string, size: int, min_clique_size: int) : int =
-        assert(min_clique_size >= 2)
+        Trace.Assert(min_clique_size >= 2)
         let prefix = $"{orderstr}\t{size}\t"
 
         let line =
@@ -53,7 +54,7 @@ module RandomUndirectedGraph =
             with :? System.ArgumentException ->
                 raise (RandomComplaint($"File {path} lacks order {orderstr} size {size}"))
 
-        let value = line.Substring(prefix.Length).Split('\t')[min_clique_size-2]
+        let value = line.Substring(prefix.Length).Split('\t')[min_clique_size - 2]
 
         try
             int (value)

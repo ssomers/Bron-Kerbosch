@@ -2,32 +2,38 @@ namespace BronKerbosch
 
 open System.Diagnostics
 
+// 1 = top priority, 2 or more = lower priority
 type Priority = int
 
-type PriorityQueue< ^T> =
-    { stack_per_priority: ^T list array }
+type PriorityQueue<'T when 'T: equality> =
+    { stackPerPriority: 'T list array }
 
-    // If the same element is pushed again, its priority must be higher i.e. a lower value.
-    member this.Push(element: ^T, priority: Priority) =
+    member this.Contains(priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
-        this.stack_per_priority[priority - 1] <- element :: this.stack_per_priority[priority - 1]
+        this.stackPerPriority[priority - 1] |> List.contains element
 
-    // May pop an element already popped earlier, in case it was pushed again.
-    member this.Pop() : ^T option =
+
+    // Putting the same element again only makes sense if it is with a more urgent priority, i.e. closer to 1.
+    member this.Put(priority: Priority, element: 'T) =
+        Debug.Assert(priority > 0)
+        this.stackPerPriority[priority - 1] <- element :: this.stackPerPriority[priority - 1]
+
+    // May pop an element already popped earlier, in case it was put multiple times.
+    member this.Pop() : 'T option =
         match
-            this.stack_per_priority
+            this.stackPerPriority
             |> Array.indexed
-            |> Array.choose (fun (i: int, stack: ^T list) ->
+            |> Array.choose (fun (index: int, stack: 'T list) ->
                 match stack with
-                | head :: tail -> Some(i, head, tail)
+                | head :: tail -> Some(index, head, tail)
                 | [] -> None)
             |> Array.tryHead
         with
-        | Some(i, head, tail) ->
-            this.stack_per_priority[i] <- tail
+        | Some(index, head, tail) ->
+            this.stackPerPriority[index] <- tail
             Some(head)
         | None -> None
 
 module PriorityQueue =
-    let create<'T> (maxPriority: int) : PriorityQueue<'T> =
-        { stack_per_priority = Array.create maxPriority [] }
+    let empty<'T when 'T: equality> (maxPriority: int) : PriorityQueue<'T> =
+        { stackPerPriority = Array.create maxPriority [] }

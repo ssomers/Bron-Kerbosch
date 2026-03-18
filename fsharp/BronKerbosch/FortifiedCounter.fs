@@ -14,7 +14,7 @@ type FortifiedCounter<'T when 'T: equality> =
 #if DEBUG
         this.count = this.individuals.Length
 #else
-        true
+        failwith "debug build only, please"
 #endif
 
     member this.Contains(element: 'T) =
@@ -25,25 +25,25 @@ type FortifiedCounter<'T when 'T: equality> =
 #endif
 
     member this.Add(element: 'T) =
-        assert this.invariant
+        Debug.Assert this.invariant
         this.count <- this.count + 1
 #if DEBUG
-        assert not (this.individuals |> List.contains element)
+        Debug.Assert(not (this.Contains element))
         this.individuals <- element :: this.individuals
 #endif
-        assert this.invariant
+        Debug.Assert this.invariant
 
     member this.Remove(element: 'T) =
-        assert this.invariant
+        Debug.Assert this.invariant
         this.count <- this.count - 1
 #if DEBUG
-        assert (this.Contains element)
+        Debug.Assert(this.Contains element)
         this.individuals <- this.individuals |> List.except [ element ]
 #endif
-        assert this.invariant
+        Debug.Assert this.invariant
 
 module FortifiedCounter =
-    let create () : FortifiedCounter<'T> =
+    let empty () : FortifiedCounter<'T> =
         { count = 0
 #if DEBUG
           individuals = []

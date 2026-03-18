@@ -1,11 +1,7 @@
 namespace BronKerbosch
 
-type public CliqueConsumer = 
+type public CliqueConsumer =
     { MinSize: int
-      Receiver: Clique -> Unit
-    }
+      Receiver: Clique -> Unit }
 
-    member inline this.accept(clique: Clique) : Unit =
-        this.Receiver clique
-
-
+    member inline this.accept(clique: Clique) : Unit = this.Receiver clique

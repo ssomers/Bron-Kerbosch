@@ -58,19 +58,19 @@ let order4_size2 () =
 let order4_size3_bus () =
     let g = graph_order4_size3_bus
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 3)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| { index = 0 }; { index = 3 } |])
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| Vertex 0; Vertex 3 |])
 
 [<Test>]
 let order4_size3_star () =
     let g = graph_order4_size3_star
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 3)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.Not.EqualTo { index = 0 })
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.Not.EqualTo(Vertex 0))
 
 [<Test>]
 let order4_size4_p () =
     let g = graph_order4_size4_p
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 3)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.EqualTo { index = 0 })
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.EqualTo(Vertex 0))
 
 [<Test>]
 let order4_size4_square () =
@@ -81,7 +81,7 @@ let order4_size4_square () =
 let order4_size5 () =
     let g = graph_order4_size5
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 3)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| { index = 1 }; { index = 3 } |])
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| Vertex 1; Vertex 3 |])
 
 [<Test>]
 let order5_size6_penultimate () =
@@ -92,10 +92,10 @@ let order5_size6_penultimate () =
 let sample () =
     let g = graph_sample
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 6)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| { index = 6 }; { index = 7 } |])
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| Vertex 6; Vertex 7 |])
 
 [<Test>]
 let bigger () =
     let g = graph_bigger
     Assert.That(Degeneracy.iter g |> Seq.length, Is.EqualTo 9)
-    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| { index = 5 }; { index = 8 } |])
+    Assert.That(Degeneracy.iter g |> Seq.map (fun (v, _) -> v) |> Seq.head, Is.AnyOf [| Vertex 5; Vertex 8 |])

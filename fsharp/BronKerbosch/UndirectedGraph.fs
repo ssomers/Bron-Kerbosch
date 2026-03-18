@@ -2,31 +2,33 @@ namespace BronKerbosch
 
 open System.Diagnostics
 
-[<AutoOpen>]
 module Adjacencies =
-    let public areSymmetrical (adjacencies: Set<Vertex> array) : bool =
-        let isSymmetric ((v, neighbours): Vertex * Set<Vertex>) : bool =
+    let adjacency_vertices (adjacencies: VertexSet array) : (Vertex * VertexSet) seq =
+        adjacencies |> Seq.indexed |> Seq.map Verticise.first
+
+    let public areSymmetrical (adjacencies: VertexSet array) : bool =
+        let isSymmetric ((v, neighbours): Vertex * VertexSet) : bool =
             neighbours |> Set.forall adjacencies[v.index].Contains
 
-        adjacencies |> Array.indexed |> Array.map Verticise.first |> Array.forall isSymmetric
+        adjacency_vertices adjacencies |> Seq.forall isSymmetric
 
-    let public areLoopFree (adjacencies: Set<Vertex> array) : bool =
-        let isLoopFree ((v, neighbours): Vertex * Set<Vertex>) : bool = not (neighbours.Contains(v))
+    let public areLoopFree (adjacencies: VertexSet array) : bool =
+        let isLoopFree ((v, neighbours): Vertex * VertexSet) : bool = not (neighbours.Contains(v))
 
-        adjacencies |> Array.indexed |> Array.map Verticise.first |> Array.forall isLoopFree
+        adjacency_vertices adjacencies |> Seq.forall isLoopFree
 
 type public UndirectedGraph =
-    { Adjacencies: Set<Vertex> array
+    { Adjacencies: VertexSet array
       Size: int
       MaxDegree: int }
 
     member this.Order = this.Adjacencies.Length
-    member inline this.neighbours(v: Vertex) : Set<Vertex> = this.Adjacencies[v.index]
+    member inline this.neighbours(v: Vertex) : VertexSet = this.Adjacencies[v.index]
     member inline this.hasNeighbours(v: Vertex) : bool = not this.Adjacencies[v.index].IsEmpty
     member inline this.degree(v: Vertex) : int = this.Adjacencies[v.index].Count
 
     member inline this.Vertices() : Vertex seq =
-        seq { 0 .. this.Adjacencies.Length - 1 } |> Seq.map (fun i -> { index = i })
+        seq { 0 .. this.Adjacencies.Length - 1 } |> Seq.map Verticise.it
 
     member inline this.ConnectedVertices() : Vertex seq =
         this.Vertices() |> Seq.filter this.hasNeighbours
@@ -34,8 +36,7 @@ type public UndirectedGraph =
     member inline this.MaxDegreeVertices() : Vertex seq =
         this.Vertices() |> Seq.filter (fun v -> this.degree (v) = this.MaxDegree)
 
-module UndirectedGraph =
-    let public ofAdjacencies (adjacencies: Set<Vertex> array) : UndirectedGraph =
+    static member inline ofAdjacencies(adjacencies: VertexSet array) : UndirectedGraph =
         Debug.Assert(Adjacencies.areSymmetrical (adjacencies))
         Debug.Assert(Adjacencies.areLoopFree (adjacencies))
 
@@ -45,7 +46,7 @@ module UndirectedGraph =
         let max_degree =
             match adjacencies with
             | [||] -> 0
-            | some -> some |> Array.maxBy Set.count |> Set.count
+            | some -> (some |> Array.maxBy Set.count).Count
 
         { Adjacencies = adjacencies
           Size = total_degree / 2

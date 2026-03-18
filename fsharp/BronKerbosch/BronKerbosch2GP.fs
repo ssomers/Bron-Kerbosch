@@ -1,5 +1,4 @@
 // Bron-Kerbosch algorithm with pivot of highest degree (IK_GP)
-
 module BronKerbosch2GP
 
 open BronKerbosch

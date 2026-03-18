@@ -2,17 +2,29 @@ open BronKerbosch
 open BronKerboschStudy
 open System.Diagnostics
 
-let sizes100 = seq { 2_000..50..2_800 } // max 4_950
+let sizes100 = seq { 2_000..50..2_700 } // max 4_950
 
-let sizes10k = seq { 10_000..10_000..100_000 }
+let sizes10k =
+    [ seq { 10_000..10_000..90_000 }; seq { 100_000..25_000..125_000 } ]
+    |> Seq.concat
 
 let sizes1M =
-    [ seq { 2_000..2_000..8_000 }; seq { 10_000..10_000..30_000 } ]
+    [ seq { 2_000..2_000..18_000 }
+      seq { 20_000..10_000..40_000 }
+      seq { 50_000..50_000..200_000 }
+      seq { 250_000..250_000..2_000_000 } ]
     |> Seq.concat
 
 let algos100 = fun _ -> Portfolio.all_algos
+
 let algos10k = fun _ -> Portfolio.all_algos |> List.skip 1
-let algos1M = fun _ -> Portfolio.all_algos |> List.skip 1
+
+let algos1M =
+    fun size ->
+        if size <= 20_000 then
+            [ BronKerbosch2GP.algorithm; BronKerbosch3GP.algorithm ]
+        else
+            [ BronKerbosch3GP.algorithm ]
 
 BronKerboschStudy.Bk(BronKerboschStudy.WarmUp, "100", [ 2000 ], algos100, 3) // warm up
 System.Threading.Thread.Sleep(321)

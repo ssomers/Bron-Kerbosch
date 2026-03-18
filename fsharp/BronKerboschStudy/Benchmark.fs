@@ -5,6 +5,7 @@ open BronKerboschStudy
 open System
 open System.Diagnostics
 open System.IO
+open System.Threading
 
 exception InvalidResult of string
 
@@ -26,7 +27,7 @@ module BronKerboschStudy =
     let BronKerboschTimed
         (run: Run, orderstr: string, size: int, timed_algos: TimedAlgorithm array, timing_samples: int)
         =
-        //let warning_interval = 3000
+        let warning_interval = 3000
         let sw = Stopwatch.StartNew()
         let graph = RandomUndirectedGraph.Read(orderstr, size, MIN_CLIQUE_SIZE)
         sw.Stop()
@@ -44,25 +45,27 @@ module BronKerboschStudy =
             timed_algos
             |> Seq.iter (fun timed_algo ->
                 if sample = 0 then
-                    (*
-                    let mutable int warnings = 0;
-                    let ticker = new Timer((_) =>
-                    {
-                        warnings += 1;
-                        int secs = warnings * warning_interval / 1000;
-                        Console.WriteLine($"  {secs} seconds in, {Portfolio.FuncNames[funcIndex]} is still busy collecting");
-                    }, null, warning_interval, warning_interval);
-                    *)
                     let mutable cliques = List.empty
 
                     let consumer =
                         { MinSize = MIN_CLIQUE_SIZE
                           Receiver = fun clique -> cliques <- clique :: cliques }
 
+                    let cts = new CancellationTokenSource()
+
+                    let ticker =
+                        async {
+                            for warnings in 1..99 do
+                                do! Async.Sleep warning_interval
+                                let secs = warnings * warning_interval / 1000
+                                printfn $"  {secs} seconds in, {timed_algo.algo.name} is still busy collecting"
+                        }
+
+                    Async.StartImmediate(ticker, cts.Token)
+
                     timed_algo.algo.exec graph.graph consumer
-                    (*
-                    ticker.Dispose()
-                    *)
+                    cts.Cancel()
+
                     if cliques.Length <> graph.clique_count then
                         raise (InvalidResult($"Expected {graph.clique_count} cliques, got {cliques.Length}"))
 

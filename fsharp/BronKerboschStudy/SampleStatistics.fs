@@ -1,14 +1,14 @@
 namespace BronKerboschStudy
 
-type public SampleStatistics< ^T
-    when ^T: unmanaged
-    and ^T: comparison
-    and ^T: (static member op_Explicit: ^T -> float)
-    and ^T: (static member (-): ^T * ^T -> ^T)> =
+type public SampleStatistics<'T
+    when 'T: unmanaged
+    and 'T: comparison
+    and 'T: (static member op_Explicit: 'T -> float)
+    and 'T: (static member (-): 'T * 'T -> 'T)> =
 
     { Count: int
-      Max: ^T
-      Min: ^T
+      Max: 'T
+      Min: 'T
       Sum: float
       SumOfSquares: float }
 
@@ -36,15 +36,14 @@ type public SampleStatistics< ^T
           Sum = this.Sum + float v
           SumOfSquares = this.SumOfSquares + float v ** 2 }
 
-module SampleStatistics =
-    let inline New (v: 'T) : SampleStatistics<'T> =
+    static member inline New(v: 'T) : SampleStatistics<'T> =
         { Count = 1
           Max = v
           Min = v
           Sum = float v
           SumOfSquares = float v ** 2 }
 
-    let inline NewOrAdd (v: 'T, previous: SampleStatistics<'T> option) : SampleStatistics<'T> =
+    static member inline NewOrAdd(v: 'T, previous: SampleStatistics<'T> option) : SampleStatistics<'T> =
         match previous with
-        | None -> New(v)
+        | None -> SampleStatistics.New(v)
         | Some samples -> samples.Add(v)
