@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 // Counts the coming and going of elements and, in debug build only, checks their identity.
 pub struct FortifiedCounter<T> {
     phantom: PhantomData<T>,
-    count: usize,
+    counter: usize,
     #[cfg(debug_assertions)]
     individuals: Vec<T>, // set-like, but don't force trait Hash or Ord on T here
 }
@@ -14,52 +14,52 @@ where
 {
     fn invariant(&self) {
         #[cfg(debug_assertions)]
-        assert_eq!(self.count, self.individuals.len());
+        assert_eq!(self.counter, self.individuals.len());
     }
 
     pub fn new() -> Self {
         Self {
             phantom: PhantomData,
-            count: 0,
+            counter: 0,
             #[cfg(debug_assertions)]
             individuals: vec![],
         }
     }
 
-    pub fn empty(&self) -> bool {
+    pub fn count(&self) -> usize {
         self.invariant();
-        self.count == 0
+        self.counter
     }
 
-    pub fn contains(&self, element: &T) -> bool {
-        self.occurrences(element) == 1
-    }
-
-    pub fn add(&mut self, element: &T) {
-        debug_assert_eq!(self.occurrences(element), 0);
-        self.invariant();
-        self.count += 1;
-        #[cfg(debug_assertions)]
-        self.individuals.push(*element);
-        self.invariant();
-    }
-
-    pub fn remove(&mut self, element: &T) {
-        debug_assert_eq!(self.occurrences(element), 1);
-        self.invariant();
-        self.count -= 1;
-        #[cfg(debug_assertions)]
-        self.individuals.retain(|e| *e != *element);
-        self.invariant();
-    }
-
-    fn occurrences(&self, element: &T) -> usize {
+    pub fn contains(&self, element: T) -> bool {
         #[cfg(not(debug_assertions))]
         {
             _ = element;
             unreachable!("debug_assert only, please");
         }
         #[cfg(debug_assertions)]
-        self.individuals.iter().filter(|&e| *e == *element).count()
+        match self.individuals.iter().filter(|&e| *e == element).count() {
+            0 => false,
+            1 => true,
+            _ => unreachable!("duplicate individual"),
+        }
+    }
+
+    pub fn add(&mut self, element: T) {
+        debug_assert!(!self.contains(element));
+        self.invariant();
+        self.counter += 1;
+        #[cfg(debug_assertions)]
+        self.individuals.push(element);
+        self.invariant();
+    }
+
+    pub fn remove(&mut self, element: T) {
+        debug_assert!(self.contains(element));
+        self.invariant();
+        self.counter -= 1;
+        #[cfg(debug_assertions)]
+        self.individuals.retain(|e| *e != element);
+        self.invariant();
     }
 }

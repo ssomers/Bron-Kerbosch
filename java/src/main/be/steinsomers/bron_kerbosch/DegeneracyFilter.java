@@ -22,41 +22,54 @@ final class DegeneracyFilter implements PrimitiveIterator.OfInt {
     private final int[] priority_per_vertex;
     @SuppressWarnings("UseOfConcreteClass")
     private final SimplePriorityQueue<Integer> queue;
+    private int num_left_to_pick;
 
     DegeneracyFilter(final UndirectedGraph graph) {
         this.graph = graph;
         final var order = graph.order();
-        queue = new SimplePriorityQueue<>(graph.max_degree());
         priority_per_vertex = new int[order];
-        for (int v = 0; v < order; ++v) {
-            final var priority = graph.degree(v);
-            priority_per_vertex[v] = priority;
-            queue.insert(v, priority);
+        queue = new SimplePriorityQueue<>(graph.max_degree());
+        for (int candidate = 0; candidate < order; ++candidate) {
+            final var priority = graph.degree(candidate);
+            if (priority > 0) {
+                priority_per_vertex[candidate] = priority;
+                queue.put(priority, candidate);
+                num_left_to_pick += 1;
+            }
         }
     }
 
     @Override
     public boolean hasNext() {
-        return !queue.empty();
+        return num_left_to_pick > 0;
     }
 
     @Override
     public int nextInt() {
         assert hasNext();
         assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> queue.contains(priority_per_vertex[v], v));
-        while (hasNext()) {
+        while (num_left_to_pick > 0) {
             var pick = queue.pop();
             if (priority_per_vertex[pick] > 0) {
                 priority_per_vertex[pick] = 0;
-                queue.forget(pick);
                 for (final var v : graph.neighbours(pick)) {
                     final var oldPriority = priority_per_vertex[v];
                     if (oldPriority != 0) {
+                        // Requeue with a more urgent priority or dequeue.
+                        // Don't bother to remove the original entry from the queue,
+                        // since the vertex will be skipped when popped, and thanks to
+                        // num_left_to_pick we might not need to pop it at all.
                         final var newPriority = oldPriority - 1;
                         priority_per_vertex[v] = newPriority;
-                        queue.promote(v, newPriority);
+                        if (newPriority != 0) {
+                            queue.put(newPriority, v);
+                        } else {
+                            num_left_to_pick -= 1;
+                        }
                     }
                 }
+                num_left_to_pick -= 1;
+                assert num_left_to_pick >= 0;
                 return pick;
             }
         }
@@ -65,48 +78,20 @@ final class DegeneracyFilter implements PrimitiveIterator.OfInt {
 
     private static final class SimplePriorityQueue<T> {
         private final List<ArrayList<T>> stack_per_priority;
-        private int num_left_to_pick;
 
         SimplePriorityQueue(final int maxPriority) {
             stack_per_priority = Stream
                     .generate((Supplier<ArrayList<T>>) ArrayList::new)
                     .limit(maxPriority)
                     .collect(Collectors.toCollection(ArrayList::new));
-            num_left_to_pick = 0;
         }
 
-        boolean empty() {
-            return num_left_to_pick == 0;
+        void put(final int priority, final T elt) {
+            assert priority > 0;
+            final var stack = stack_per_priority.get(priority - 1);
+            stack.add(elt);
         }
 
-        void insert(final T elt, final int priority) {
-            if (priority > 0) {
-                stack_per_priority.get(priority - 1).add(elt);
-                num_left_to_pick += 1;
-            }
-        }
-
-        // Requeue with a more urgent priority or dequeue.
-        // Don't bother to remove the original entry from the queue,
-        // since the vertex will be skipped when popped, and thanks to
-        // num_left_to_pick we might not need to pop it at all.
-        void promote(final T elt, final int priority) {
-            if (priority > 0) {
-                stack_per_priority.get(priority - 1).add(elt);
-            } else {
-                forget(elt);
-            }
-        }
-
-        void forget(final T ignoredElt) {
-            assert num_left_to_pick > 0;
-            num_left_to_pick -= 1;
-        }
-
-        // We may return an element already popped, even though it was passed to forget,
-        // in case its priority was promoted earlier on. That's why we do not count 
-        // the element as picked, but wait for the caller to forget it. The caller must
-        // somehow ensure to forget the same element only once.
         T pop() {
             for (final var stack : stack_per_priority) {
                 if (!stack.isEmpty()) {

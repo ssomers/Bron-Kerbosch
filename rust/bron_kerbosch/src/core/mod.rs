@@ -18,6 +18,7 @@ pub mod graph;
 pub(super) mod graph_degeneracy;
 pub mod graphfactory;
 mod pile;
+mod priority_queue;
 pub mod slimgraphfactory;
 #[cfg(test)]
 pub mod tests;

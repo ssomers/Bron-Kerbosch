@@ -1,5 +1,7 @@
 use super::fortified_counter::FortifiedCounter;
-use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike, vertices};
+use super::priority_queue::Priority;
+use super::priority_queue::PriorityQueue;
 use std::iter::FusedIterator;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
@@ -8,15 +10,14 @@ pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
 where
     Graph: UndirectedGraph,
 {
-    let order = graph.order();
-    let mut priority_per_vertex = VertexMap::new(None, order);
+    let mut priority_per_vertex = VertexMap::new(None, graph.order());
     let mut queue = PriorityQueue::new(graph.max_degree());
-    for i in 0..order {
-        let v = Vertex::new(i);
-        let degree = graph.degree(v);
-        if let Some(priority) = Priority::new(degree) {
+    let mut left_to_pick = FortifiedCounter::new();
+    for v in vertices(graph) {
+        if let Some(priority) = Priority::new(graph.degree(v)) {
             priority_per_vertex[v] = Some(priority);
-            queue.insert(v, priority);
+            queue.put(v, priority);
+            left_to_pick.add(v);
         }
     }
 
@@ -24,73 +25,7 @@ where
         graph,
         priority_per_vertex,
         queue,
-    }
-}
-
-type Priority = std::num::NonZero<usize>; // = degree - #of yielded neighbours
-
-struct PriorityQueue<T> {
-    stack_per_priority: Vec<Vec<T>>,
-    elements: FortifiedCounter<T>,
-}
-
-impl<T> PriorityQueue<T>
-where
-    T: Copy + Eq,
-{
-    fn new(max_priority: usize) -> Self {
-        PriorityQueue {
-            stack_per_priority: vec![vec![]; max_priority],
-            elements: FortifiedCounter::new(),
-        }
-    }
-
-    fn empty(&self) -> bool {
-        self.elements.empty()
-    }
-
-    fn insert(&mut self, element: T, priority: Priority) {
-        self.elements.add(&element);
-        self.stack_per_priority[priority.get() - 1].push(element);
-    }
-
-    // Requeue with a more urgent priority or dequeue.
-    // Don't bother to remove the original entry from the queue,
-    // since the vertex will be skipped when popped, and thanks to
-    // elements.count we might not need to pop it at all.
-    fn promote(&mut self, element: T, old_priority: Priority) -> Option<Priority> {
-        debug_assert!(self.elements.contains(&element));
-        let new_priority = Priority::new(old_priority.get() - 1);
-        if let Some(p) = new_priority {
-            self.stack_per_priority[p.get() - 1].push(element);
-        } else {
-            self.forget(element);
-        }
-        new_priority
-    }
-
-    // We may return an element already popped, even though it was passed to Forget,
-    // in case its priority was promoted earlier on. That's why we do not count
-    // the element as picked, but wait for the caller to Forget it. The caller must
-    // somehow ensure to Forget the same element only once.
-    fn pop(&mut self) -> Option<T> {
-        for stack in &mut self.stack_per_priority {
-            if let Some(element) = stack.pop() {
-                return Some(element);
-            }
-        }
-        None
-    }
-
-    fn forget(&mut self, element: T) {
-        self.elements.remove(&element);
-    }
-
-    fn contains(&self, priority: Priority, element: T) -> bool {
-        if !(cfg!(debug_assertions)) {
-            panic!("not suitable for use in release code")
-        }
-        self.stack_per_priority[priority.get() - 1].contains(&element)
+        left_to_pick,
     }
 }
 
@@ -102,23 +37,35 @@ pub struct DegeneracyOrderIter<'a, Graph> {
     // - was already picked itself;
     // - had all its neighbours picked.
     queue: PriorityQueue<Vertex>,
+    left_to_pick: FortifiedCounter<Vertex>,
 }
 
-impl<Graph> DegeneracyOrderIter<'_, Graph> {
+impl<VertexSet, Graph> DegeneracyOrderIter<'_, Graph>
+where
+    VertexSet: VertexSetLike,
+    Graph: UndirectedGraph<VertexSet = VertexSet>,
+{
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
             .iter()
             .all(|(v, &priority)| match priority {
-                None => true,
-                Some(priority) => self.queue.contains(priority, v),
+                None => !self.left_to_pick.contains(v),
+                Some(priority) => self.queue.contains(v, priority) && self.left_to_pick.contains(v),
             })
     }
 
-    fn reassess<VertexSet: VertexSetLike>(&mut self, neighbours: &VertexSet) {
-        neighbours.for_each(|v| {
+    fn adjust_neighbours(&mut self, pick: Vertex) {
+        self.graph.neighbours(pick).for_each(|v| {
             if let Some(old_priority) = self.priority_per_vertex[v] {
-                let new_priority = self.queue.promote(v, old_priority);
+                debug_assert!(self.queue.contains(v, old_priority));
+                debug_assert!(self.left_to_pick.contains(v));
+                let new_priority = Priority::new(old_priority.get() - 1);
                 self.priority_per_vertex[v] = new_priority;
+                if let Some(new_priority) = new_priority {
+                    self.queue.put(v, new_priority);
+                } else {
+                    self.left_to_pick.remove(v);
+                }
             }
         });
     }
@@ -132,13 +79,12 @@ where
     type Item = Vertex;
 
     fn next(&mut self) -> Option<Vertex> {
-        while !self.queue.empty() {
+        while self.left_to_pick.count() > 0 {
             debug_assert!(self.is_consistent());
-            let pick = self.queue.pop().expect("Cannot pop more than has been put");
-            if self.priority_per_vertex[pick].is_some() {
-                self.priority_per_vertex[pick] = None;
-                self.queue.forget(pick);
-                self.reassess(self.graph.neighbours(pick));
+            let pick = self.queue.pop().expect("Cannot pop more than was pushed");
+            if self.priority_per_vertex[pick].take().is_some() {
+                self.left_to_pick.remove(pick);
+                self.adjust_neighbours(pick);
                 return Some(pick);
             }
         }

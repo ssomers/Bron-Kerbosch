@@ -15,45 +15,17 @@ namespace BronKerbosch {
         template <typename T>
         struct PriorityQueue {
             std::vector<std::vector<T>> stack_per_priority;
-            size_t num_left_to_pick = 0;
 
           public:
-            explicit PriorityQueue(Priority max_priority)
-                : stack_per_priority(max_priority), num_left_to_pick(0) {
+            explicit PriorityQueue(Priority max_priority) : stack_per_priority(max_priority) {
             }
 
-            bool empty() const {
-                return num_left_to_pick == 0;
-            }
-
-            void insert(T element, Priority priority) {
+            void put(T element, Priority priority) {
                 if (priority > 0) {
                     stack_per_priority[priority - 1].push_back(element);
-                    num_left_to_pick += 1;
                 }
             }
 
-            // Requeue with a more urgent priority or dequeue.
-            // Don't bother to remove the original entry from the queue,
-            // since the vertex will be skipped when popped, and thanks to
-            // num_left_to_pick we might not need to pop it at all.
-            void promote(T element, Priority priority) {
-                if (priority > 0) {
-                    stack_per_priority[priority - 1].push_back(element);
-                } else {
-                    forget(element);
-                }
-            }
-
-            void forget(T) {
-                assert(num_left_to_pick > 0);
-                num_left_to_pick -= 1;
-            }
-
-            // We may return an element already popped, even though it was passed to forget,
-            // in case its priority was promoted earlier on. That's why we do not count
-            // the element as picked, but wait for the caller to Forget it. The caller must
-            // somehow ensure to Forget the same element only once.
             T pop() {
                 for (auto& stack : stack_per_priority) {
                     if (!stack.empty()) {
@@ -83,14 +55,21 @@ namespace BronKerbosch {
         //   1..maxPriority: candidates queued with priority (degree - #of yielded neighbours)
         std::vector<Priority> priority_per_vertex;
         PriorityQueue<Vertex> queue;
+        size_t num_left_to_pick;
 
       public:
         explicit DegeneracyIter(UndirectedGraph<VertexSet> const& graph)
-            : graph(graph), priority_per_vertex(graph.order(), 0), queue(graph.max_degree()) {
+            : graph(graph),
+              priority_per_vertex(graph.order(), 0),
+              queue(graph.max_degree()),
+              num_left_to_pick(0) {
             for (Vertex v : graph.vertices()) {
-                auto degree = graph.degree(v);
-                priority_per_vertex[v.index()] = degree;
-                queue.insert(v, degree);
+                auto priority = graph.degree(v);
+                if (priority > 0) {
+                    priority_per_vertex[v.index()] = priority;
+                    queue.put(v, priority);
+                    num_left_to_pick += 1;
+                }
             }
         }
 
@@ -106,7 +85,7 @@ namespace BronKerbosch {
         }
 
         bool has_next() const {
-            return !queue.empty();
+            return num_left_to_pick != 0;
         }
 
         std::optional<Vertex> next() {
@@ -115,12 +94,13 @@ namespace BronKerbosch {
                 Priority& picked_priority = priority_per_vertex[pick.index()];
                 if (picked_priority > 0) {
                     picked_priority = 0;
-                    queue.forget(pick);
                     reassess(graph.neighbours(pick));
+                    assert(num_left_to_pick > 0);
+                    num_left_to_pick -= 1;
                     return std::make_optional(pick);
                 }
             }
-            return std::optional<Vertex>{};
+            return std::nullopt;
         }
 
       private:
@@ -128,8 +108,17 @@ namespace BronKerbosch {
             for (Vertex v : neighbours) {
                 Priority& priority = priority_per_vertex[v.index()];
                 if (priority > 0) {
+                    // Requeue with a more urgent priority or dequeue.
+                    // Don't bother to remove the original entry from the queue,
+                    // since the vertex will be skipped when popped, and thanks to
+                    // num_left_to_pick we might not need to pop it at all.
                     priority -= 1;
-                    queue.promote(v, priority);
+                    if (priority > 0) {
+                        queue.put(v, priority);
+                    } else {
+                        assert(num_left_to_pick > 0);
+                        num_left_to_pick -= 1;
+                    }
                 }
             }
         }
