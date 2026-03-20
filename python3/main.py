@@ -383,10 +383,7 @@ if __name__ == "__main__":
         time.sleep(7)
         bk(
             orderstr="1M",
-            sizes=itertools.chain(
-                range(500_000, 2_000_000, 250_000),
-                range(2_000_000, 3_000_001, 1_000_000),
-            ),
+            sizes=range(500_000, 2_000_001, 250_000),
             func_indices=mt_func_indices,
             timed_samples=3,
         )

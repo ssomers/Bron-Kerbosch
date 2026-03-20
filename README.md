@@ -12,7 +12,7 @@ This project originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/
 * (hopefully) clarified and statically typed;
 * extended with variations on the algorithms;
 * extended with unit tests, property based testing, and this performance test on random graphs;
-* done over in Rust, C#, Java, Kotlin, Go, and C++;
+* done over in Rust, C#, F#, Java, Kotlin, Go, and C++;
 * with alternatives exploiting parallelism;
 * since March 2026, ignoring maximal 2-cliques, i.e. lone edges, in addition to the original project
   that ignored other trivial maximal cliques: maximal 1-cliques (unconnected vertices)
@@ -52,7 +52,7 @@ naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimizatio
 In particular:
   - In the (many) deepest iterations, when we see the intersection of candidates is empty, don't
     calculate all the nearby excluded vertices, just check if that set is empty or not.
-  - We implement intersection with performance in mind, unlike what the standard library of most
+  - We implement intersection with performance in mind, unlike what the standard libraries of most
     programming languages offer.
   - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap.
     Basically showing off Rust's ability to guarantee, at compile time, this can be done safely.
@@ -316,7 +316,21 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_csharp_1M.svg)
 
 Perform:
-  - open csharp\BronKerboschStudy.sln with Visual Studio 2022
+  - open csharp\BronKerboschStudy.sln with Visual Studio 2026
+  - (if edited) set configuration to Debug
+  - (if edited) Test > Run > All Tests
+  - set configuration to Release
+  - Debug > Start Without Debugging
+
+
+## F#
+To obtain these results:
+  - [dense graph of order 100](doc/details_fsharp_100.svg)
+  - [plain graph of order 10k](doc/details_fsharp_10k.svg)
+  - [sparse graph of order 1M](doc/details_fsharp_1M.svg)
+
+Perform:
+  - open fsharp\BronKerbosch.slnx with Visual Studio 2026
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
   - set configuration to Release

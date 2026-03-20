@@ -572,6 +572,7 @@ def publish_reports() -> None:
             orderstr=orderstr,
             langlibs=[
                 LangLib(Language.python314),
+                LangLib(Language.fsharp),
                 LangLib(Language.kotlin),
                 LangLib(Language.go),
                 LangLib(Language.java),
