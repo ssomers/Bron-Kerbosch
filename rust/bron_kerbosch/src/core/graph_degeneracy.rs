@@ -18,7 +18,7 @@ where
         if let Some(priority) = Priority::new(graph.degree(v)) {
             left_to_pick.add(v);
             priority_per_vertex[v] = Some(priority);
-            queue.put(v, priority);
+            queue.put(priority, v);
         }
     }
 
@@ -51,7 +51,7 @@ where
             .iter()
             .all(|(v, &priority)| match priority {
                 None => !self.left_to_pick.contains(v),
-                Some(priority) => self.left_to_pick.contains(v) && self.queue.contains(v, priority),
+                Some(priority) => self.left_to_pick.contains(v) && self.queue.contains(priority, v),
             })
     }
 
@@ -60,11 +60,15 @@ where
         self.graph.neighbours(pick).for_each(|v| {
             if let Some(old_priority) = self.priority_per_vertex[v] {
                 debug_assert!(self.left_to_pick.contains(v));
-                debug_assert!(self.queue.contains(v, old_priority));
+                debug_assert!(self.queue.contains(old_priority, v));
                 let new_priority = Priority::new(old_priority.get() - 1);
+                // Because either the new priority takes precedence or the vertex is dequeued,
+                // we don't need to find and remove the original entry in the queue.
+                // We'll just skip the vertex when the old entry gets popped, and thanks to
+                // left_to_pick, we might not even get to popping it at all.
                 self.priority_per_vertex[v] = new_priority;
                 if let Some(new_priority) = new_priority {
-                    self.queue.put(v, new_priority);
+                    self.queue.put(new_priority, v);
                 } else {
                     self.left_to_pick.remove(v);
                 }

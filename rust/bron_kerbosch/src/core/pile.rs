@@ -20,13 +20,6 @@ where
         layers: None,
     };
 
-    fn push_to(&self, result: &mut Vec<T>) {
-        if let Some(layers) = &self.layers {
-            layers.lower.push_to(result);
-            result.push(layers.top.clone());
-        }
-    }
-
     /// Create a pile containing one element.
     pub fn from(t: T) -> Self {
         Pile::EMPTY.pile(t)
@@ -40,13 +33,18 @@ where
         }
     }
 
-    /// Clone contained elements into a vector, in the order they were piled up.
-    /// Take ownership because we collect right after piling up the last vertex.
-    pub fn collect(self) -> Vec<T> {
-        let mut result: Vec<T> = Vec::with_capacity(self.height);
-        self.push_to(&mut result);
-        debug_assert_eq!(result.len(), self.height);
-        result
+    /// Clone contained elements into a vector, with the top element first.
+    pub fn collect(&self) -> Vec<T> {
+        if let Some(mut layer) = self.layers.as_ref() {
+            let mut result = vec![layer.top.clone(); self.height];
+            for item in result.iter_mut().skip(1) {
+                layer = layer.lower.layers.as_ref().unwrap();
+                *item = layer.top.clone();
+            }
+            result
+        } else {
+            vec![]
+        }
     }
 }
 
@@ -59,8 +57,13 @@ mod tests {
         let p1 = Pile::from(4);
         {
             let p2 = p1.pile(2);
-            assert_eq!(p2.collect(), vec![4, 2]);
+            assert_eq!(p2.collect(), vec![2, 4]);
         }
         assert_eq!(p1.collect(), vec![4]);
+    }
+
+    #[test]
+    fn empty_pile() {
+        assert_eq!(Pile::<bool>::EMPTY.collect(), vec![]);
     }
 }

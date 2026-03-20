@@ -2,8 +2,8 @@ mod known_random_graph;
 mod utils;
 
 use bron_kerbosch::{
-    CliqueHarvester, FUNC_NAMES, OrderedCliques, SlimUndirectedGraphFactory, Vertex, VertexSetLike,
-    explore, order_cliques,
+    FUNC_NAMES, OrderedCliques, SlimUndirectedGraphFactory, Vertex, VertexSetLike, explore,
+    new_clique_channel, order_cliques,
 };
 use known_random_graph::{Size, read_undirected};
 use stats::SampleStatistics;
@@ -85,7 +85,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
 
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
-            let (consumer, collector) = CliqueHarvester::new(64, CLIQUE_MIN_SIZE);
+            let (consumer, collector) = new_clique_channel(64, CLIQUE_MIN_SIZE);
             if sample == 0 {
                 let cliques = utils::do_timely(
                     || {

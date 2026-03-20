@@ -1,4 +1,3 @@
-use super::clique_harvester::CliqueHarvester;
 use super::graph::{Vertex, VertexMap, VertexSetLike};
 use super::graphfactory::UndirectedGraphFactory;
 use super::slimgraphfactory::SlimUndirectedGraphFactory;
@@ -21,7 +20,7 @@ impl TestData {
         let graph = SlimUndirectedGraphFactory::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-            let (consumer, collector) = CliqueHarvester::new(0, 2);
+            let (consumer, collector) = new_clique_channel(0, 2);
             let cliques = thread::scope(|s| {
                 s.spawn(|| explore(func_index, &graph, consumer));
                 collector.collect_cliques()

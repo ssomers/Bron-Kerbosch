@@ -9,18 +9,20 @@ pub struct CliqueHarvester {
     consumer_rx: Receiver<Clique>,
 }
 
-impl CliqueHarvester {
-    pub fn new(channel_cap: usize, clique_min_size: usize) -> (CliqueConsumer, Self) {
-        let (consumer_tx, consumer_rx) = crossbeam_channel::bounded::<Clique>(channel_cap);
-        (
-            CliqueConsumer::new(clique_min_size, consumer_tx),
-            Self {
-                min_size: clique_min_size,
-                consumer_rx,
-            },
-        )
-    }
+pub fn new_clique_channel(
+    channel_cap: usize,
+    min_size: usize,
+) -> (CliqueConsumer, CliqueHarvester) {
+    let (consumer_tx, consumer_rx) = crossbeam_channel::bounded::<Clique>(channel_cap);
+    let consumer = CliqueConsumer::new(min_size, consumer_tx);
+    let harvester = CliqueHarvester {
+        min_size,
+        consumer_rx,
+    };
+    (consumer, harvester)
+}
 
+impl CliqueHarvester {
     pub fn collect_cliques(self) -> Vec<Clique> {
         let mut cliques = vec![];
         while let Ok(clique) = self.consumer_rx.recv() {

@@ -14,12 +14,11 @@ where
         }
     }
 
-    // If the same element is put again, its priority must be higher i.e. a lower value.
-    pub fn put(&mut self, element: T, priority: Priority) {
+    // Adds an entry, regardless of whether the same element was already added earlier.
+    pub fn put(&mut self, priority: Priority, element: T) {
         self.stack_per_priority[priority.get() - 1].push(element);
     }
 
-    // May pop an element already popped earlier, in case it was put again.
     pub fn pop(&mut self) -> Option<T> {
         for stack in &mut self.stack_per_priority {
             if let Some(element) = stack.pop() {
@@ -29,7 +28,7 @@ where
         None
     }
 
-    pub fn contains(&self, element: T, priority: Priority) -> bool {
+    pub fn contains(&self, priority: Priority, element: T) -> bool {
         if cfg!(debug_assertions) {
             self.stack_per_priority[priority.get() - 1].contains(&element)
         } else {

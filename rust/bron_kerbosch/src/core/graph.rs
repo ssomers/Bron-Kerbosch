@@ -7,8 +7,8 @@ pub trait UndirectedGraph: Sync {
     fn order(&self) -> usize;
     fn size(&self) -> usize;
     fn max_degree(&self) -> usize;
-    fn degree(&self, node: Vertex) -> usize;
-    fn neighbours(&self, node: Vertex) -> &Self::VertexSet;
+    fn degree(&self, v: Vertex) -> usize;
+    fn neighbours(&self, v: Vertex) -> &Self::VertexSet;
 }
 
 pub fn vertices<Graph>(g: &Graph) -> impl Iterator<Item = Vertex>
