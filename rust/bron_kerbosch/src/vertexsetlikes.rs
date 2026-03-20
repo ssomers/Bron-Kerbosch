@@ -370,10 +370,12 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn contains(&self, v: Vertex) -> bool {
+        debug_assert!(self.is_sorted());
         self.binary_search(&v).is_ok()
     }
 
     fn difference_collect(&self, other: &Self) -> Self {
+        debug_assert!(self.is_sorted());
         self.iter()
             .filter(|&v| !other.contains(*v))
             .copied()
@@ -381,6 +383,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
+        debug_assert!(self.is_sorted());
         if self.len() > other.len() {
             return other.is_disjoint(self);
         }
@@ -388,6 +391,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn intersection_size(&self, other: &Self) -> usize {
+        debug_assert!(self.is_sorted());
         if self.len() > other.len() {
             return other.intersection_size(self);
         }
@@ -395,6 +399,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn intersection_collect(&self, other: &Self) -> Self {
+        debug_assert!(self.is_sorted());
         if self.len() > other.len() {
             return other.intersection_collect(self);
         }
@@ -405,6 +410,7 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        debug_assert!(self.is_sorted());
         self.iter().filter(|&v| other(*v)).copied().collect()
     }
 
@@ -413,12 +419,15 @@ impl VertexSetLike for Vec<Vertex> {
     }
 
     fn insert(&mut self, v: Vertex) {
+        debug_assert!(self.is_sorted());
         if let Err(idx) = self.binary_search(&v) {
             self.insert(idx, v);
+            debug_assert!(self.is_sorted());
         }
     }
 
     fn remove(&mut self, v: Vertex) {
+        debug_assert!(self.is_sorted());
         if let Ok(idx) = self.binary_search(&v) {
             self.remove(idx);
         }
@@ -474,27 +483,27 @@ mod tests {
     }
 
     #[test]
-    fn test_btreeset_pop_arbitrary() {
+    fn pop_arbitrary_btree() {
         test_pop_arbitrary::<BTreeSet<Vertex>>()
     }
 
     #[test]
-    fn test_hashset_pop_arbitrary() {
+    fn pop_arbitrary_hashset() {
         test_pop_arbitrary::<HashSet<Vertex>>()
     }
 
     #[test]
-    fn test_fnvhashset_pop_arbitrary() {
+    fn pop_arbitrary_fnv() {
         test_pop_arbitrary::<FnvHashSet<Vertex>>()
     }
 
     #[test]
-    fn test_hashbrownhashset_pop_arbitrary() {
+    fn pop_arbitrary_hashbrown() {
         test_pop_arbitrary::<HashSet<Vertex>>()
     }
 
     #[test]
-    fn test_vector_pop_arbitrary() {
+    fn pop_arbitrary_vec() {
         test_pop_arbitrary::<Vec<Vertex>>()
     }
 }

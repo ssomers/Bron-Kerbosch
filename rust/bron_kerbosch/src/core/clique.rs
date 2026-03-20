@@ -1,4 +1,4 @@
-use super::vertex::Vertex;
+pub use super::vertex::Vertex;
 use crossbeam_channel::Sender;
 
 pub type Clique = Vec<Vertex>;

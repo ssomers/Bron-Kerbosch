@@ -13,21 +13,24 @@ mod bron_kerbosch_degen_mt;
 mod bron_kerbosch_pivot;
 pub mod clique;
 pub mod clique_harvester;
+pub mod clique_ordering;
 mod fortified_counter;
 pub mod graph;
-pub(super) mod graph_degeneracy;
+pub mod graph_degeneracy;
 pub mod graphfactory;
 mod pile;
 mod priority_queue;
 pub mod slimgraphfactory;
-#[cfg(test)]
-pub mod tests;
 pub mod vertex;
 pub mod vertexsetlike;
 
-use clique::{Clique, CliqueConsumer};
-use graph::{UndirectedGraph, Vertex};
-use std::collections::BTreeSet;
+#[cfg(test)]
+pub mod graph_degeneracy_testing;
+#[cfg(test)]
+pub mod main_testing;
+
+use clique::CliqueConsumer;
+use graph::UndirectedGraph;
 
 #[cfg(not(miri))]
 const NUM_FUNCS: usize = 10;
@@ -64,10 +67,4 @@ where
         9 => bron_kerbosch3_mt::explore(graph, consumer),
         _ => panic!(),
     }
-}
-
-pub type OrderedClique = BTreeSet<Vertex>;
-pub type OrderedCliques = BTreeSet<OrderedClique>;
-pub fn order_cliques<I: Iterator<Item = Clique>>(cliques: I) -> OrderedCliques {
-    BTreeSet::from_iter(cliques.map(BTreeSet::from_iter))
 }

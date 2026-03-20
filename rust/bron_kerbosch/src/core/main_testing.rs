@@ -2,7 +2,7 @@ use super::clique_harvester::CliqueHarvester;
 use super::graph::{Vertex, VertexMap, VertexSetLike};
 use super::graphfactory::UndirectedGraphFactory;
 use super::slimgraphfactory::SlimUndirectedGraphFactory;
-use super::*;
+use crate::{FUNC_NAMES, explore, new_clique_channel, order_cliques};
 use std::thread;
 
 pub struct TestData {
