@@ -3,11 +3,11 @@ module BronKerbosch.Test.VertexSet
 open NUnit.Framework
 open BronKerbosch
 
-let nix: VertexSet = Set.empty
-let one: VertexSet = Set.singleton (Vertex 1)
-let two: VertexSet = [ 1; 2 ] |> Seq.map Verticise.it |> Set.ofSeq
+let nix = VertexSet.empty
+let one = VertexSet.singleton (Vertex 1)
+let two: VertexSet = [ 1; 2 ] |> Seq.map Verticise.it |> VertexSet.ofSeq
 
-let six: VertexSet = [ 0; 1; 2; 3; 4; 5 ] |> Seq.map Verticise.it |> Set.ofSeq
+let six: VertexSet = [ 0; 1; 2; 3; 4; 5 ] |> Seq.map Verticise.it |> VertexSet.ofSeq
 
 [<Test>]
 let is_disjoint () =
@@ -21,8 +21,8 @@ let is_disjoint () =
     Assert.That(not (VertexSet.is_disjoint two one))
     Assert.That(not (VertexSet.is_disjoint one six))
     Assert.That(not (VertexSet.is_disjoint six one))
-    Assert.That(not (VertexSet.is_disjoint two six))
     Assert.That(not (VertexSet.is_disjoint six two))
+    Assert.That(not (VertexSet.is_disjoint two six))
     Assert.That(not (VertexSet.is_disjoint one one))
     Assert.That(not (VertexSet.is_disjoint two two))
     Assert.That(not (VertexSet.is_disjoint six six))
@@ -77,16 +77,16 @@ let difference () =
     Assert.That(VertexSet.difference one nix, Is.EqualTo<VertexSet> one)
     Assert.That(VertexSet.difference two nix, Is.EqualTo<VertexSet> two)
     Assert.That(VertexSet.difference six nix, Is.EqualTo<VertexSet> six)
-    Assert.That(VertexSet.difference two one, Is.EqualTo<VertexSet>(Set.singleton (Vertex 2)))
+    Assert.That(VertexSet.difference two one, Is.EqualTo<VertexSet>(VertexSet.singleton (Vertex 2)))
 
     Assert.That(
         VertexSet.difference six one,
-        Is.EqualTo<VertexSet>([ 0; 2; 3; 4; 5 ] |> Seq.map Verticise.it |> Set.ofSeq)
+        Is.EqualTo<VertexSet>([ 0; 2; 3; 4; 5 ] |> Seq.map Verticise.it |> VertexSet.ofSeq)
     )
 
     Assert.That(
         VertexSet.difference six two,
-        Is.EqualTo<VertexSet>([ 0; 3; 4; 5 ] |> Seq.map Verticise.it |> Set.ofSeq)
+        Is.EqualTo<VertexSet>([ 0; 3; 4; 5 ] |> Seq.map Verticise.it |> VertexSet.ofSeq)
     )
 
 [<Test>]

@@ -31,8 +31,8 @@ module PivotBased =
         (consumer: CliqueConsumer)
         (candidates: VertexSet, excluded: VertexSet, clique_in_progress: Vertex list)
         : Unit =
-        Debug.Assert(Set.forall graph.hasNeighbours candidates)
-        Debug.Assert(Set.forall graph.hasNeighbours excluded)
+        Debug.Assert(candidates |> Seq.forall graph.hasNeighbours)
+        Debug.Assert(excluded |> Seq.forall graph.hasNeighbours)
         Debug.Assert(VertexSet.is_disjoint candidates excluded)
         Debug.Assert(not candidates.IsEmpty)
 
@@ -104,13 +104,14 @@ module PivotBased =
         | Some(pivot) ->
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            let mutable excluded = Set.empty // EmptyWithCapacity(graph.order)
+            let mutable excluded = VertexSet.empty // EmptyWithCapacity(graph.order)
 
             for v in graph.ConnectedVertices() do
                 let neighbours = graph.neighbours v
 
                 if not (neighbours.Contains(pivot)) then
                     let neighbouringExcluded = VertexSet.intersect neighbours excluded
+                    let neighbouringCandidates = VertexSet.difference neighbours neighbouringExcluded
 
                     let neighbouringCandidates = VertexSet.difference neighbours neighbouringExcluded
                     if not neighbouringCandidates.IsEmpty then

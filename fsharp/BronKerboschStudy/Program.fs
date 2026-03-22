@@ -21,7 +21,7 @@ let algos10k = fun _ -> Portfolio.all_algos |> List.skip 1
 
 let algos1M =
     fun size ->
-        if size <= 20_000 then
+        if size <= 1_000_000 then
             [ BronKerbosch2GP.algorithm; BronKerbosch3GP.algorithm ]
         else
             [ BronKerbosch3GP.algorithm ]

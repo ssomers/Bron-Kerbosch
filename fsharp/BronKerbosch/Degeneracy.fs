@@ -34,7 +34,7 @@ module Degeneracy =
                     priorityPerVertex[pick.index] <- 0
                     leftToPick.Remove pick
 
-                    let mutable neighboursPicked = Set.empty
+                    let mutable neighboursPicked = VertexSet.empty
 
                     for v in graph.neighbours pick do
                         match priorityPerVertex[v.index] with

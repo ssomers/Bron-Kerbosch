@@ -9,11 +9,11 @@ let rec visit
     (consumer: CliqueConsumer)
     (candidates: VertexSet, excluded: VertexSet, clique_in_progress: Vertex list)
     : Unit =
-    Debug.Assert(Set.forall graph.hasNeighbours candidates)
-    Debug.Assert(Set.forall graph.hasNeighbours excluded)
+    Debug.Assert(candidates |> Seq.forall graph.hasNeighbours)
+    Debug.Assert(excluded |> Seq.forall graph.hasNeighbours)
     Debug.Assert(VertexSet.is_disjoint candidates excluded)
 
-    match VertexSet.pop_arbitrary (candidates) with
+    match VertexSet.pop_arbitrary candidates with
     | (None, _) -> ()
     | (Some v, remaining_candidates) ->
         let neighbours = graph.neighbours v
@@ -34,8 +34,8 @@ let rec visit
         visit graph consumer (remaining_candidates, excluded.Add(v), clique_in_progress)
 
 let public explore (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
-    let candidates = graph.ConnectedVertices() |> Set.ofSeq
-    let excluded = Set.empty // EmptyWithCapacity(candidates.Count)
+    let candidates = graph.ConnectedVertices() |> VertexSet.ofSeq
+    let excluded = VertexSet.empty // EmptyWithCapacity(candidates.Count)
     visit graph consumer (candidates, excluded, [])
 
 let algorithm: Algorithm = { name = "Ver1½"; exec = explore }

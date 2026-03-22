@@ -8,7 +8,7 @@ module Adjacencies =
 
     let public areSymmetrical (adjacencies: VertexSet array) : bool =
         let isSymmetric ((v, neighbours): Vertex * VertexSet) : bool =
-            neighbours |> Set.forall adjacencies[v.index].Contains
+            neighbours |> Seq.forall adjacencies[v.index].Contains
 
         adjacency_vertices adjacencies |> Seq.forall isSymmetric
 
@@ -25,7 +25,9 @@ type public UndirectedGraph =
     member this.Order = this.Adjacencies.Length
     member inline this.neighbours(v: Vertex) : VertexSet = this.Adjacencies[v.index]
     member inline this.hasNeighbours(v: Vertex) : bool = not this.Adjacencies[v.index].IsEmpty
-    member inline this.degree(v: Vertex) : int = this.Adjacencies[v.index].Count
+
+    member inline this.degree(v: Vertex) : int =
+        VertexSet.count this.Adjacencies[v.index]
 
     member inline this.Vertices() : Vertex seq =
         seq { 0 .. this.Adjacencies.Length - 1 } |> Seq.map Verticise.it
@@ -40,13 +42,13 @@ type public UndirectedGraph =
         Debug.Assert(Adjacencies.areSymmetrical (adjacencies))
         Debug.Assert(Adjacencies.areLoopFree (adjacencies))
 
-        let total_degree = adjacencies |> Array.sumBy Set.count
+        let total_degree = adjacencies |> Array.sumBy VertexSet.count
         Debug.Assert(total_degree % 2 = 0)
 
         let max_degree =
             match adjacencies with
             | [||] -> 0
-            | some -> (some |> Array.maxBy Set.count).Count
+            | some -> some |> Array.maxBy VertexSet.count |> VertexSet.count
 
         { Adjacencies = adjacencies
           Size = total_degree / 2

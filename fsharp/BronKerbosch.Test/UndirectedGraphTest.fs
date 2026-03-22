@@ -6,7 +6,7 @@ open BronKerbosch
 let graph (adjacencies: int list array) : UndirectedGraph =
     let adjacencies =
         adjacencies
-        |> Array.map (fun neighbours -> neighbours |> Seq.map Verticise.it |> Set.ofSeq)
+        |> Array.map (fun neighbours -> neighbours |> Seq.map Verticise.it |> VertexSet.ofSeq)
 
     UndirectedGraph.ofAdjacencies adjacencies
 

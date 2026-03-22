@@ -13,7 +13,7 @@ type KnownUndirectedGraph =
 module RandomUndirectedGraph =
     let ReadEdges (path: string, orderstr: string, size: int) : VertexSet array =
         let order = NumbersGame.ParseInt(orderstr)
-        let adjacencies = Array.create order Set.empty
+        let adjacencies = Array.create order VertexSet.empty
 
         let lines_read =
             File.ReadLines(path)
