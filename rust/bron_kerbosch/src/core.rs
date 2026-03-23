@@ -25,9 +25,10 @@ pub mod vertex;
 pub mod vertexsetlike;
 
 #[cfg(test)]
-pub mod graph_degeneracy_testing;
-#[cfg(test)]
-pub mod main_testing;
+pub mod vertexset_testing {
+    pub mod graph_degeneracy_testing;
+    pub mod main_testing;
+}
 
 use clique::CliqueConsumer;
 use graph::UndirectedGraph;

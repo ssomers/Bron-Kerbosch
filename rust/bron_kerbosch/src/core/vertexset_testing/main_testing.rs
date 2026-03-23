@@ -1,7 +1,8 @@
-use super::graph::{Vertex, VertexMap, VertexSetLike};
-use super::graphfactory::UndirectedGraphFactory;
-use super::slimgraphfactory::SlimUndirectedGraphFactory;
-use crate::{FUNC_NAMES, explore, new_clique_channel, order_cliques};
+use crate::core::vertex::VertexMap;
+use crate::{
+    FUNC_NAMES, SlimUndirectedGraphFactory, UndirectedGraphFactory, Vertex, VertexSetLike, explore,
+    new_clique_channel, order_cliques,
+};
 use std::thread;
 
 pub struct TestData {
