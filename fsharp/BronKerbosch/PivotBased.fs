@@ -29,12 +29,12 @@ module PivotBased =
         (pivot_choice: PivotChoice)
         (graph: UndirectedGraph)
         (consumer: CliqueConsumer)
-        (candidates: VertexSet, excluded: VertexSet, clique_in_progress: Vertex list)
+        (candidates: VertexSet, excluded: byref<VertexSet>, clique_in_progress: Vertex list)
         : Unit =
         Debug.Assert(candidates |> Seq.forall graph.hasNeighbours)
         Debug.Assert(excluded |> Seq.forall graph.hasNeighbours)
         Debug.Assert(VertexSet.is_disjoint candidates excluded)
-        Debug.Assert(not candidates.IsEmpty)
+        Debug.Assert(candidates.Any)
 
         match candidates |> Seq.tryExactlyOne with
         | Some(v) ->
@@ -78,25 +78,25 @@ module PivotBased =
 
                 for v in remaining_candidates do
                     let neighbours = graph.neighbours v
-                    Debug.Assert(not (neighbours.IsEmpty))
+                    Debug.Assert neighbours.Any
 
                     if not (neighbours.Contains pivot.Value) then
                         Debug.Assert(candidates.Contains(v))
-                        candidates <- candidates.Remove(v)
+                        VertexSet.remove_mutably (&candidates, v)
                         let neighbouringCandidates = VertexSet.intersect neighbours candidates
 
-                        if not (neighbouringCandidates.IsEmpty) then
-                            let neighbouringExcluded = VertexSet.intersect neighbours excluded
+                        if neighbouringCandidates.Any then
+                            let mutable neighbouringExcluded = VertexSet.intersect neighbours excluded
 
                             visit
                                 pivot_choice
                                 graph
                                 consumer
-                                (neighbouringCandidates, neighbouringExcluded, v :: clique_in_progress)
+                                (neighbouringCandidates, &neighbouringExcluded, v :: clique_in_progress)
                         else
                             harvest (neighbours, excluded, v, clique_in_progress, consumer)
 
-                        excluded <- excluded.Add v
+                        VertexSet.insert_mutably (&excluded, v)
 
     let explore (pivot_choice: PivotChoice) (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
         match graph.MaxDegreeVertices() |> Seq.tryHead with
@@ -104,17 +104,16 @@ module PivotBased =
         | Some(pivot) ->
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
-            let mutable excluded = VertexSet.empty // EmptyWithCapacity(graph.order)
+            let mutable excluded = VertexSet.new_mutable (graph.Order)
 
             for v in graph.ConnectedVertices() do
                 let neighbours = graph.neighbours v
 
                 if not (neighbours.Contains(pivot)) then
-                    let neighbouringExcluded = VertexSet.intersect neighbours excluded
+                    let mutable neighbouringExcluded = VertexSet.intersect neighbours excluded
                     let neighbouringCandidates = VertexSet.difference neighbours neighbouringExcluded
 
-                    let neighbouringCandidates = VertexSet.difference neighbours neighbouringExcluded
-                    if not neighbouringCandidates.IsEmpty then
-                        visit pivot_choice graph consumer (neighbouringCandidates, neighbouringExcluded, [ v ])
+                    if neighbouringCandidates.Any then
+                        visit pivot_choice graph consumer (neighbouringCandidates, &neighbouringExcluded, [ v ])
 
-                    excluded <- excluded.Add(v)
+                    VertexSet.insert_mutably (&excluded, v)

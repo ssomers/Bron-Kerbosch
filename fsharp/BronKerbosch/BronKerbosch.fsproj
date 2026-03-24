@@ -10,7 +10,9 @@
   <ItemGroup>
     <Compile Include="FortifiedCounter.fs" />
     <Compile Include="PriorityQueue.fs" />
+    <Compile Include="StdSet.fs" />
     <Compile Include="SizedSet.fs" />
+    <Compile Include="MutableHashSet.fs" />
     <Compile Include="Vertex.fs" />
     <Compile Include="VertexSet.fs" />
     <Compile Include="Clique.fs" />

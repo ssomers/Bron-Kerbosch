@@ -24,7 +24,7 @@ type public UndirectedGraph =
 
     member this.Order = this.Adjacencies.Length
     member inline this.neighbours(v: Vertex) : VertexSet = this.Adjacencies[v.index]
-    member inline this.hasNeighbours(v: Vertex) : bool = not this.Adjacencies[v.index].IsEmpty
+    member inline this.hasNeighbours(v: Vertex) : bool = this.Adjacencies[v.index].Any
 
     member inline this.degree(v: Vertex) : int =
         VertexSet.count this.Adjacencies[v.index]

@@ -7,22 +7,22 @@ open System.Diagnostics
 let rec visit
     (graph: UndirectedGraph)
     (consumer: CliqueConsumer)
-    (candidates: VertexSet, excluded: VertexSet, clique_in_progress: Vertex list)
+    (candidates: byref<VertexSet>, excluded: byref<VertexSet>, clique_in_progress: Vertex list)
     : Unit =
     Debug.Assert(candidates |> Seq.forall graph.hasNeighbours)
     Debug.Assert(excluded |> Seq.forall graph.hasNeighbours)
     Debug.Assert(VertexSet.is_disjoint candidates excluded)
 
-    match VertexSet.pop_arbitrary candidates with
-    | (None, _) -> ()
-    | (Some v, remaining_candidates) ->
+    match VertexSet.pop_arbitrary_mutably &candidates with
+    | None -> ()
+    | Some v ->
         let neighbours = graph.neighbours v
-        let neighbouring_candidates = VertexSet.intersect neighbours remaining_candidates
+        let mutable neighbouring_candidates = VertexSet.intersect neighbours candidates
 
-        if not neighbouring_candidates.IsEmpty then
-            let neighbouring_excluded = VertexSet.intersect neighbours excluded
+        if neighbouring_candidates.Any then
+            let mutable neighbouring_excluded = VertexSet.intersect neighbours excluded
 
-            visit graph consumer (neighbouring_candidates, neighbouring_excluded, v :: clique_in_progress)
+            visit graph consumer (&neighbouring_candidates, &neighbouring_excluded, v :: clique_in_progress)
         elif
             1 + clique_in_progress.Length >= consumer.MinSize
             && VertexSet.is_disjoint neighbours excluded
@@ -31,11 +31,12 @@ let rec visit
             consumer.accept clique
 
         Debug.Assert(not (excluded.Contains v))
-        visit graph consumer (remaining_candidates, excluded.Add(v), clique_in_progress)
+        VertexSet.insert_mutably (&excluded, v)
+        visit graph consumer (&candidates, &excluded, clique_in_progress)
 
 let public explore (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
-    let candidates = graph.ConnectedVertices() |> VertexSet.ofSeq
-    let excluded = VertexSet.empty // EmptyWithCapacity(candidates.Count)
-    visit graph consumer (candidates, excluded, [])
+    let mutable candidates = graph.ConnectedVertices() |> VertexSet.ofSeq
+    let mutable excluded = VertexSet.new_mutable (VertexSet.count candidates)
+    visit graph consumer (&candidates, &excluded, [])
 
 let algorithm: Algorithm = { name = "Ver1½"; exec = explore }

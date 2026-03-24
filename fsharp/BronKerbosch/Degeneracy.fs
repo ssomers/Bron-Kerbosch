@@ -34,11 +34,12 @@ module Degeneracy =
                     priorityPerVertex[pick.index] <- 0
                     leftToPick.Remove pick
 
-                    let mutable neighboursPicked = VertexSet.empty
+                    let neighbours = graph.neighbours pick
+                    let mutable neighboursPicked = VertexSet.new_mutable (VertexSet.count neighbours)
 
-                    for v in graph.neighbours pick do
+                    for v in neighbours do
                         match priorityPerVertex[v.index] with
-                        | 0 -> neighboursPicked <- neighboursPicked.Add(v)
+                        | 0 -> VertexSet.insert_mutably (&neighboursPicked, v)
                         | old_priority ->
                             Debug.Assert(q.Contains(old_priority, v))
                             Debug.Assert(leftToPick.Contains(v))

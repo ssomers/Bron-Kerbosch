@@ -91,20 +91,25 @@ let difference () =
 
 [<Test>]
 let pop_arbitrary_1 () =
-    let x, rest = VertexSet.pop_arbitrary one
+    let mutable set = VertexSet.new_mutable (1)
+    VertexSet.insert_mutably (&set, (Vertex 1))
+    let x = VertexSet.pop_arbitrary_mutably (&set)
     Assert.That(x.Value, Is.EqualTo(Vertex 1))
-    Assert.That(rest, Is.Empty)
-    let x, rest = VertexSet.pop_arbitrary rest
+    Assert.That(set, Is.Empty)
+    let x = VertexSet.pop_arbitrary_mutably &set
     Assert.That(x, Is.Null)
-    Assert.That(rest, Is.Empty)
+    Assert.That(set, Is.Empty)
 
 [<Test>]
 let pop_arbitrary_2 () =
-    let x, rest = VertexSet.pop_arbitrary two
-    let y, rest = VertexSet.pop_arbitrary rest
+    let mutable set = VertexSet.new_mutable (2)
+    VertexSet.insert_mutably (&set, (Vertex 1))
+    VertexSet.insert_mutably (&set, (Vertex 2))
+    let x = VertexSet.pop_arbitrary_mutably &set
+    let y = VertexSet.pop_arbitrary_mutably &set
     Assert.That(min x.Value y.Value, Is.EqualTo(Vertex 1))
     Assert.That(max x.Value y.Value, Is.EqualTo(Vertex 2))
-    Assert.That(rest, Is.Empty)
-    let x, rest = VertexSet.pop_arbitrary rest
+    Assert.That(set, Is.Empty)
+    let x = VertexSet.pop_arbitrary_mutably &set
     Assert.That(x, Is.Null)
-    Assert.That(rest, Is.Empty)
+    Assert.That(set, Is.Empty)

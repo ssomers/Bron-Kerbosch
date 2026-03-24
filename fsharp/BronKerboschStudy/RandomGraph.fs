@@ -13,7 +13,7 @@ type KnownUndirectedGraph =
 module RandomUndirectedGraph =
     let ReadEdges (path: string, orderstr: string, size: int) : VertexSet array =
         let order = NumbersGame.ParseInt(orderstr)
-        let adjacencies = Array.create order VertexSet.empty
+        let mutable adjacencies = Array.init order (fun _ -> VertexSet.new_mutable (0))
 
         let lines_read =
             File.ReadLines(path)
@@ -28,8 +28,8 @@ module RandomUndirectedGraph =
                     with :? System.ArgumentException ->
                         raise (RandomComplaint($"File {path} line {lineindex + 1} contains bogus text {line}"))
 
-                adjacencies[v] <- adjacencies[v].Add(Vertex w)
-                adjacencies[w] <- adjacencies[w].Add(Vertex v)
+                VertexSet.insert_mutably (&adjacencies[v], Vertex w)
+                VertexSet.insert_mutably (&adjacencies[w], Vertex v)
                 lineindex + 1)
             |> Seq.last
 
