@@ -13,26 +13,26 @@ module Degeneracy =
             //      or no longer queued because all neighbours have been yielded
             //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
             let mutable priorityPerVertex: Priority array = Array.create graph.Order 0
-            let q = PriorityQueue.empty graph.MaxDegree
-            let mutable leftToPick = FortifiedCounter.empty ()
+            let mutable q = PriorityQueue.init graph.MaxDegree
+            let mutable leftToPick = FortifiedCounter.init ()
 
             for v in graph.ConnectedVertices() do
                 match graph.degree v with
                 | 0 -> ()
                 | priority ->
                     priorityPerVertex[v.index] <- priority
-                    q.Put(priority, v)
-                    leftToPick.Add v
+                    PriorityQueue.Put(&q, priority, v)
+                    FortifiedCounter.Add(&leftToPick, v)
 
             while leftToPick.count > 0 do
                 let pick =
-                    match q.Pop() with
+                    match PriorityQueue.Pop &q with
                     | None -> failwith "Cannot pop more than was put"
                     | Some(p) -> p
 
                 if priorityPerVertex[pick.index] > 0 then
                     priorityPerVertex[pick.index] <- 0
-                    leftToPick.Remove pick
+                    FortifiedCounter.Remove(&leftToPick, pick)
 
                     let neighbours = graph.neighbours pick
                     let mutable neighboursPicked = VertexSet.new_mutable (VertexSet.count neighbours)
@@ -48,9 +48,9 @@ module Degeneracy =
 
                             if new_priority > 0 then
                                 // Requeue with a more urgent priority.
-                                q.Put(new_priority, v)
+                                PriorityQueue.Put(&q, new_priority, v)
                             else
-                                leftToPick.Remove v
+                                FortifiedCounter.Remove(&leftToPick, v)
 
                     yield (pick, neighboursPicked)
         }

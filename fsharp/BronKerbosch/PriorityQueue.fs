@@ -8,18 +8,21 @@ type Priority = int
 type PriorityQueue<'T when 'T: equality> =
     { stackPerPriority: 'T list array }
 
+    static member init(maxPriority: int) : PriorityQueue<'T> =
+        { stackPerPriority = Array.create maxPriority [] }
+
     member this.Contains(priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
         this.stackPerPriority[priority - 1] |> List.contains element
 
 
     // Putting the same element again only makes sense if it is with a more urgent priority, i.e. closer to 1.
-    member this.Put(priority: Priority, element: 'T) =
+    static member Put(this: byref<PriorityQueue<'T>>, priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
         this.stackPerPriority[priority - 1] <- element :: this.stackPerPriority[priority - 1]
 
     // May pop an element already popped earlier, in case it was put multiple times.
-    member this.Pop() : 'T option =
+    static member Pop(this: byref<PriorityQueue<'T>>) : 'T option =
         match
             this.stackPerPriority
             |> Array.indexed
@@ -33,7 +36,3 @@ type PriorityQueue<'T when 'T: equality> =
             this.stackPerPriority[index] <- tail
             Some(head)
         | None -> None
-
-module PriorityQueue =
-    let empty<'T when 'T: equality> (maxPriority: int) : PriorityQueue<'T> =
-        { stackPerPriority = Array.create maxPriority [] }
