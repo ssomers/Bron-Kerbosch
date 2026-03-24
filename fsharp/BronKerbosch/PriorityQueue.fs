@@ -22,17 +22,14 @@ type PriorityQueue<'T when 'T: equality> =
         this.stackPerPriority[priority - 1] <- element :: this.stackPerPriority[priority - 1]
 
     // May pop an element already popped earlier, in case it was put multiple times.
-    static member Pop(this: byref<PriorityQueue<'T>>) : 'T option =
-        match
-            this.stackPerPriority
-            |> Array.indexed
-            |> Array.choose (fun (index: int, stack: 'T list) ->
-                match stack with
-                | head :: tail -> Some(index, head, tail)
-                | [] -> None)
-            |> Array.tryHead
-        with
-        | Some(index, head, tail) ->
-            this.stackPerPriority[index] <- tail
-            Some(head)
-        | None -> None
+    static member Pop(this: byref<PriorityQueue<'T>>) : 'T option = this.PopAtOrAbove(0)
+
+    member private this.PopAtOrAbove(index: int) : 'T option =
+        if index < this.stackPerPriority.Length then
+            match this.stackPerPriority[index] with
+            | [] -> this.PopAtOrAbove(index + 1)
+            | head :: tail ->
+                this.stackPerPriority[index] <- tail
+                Some(head)
+        else
+            None
