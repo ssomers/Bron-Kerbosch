@@ -3,19 +3,19 @@ namespace BronKerbosch
 open System.Diagnostics
 
 module Adjacencies =
-    let adjacency_vertices (adjacencies: VertexSet array) : (Vertex * VertexSet) seq =
-        adjacencies |> Seq.indexed |> Seq.map Verticise.first
+    let array_verticise (adjacencies: VertexSet array) : (Vertex * VertexSet) array =
+        adjacencies |> Array.indexed |> Array.map Verticise.first
 
     let public areSymmetrical (adjacencies: VertexSet array) : bool =
         let isSymmetric ((v, neighbours): Vertex * VertexSet) : bool =
             neighbours |> Seq.forall adjacencies[v.index].Contains
 
-        adjacency_vertices adjacencies |> Seq.forall isSymmetric
+        adjacencies |> array_verticise |> Array.forall isSymmetric
 
     let public areLoopFree (adjacencies: VertexSet array) : bool =
         let isLoopFree ((v, neighbours): Vertex * VertexSet) : bool = not (neighbours.Contains(v))
 
-        adjacency_vertices adjacencies |> Seq.forall isLoopFree
+        adjacencies |> array_verticise |> Array.forall isLoopFree
 
 type public UndirectedGraph =
     { Adjacencies: VertexSet array

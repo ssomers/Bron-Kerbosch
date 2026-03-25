@@ -7,10 +7,8 @@ open System.Diagnostics
 open System.IO
 open System.Threading
 
-exception InvalidResult of string
-
 module BronKerboschStudy =
-    let ic = Globalization.CultureInfo.InvariantCulture
+    let forCSV = Globalization.CultureInfo.InvariantCulture
     let MIN_CLIQUE_SIZE = 3
 
     type TimedAlgorithm =
@@ -22,28 +20,34 @@ module BronKerboschStudy =
     type Run =
         | WarmUp
         | Genuine
+        | OneOff
 
 
     let BronKerboschTimed
-        (run: Run, orderstr: string, size: int, timed_algos: TimedAlgorithm array, timing_samples: int)
-        =
+        (run: Run, orderstr: string, size: int, timing_samples: int, algos: Algorithm list)
+        : TimedAlgorithm array =
         let warning_interval = 3000
+
         let sw = Stopwatch.StartNew()
         let graph = RandomUndirectedGraph.Read(orderstr, size, MIN_CLIQUE_SIZE)
         sw.Stop()
 
-        if run = Genuine then
+        match run with
+        | WarmUp -> ()
+        | Genuine
+        | OneOff ->
             printfn
                 $"random graph of order {orderstr}, {size} edges, \
                 {graph.clique_count} cliques: \
                 (generating took {sw.ElapsedMilliseconds}ms)"
 
+        let timed_algos: TimedAlgorithm array =
+            algos |> List.map (fun algo -> { algo = algo; seconds = None }) |> Array.ofList
+
         let mutable baseline: Clique list option = None
 
-        seq { 0..timing_samples }
-        |> Seq.iter (fun sample ->
-            timed_algos
-            |> Seq.iter (fun timed_algo ->
+        for sample = 0 to timing_samples do
+            for timed_algo in timed_algos do
                 if sample = 0 then
                     let mutable cliques = List.empty
 
@@ -62,19 +66,18 @@ module BronKerboschStudy =
                         }
 
                     Async.StartImmediate(ticker, cts.Token)
-
                     timed_algo.algo.exec graph.graph consumer
                     cts.Cancel()
 
                     if cliques.Length <> graph.clique_count then
-                        raise (InvalidResult($"Expected {graph.clique_count} cliques, got {cliques.Length}"))
+                        failwith $"Expected {graph.clique_count} cliques, got {cliques.Length}"
 
                     let current_result = cliques |> Cliques.sort
 
                     match baseline with
                     | None -> baseline <- Some current_result
                     | Some first_result when current_result = first_result -> ()
-                    | _ -> raise (InvalidResult("Got unexpected cliques"))
+                    | _ -> failwith "Got unexpected cliques"
                 else
                     let mutable cliques = 0
 
@@ -90,21 +93,25 @@ module BronKerboschStudy =
                     if cliques <> baseline.Value.Length then
                         failwith "unstable results"
 
-                    timed_algo.seconds <- Some(SampleStatistics.NewOrAdd(secs, timed_algo.seconds))))
+                    timed_algo.seconds <- Some(SampleStatistics.NewOrAdd(secs, timed_algo.seconds))
 
-        if run = Genuine then
-            timed_algos
-            |> Seq.iter (fun timed_algo ->
-                let name = timed_algo.algo.name
+        match run with
+        | WarmUp -> ()
+        | Genuine
+        | OneOff ->
+            for timed_algo in timed_algos do
+                printf $"  {timed_algo.algo.name, -10} "
 
                 match timed_algo.seconds with
                 | Some s ->
                     let mean = s.Mean()
                     let reldev = s.Deviation() / mean
-                    printfn $"  {name, -10} {mean, 6:N3}s ± {reldev:P0}"
-                | None -> failwith $"{name} executed but no time recorded")
+                    printfn $"{mean, 6:N3}s ± {reldev:P0}"
+                | None -> printfn $"DNF"
 
-    let Bk (run: Run, orderstr: string, sizes: int seq, includedVers: int -> Algorithm list, timed_samples: int) =
+        timed_algos
+
+    let Bk (run: Run, orderstr: string, sizes: int seq, includedAlgos: int -> Algorithm list, timed_samples: int) =
         let tmpfname = "tmp.csv"
         let fso = FileStreamOptions()
         fso.Mode <- FileMode.Create
@@ -114,40 +121,40 @@ module BronKerboschStudy =
         fo.WriteLine(
             "Size"
             :: (Portfolio.all_algos
-                |> List.map (fun ver -> $"{ver.name} min,{ver.name} mean,{ver.name} max"))
+                |> List.map (fun algo -> algo.name)
+                |> List.map (fun name -> $"{name} min,{name} mean,{name} max"))
             |> String.concat ","
         )
 
-        sizes
-        |> Seq.iter (fun size ->
-            let timed_algos: TimedAlgorithm array =
-                includedVers size
-                |> Seq.map (fun ver -> { algo = ver; seconds = None })
-                |> Array.ofSeq
-
-            BronKerboschTimed(run, orderstr, size, timed_algos, timed_samples)
+        for size in sizes do
+            let algos = includedAlgos size
+            let timed_algos = BronKerboschTimed(run, orderstr, size, timed_samples, algos)
 
             fo.WriteLine(
-                String.Format(ic, "{0}", size)
+                String.Format(forCSV, "{0}", size)
                 :: (Portfolio.all_algos
-                    |> List.map (fun ver ->
-                        match timed_algos |> Array.tryFind (TimedAlgorithm.is_for ver) with
+                    |> List.map (fun algo ->
+                        match timed_algos |> Array.tryFind (TimedAlgorithm.is_for algo) with
                         | None -> ",,"
-                        | Some { seconds = Some s } -> String.Format(ic, "{0},{1},{2}", s.Min, s.Mean(), s.Max)
-                        | Some { seconds = None; algo = ver } -> failwith $"{ver.name} ran but left no measurement"))
+                        | Some { seconds = Some s } -> String.Format(forCSV, "{0},{1},{2}", s.Min, s.Mean(), s.Max)
+                        | Some { seconds = None } -> failwith $"{algo.name} requested but not measured"))
+
                 |> String.concat ","
-            ))
+            )
 
         fo.Close()
 
-        let suffix =
-            match run with
-            | WarmUp -> "warmup"
-            | Genuine -> orderstr
+        match
+            (match run with
+             | WarmUp -> Some("warmup")
+             | Genuine -> Some(orderstr)
+             | OneOff -> None)
+        with
+        | Some suffix ->
+            let path = $"..\\bron_kerbosch_fsharp_order_{suffix}.csv"
 
-        let path = $"..\\bron_kerbosch_fsharp_order_{suffix}.csv"
+            if File.Exists(path) then
+                File.Delete(path)
 
-        if File.Exists(path) then
-            File.Delete(path)
-
-        File.Move(tmpfname, path)
+            File.Move(tmpfname, path)
+        | None -> ()

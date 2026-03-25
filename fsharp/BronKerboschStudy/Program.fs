@@ -22,6 +22,8 @@ let algos10k = fun _ -> Portfolio.all_algos |> List.skip 1
 
 let algos1M = fun _ -> [ BronKerbosch2GP.algorithm; BronKerbosch3GP.algorithm ]
 
+//BronKerboschStudy.Bk(BronKerboschStudy.OneOff, "1M", [ 500_000 ], (fun _ -> []), 0)
+
 BronKerboschStudy.Bk(BronKerboschStudy.WarmUp, "100", [ 2000 ], algos100, 3) // warm up
 System.Threading.Thread.Sleep(321)
 
