@@ -1,6 +1,7 @@
 namespace BronKerboschStudy
 
 open BronKerbosch
+open System
 open System.Diagnostics
 open System.IO
 
@@ -11,23 +12,31 @@ type KnownUndirectedGraph =
 module RandomUndirectedGraph =
     let ReadEdges (path: string, order: int, size: int) : VertexSet array =
         let adjacencies = Array.init order (fun _ -> VertexSet.new_mutable (0))
-        let mutable last_seen_line = 0
+        let mutable linenr = 0
 
         for line in File.ReadLines path |> Seq.take size do
-            last_seen_line <- last_seen_line + 1
-            let fields = line.Split ' '
+            linenr <- linenr + 1
+            // Save 5% compared to line.Split:
+            let split = line.IndexOf ' '
+            let field1 = line.AsSpan(0, split)
+            let field2 = line.AsSpan(split + 1)
 
-            let v, w =
-                try
-                    int (fields[0]), int (fields[1])
-                with :? System.ArgumentException ->
-                    failwith $"File {path} line {last_seen_line} contains bogus text {line}"
+            // Save 5% compared to combining the two into a tuple match:
+            let v =
+                match Int32.TryParse(field1) with
+                | true, i -> i
+                | false, _ -> failwith $"File {path} line {linenr} contains bogus text {line}"
+
+            let w =
+                match Int32.TryParse(field2) with
+                | true, i -> i
+                | false, _ -> failwith $"File {path} line {linenr} contains bogus text {line}"
 
             VertexSet.insert_mutably (&adjacencies[v], Vertex w)
             VertexSet.insert_mutably (&adjacencies[w], Vertex v)
 
-        if last_seen_line <> size then
-            failwith $"{size} edges requested but only {last_seen_line} are listed in {path}"
+        if linenr <> size then
+            failwith $"{size} edges requested but only {linenr} are listed in {path}"
 
         adjacencies
 
