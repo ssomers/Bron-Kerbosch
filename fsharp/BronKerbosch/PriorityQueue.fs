@@ -6,10 +6,12 @@ open System.Diagnostics
 type Priority = int
 
 type PriorityQueue<'T when 'T: equality> =
-    { stackPerPriority: 'T list array }
+    { stackPerPriority: 'T list array
+      mutable lowestPopulatedIndex: Priority }
 
     static member init(maxPriority: int) : PriorityQueue<'T> =
-        { stackPerPriority = Array.create maxPriority [] }
+        { stackPerPriority = Array.create maxPriority []
+          lowestPopulatedIndex = maxPriority }
 
     member this.Contains(priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
@@ -19,17 +21,24 @@ type PriorityQueue<'T when 'T: equality> =
     // Putting the same element again only makes sense if it is with a more urgent priority, i.e. closer to 1.
     static member Put(this: byref<PriorityQueue<'T>>, priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
-        this.stackPerPriority[priority - 1] <- element :: this.stackPerPriority[priority - 1]
+        let index = priority - 1
+        this.stackPerPriority[index] <- element :: this.stackPerPriority[index]
+        this.lowestPopulatedIndex <- min this.lowestPopulatedIndex index
 
     // May pop an element already popped earlier, in case it was put multiple times.
-    static member Pop(this: byref<PriorityQueue<'T>>) : 'T option = this.PopAtOrAbove(0)
-
-    member private this.PopAtOrAbove(index: int) : 'T option =
-        if index < this.stackPerPriority.Length then
-            match this.stackPerPriority[index] with
-            | [] -> this.PopAtOrAbove(index + 1)
-            | head :: tail ->
-                this.stackPerPriority[index] <- tail
+    static member Pop(this: byref<PriorityQueue<'T>>) : 'T option =
+        if this.lowestPopulatedIndex < this.stackPerPriority.Length then
+            match this.stackPerPriority[this.lowestPopulatedIndex] with
+            | head :: [] ->
+                // Not a necessary case, but a ~5% performance boost.
+                this.stackPerPriority[this.lowestPopulatedIndex] <- []
+                this.lowestPopulatedIndex <- this.lowestPopulatedIndex + 1
                 Some(head)
+            | head :: tail ->
+                this.stackPerPriority[this.lowestPopulatedIndex] <- tail
+                Some(head)
+            | [] ->
+                this.lowestPopulatedIndex <- this.lowestPopulatedIndex + 1
+                PriorityQueue.Pop &this
         else
             None
