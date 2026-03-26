@@ -1,5 +1,6 @@
 use super::*;
-use crate::core::vertexset_testing::graph_degeneracy_testing::{any_adjacencies, test_degeneracy};
+use crate::core::vertexset_testing::graph_degeneracy_testing::test_degeneracy;
+use crate::slimgraph_testing::any_undirected_graph;
 
 use fnv::FnvHashSet;
 use hashbrown;
@@ -17,27 +18,27 @@ proptest! {
     })]
 
     #[test]
-    fn on_btree(adjacencies in any_adjacencies()) {
-        test_degeneracy::<BTreeSet<Vertex>>(adjacencies);
+    fn on_btree(g in any_undirected_graph()) {
+        test_degeneracy::<BTreeSet<Vertex>>(g);
     }
 
     #[test]
-    fn on_hashset(adjacencies in any_adjacencies()) {
-        test_degeneracy::<HashSet<Vertex>>(adjacencies);
+    fn on_hashset(g in any_undirected_graph()) {
+        test_degeneracy::<HashSet<Vertex>>(g);
     }
 
     #[test]
-    fn on_fnv(adjacencies in any_adjacencies()) {
-        test_degeneracy::<FnvHashSet<Vertex>>(adjacencies);
+    fn on_fnv(g in any_undirected_graph()) {
+        test_degeneracy::<FnvHashSet<Vertex>>(g);
     }
 
     #[test]
-    fn on_hashbrown(adjacencies in any_adjacencies()) {
-        test_degeneracy::<hashbrown::HashSet<Vertex>>(adjacencies);
+    fn on_hashbrown(g in any_undirected_graph()) {
+        test_degeneracy::<hashbrown::HashSet<Vertex>>(g);
     }
 
     #[test]
-    fn on_ordvec(adjacencies in any_adjacencies()) {
-        test_degeneracy::<Vec<Vertex>>(adjacencies);
+    fn on_ordvec(g in any_undirected_graph()) {
+        test_degeneracy::<Vec<Vertex>>(g);
     }
 }

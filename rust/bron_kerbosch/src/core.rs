@@ -19,7 +19,6 @@ pub mod graph;
 pub mod graph_degeneracy;
 mod pile;
 mod priority_queue;
-pub mod slimgraph;
 pub mod vertex;
 pub mod vertexsetlike;
 

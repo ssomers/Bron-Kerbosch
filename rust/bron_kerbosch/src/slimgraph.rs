@@ -1,4 +1,4 @@
-use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use crate::core::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 
 pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
