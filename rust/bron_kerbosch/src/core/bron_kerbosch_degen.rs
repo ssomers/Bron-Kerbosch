@@ -3,8 +3,8 @@
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique::CliqueConsumer;
-use super::graph::{UndirectedGraph, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
+use super::graphlike::{GraphLike, VertexSetLike};
 use super::pile::Pile;
 
 pub fn explore_with_pivot<VertexSet, Graph>(
@@ -13,7 +13,7 @@ pub fn explore_with_pivot<VertexSet, Graph>(
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.

@@ -1,17 +1,17 @@
-use crate::SlimUndirectedGraph;
-use crate::core::graph::{Vertex, VertexSetLike};
-use crate::slimgraph::Adjacencies;
+use crate::Graph;
+use crate::core::graphlike::{Vertex, VertexSetLike};
+use crate::graph::Adjacencies;
 use proptest::strategy::Strategy;
 use std::collections::BTreeSet;
 
 pub fn any_undirected_graph<VertexSet: VertexSetLike + Clone>()
--> impl Strategy<Value = SlimUndirectedGraph<VertexSet>> {
+-> impl Strategy<Value = Graph<VertexSet>> {
     (2..99usize).prop_flat_map(undirected_graph_of_order::<VertexSet>)
 }
 
 fn undirected_graph_of_order<VertexSet: VertexSetLike + Clone>(
     order: usize,
-) -> impl Strategy<Value = SlimUndirectedGraph<VertexSet>> {
+) -> impl Strategy<Value = Graph<VertexSet>> {
     proptest::collection::vec(
         // The vector is indexed by a source vertex and lists a set of destination vertices,
         // where a destination vertex ≥ the source vertex is listed as one less.
@@ -33,5 +33,5 @@ fn undirected_graph_of_order<VertexSet: VertexSetLike + Clone>(
         }
         adjacencies
     })
-    .prop_map(|adjacencies| SlimUndirectedGraph::new(adjacencies))
+    .prop_map(|adjacencies| Graph::new(adjacencies))
 }

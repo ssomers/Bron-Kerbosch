@@ -1,8 +1,8 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
 use super::clique::CliqueConsumer;
-use super::graph::max_degree_vertices;
-use super::graph::{UndirectedGraph, VertexSetLike, vertices};
+use super::graphlike::max_degree_vertices;
+use super::graphlike::{GraphLike, VertexSetLike, vertices};
 use super::pile::Pile;
 use super::vertex::{Vertex, VertexMap};
 
@@ -22,7 +22,7 @@ pub fn explore_with_pivot<VertexSet, Graph>(
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     if let Some(pivot) = max_degree_vertices(graph).next() {
         let mut excluded = VertexMap::new(false, graph.order());
@@ -58,7 +58,7 @@ pub fn visit<VertexSet, Graph>(
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

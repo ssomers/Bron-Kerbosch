@@ -1,5 +1,5 @@
 use super::fortified_counter::FortifiedCounter;
-use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike, vertices};
+use super::graphlike::{GraphLike, Vertex, VertexMap, VertexSetLike, vertices};
 use super::priority_queue::Priority;
 use super::priority_queue::PriorityQueue;
 use std::iter::FusedIterator;
@@ -9,7 +9,7 @@ use std::iter::FusedIterator;
 // Along with the vertex picked, includes the subset of neighbours already picked.
 pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
 where
-    Graph: UndirectedGraph,
+    Graph: GraphLike,
 {
     let mut left_to_pick = FortifiedCounter::new();
     let mut priority_per_vertex = VertexMap::new(None, graph.order());
@@ -44,7 +44,7 @@ pub struct DegeneracyOrderIter<'a, Graph> {
 impl<VertexSet, Graph> DegeneracyOrderIter<'_, Graph>
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
@@ -83,14 +83,14 @@ where
 impl<VertexSet, Graph> FusedIterator for DegeneracyOrderIter<'_, Graph>
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
 }
 
 impl<VertexSet, Graph> Iterator for DegeneracyOrderIter<'_, Graph>
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     type Item = (Vertex, VertexSet);
 

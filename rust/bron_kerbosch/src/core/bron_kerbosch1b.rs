@@ -1,7 +1,7 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
 use super::clique::CliqueConsumer;
-use super::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
+use super::graphlike::{GraphLike, Vertex, VertexSetLike, connected_vertices};
 use super::pile::Pile;
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
@@ -9,7 +9,7 @@ type CliqueInProgress<'a> = Pile<'a, Vertex>;
 pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     let candidates: VertexSet = connected_vertices(graph).collect();
     let num_candidates = candidates.len();
@@ -32,7 +32,7 @@ fn visit<VertexSet, Graph>(
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

@@ -3,8 +3,8 @@
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique::CliqueConsumer;
-use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
 use super::graph_degeneracy::degeneracy_iter;
+use super::graphlike::{GraphLike, Vertex, VertexSetLike};
 use super::pile::Pile;
 use crossbeam_channel::{Receiver, Sender};
 
@@ -15,7 +15,7 @@ pub fn explore_with_pivot_multithreaded<VertexSet, Graph>(
     num_visiting_threads: usize,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     crossbeam::thread::scope(|scope| {
         let (start_tx, start_rx) = crossbeam_channel::bounded(64);
@@ -43,7 +43,7 @@ struct VisitJob<VertexSet> {
 fn initiate<VertexSet, Graph>(graph: &Graph, start_tx: Sender<(Vertex, VertexSet)>)
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     for pair in degeneracy_iter(graph) {
         start_tx.send(pair).unwrap();
@@ -56,7 +56,7 @@ fn dispatch<VertexSet, Graph>(
     visit_tx: Sender<VisitJob<VertexSet>>,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
@@ -81,7 +81,7 @@ fn descend<VertexSet, Graph>(
     mut consumer: CliqueConsumer,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     while let Ok(job) = visit_rx.recv() {
         visit(

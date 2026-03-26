@@ -1,6 +1,6 @@
 use crate::utils;
 use anyhow::{Context, Result, anyhow};
-use bron_kerbosch::{Adjacencies, SlimUndirectedGraph, UndirectedGraph, Vertex, VertexSetLike};
+use bron_kerbosch::{Adjacencies, Graph, GraphLike, Vertex, VertexSetLike};
 use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -93,7 +93,7 @@ fn read_clique_counts(
 pub fn read_undirected<VertexSet>(
     orderstr: &str,
     size: Size,
-) -> Result<(SlimUndirectedGraph<VertexSet>, Option<KnownCliqueCounts>)>
+) -> Result<(Graph<VertexSet>, Option<KnownCliqueCounts>)>
 where
     VertexSet: VertexSetLike + Clone,
 {
@@ -116,7 +116,7 @@ where
     let adjacencies = read_edges(edges_pbuf.as_path(), orderstr, size)?;
     let clique_counts = read_clique_counts(stats_pbuf.as_path(), orderstr, size)?;
 
-    let graph = SlimUndirectedGraph::new(adjacencies);
+    let graph = Graph::new(adjacencies);
     assert_eq!(graph.order(), order);
     assert_eq!(graph.size(), size);
     Ok((graph, clique_counts))

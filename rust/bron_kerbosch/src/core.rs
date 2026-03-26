@@ -15,8 +15,8 @@ pub mod clique;
 pub mod clique_harvester;
 pub mod clique_ordering;
 mod fortified_counter;
-pub mod graph;
 pub mod graph_degeneracy;
+pub mod graphlike;
 mod pile;
 mod priority_queue;
 pub mod vertex;
@@ -29,7 +29,7 @@ pub mod vertexset_testing {
 }
 
 use clique::CliqueConsumer;
-use graph::UndirectedGraph;
+use graphlike::GraphLike;
 
 #[cfg(not(miri))]
 const NUM_FUNCS: usize = 10;
@@ -51,7 +51,7 @@ pub const FUNC_NAMES: &[&str; NUM_FUNCS] = &[
 
 pub fn explore<Graph>(func_index: usize, graph: &Graph, consumer: CliqueConsumer)
 where
-    Graph: UndirectedGraph,
+    Graph: GraphLike,
 {
     match func_index {
         0 => bron_kerbosch1a::explore(graph, consumer),

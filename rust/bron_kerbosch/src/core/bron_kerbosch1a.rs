@@ -1,12 +1,12 @@
 //! Naive Bron-Kerbosch algorithm
 
 use super::clique::{Clique, CliqueConsumer};
-use super::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
+use super::graphlike::{GraphLike, VertexSetLike, connected_vertices};
 
 pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     let candidates: VertexSet = connected_vertices(graph).collect();
     if !candidates.is_empty() {
@@ -28,7 +28,7 @@ fn visit<VertexSet, Graph>(
     clique: Clique,
 ) where
     VertexSet: VertexSetLike,
-    Graph: UndirectedGraph<VertexSet = VertexSet>,
+    Graph: GraphLike<VertexSet = VertexSet>,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

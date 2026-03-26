@@ -1,9 +1,7 @@
-use crate::core::graph::{UndirectedGraph, VertexSetLike, connected_vertices};
 use crate::core::graph_degeneracy::degeneracy_iter;
+use crate::core::graphlike::{GraphLike, VertexSetLike, connected_vertices};
 
-pub fn test_degeneracy<VertexSet: VertexSetLike + Clone>(
-    g: impl UndirectedGraph<VertexSet = VertexSet>,
-) {
+pub fn test_degeneracy<VertexSet: VertexSetLike + Clone>(g: impl GraphLike<VertexSet = VertexSet>) {
     let connected: VertexSet = connected_vertices(&g).collect();
 
     let ordering = Vec::from_iter(degeneracy_iter(&g).map(|(v, _)| v));

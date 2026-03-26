@@ -1,15 +1,15 @@
-use crate::core::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
+use crate::core::graphlike::{GraphLike, Vertex, VertexMap, VertexSetLike};
 
 pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
 #[derive(Debug)]
-pub struct SlimUndirectedGraph<VertexSet: VertexSetLike> {
+pub struct Graph<VertexSet: VertexSetLike> {
     adjacencies: Adjacencies<VertexSet>,
     size: usize,
     max_degree: usize,
 }
 
-impl<VertexSet: VertexSetLike> SlimUndirectedGraph<VertexSet> {
+impl<VertexSet: VertexSetLike> Graph<VertexSet> {
     pub fn are_valid_adjacencies(adjacencies: &Adjacencies<VertexSet>) -> bool {
         adjacencies
             .iter()
@@ -22,7 +22,7 @@ impl<VertexSet: VertexSetLike> SlimUndirectedGraph<VertexSet> {
         let max_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).max().unwrap_or(0);
         let sum_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).sum();
         assert!(sum_degree.is_multiple_of(2));
-        SlimUndirectedGraph {
+        Graph {
             adjacencies,
             size: sum_degree / 2,
             max_degree,
@@ -30,7 +30,7 @@ impl<VertexSet: VertexSetLike> SlimUndirectedGraph<VertexSet> {
     }
 }
 
-impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet> {
+impl<VertexSet: VertexSetLike> GraphLike for Graph<VertexSet> {
     type VertexSet = VertexSet;
 
     fn order(&self) -> usize {
