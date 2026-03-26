@@ -1,7 +1,7 @@
 use crate::core::vertex::VertexMap;
 use crate::{
-    FUNC_NAMES, SlimUndirectedGraphFactory, UndirectedGraphFactory, Vertex, VertexSetLike, explore,
-    new_clique_channel, order_cliques,
+    FUNC_NAMES, SlimUndirectedGraph, Vertex, VertexSetLike, explore, new_clique_channel,
+    order_cliques,
 };
 use std::thread;
 
@@ -18,7 +18,7 @@ fn verticise(vertex_indices: &Vec<usize>) -> Vec<Vertex> {
 impl TestData {
     pub fn run<VertexSet: VertexSetLike>(&self) {
         let adjacencies = VertexMap::from_iter(self.adjacencies.iter().map(verticise));
-        let graph = SlimUndirectedGraphFactory::new(adjacencies);
+        let graph = SlimUndirectedGraph::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
             let (consumer, collector) = new_clique_channel(0, 2);

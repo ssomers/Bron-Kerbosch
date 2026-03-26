@@ -2,8 +2,7 @@ mod known_random_graph;
 mod utils;
 
 use bron_kerbosch::{
-    FUNC_NAMES, OrderedCliques, SlimUndirectedGraphFactory, Vertex, VertexSetLike, explore,
-    new_clique_channel, order_cliques,
+    FUNC_NAMES, OrderedCliques, Vertex, VertexSetLike, explore, new_clique_channel, order_cliques,
 };
 use known_random_graph::{Size, read_undirected};
 use stats::SampleStatistics;
@@ -57,7 +56,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
 ) -> [SampleStatistics<Seconds>; NUM_FUNCS] {
     let instant = Instant::now();
     let (graph, known_clique_count) =
-        read_undirected::<VertexSet, SlimUndirectedGraphFactory>(orderstr, Size::Of(size)).unwrap();
+        read_undirected::<VertexSet>(orderstr, Size::Of(size)).unwrap();
     let known_clique_count = if run == Run::OneOff {
         None
     } else {

@@ -1,7 +1,7 @@
-use crate::SlimUndirectedGraphFactory;
+use crate::SlimUndirectedGraph;
 use crate::core::graph::{UndirectedGraph, Vertex, VertexSetLike, connected_vertices};
 use crate::core::graph_degeneracy::degeneracy_iter;
-use crate::core::graphfactory::{Adjacencies, UndirectedGraphFactory};
+use crate::core::slimgraph::Adjacencies;
 use proptest::strategy::Strategy;
 use std::collections::BTreeSet;
 
@@ -36,7 +36,7 @@ pub fn adjacency_input_of_order<VertexSet: VertexSetLike + Clone>(
 }
 
 pub fn test_degeneracy<VertexSet: VertexSetLike + Clone>(adjacencies: Adjacencies<VertexSet>) {
-    let g = SlimUndirectedGraphFactory::new(adjacencies);
+    let g = SlimUndirectedGraph::new(adjacencies);
     let connected: VertexSet = connected_vertices(&g).collect();
 
     let ordering = Vec::from_iter(degeneracy_iter(&g).map(|(v, _)| v));

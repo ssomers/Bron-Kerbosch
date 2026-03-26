@@ -1,13 +1,23 @@
-use super::graph::{UndirectedGraph, Vertex, VertexSetLike};
-use super::graphfactory::{Adjacencies, UndirectedGraphFactory};
+use super::graph::{UndirectedGraph, Vertex, VertexMap, VertexSetLike};
 
-pub struct SlimUndirectedGraphFactory();
+pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
-impl<VertexSet> UndirectedGraphFactory<VertexSet> for SlimUndirectedGraphFactory
-where
-    VertexSet: VertexSetLike,
-{
-    fn new(adjacencies: Adjacencies<VertexSet>) -> impl UndirectedGraph<VertexSet = VertexSet> {
+#[derive(Debug)]
+pub struct SlimUndirectedGraph<VertexSet: VertexSetLike> {
+    adjacencies: Adjacencies<VertexSet>,
+    size: usize,
+    max_degree: usize,
+}
+
+impl<VertexSet: VertexSetLike> SlimUndirectedGraph<VertexSet> {
+    pub fn are_valid_adjacencies(adjacencies: &Adjacencies<VertexSet>) -> bool {
+        adjacencies
+            .iter()
+            .all(|(v, neighbours)| neighbours.all(|&w| w != v && adjacencies[w].contains(v)))
+        // adjacencies[w] confirms that w is a valid index
+    }
+
+    pub fn new(adjacencies: Adjacencies<VertexSet>) -> Self {
         debug_assert!(Self::are_valid_adjacencies(&adjacencies));
         let max_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).max().unwrap_or(0);
         let sum_degree: usize = adjacencies.iter().map(|(_, a)| a.len()).sum();
@@ -18,13 +28,6 @@ where
             max_degree,
         }
     }
-}
-
-#[derive(Debug)]
-struct SlimUndirectedGraph<VertexSet: VertexSetLike> {
-    adjacencies: Adjacencies<VertexSet>,
-    size: usize,
-    max_degree: usize,
 }
 
 impl<VertexSet: VertexSetLike> UndirectedGraph for SlimUndirectedGraph<VertexSet> {
