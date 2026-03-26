@@ -56,7 +56,7 @@ internal object Main {
     @OptIn(ExperimentalAtomicApi::class)
     @Throws(InterruptedException::class)
     private fun bkTimed(
-        testData: GraphTestData,
+        testData: KnownRandomGraph,
         timedSamples: Int, funcIndices: IntArray
     ): Array<SampleStatistics> {
         var firstOrdered: Optional<List<List<Int>>> = Optional.empty()
@@ -81,7 +81,7 @@ internal object Main {
                 } else {
                     val start = System.nanoTime()
                     val cliqueCounter = AtomicInt(0)
-                    val cliqueConsumer = CliqueConsumer(3, { _ -> cliqueCounter.addAndFetch(1) })
+                    val cliqueConsumer = CliqueConsumer(3) { _ -> cliqueCounter.addAndFetch(1) }
                     FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
                     val elapsed = System.nanoTime() - start
                     val cliqueCount = cliqueCounter.load()
@@ -115,7 +115,7 @@ internal object Main {
                 fo.write(System.lineSeparator())
                 for (size in sizes) {
                     val start = System.nanoTime()
-                    val testData: GraphTestData = GraphTestData.readUndirected(orderStr, order, size)
+                    val testData = KnownRandomGraph.readUndirected(orderStr, order, size)
                     val elapsed = System.nanoTime() - start
                     if (genuine) {
                         System.out.printf(

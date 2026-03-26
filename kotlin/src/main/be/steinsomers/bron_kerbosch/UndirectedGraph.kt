@@ -1,12 +1,27 @@
 package be.steinsomers.bron_kerbosch
 
+fun isLoopFree(adjacencies: List<Set<Int>>): Boolean {
+    return adjacencies.asSequence().filterIndexed { i, neighbours -> neighbours.contains(i) }
+        .none()
+}
+
+fun areNeighboursReciprocalIn(adjacencies: List<Set<Int>>, v: Int, neighbours: Set<Int>): Boolean {
+    return neighbours.all { w -> adjacencies[w].contains(v) }
+}
+
+fun isSymmetric(adjacencies: List<Set<Int>>): Boolean {
+    return adjacencies.foldIndexed(true) { index, valid, neighbours ->
+        valid && areNeighboursReciprocalIn(adjacencies, index, neighbours)
+    }
+}
+
 data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
     val size: Int
     val maxDegree: Int
 
     init {
-        Debug.assert { adjacencies.indices.none { v -> adjacencies[v].contains(v) } }
-        Debug.assert { adjacencies.indices.all { v -> adjacencies[v].all { w -> adjacencies[w].contains(v) } } }
+        Debug.assert { isLoopFree(adjacencies) }
+        Debug.assert { isSymmetric(adjacencies) }
         maxDegree = if (adjacencies.any()) adjacencies.maxOf(Set<Int>::size) else 0
         val totalDegree = adjacencies.sumOf(Set<Int>::size)
         assert(totalDegree % 2 == 0)
@@ -18,23 +33,23 @@ data class UndirectedGraph(private val adjacencies: List<Set<Int>>) {
             return adjacencies.size
         }
 
-    fun degree(node: Int): Int {
-        return adjacencies[node].size
+    fun degree(vertex: Int): Int {
+        return adjacencies[vertex].size
     }
 
-    fun hasDegree(node: Int): Boolean {
-        return adjacencies[node].isNotEmpty()
+    fun hasDegree(vertex: Int): Boolean {
+        return adjacencies[vertex].isNotEmpty()
     }
 
-    fun neighbours(node: Int): Set<Int> {
-        return adjacencies[node]
+    fun neighbours(vertex: Int): Set<Int> {
+        return adjacencies[vertex]
     }
 
-    fun <C : MutableCollection<Int>> connectedVertices(destination: C): C {
-        return (0..<order).filterTo(destination, this::hasDegree)
+    fun connectedVertices(): Sequence<Int> {
+        return (0..<order).asSequence().filter(this::hasDegree)
     }
 
-    fun maxDegreeVertex(): Int? {
-        return (0..<order).firstOrNull { v: Int -> degree(v) == maxDegree }
+    fun maxDegreeVertices(): Sequence<Int> {
+        return (0..<order).asSequence().filter { v -> degree(v) == maxDegree }
     }
 }

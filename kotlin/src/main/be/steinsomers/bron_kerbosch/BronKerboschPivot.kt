@@ -2,15 +2,15 @@ package be.steinsomers.bron_kerbosch
 
 internal object BronKerboschPivot {
     fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer, pivotChoice: PivotChoice) {
-        val pivot = graph.maxDegreeVertex()
+        val pivot = graph.maxDegreeVertices().firstOrNull()
         if (pivot != null) {
             // In this initial iteration, we don't need to represent the set of candidates
             // because all neighbours are candidates until excluded.
             val excluded = BooleanArray(graph.order)
-            for (v in 0..<graph.order) {
+            graph.connectedVertices().forEach { v ->
                 val neighbours = graph.neighbours(v)
-                if (!neighbours.isEmpty() && !neighbours.contains(pivot)) {
-                    val neighbouringExcluded = Util.intersect(neighbours, excluded)
+                if (!neighbours.contains(pivot)) {
+                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v] }
                     if (neighbouringExcluded.size < neighbours.size) {
                         val neighbouringCandidates = (neighbours subtract neighbouringExcluded).toMutableSet()
                         visit(
@@ -69,7 +69,7 @@ internal object BronKerboschPivot {
         var seenLocalDegree = 0
         for (v in candidates) {
             val neighbours = graph.neighbours(v)
-            val localDegree = Util.intersectionSize(neighbours, candidates)
+            val localDegree = Util.overlap(neighbours, candidates)
             if (localDegree == 0) {
                 // Same logic as below, stripped down
                 if (cliqueInProgress.size + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
@@ -86,7 +86,7 @@ internal object BronKerboschPivot {
         if (pivotChoice == PivotChoice.MaxDegreeLocalX && remainingCandidates.isNotEmpty()) {
             for (v in excluded) {
                 val neighbours = graph.neighbours(v)
-                val localDegree = Util.intersectionSize(neighbours, candidates)
+                val localDegree = Util.overlap(neighbours, candidates)
                 if (seenLocalDegree < localDegree) {
                     seenLocalDegree = localDegree
                     pivot = v

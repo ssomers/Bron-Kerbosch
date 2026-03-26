@@ -1,28 +1,21 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.*
-import java.util.stream.IntStream
-import java.util.stream.StreamSupport
-
-internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIterator.OfInt {
+internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator() {
     // Possible values of priorityPerVertex (after initialization):
     //   0: never queued because not connected (degree 0),
     //      or no longer queued because it has been yielded itself,
     //      or no longer queued because all neighbours have been yielded
     //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
-    private val priorityPerVertex: IntArray = IntArray(graph.order)
-    private val queue: SimplePriorityQueue<Int> = SimplePriorityQueue(graph.maxDegree)
+    private val priorityPerVertex = IntArray(graph.order)
+    private val queue = SimplePriorityQueue<Int>(graph.maxDegree)
     private var numLeftToPick = 0
 
     init {
-
-        for (v in 0..<graph.order) {
+        graph.connectedVertices().forEach { v ->
             val priority = graph.degree(v)
-            if (priority > 0) {
-                priorityPerVertex[v] = priority
-                numLeftToPick += 1
-                queue.put(priority, v)
-            }
+            priorityPerVertex[v] = priority
+            numLeftToPick += 1
+            queue.put(priority, v)
         }
     }
 
@@ -84,18 +77,5 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : PrimitiveIt
         fun ensure(priority: Int, elt: T): Boolean {
             return priority == 0 || stackPerPriority[priority - 1].contains(elt)
         }
-    }
-
-    fun stream(): IntStream {
-        val characteristics = (Spliterator.ORDERED
-                or Spliterator.DISTINCT
-                or Spliterator.NONNULL
-                or Spliterator.IMMUTABLE)
-        val spliterator = Spliterators.spliteratorUnknownSize(this, characteristics)
-        return StreamSupport.intStream(spliterator, false)
-    }
-
-    override fun remove() {
-        throw NotImplementedError("I'm a read-only iterator")
     }
 }

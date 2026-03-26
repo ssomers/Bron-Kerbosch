@@ -3,7 +3,7 @@ package be.steinsomers.bron_kerbosch
 
 class BronKerbosch1 : BronKerboschAlgorithm {
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val candidates: MutableSet<Int> = graph.connectedVertices(HashSet())
+        val candidates: MutableSet<Int> = graph.connectedVertices().toCollection(HashSet())
         val excluded: MutableSet<Int> = HashSet(candidates.size)
         visit(
             graph = graph, cliqueConsumer = cliqueConsumer,

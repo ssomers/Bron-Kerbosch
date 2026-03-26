@@ -4,39 +4,30 @@ import net.jqwik.api.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
-import java.util.function.IntConsumer
-import java.util.stream.Stream
 
 internal class GraphDegeneracyTest {
     private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Int> {
         val vertices: SortedSet<Int> = TreeSet()
-        GraphDegeneracy(g).forEachRemaining(IntConsumer { v: Int ->
+        GraphDegeneracy(g).forEachRemaining { v ->
             vertices.add(v)
             vertices.addAll(g.neighbours(v))
-        })
+        }
         return vertices
     }
 
     /**
-     * @param adjacencyLikes List of suggested neighbours, indexed by vertex. The list is oblivious
-     * to symmetry. If a vertex appears as its own neighbour, that entry will
-     * be ignored. The list may be empty to begin with. The latter two
-     * properties make it likely a vertex is unconnected, but the need for
-     * symmetry makes it likely that another vertex connects to it anyway.
+     * @param adjacencyLikes List of suggested neighbours, where numbers ≥ index are offset by 1.
+     *                       Omits the last vertex because we make the actual adjacencies symmetric.
      */
     private fun makeSymmetricAdjacencies(adjacencyLikes: List<Set<Int>>): List<Set<Int>> {
-        val order = adjacencyLikes.size
-        val adjacencies = Stream
-            .generate { HashSet<Int>(16) as MutableSet<Int> }
-            .limit(order.toLong())
-            .toList()
-        for (v in 0..<order) {
-            val neighbours = adjacencyLikes[v]
-            for (w in neighbours) {
-                if (v < w) {
-                    adjacencies[v].add(w)
-                    adjacencies[w].add(v)
-                }
+        val order = adjacencyLikes.size + 1
+        val adjacencies = List(order) { HashSet<Int>() }
+        adjacencyLikes.forEachIndexed { v, neighbourLikes ->
+            for (w1 in neighbourLikes) {
+                require(w1 < order - 1)
+                val w = if (w1 >= v) w1 + 1 else w1
+                adjacencies[v].add(w)
+                adjacencies[w].add(v)
             }
         }
         return adjacencies
@@ -45,8 +36,13 @@ internal class GraphDegeneracyTest {
     @Test
     fun empty() {
         val g = UndirectedGraph(listOf())
-        val f = GraphDegeneracy(g)
-        Assertions.assertFalse(f.hasNext())
+        Assertions.assertFalse(GraphDegeneracy(g).hasNext())
+    }
+
+    @Test
+    fun single() {
+        val g = UndirectedGraph(listOf(setOf()))
+        Assertions.assertFalse(GraphDegeneracy(g).hasNext())
     }
 
     @Test
@@ -77,7 +73,7 @@ internal class GraphDegeneracyTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val connectedVertices: SortedSet<Int> = g.connectedVertices(TreeSet())
+        val connectedVertices: SortedSet<Int> = g.connectedVertices().toCollection(TreeSet())
         return sortedDegeneracyOrderingIncludingNeighbours(g) == connectedVertices
     }
 
@@ -87,13 +83,9 @@ internal class GraphDegeneracyTest {
     ): Boolean {
         val adjacencies: List<Set<Int>> = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val connectedVertices = g.connectedVertices(HashSet())
-        val filtered = GraphDegeneracy(g).stream().count()
-        return if (connectedVertices.isEmpty()) {
-            filtered == 0L
-        } else {
-            filtered < connectedVertices.size
-        }
+        val connected = g.connectedVertices().count()
+        val filtered = GraphDegeneracy(g).asSequence().count()
+        return filtered < connected || (connected == 0 && filtered == 0)
     }
 
     @Property
@@ -102,24 +94,24 @@ internal class GraphDegeneracyTest {
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
         val g = UndirectedGraph(adjacencies)
-        val f = GraphDegeneracy(g)
-        return if (f.hasNext()) {
-            val first = f.nextInt()
-            f.stream().allMatch { v -> g.degree(first) <= g.degree(v) }
+        val ordering = GraphDegeneracy(g)
+        return if (ordering.hasNext()) {
+            val first = ordering.nextInt()
+            ordering.asSequence().all { v -> g.degree(first) <= g.degree(v) }
         } else {
             true
         }
-    }
-
-    private fun arbitraryNeighbours(order: Int): Arbitrary<Set<Int>> {
-        return Arbitraries.integers().between(0, order - 1).set()
     }
 
     // Provide arbitrary input for makeSymmetricAdjacencies.
     @Suppress("unused")
     @Provide
     private fun arbitraryAdjacencyLikes(): Arbitrary<List<Set<Int>>> {
-        val order: Arbitrary<Int> = Arbitraries.integers().between(1, 99)
-        return order.flatMap { o: Int -> arbitraryNeighbours(o).list().ofSize(o) }
+        val order: Arbitrary<Int> = Arbitraries.integers().between(2, 12)
+        return order.flatMap { o: Int -> arbitraryNeighbourLikes(o).list().ofSize(o) }
+    }
+
+    private fun arbitraryNeighbourLikes(order: Int): Arbitrary<Set<Int>> {
+        return Arbitraries.integers().between(0, order - 2).set()
     }
 }

@@ -1,8 +1,5 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.*
-import java.util.function.IntFunction
-
 class BronKerbosch3ST : BronKerboschAlgorithm {
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val worker = Worker(graph, cliqueConsumer)
@@ -10,7 +7,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
     }
 
     private sealed class VisitJob {
-        // Similar to BronKerbosch3_MT but doesn't need sentinels
+        // Similar to BronKerbosch3MT but doesn't need sentinels
         data class Work(
             val startVertex: Int,
             val candidates: MutableSet<Int>,
@@ -23,24 +20,23 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             val visitProducer = VisitProducer()
             val visitor = Visitor()
             val ordering = GraphDegeneracy(graph)
-            return ordering.stream()
-                .mapToObj<VisitJob?>(IntFunction { startVtx: Int -> visitProducer.createJob(startVtx) })
-                .filter { job: VisitJob? -> Objects.nonNull(job) }
-                .toList()
+            return ordering.asSequence()
+                .map { startVtx: Int -> visitProducer.createJobIfNeeded(startVtx) }
+                .toList() // TODO parallelize without intermediate list
                 .parallelStream()
-                .forEach { job: VisitJob -> visitor.visit(job) }
+                .forEach { job: VisitJob? -> if (job != null) visitor.visit(job) }
         }
 
         private inner class VisitProducer {
             private val excluded = BooleanArray(graph.order)
 
-            fun createJob(startVtx: Int): VisitJob? {
+            fun createJobIfNeeded(startVtx: Int): VisitJob? {
                 var job: VisitJob? = null
                 val neighbours = graph.neighbours(startVtx)
-                require(neighbours.isNotEmpty())
+                Debug.assert { neighbours.isNotEmpty() }
                 val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
                 if (!neighbouringCandidates.isEmpty()) {
-                    val neighbouringExcluded = Util.intersect(neighbours, excluded)
+                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v] }
                     job = VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
                 }
                 excluded[startVtx] = true

@@ -5,19 +5,11 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.stream.Stream
 
-internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: Int) {
+internal data class KnownRandomGraph(val graph: UndirectedGraph, val cliqueCount: Int) {
     companion object {
-        private fun newSets(n: Int): MutableList<MutableSet<Int>> {
-            return Stream
-                .generate { HashSet<Int>(16) as MutableSet<Int> }
-                .limit(n.toLong())
-                .toList()
-        }
-
         @Throws(IOException::class)
-        fun readUndirected(orderStr: String, order: Int, size: Int): GraphTestData {
+        fun readUndirected(orderStr: String, order: Int, size: Int): KnownRandomGraph {
             require(order > 2)
             require(size >= 0)
             val fullyMeshedSize = (order.toLong()) * (order - 1) / 2
@@ -29,14 +21,14 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
             val cliqueCount = readStats(statsPath, orderStr, size)
 
             val g = UndirectedGraph(adjacencies)
-            require(g.order == order) { "order mishap" }
-            require(g.size == size) { "size mishap" }
-            return GraphTestData(g, cliqueCount)
+            require(g.order == order)
+            require(g.size == size)
+            return KnownRandomGraph(g, cliqueCount)
         }
 
         @Throws(IOException::class)
         private fun readEdges(path: Path, order: Int, size: Int): MutableList<MutableSet<Int>> {
-            val adjacencies: MutableList<MutableSet<Int>> = newSets(order)
+            val adjacencies: MutableList<MutableSet<Int>> = MutableList(order) { HashSet() }
             Files.newBufferedReader(path).use { br ->
                 for (lineNum in 0..<size) {
                     val line = br.readLine()

@@ -21,7 +21,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             val startVertex: Int,
         ) : StartJob() {
             init {
-                require(startVertex >= 0) // as if to enable Kotlin to enumerate the end cases as negatives
+                require(startVertex >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
             }
         }
     }
@@ -33,7 +33,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             val startVertex: Int, val candidates: MutableSet<Int>, val excluded: MutableSet<Int>
         ) : VisitJob() {
             init {
-                require(startVertex >= 0) // as if to enable Kotlin to enumerate the end cases as negatives
+                require(startVertex >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
             }
         }
     }
@@ -58,9 +58,21 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
 
         private inner class VisitProducer : Runnable {
+            private val excluded = BooleanArray(graph.order)
+
+            private fun process(startVtx: Int) {
+                val neighbours = graph.neighbours(startVtx)
+                Debug.assert { neighbours.isNotEmpty() }
+                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
+                if (!neighbouringCandidates.isEmpty()) {
+                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v] }
+                    visitQueue.put(VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded))
+                }
+                excluded[startVtx] = true
+            }
+
             override fun run() {
                 try {
-                    val excluded = BooleanArray(graph.order)
                     while (true) {
                         when (val job = startQueue.take()) {
                             is StartJob.CleanEnd -> {
@@ -74,17 +86,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                             }
 
                             is StartJob.Work -> {
-                                val startVtx = job.startVertex
-                                val neighbours = graph.neighbours(startVtx)
-                                require(neighbours.isNotEmpty())
-                                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
-                                if (!neighbouringCandidates.isEmpty()) {
-                                    val neighbouringExcluded = Util.intersect(neighbours, excluded)
-                                    visitQueue.put(
-                                        VisitJob.Work(job.startVertex, neighbouringCandidates, neighbouringExcluded)
-                                    )
-                                }
-                                excluded[startVtx] = true
+                                process(job.startVertex)
                             }
                         }
                     }
