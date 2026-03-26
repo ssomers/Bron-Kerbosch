@@ -1,37 +1,43 @@
 use super::*;
-use crate::core::vertexset_testing::graph_degeneracy_testing::test_degeneracy_order;
+use crate::core::vertexset_testing::graph_degeneracy_testing::{any_adjacencies, test_degeneracy};
 
 use fnv::FnvHashSet;
 use hashbrown;
+use proptest::prelude::*;
+use proptest::test_runner::FileFailurePersistence;
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 
 #[cfg(not(miri))]
-#[test]
-fn test_degeneracy_order_btree() {
-    test_degeneracy_order::<BTreeSet<Vertex>>();
-}
+proptest! {
+    #![proptest_config(ProptestConfig {
+        cases: 1968,
+        failure_persistence: Some(Box::new(FileFailurePersistence::WithSource("regressions"))),
+        .. ProptestConfig::default()
+    })]
 
-#[cfg(not(miri))]
-#[test]
-fn test_degeneracy_order_hash() {
-    test_degeneracy_order::<HashSet<Vertex>>();
-}
+    #[test]
+    fn on_btree(adjacencies in any_adjacencies()) {
+        test_degeneracy::<BTreeSet<Vertex>>(adjacencies);
+    }
 
-#[cfg(not(miri))]
-#[test]
-fn test_degeneracy_order_fnv() {
-    test_degeneracy_order::<FnvHashSet<Vertex>>();
-}
+    #[test]
+    fn on_hashset(adjacencies in any_adjacencies()) {
+        test_degeneracy::<HashSet<Vertex>>(adjacencies);
+    }
 
-#[cfg(not(miri))]
-#[test]
-fn test_degeneracy_order_hashbrown() {
-    test_degeneracy_order::<hashbrown::HashSet<Vertex>>();
-}
+    #[test]
+    fn on_fnv(adjacencies in any_adjacencies()) {
+        test_degeneracy::<FnvHashSet<Vertex>>(adjacencies);
+    }
 
-#[cfg(not(miri))]
-#[test]
-fn test_degeneracy_order_ordvec() {
-    test_degeneracy_order::<Vec<Vertex>>();
+    #[test]
+    fn on_hashbrown(adjacencies in any_adjacencies()) {
+        test_degeneracy::<hashbrown::HashSet<Vertex>>(adjacencies);
+    }
+
+    #[test]
+    fn on_ordvec(adjacencies in any_adjacencies()) {
+        test_degeneracy::<Vec<Vertex>>(adjacencies);
+    }
 }

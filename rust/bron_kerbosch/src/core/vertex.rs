@@ -30,11 +30,11 @@ impl<T> IndexMut<Vertex> for [T] {
 pub struct VertexMap<T>(Vec<T>);
 
 impl<T> VertexMap<T> {
-    pub fn new(stamp: T, order: usize) -> Self
+    pub fn new(source: T, order: usize) -> Self
     where
         T: Clone,
     {
-        Self(vec![stamp; order])
+        Self(vec![source; order])
     }
 
     pub fn is_empty(&self) -> bool {

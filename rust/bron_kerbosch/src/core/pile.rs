@@ -53,17 +53,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn pile() {
-        let p1 = Pile::from(4);
-        {
-            let p2 = p1.pile(2);
-            assert_eq!(p2.collect(), vec![2, 4]);
-        }
-        assert_eq!(p1.collect(), vec![4]);
+    fn empty() {
+        assert_eq!(Pile::<bool>::EMPTY.collect(), vec![]);
     }
 
     #[test]
-    fn empty_pile() {
-        assert_eq!(Pile::<bool>::EMPTY.collect(), vec![]);
+    fn one_level() {
+        let p1 = Pile::from(true);
+        assert_eq!(p1.collect(), vec![true]);
+    }
+
+    #[test]
+    fn two_levels() {
+        let p1 = Pile::from(22);
+        {
+            let p2 = p1.pile(11);
+            assert_eq!(p2.collect(), vec![11, 22]);
+        }
+        assert_eq!(p1.collect(), vec![22]);
     }
 }

@@ -5,35 +5,35 @@ use std::collections::BTreeSet;
 use std::collections::HashSet;
 
 #[test]
-fn bk_btree() {
+fn on_btree() {
     for td in all_test_data() {
         td.run::<BTreeSet<_>>();
     }
 }
 
 #[test]
-fn bk_hash() {
+fn on_hash() {
     for td in all_test_data() {
         td.run::<HashSet<_>>();
     }
 }
 
 #[test]
-fn bk_fnv() {
+fn on_fnv() {
     for td in all_test_data() {
         td.run::<FnvHashSet<_>>();
     }
 }
 
 #[test]
-fn bk_hashbrown() {
+fn on_hashbrown() {
     for td in all_test_data() {
         td.run::<hashbrown::HashSet<_>>();
     }
 }
 
 #[test]
-fn bk_ordvec() {
+fn on_ordvec() {
     for td in all_test_data() {
         td.run::<Vec<_>>();
     }

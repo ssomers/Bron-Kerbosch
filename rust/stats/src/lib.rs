@@ -71,9 +71,10 @@ mod tests {
     #![allow(clippy::float_cmp)]
 
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
-    fn stats_0_i32() {
+    fn empty_i32() {
         let s: SampleStatistics<i32> = Default::default();
         assert!(s.mean().is_nan());
         assert!(s.variance().is_nan());
@@ -81,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn stats_1_i32() {
+    fn of_1_i32() {
         let mut s: SampleStatistics<i32> = Default::default();
         s.put(-1);
         assert_eq!(s.mean(), -1.0);
@@ -90,7 +91,7 @@ mod tests {
     }
 
     #[test]
-    fn stats_2_i32() {
+    fn of_2_i32() {
         let mut s: SampleStatistics<i32> = Default::default();
         s.put(-1);
         s.put(1);
@@ -100,7 +101,7 @@ mod tests {
     }
 
     #[test]
-    fn stats_3_i32() {
+    fn of_3_i32() {
         let mut s: SampleStatistics<i32> = Default::default();
         s.put(89);
         s.put(90);
@@ -111,7 +112,7 @@ mod tests {
     }
 
     #[test]
-    fn stats_9_u32() {
+    fn of_9_u32() {
         let mut s: SampleStatistics<u32> = Default::default();
         s.put(2);
         s.put(4);
@@ -128,7 +129,7 @@ mod tests {
     }
 
     #[test]
-    fn stats_2_f64() {
+    fn of_2_f64() {
         let mut s: SampleStatistics<f64> = Default::default();
         s.put(1.0);
         s.put(2.0);
@@ -136,12 +137,6 @@ mod tests {
         assert_eq!(s.variance(), 0.5);
         assert_eq!(s.deviation(), 0.5_f64.sqrt());
     }
-}
-
-#[cfg(all(test, not(miri)))]
-mod proptests {
-    use super::*;
-    use proptest::prelude::*;
 
     proptest! {
         #[test]
