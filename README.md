@@ -59,7 +59,7 @@ In particular:
 
 ### Results
 
-We gain as much as through switching to the best performing programming language
+We gain almost as much as through switching to the best performing programming language
 
 ![Time spent on graphs of order 100](doc/report_1.svg)
 
@@ -84,6 +84,7 @@ In addition to the local optimizations mentioned above:
 - In the same first iteration, we store the set of excluded vertices as an array of booleans,
   because as a regular set it ends up being huge, and most of the time the set we intersect with
   (the set of neighbours of some vertex) will be smaller, so all that matters is lookup speed.
+- Or even better, in Ver3 algorithms, we don't need to maintain or use the set of excluded vertices at all, because the degeneracy calculation already provides the set of excluded neighbours.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -213,10 +214,10 @@ various generic set implementations.
 
 ### Rust
 * **BTree:** `std::collections::BTreeSet`
-* **Hash:** `std::collections::HashSet`, a wrapper around a version of hashbrown, in particular 0.11.0 in Rust 1.58.0
-* **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.12
+* **Hash:** `std::collections::HashSet`, a wrapper around a version of hashbrown
+* **hashbrown:** `HashSet` from [crate hashbrown](https://crates.io/crates/hashbrown) 0.16
 * **fnv:** `FnvHashSet` from [crate fnv](https://crates.io/crates/fnv) 1.0.7
-* **ord_vec:** ordered `std::collections::Vec` (obviously, this can only work well on small graphs)
+* **ord_vec:** ordered `std::collections::Vec`
 
 #### Results
 
