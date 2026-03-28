@@ -1,5 +1,5 @@
 use super::*;
-use crate::core::vertexset_testing::graph_degeneracy_testing::test_degeneracy;
+use crate::core::graph_degeneracy_testing::test_degeneracy;
 use crate::graph_proptest_strategy::any_undirected_graph;
 
 use fnv::FnvHashSet;

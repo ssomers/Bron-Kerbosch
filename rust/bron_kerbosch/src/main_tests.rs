@@ -1,4 +1,4 @@
-use crate::core::vertexset_testing::main_testing::all_test_data;
+use crate::core::main_testing::all_test_data;
 use fnv::FnvHashSet;
 use hashbrown;
 use std::collections::BTreeSet;
