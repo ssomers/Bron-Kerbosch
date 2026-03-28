@@ -2,8 +2,6 @@ use super::*;
 use crate::core::graph_degeneracy_testing::test_degeneracy;
 use crate::graph_proptest_strategy::any_undirected_graph;
 
-use fnv::FnvHashSet;
-use hashbrown;
 use proptest::prelude::*;
 use proptest::test_runner::FileFailurePersistence;
 use std::collections::BTreeSet;
@@ -29,7 +27,7 @@ proptest! {
 
     #[test]
     fn on_fnv(g in any_undirected_graph()) {
-        test_degeneracy::<FnvHashSet<Vertex>>(g);
+        test_degeneracy::<fnv::FnvHashSet<Vertex>>(g);
     }
 
     #[test]

@@ -150,7 +150,7 @@ mod tests {
         fn put_1_f64(x in proptest::num::f64::NORMAL) {
             let mut s: SampleStatistics<f64> = Default::default();
             s.put(x);
-            assert_eq!(s.mean(), x.into());
+            assert_eq!(s.mean(), x);
         }
 
         #[test]

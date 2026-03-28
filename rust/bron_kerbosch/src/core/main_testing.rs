@@ -8,14 +8,15 @@ pub struct TestData {
     cliques: Vec<Vec<usize>>,
 }
 
-fn verticise(vertex_indices: &Vec<usize>) -> Vec<Vertex> {
+#[allow(clippy::ptr_arg)]
+fn verticise<VertexSet: VertexSetLike>(vertex_indices: &Vec<usize>) -> VertexSet {
     vertex_indices.iter().copied().map(Vertex::new).collect()
 }
 
 impl TestData {
     pub fn run<VertexSet: VertexSetLike>(&self) {
-        let adjacencies = VertexMap::from_iter(self.adjacencies.iter().map(verticise));
-        let graph = Graph::new(adjacencies);
+        let adjacencies = VertexMap::<VertexSet>::from_iter(self.adjacencies.iter().map(verticise));
+        let graph = Graph::<VertexSet>::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
             let (consumer, collector) = new_clique_channel(0, 2);

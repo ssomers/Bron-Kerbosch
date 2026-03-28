@@ -1,6 +1,4 @@
 use crate::core::main_testing::all_test_data;
-use fnv::FnvHashSet;
-use hashbrown;
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 
@@ -21,7 +19,7 @@ fn on_hash() {
 #[test]
 fn on_fnv() {
     for td in all_test_data() {
-        td.run::<FnvHashSet<_>>();
+        td.run::<fnv::FnvHashSet<_>>();
     }
 }
 
