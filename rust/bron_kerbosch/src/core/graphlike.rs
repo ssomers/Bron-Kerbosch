@@ -11,23 +11,14 @@ pub trait GraphLike: Sync {
     fn neighbours(&self, v: Vertex) -> &Self::VertexSet;
 }
 
-pub fn vertices<Graph>(g: &Graph) -> impl Iterator<Item = Vertex>
-where
-    Graph: GraphLike,
-{
+pub fn vertices(g: &impl GraphLike) -> impl Iterator<Item = Vertex> {
     (0..g.order()).map(Vertex::new)
 }
 
-pub fn connected_vertices<Graph>(g: &Graph) -> impl Iterator<Item = Vertex>
-where
-    Graph: GraphLike,
-{
+pub fn connected_vertices(g: &impl GraphLike) -> impl Iterator<Item = Vertex> {
     vertices(g).filter(|&v| g.degree(v) > 0)
 }
 
-pub fn max_degree_vertices<Graph>(g: &Graph) -> impl Iterator<Item = Vertex>
-where
-    Graph: GraphLike,
-{
+pub fn max_degree_vertices(g: &impl GraphLike) -> impl Iterator<Item = Vertex> {
     vertices(g).filter(|&v| g.degree(v) == g.max_degree())
 }
