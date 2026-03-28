@@ -1,20 +1,22 @@
 use super::fortified_counter::FortifiedCounter;
-use super::graphlike::{GraphLike, Vertex, VertexMap, VertexSetLike, vertices};
+use super::graph::Graph;
 use super::priority_queue::Priority;
 use super::priority_queue::PriorityQueue;
+use super::vertex::{Vertex, VertexMap};
+use super::vertexsetlike::VertexSetLike;
 use std::iter::FusedIterator;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
 // whose neighbours have all been enumerated already.
 // Along with the vertex picked, includes the subset of neighbours already picked.
-pub fn degeneracy_iter<Graph>(graph: &Graph) -> DegeneracyOrderIter<'_, Graph>
+pub fn degeneracy_iter<VertexSet>(graph: &Graph<VertexSet>) -> DegeneracyOrderIter<'_, VertexSet>
 where
-    Graph: GraphLike,
+    VertexSet: VertexSetLike,
 {
     let mut left_to_pick = FortifiedCounter::new();
     let mut priority_per_vertex = VertexMap::new(None, graph.order());
     let mut queue = PriorityQueue::new(graph.max_degree());
-    for v in vertices(graph) {
+    for v in graph.vertices() {
         if let Some(priority) = Priority::new(graph.degree(v)) {
             left_to_pick.add(v);
             priority_per_vertex[v] = Some(priority);
@@ -30,8 +32,11 @@ where
     }
 }
 
-pub struct DegeneracyOrderIter<'a, Graph> {
-    graph: &'a Graph,
+pub struct DegeneracyOrderIter<'a, VertexSet>
+where
+    VertexSet: VertexSetLike,
+{
+    graph: &'a Graph<VertexSet>,
     left_to_pick: FortifiedCounter<Vertex>,
     priority_per_vertex: VertexMap<Option<Priority>>,
     // If priority is None, the vertex either:
@@ -41,10 +46,9 @@ pub struct DegeneracyOrderIter<'a, Graph> {
     queue: PriorityQueue<Vertex>,
 }
 
-impl<VertexSet, Graph> DegeneracyOrderIter<'_, Graph>
+impl<VertexSet> DegeneracyOrderIter<'_, VertexSet>
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
@@ -80,17 +84,11 @@ where
     }
 }
 
-impl<VertexSet, Graph> FusedIterator for DegeneracyOrderIter<'_, Graph>
-where
-    VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
-{
-}
+impl<VertexSet> FusedIterator for DegeneracyOrderIter<'_, VertexSet> where VertexSet: VertexSetLike {}
 
-impl<VertexSet, Graph> Iterator for DegeneracyOrderIter<'_, Graph>
+impl<VertexSet> Iterator for DegeneracyOrderIter<'_, VertexSet>
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     type Item = (Vertex, VertexSet);
 

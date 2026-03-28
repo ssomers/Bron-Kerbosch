@@ -1,6 +1,6 @@
 use crate::utils;
 use anyhow::{Context, Result, anyhow};
-use bron_kerbosch::{Adjacencies, Graph, GraphLike, Vertex, VertexSetLike};
+use bron_kerbosch::{Adjacencies, Graph, Vertex, VertexSetLike};
 use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};

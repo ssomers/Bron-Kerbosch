@@ -1,10 +1,10 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
 use super::clique::CliqueConsumer;
-use super::graphlike::max_degree_vertices;
-use super::graphlike::{GraphLike, VertexSetLike, vertices};
+use super::graph::Graph;
 use super::pile::Pile;
 use super::vertex::{Vertex, VertexMap};
+use super::vertexsetlike::VertexSetLike;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
@@ -16,17 +16,16 @@ pub enum PivotChoice {
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore_with_pivot<VertexSet, Graph>(
-    graph: &Graph,
+pub fn explore_with_pivot<VertexSet>(
+    graph: &Graph<VertexSet>,
     mut consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
-    if let Some(pivot) = max_degree_vertices(graph).next() {
+    if let Some(pivot) = graph.max_degree_vertices().next() {
         let mut excluded = VertexMap::new(false, graph.order());
-        for v in vertices(graph) {
+        for v in graph.vertices() {
             let neighbours = graph.neighbours(v);
             if !neighbours.is_empty() && !neighbours.contains(pivot) {
                 let neighbouring_excluded: VertexSet =
@@ -49,8 +48,8 @@ pub fn explore_with_pivot<VertexSet, Graph>(
     }
 }
 
-pub fn visit<VertexSet, Graph>(
-    graph: &Graph,
+pub fn visit<VertexSet>(
+    graph: &Graph<VertexSet>,
     consumer: &mut CliqueConsumer,
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
@@ -58,7 +57,6 @@ pub fn visit<VertexSet, Graph>(
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
     debug_assert!(excluded.all(|&v| graph.degree(v) > 0));

@@ -2,22 +2,22 @@
 
 use super::bron_kerbosch_pivot::{PivotChoice, visit};
 use super::clique::CliqueConsumer;
-use super::graphlike::{GraphLike, VertexSetLike, connected_vertices};
+use super::graph::Graph;
+use super::vertexsetlike::VertexSetLike;
 use crate::core::pile::Pile;
 
-pub fn explore<VertexSet, Graph>(graph: &Graph, mut consumer: CliqueConsumer)
+pub fn explore<VertexSet>(graph: &Graph<VertexSet>, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
-    let candidates: VertexSet = connected_vertices(graph).collect();
+    let candidates: VertexSet = graph.connected_vertices().collect();
     if !candidates.is_empty() {
         visit(
             graph,
             &mut consumer,
             PivotChoice::Random,
             candidates,
-            Graph::VertexSet::new(),
+            VertexSet::new(),
             &Pile::EMPTY,
         );
     }

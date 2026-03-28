@@ -1,4 +1,5 @@
-use crate::core::graphlike::{GraphLike, Vertex, VertexMap, VertexSetLike};
+use super::vertex::{Vertex, VertexMap};
+use super::vertexsetlike::VertexSetLike;
 
 pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
@@ -30,26 +31,37 @@ impl<VertexSet: VertexSetLike> Graph<VertexSet> {
     }
 }
 
-impl<VertexSet: VertexSetLike> GraphLike for Graph<VertexSet> {
-    type VertexSet = VertexSet;
-
-    fn order(&self) -> usize {
+impl<VertexSet: VertexSetLike> Graph<VertexSet> {
+    pub fn order(&self) -> usize {
         self.adjacencies.len()
     }
 
-    fn size(&self) -> usize {
+    pub fn size(&self) -> usize {
         self.size
     }
 
-    fn max_degree(&self) -> usize {
+    pub fn max_degree(&self) -> usize {
         self.max_degree
     }
 
-    fn degree(&self, v: Vertex) -> usize {
+    pub fn degree(&self, v: Vertex) -> usize {
         self.neighbours(v).len()
     }
 
-    fn neighbours(&self, v: Vertex) -> &VertexSet {
+    pub fn neighbours(&self, v: Vertex) -> &VertexSet {
         &self.adjacencies[v]
+    }
+
+    pub fn vertices(&self) -> impl Iterator<Item = Vertex> {
+        (0..self.order()).map(Vertex::new)
+    }
+
+    pub fn connected_vertices(&self) -> impl Iterator<Item = Vertex> {
+        self.vertices().filter(|&v| self.degree(v) > 0)
+    }
+
+    pub fn max_degree_vertices(&self) -> impl Iterator<Item = Vertex> {
+        self.vertices()
+            .filter(|&v| self.degree(v) == self.max_degree())
     }
 }

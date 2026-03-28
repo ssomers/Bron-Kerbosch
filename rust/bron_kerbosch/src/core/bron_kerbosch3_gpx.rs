@@ -3,12 +3,12 @@
 
 use super::bron_kerbosch_degen::{PivotChoice, explore_with_pivot};
 use super::clique::CliqueConsumer;
-use super::graphlike::{GraphLike, VertexSetLike};
+use super::graph::Graph;
+use super::vertexsetlike::VertexSetLike;
 
-pub fn explore<VertexSet, Graph>(graph: &Graph, consumer: CliqueConsumer)
+pub fn explore<VertexSet>(graph: &Graph<VertexSet>, consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     explore_with_pivot(graph, consumer, PivotChoice::MaxDegreeLocalX)
 }

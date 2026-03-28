@@ -1,36 +1,26 @@
-use crate::core::vertex::VertexMap;
-use crate::{FUNC_NAMES, Graph, Vertex, VertexSetLike, explore, new_clique_channel, order_cliques};
-use std::thread;
+use crate::VertexSetLike;
 
-pub struct TestData {
+use super::clique_ordering::OrderedCliques;
+use super::graph::Graph;
+use super::vertex::Vertex;
+
+pub struct TestGraph<VertexSet: VertexSetLike> {
+    pub name: &'static str,
+    pub graph: Graph<VertexSet>,
+    pub cliques: OrderedCliques,
+}
+
+struct TestData {
     name: &'static str,
     adjacencies: Vec<Vec<usize>>,
     cliques: Vec<Vec<usize>>,
 }
 
-#[allow(clippy::ptr_arg)]
-fn verticise<VertexSet: VertexSetLike>(vertex_indices: &Vec<usize>) -> VertexSet {
+fn verticise<VertexSet: VertexSetLike>(vertex_indices: &[usize]) -> VertexSet {
     vertex_indices.iter().copied().map(Vertex::new).collect()
 }
 
-impl TestData {
-    pub fn run<VertexSet: VertexSetLike>(&self) {
-        let adjacencies = VertexMap::<VertexSet>::from_iter(self.adjacencies.iter().map(verticise));
-        let graph = Graph::<VertexSet>::new(adjacencies);
-        let expected = order_cliques(self.cliques.iter().map(verticise));
-        for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-            let (consumer, collector) = new_clique_channel(0, 2);
-            let cliques = thread::scope(|s| {
-                s.spawn(|| explore(func_index, &graph, consumer));
-                collector.collect_cliques()
-            });
-            let cliques = order_cliques(cliques.into_iter());
-            assert_eq!(cliques, expected, "for {} on {}", func_name, self.name);
-        }
-    }
-}
-
-pub fn all_test_data() -> Vec<TestData> {
+pub fn all_test_graphs<VertexSet: VertexSetLike>() -> Vec<TestGraph<VertexSet>> {
     vec![
         TestData {
             name: "order_0",
@@ -175,4 +165,16 @@ pub fn all_test_data() -> Vec<TestData> {
             ],
         },
     ]
+    .iter()
+    .map(|r| TestGraph {
+        name: r.name,
+        graph: Graph::new(
+            r.adjacencies
+                .iter()
+                .map(|neighbours| verticise(neighbours))
+                .collect(),
+        ),
+        cliques: r.cliques.iter().map(|clique| verticise(clique)).collect(),
+    })
+    .collect()
 }

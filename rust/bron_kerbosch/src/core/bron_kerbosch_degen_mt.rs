@@ -3,19 +3,20 @@
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique::CliqueConsumer;
+use super::graph::Graph;
 use super::graph_degeneracy::degeneracy_iter;
-use super::graphlike::{GraphLike, Vertex, VertexSetLike};
 use super::pile::Pile;
+use super::vertex::Vertex;
+use super::vertexsetlike::VertexSetLike;
 use crossbeam_channel::{Receiver, Sender};
 
-pub fn explore_with_pivot_multithreaded<VertexSet, Graph>(
-    graph: &Graph,
+pub fn explore_with_pivot_multithreaded<VertexSet>(
+    graph: &Graph<VertexSet>,
     consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
     num_visiting_threads: usize,
 ) where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     crossbeam::thread::scope(|scope| {
         let (start_tx, start_rx) = crossbeam_channel::bounded(64);
@@ -40,23 +41,21 @@ struct VisitJob<VertexSet> {
     excluded: VertexSet,
 }
 
-fn initiate<VertexSet, Graph>(graph: &Graph, start_tx: Sender<(Vertex, VertexSet)>)
+fn initiate<VertexSet>(graph: &Graph<VertexSet>, start_tx: Sender<(Vertex, VertexSet)>)
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     for pair in degeneracy_iter(graph) {
         start_tx.send(pair).unwrap();
     }
 }
 
-fn dispatch<VertexSet, Graph>(
-    graph: &Graph,
+fn dispatch<VertexSet>(
+    graph: &Graph<VertexSet>,
     start_rx: Receiver<(Vertex, VertexSet)>,
     visit_tx: Sender<VisitJob<VertexSet>>,
 ) where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
@@ -74,14 +73,13 @@ fn dispatch<VertexSet, Graph>(
     }
 }
 
-fn descend<VertexSet, Graph>(
-    graph: &Graph,
+fn descend<VertexSet>(
+    graph: &Graph<VertexSet>,
     pivot_selection: PivotChoice,
     visit_rx: Receiver<VisitJob<VertexSet>>,
     mut consumer: CliqueConsumer,
 ) where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     while let Ok(job) = visit_rx.recv() {
         visit(

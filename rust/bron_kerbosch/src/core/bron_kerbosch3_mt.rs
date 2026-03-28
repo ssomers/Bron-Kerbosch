@@ -4,12 +4,12 @@
 
 use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_pivot_multithreaded};
 use super::clique::CliqueConsumer;
-use super::graphlike::{GraphLike, VertexSetLike};
+use super::graph::Graph;
+use super::vertexsetlike::VertexSetLike;
 
-pub fn explore<VertexSet, Graph>(graph: &Graph, consumer: CliqueConsumer)
+pub fn explore<VertexSet>(graph: &Graph<VertexSet>, consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
-    Graph: GraphLike<VertexSet = VertexSet>,
 {
     const NUM_VISITING_THREADS: usize = 5;
     explore_with_pivot_multithreaded(

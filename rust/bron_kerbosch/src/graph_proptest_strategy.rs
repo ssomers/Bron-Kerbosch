@@ -1,6 +1,4 @@
-use crate::Graph;
-use crate::core::graphlike::{Vertex, VertexSetLike};
-use crate::graph::Adjacencies;
+use crate::{Adjacencies, Graph, Vertex, VertexSetLike};
 use proptest::strategy::Strategy;
 use std::collections::BTreeSet;
 
