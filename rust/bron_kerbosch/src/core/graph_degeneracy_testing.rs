@@ -2,7 +2,7 @@ use super::graph::Graph;
 use super::graph_degeneracy::degeneracy_iter;
 use super::vertexsetlike::VertexSetLike;
 
-pub fn test_degeneracy<VertexSet: VertexSetLike + Clone>(g: Graph<VertexSet>) {
+pub fn test_degeneracy<VertexSet: VertexSetLike>(g: Graph<VertexSet>) {
     let connected: VertexSet = g.connected_vertices().collect();
 
     let ordering = Vec::from_iter(degeneracy_iter(&g).map(|(v, _)| v));

@@ -7,11 +7,13 @@ mod vertexset_hashset;
 mod vertexset_ordvec;
 
 #[cfg(test)]
-mod graph_degeneracy_tests;
+mod graph_degeneracy_lab_tests;
+#[cfg(all(test, not(miri)))]
+mod graph_degeneracy_pbt_tests;
 #[cfg(test)]
 mod graph_proptest_strategy;
 #[cfg(test)]
-mod main_tests;
+mod main_lab_tests;
 #[cfg(test)]
 mod vertexset_tests;
 
@@ -22,11 +24,7 @@ pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};
 pub use core::vertexsetlike::VertexSetLike;
 
-#[cfg(not(miri))]
-const NUM_FUNCS: usize = 10;
-#[cfg(miri)]
-const NUM_FUNCS: usize = 9;
-pub const FUNC_NAMES: &[&str; NUM_FUNCS] = &[
+pub const FUNC_NAMES: &[&str] = &[
     "Ver1",
     "Ver1½",
     "Ver2-GP",

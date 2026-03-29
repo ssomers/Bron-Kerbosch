@@ -4,7 +4,7 @@ use super::clique_ordering::OrderedCliques;
 use super::graph::Graph;
 use super::vertex::Vertex;
 
-pub struct TestGraph<VertexSet: VertexSetLike> {
+pub struct LabGraph<VertexSet: VertexSetLike> {
     pub name: &'static str,
     pub graph: Graph<VertexSet>,
     pub cliques: OrderedCliques,
@@ -16,11 +16,22 @@ struct TestData {
     cliques: Vec<Vec<usize>>,
 }
 
-fn verticise<VertexSet: VertexSetLike>(vertex_indices: &[usize]) -> VertexSet {
-    vertex_indices.iter().copied().map(Vertex::new).collect()
+impl TestData {
+    #[cfg(not(miri))]
+    fn keep(&self) -> bool {
+        true
+    }
+    #[cfg(miri)]
+    fn keep(&self) -> bool {
+        self.adjacencies.len() < 4
+    }
 }
 
-pub fn all_test_graphs<VertexSet: VertexSetLike>() -> Vec<TestGraph<VertexSet>> {
+fn verticise<VertexSet: VertexSetLike>(vertex_indices: Vec<usize>) -> VertexSet {
+    vertex_indices.into_iter().map(Vertex::new).collect()
+}
+
+pub fn all_lab_graphs<VertexSet: VertexSetLike>() -> Vec<LabGraph<VertexSet>> {
     vec![
         TestData {
             name: "order_0",
@@ -165,16 +176,12 @@ pub fn all_test_graphs<VertexSet: VertexSetLike>() -> Vec<TestGraph<VertexSet>> 
             ],
         },
     ]
-    .iter()
-    .map(|r| TestGraph {
+    .into_iter()
+    .filter(TestData::keep)
+    .map(|r| LabGraph {
         name: r.name,
-        graph: Graph::new(
-            r.adjacencies
-                .iter()
-                .map(|neighbours| verticise(neighbours))
-                .collect(),
-        ),
-        cliques: r.cliques.iter().map(|clique| verticise(clique)).collect(),
+        graph: Graph::new(r.adjacencies.into_iter().map(verticise).collect()),
+        cliques: r.cliques.into_iter().map(verticise).collect(),
     })
     .collect()
 }

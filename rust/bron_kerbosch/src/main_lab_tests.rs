@@ -1,10 +1,10 @@
-use crate::core::main_testing::{TestGraph, all_test_graphs};
+use crate::core::lab_graphs::{LabGraph, all_lab_graphs};
 use crate::{FUNC_NAMES, VertexSetLike, explore, new_clique_channel, order_cliques};
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 use std::thread;
 
-fn run<VertexSet: VertexSetLike>(td: TestGraph<VertexSet>) {
+fn run<VertexSet: VertexSetLike>(td: LabGraph<VertexSet>) {
     for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
         let (consumer, collector) = new_clique_channel(0, 2);
         let cliques = thread::scope(|s| {
@@ -17,7 +17,7 @@ fn run<VertexSet: VertexSetLike>(td: TestGraph<VertexSet>) {
 }
 
 fn run_all<VertexSet: VertexSetLike>() {
-    for td in all_test_graphs() {
+    for td in all_lab_graphs() {
         run::<VertexSet>(td);
     }
 }

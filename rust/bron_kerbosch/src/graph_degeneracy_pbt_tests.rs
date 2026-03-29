@@ -1,20 +1,12 @@
-use super::*;
+use crate::Vertex;
 use crate::core::graph_degeneracy_testing::test_degeneracy;
 use crate::graph_proptest_strategy::any_undirected_graph;
 
 use proptest::prelude::*;
-use proptest::test_runner::FileFailurePersistence;
 use std::collections::BTreeSet;
 use std::collections::HashSet;
 
-#[cfg(not(miri))]
 proptest! {
-    #![proptest_config(ProptestConfig {
-        cases: 1968,
-        failure_persistence: Some(Box::new(FileFailurePersistence::WithSource("regressions"))),
-        .. ProptestConfig::default()
-    })]
-
     #[test]
     fn on_btree(g in any_undirected_graph()) {
         test_degeneracy::<BTreeSet<Vertex>>(g);

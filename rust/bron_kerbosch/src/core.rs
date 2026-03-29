@@ -24,4 +24,4 @@ pub mod vertexsetlike;
 #[cfg(test)]
 pub mod graph_degeneracy_testing;
 #[cfg(test)]
-pub mod main_testing;
+pub mod lab_graphs;
