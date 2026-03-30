@@ -12,6 +12,7 @@ pub mod bron_kerbosch_degen;
 pub mod bron_kerbosch_degen_mt;
 pub mod bron_kerbosch_pivot;
 pub mod clique;
+pub mod clique_consumer;
 pub mod clique_ordering;
 mod fortified_counter;
 pub mod graph;
@@ -25,3 +26,7 @@ pub mod vertexsetlike;
 pub mod graph_degeneracy_testing;
 #[cfg(test)]
 pub mod lab_graphs;
+#[cfg(test)]
+pub mod pile_tests;
+#[cfg(test)]
+pub mod priority_queue_tests;

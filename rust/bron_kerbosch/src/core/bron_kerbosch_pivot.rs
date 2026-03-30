@@ -1,6 +1,6 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::pile::Pile;
 use super::vertex::{Vertex, VertexMap};

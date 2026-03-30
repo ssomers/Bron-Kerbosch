@@ -2,7 +2,7 @@
 
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;

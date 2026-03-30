@@ -1,6 +1,7 @@
 //! Naive Bron-Kerbosch algorithm
 
-use super::clique::{Clique, CliqueConsumer};
+use super::clique::Clique;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 
@@ -25,7 +26,7 @@ fn visit<VertexSet>(
     consumer: &mut CliqueConsumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
-    clique: Clique,
+    clique_in_progress: Clique,
 ) where
     VertexSet: VertexSetLike,
 {
@@ -34,8 +35,8 @@ fn visit<VertexSet>(
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
-        if excluded.is_empty() && consumer.is_accepted_size(clique.len()) {
-            consumer.accept(clique);
+        if excluded.is_empty() && consumer.is_accepted_size(clique_in_progress.len()) {
+            consumer.accept(clique_in_progress);
         }
         return;
     }
@@ -48,7 +49,7 @@ fn visit<VertexSet>(
             consumer,
             neighbouring_candidates,
             neighbouring_excluded,
-            [clique.as_slice(), &[v]].concat(),
+            [clique_in_progress.as_slice(), &[v]].concat(),
         );
         excluded.insert(v);
     }

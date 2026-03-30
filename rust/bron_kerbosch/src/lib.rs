@@ -18,7 +18,8 @@ mod main_lab_tests;
 mod vertexset_tests;
 
 pub use clique_harvester::{CliqueHarvester, new_clique_channel};
-pub use core::clique::{Clique, CliqueConsumer};
+pub use core::clique::Clique;
+use core::clique_consumer::CliqueConsumer;
 pub use core::clique_ordering::{OrderedCliques, order_cliques};
 pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};

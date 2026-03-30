@@ -3,7 +3,7 @@
 //! implemented by multiple threads
 
 use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_pivot_multithreaded};
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 

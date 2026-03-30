@@ -1,4 +1,5 @@
-use crate::core::clique::{Clique, CliqueConsumer};
+use crate::core::clique::Clique;
+use crate::core::clique_consumer::CliqueConsumer;
 use crossbeam_channel::Receiver;
 use std::collections::HashSet;
 use std::hash::Hash;

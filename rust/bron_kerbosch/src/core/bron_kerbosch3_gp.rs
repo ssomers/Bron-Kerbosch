@@ -2,7 +2,7 @@
 //! choosing a pivot from candidates only (IK_GP)
 
 use super::bron_kerbosch_degen::{PivotChoice, explore_with_pivot};
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 

@@ -1,7 +1,7 @@
 //! Bron-Kerbosch algorithm with pivot of highest degree towards the remaining candidates (IK_GPX)
 
 use super::bron_kerbosch_pivot::{PivotChoice, explore_with_pivot};
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 

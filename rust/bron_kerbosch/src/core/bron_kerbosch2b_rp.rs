@@ -1,7 +1,7 @@
 //! Bron-Kerbosch algorithm with pivot picked randomly (IK_RP)
 
 use super::bron_kerbosch_pivot::{PivotChoice, visit};
-use super::clique::CliqueConsumer;
+use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 use crate::core::pile::Pile;
