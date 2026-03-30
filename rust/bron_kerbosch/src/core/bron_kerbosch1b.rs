@@ -53,7 +53,7 @@ fn visit<VertexSet>(
         } else if consumer.is_accepted_size(clique_in_progress.height + 1)
             && excluded.is_disjoint(neighbours)
         {
-            consumer.accept(clique_in_progress.pile(v).collect());
+            consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
         }
         excluded.insert(v);
     }

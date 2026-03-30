@@ -27,6 +27,6 @@ pub mod graph_degeneracy_testing;
 #[cfg(test)]
 pub mod lab_graphs;
 #[cfg(test)]
-pub mod pile_tests;
+mod pile_tests;
 #[cfg(test)]
-pub mod priority_queue_tests;
+mod priority_queue_tests;

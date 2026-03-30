@@ -69,7 +69,7 @@ pub fn visit<VertexSet>(
             if consumer.is_accepted_size(clique_in_progress.height + 1)
                 && neighbours.is_disjoint(&excluded)
             {
-                consumer.accept(clique_in_progress.pile(v).collect());
+                consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
             }
         });
         return;
@@ -89,7 +89,7 @@ pub fn visit<VertexSet>(
                     if consumer.is_accepted_size(clique_in_progress.height + 1)
                         && neighbours.is_disjoint(&excluded)
                     {
-                        consumer.accept(clique_in_progress.pile(v).collect());
+                        consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
                     }
                 } else {
                     if seen_local_degree < local_degree {
@@ -144,7 +144,7 @@ pub fn visit<VertexSet>(
             } else if consumer.is_accepted_size(clique_in_progress.height + 1)
                 && excluded.is_disjoint(neighbours)
             {
-                consumer.accept(clique_in_progress.pile(v).collect());
+                consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
             }
             excluded.insert(v);
         }

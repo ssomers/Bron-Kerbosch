@@ -1,3 +1,5 @@
+use std::iter::FusedIterator;
+
 /// Cheap & simple immutable stack data structure, of which the layers
 /// somehow live long enough (e.g. they are on the runtime stack).
 /// The only supported change is to add, and the only supported query is to
@@ -33,43 +35,28 @@ where
         }
     }
 
-    /// Clone contained elements into a vector, with the top element first.
-    pub fn collect(&self) -> Vec<T> {
-        if let Some(mut layer) = self.layers.as_ref() {
-            let mut result = vec![layer.top.clone(); self.height];
-            for item in result.iter_mut().skip(1) {
-                layer = layer.lower.layers.as_ref().unwrap();
-                *item = layer.top.clone();
-            }
-            result
+    pub fn iter(&'a self) -> PileIterator<'a, T> {
+        PileIterator {
+            layer: self.layers.as_ref(),
+        }
+    }
+}
+
+pub struct PileIterator<'a, T> {
+    layer: Option<&'a Layer<'a, T>>,
+}
+
+impl<'a, T> Iterator for PileIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(layer) = self.layer {
+            self.layer = layer.lower.layers.as_ref();
+            Some(&layer.top)
         } else {
-            vec![]
+            None
         }
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn empty() {
-        assert_eq!(Pile::<bool>::EMPTY.collect(), vec![]);
-    }
-
-    #[test]
-    fn one_level() {
-        let p1 = Pile::from(true);
-        assert_eq!(p1.collect(), vec![true]);
-    }
-
-    #[test]
-    fn two_levels() {
-        let p1 = Pile::from(22);
-        {
-            let p2 = p1.pile(11);
-            assert_eq!(p2.collect(), vec![11, 22]);
-        }
-        assert_eq!(p1.collect(), vec![22]);
-    }
-}
+impl<'a, T> FusedIterator for PileIterator<'a, T> {}
