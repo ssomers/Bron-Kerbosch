@@ -16,7 +16,7 @@ where
             &mut consumer,
             candidates,
             VertexSet::new(),
-            Clique::new(),
+            Clique::EMPTY,
         );
     }
 }
@@ -49,7 +49,7 @@ fn visit<VertexSet>(
             consumer,
             neighbouring_candidates,
             neighbouring_excluded,
-            [clique_in_progress.as_slice(), &[v]].concat(),
+            clique_in_progress.add(v),
         );
         excluded.insert(v);
     }

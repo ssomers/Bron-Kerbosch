@@ -1,8 +1,6 @@
 use crate::core::clique::Clique;
 use crate::core::clique_consumer::CliqueConsumer;
 use crossbeam_channel::Receiver;
-use std::collections::HashSet;
-use std::hash::Hash;
 
 #[derive(Debug)]
 pub struct CliqueHarvester {
@@ -43,10 +41,6 @@ impl CliqueHarvester {
     }
 
     fn is_valid(&self, clique: &Clique) -> bool {
-        clique.len() == count_unique_elements(clique) && clique.len() >= self.min_size
+        clique.len() >= self.min_size
     }
-}
-
-pub fn count_unique_elements<T: Copy + Eq + Hash>(v: &[T]) -> usize {
-    v.iter().copied().collect::<HashSet<_>>().len()
 }
