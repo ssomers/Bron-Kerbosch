@@ -10,11 +10,10 @@ pub trait VertexSetLike: Debug + Eq + FromIterator<Vertex> + Send + Sync {
     fn is_empty(&self) -> bool;
     fn len(&self) -> usize;
     fn contains(&self, v: Vertex) -> bool;
-    fn difference_collect(&self, other: &Self) -> Self;
+    fn difference<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a;
     fn is_disjoint(&self, other: &Self) -> bool;
-    fn intersection_size(&self, other: &Self) -> usize;
-    fn intersection_collect(&self, other: &Self) -> Self;
-    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self;
+    fn intersection<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a;
+    fn filter_map<'a>(&'a self, map: &'a VertexMap<bool>) -> impl Iterator<Item = &'a Vertex> + 'a;
     fn reserve(&mut self, additional: usize);
     fn insert(&mut self, v: Vertex);
     fn remove(&mut self, v: Vertex);

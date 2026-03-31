@@ -42,13 +42,14 @@ fn visit<VertexSet>(
 
     while let Some(v) = candidates.pop_arbitrary() {
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates: VertexSet = candidates.intersection_collect(neighbours);
+        let neighbouring_candidates: VertexSet =
+            candidates.intersection(neighbours).copied().collect();
         if neighbouring_candidates.is_empty().not() {
             visit(
                 graph,
                 consumer,
                 neighbouring_candidates,
-                excluded.intersection_collect(neighbours),
+                excluded.intersection(neighbours).copied().collect(),
                 &clique_in_progress.pile(v),
             );
         } else if consumer.is_accepted_size(clique_in_progress.height + 1)

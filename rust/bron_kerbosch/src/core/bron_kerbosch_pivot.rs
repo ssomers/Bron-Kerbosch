@@ -29,10 +29,13 @@ pub fn explore_with_pivot<VertexSet>(
         for v in graph.vertices() {
             let neighbours = graph.neighbours(v);
             if neighbours.contains(pivot).not() {
-                let neighbouring_excluded = neighbours.intersection_with_map_collect(&excluded);
+                let neighbouring_excluded: VertexSet =
+                    neighbours.filter_map(&excluded).copied().collect();
                 if neighbouring_excluded.len() < neighbours.len() {
-                    let neighbouring_candidates =
-                        neighbours.difference_collect(&neighbouring_excluded);
+                    let neighbouring_candidates = neighbours
+                        .difference(&neighbouring_excluded)
+                        .copied()
+                        .collect();
                     visit(
                         graph,
                         &mut consumer,
@@ -83,7 +86,7 @@ pub fn visit<VertexSet>(
             let mut seen_local_degree = 0;
             candidates.for_each(|v| {
                 let neighbours = graph.neighbours(v);
-                let local_degree = neighbours.intersection_size(&candidates);
+                let local_degree = neighbours.intersection(&candidates).count();
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
                     if consumer.is_accepted_size(clique_in_progress.height + 1)
@@ -105,7 +108,7 @@ pub fn visit<VertexSet>(
             if pivot_selection == PivotChoice::MaxDegreeLocalX {
                 excluded.for_each(|v| {
                     let neighbours = graph.neighbours(v);
-                    let local_degree = neighbours.intersection_size(&candidates);
+                    let local_degree = neighbours.intersection(&candidates).count();
                     if seen_local_degree < local_degree {
                         seen_local_degree = local_degree;
                         pivot = Some(v);
@@ -130,9 +133,10 @@ pub fn visit<VertexSet>(
         let neighbours = graph.neighbours(v);
         if neighbours.contains(pivot).not() {
             candidates.remove(v);
-            let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
+            let neighbouring_candidates: VertexSet =
+                neighbours.intersection(&candidates).copied().collect();
             if neighbouring_candidates.is_empty().not() {
-                let neighbouring_excluded = neighbours.intersection_collect(&excluded);
+                let neighbouring_excluded = neighbours.intersection(&excluded).copied().collect();
                 visit(
                     graph,
                     consumer,

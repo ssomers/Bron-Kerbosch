@@ -43,8 +43,8 @@ fn visit<VertexSet>(
     }
     while let Some(v) = candidates.pop_arbitrary() {
         let neighbours = graph.neighbours(v);
-        let neighbouring_candidates = neighbours.intersection_collect(&candidates);
-        let neighbouring_excluded = neighbours.intersection_collect(&excluded);
+        let neighbouring_candidates = neighbours.intersection(&candidates).copied().collect();
+        let neighbouring_excluded = neighbours.intersection(&excluded).copied().collect();
         visit(
             graph,
             consumer,

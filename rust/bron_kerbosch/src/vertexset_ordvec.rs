@@ -2,6 +2,10 @@ use crate::{Vertex, VertexMap, VertexSetLike};
 use rand::{Rng, prelude::IndexedRandom};
 use std::ops::Not;
 
+fn ordered<'a>(a: &'a Vec<Vertex>, b: &'a Vec<Vertex>) -> (&'a Vec<Vertex>, &'a Vec<Vertex>) {
+    if a.len() < b.len() { (a, b) } else { (b, a) }
+}
+
 impl VertexSetLike for Vec<Vertex> {
     fn new() -> Self {
         Vec::new()
@@ -24,44 +28,28 @@ impl VertexSetLike for Vec<Vertex> {
         self.binary_search(&v).is_ok()
     }
 
-    fn difference_collect(&self, other: &Self) -> Self {
+    fn difference<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a {
         debug_assert!(self.is_sorted());
-        self.iter()
-            .filter(|&v| other.contains(*v).not())
-            .copied()
-            .collect()
+        self.iter().filter(|&&v| other.contains(v).not())
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
         debug_assert!(self.is_sorted());
-        if self.len() > other.len() {
-            return other.is_disjoint(self);
-        }
-        self.iter().any(|v| other.contains(*v)).not()
+        debug_assert!(other.is_sorted());
+        let (small, big) = ordered(self, other);
+        small.iter().any(|&v| big.contains(v)).not()
     }
 
-    fn intersection_size(&self, other: &Self) -> usize {
+    fn intersection<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a {
         debug_assert!(self.is_sorted());
-        if self.len() > other.len() {
-            return other.intersection_size(self);
-        }
-        self.iter().filter(|&v| other.contains(*v)).count()
+        debug_assert!(other.is_sorted());
+        let (small, big) = ordered(self, other);
+        small.iter().filter(|&&v| big.contains(v))
     }
 
-    fn intersection_collect(&self, other: &Self) -> Self {
+    fn filter_map<'a>(&'a self, map: &'a VertexMap<bool>) -> impl Iterator<Item = &'a Vertex> + 'a {
         debug_assert!(self.is_sorted());
-        if self.len() > other.len() {
-            return other.intersection_collect(self);
-        }
-        self.iter()
-            .filter(|&v| other.contains(*v))
-            .copied()
-            .collect()
-    }
-
-    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self {
-        debug_assert!(self.is_sorted());
-        self.iter().filter(|&v| other[*v]).copied().collect()
+        self.iter().filter(|&v| map[*v])
     }
 
     fn reserve(&mut self, additional: usize) {

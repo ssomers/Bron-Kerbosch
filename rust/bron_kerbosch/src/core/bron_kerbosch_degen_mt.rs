@@ -64,7 +64,10 @@ fn dispatch<VertexSet>(
         let neighbours = graph.neighbours(v);
         debug_assert!(neighbours.is_empty().not());
         debug_assert!(neighbouring_excluded.len() < neighbours.len());
-        let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
+        let neighbouring_candidates = neighbours
+            .difference(&neighbouring_excluded)
+            .copied()
+            .collect();
         let visit = VisitJob {
             start: v,
             candidates: neighbouring_candidates,

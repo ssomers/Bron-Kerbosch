@@ -24,24 +24,20 @@ impl VertexSetLike for BTreeSet<Vertex> {
         BTreeSet::contains(self, &v)
     }
 
-    fn difference_collect(&self, other: &Self) -> Self {
-        self.difference(other).copied().collect()
+    fn difference<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a {
+        self.difference(other)
     }
 
     fn is_disjoint(&self, other: &Self) -> bool {
         self.intersection(other).next().is_none()
     }
 
-    fn intersection_size(&self, other: &Self) -> usize {
-        self.intersection(other).count()
+    fn intersection<'a>(&'a self, other: &'a Self) -> impl Iterator<Item = &'a Vertex> + 'a {
+        self.intersection(other)
     }
 
-    fn intersection_collect(&self, other: &Self) -> Self {
-        self.intersection(other).copied().collect()
-    }
-
-    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self {
-        self.iter().filter(|&v| other[*v]).copied().collect()
+    fn filter_map<'a>(&'a self, map: &'a VertexMap<bool>) -> impl Iterator<Item = &'a Vertex> + 'a {
+        self.iter().filter(|&v| map[*v])
     }
 
     fn reserve(&mut self, _additional: usize) {}
