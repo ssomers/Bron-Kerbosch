@@ -4,8 +4,8 @@ use bron_kerbosch::{Adjacencies, Graph, Vertex, VertexSetLike};
 use std::fmt::Write;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::Path;
-use std::path::PathBuf;
+use std::ops::Not;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Copy)]
 pub enum Size {
@@ -49,8 +49,8 @@ where
         let v = Vertex::new(v.parse().with_context(context(line_num))?);
         let w = Vertex::new(w.parse().with_context(context(line_num))?);
         debug_assert_ne!(v, w);
-        debug_assert!(!adjacencies[v].contains(w));
-        debug_assert!(!adjacencies[w].contains(v));
+        debug_assert!(adjacencies[v].contains(w).not());
+        debug_assert!(adjacencies[w].contains(v).not());
         adjacencies[v].insert(w);
         adjacencies[w].insert(v);
     }

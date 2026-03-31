@@ -7,6 +7,7 @@ use super::graph::Graph;
 use super::graph_degeneracy::degeneracy_iter;
 use super::pile::Pile;
 use super::vertexsetlike::VertexSetLike;
+use std::ops::Not;
 
 pub fn explore_with_pivot<VertexSet>(
     graph: &Graph<VertexSet>,
@@ -19,7 +20,7 @@ pub fn explore_with_pivot<VertexSet>(
     // because all neighbours are candidates until excluded.
     for (v, neighbouring_excluded) in degeneracy_iter(graph) {
         let neighbours = graph.neighbours(v);
-        debug_assert!(!neighbours.is_empty());
+        debug_assert!(neighbours.is_empty().not());
         debug_assert!(neighbouring_excluded.len() < neighbours.len());
         let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
         visit(

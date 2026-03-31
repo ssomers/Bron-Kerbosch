@@ -1,4 +1,4 @@
-use crate::{Vertex, VertexSetLike};
+use crate::{Vertex, VertexMap, VertexSetLike};
 
 use rand::{Rng, seq::IteratorRandom};
 use std::collections::HashSet;
@@ -41,8 +41,8 @@ impl VertexSetLike for HashSet<Vertex> {
         self.intersection(other).copied().collect()
     }
 
-    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
-        self.iter().filter(|&v| other(*v)).copied().collect()
+    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self {
+        self.iter().filter(|&v| other[*v]).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {

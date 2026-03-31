@@ -4,13 +4,14 @@ use super::clique::Clique;
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
+use std::ops::Not;
 
 pub fn explore<VertexSet>(graph: &Graph<VertexSet>, mut consumer: CliqueConsumer)
 where
     VertexSet: VertexSetLike,
 {
     let candidates: VertexSet = graph.connected_vertices().collect();
-    if !candidates.is_empty() {
+    if candidates.is_empty().not() {
         visit(
             graph,
             &mut consumer,
@@ -30,8 +31,8 @@ fn visit<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
-    debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
+    debug_assert!(candidates.all(|&v| graph.is_connected(v)));
+    debug_assert!(excluded.all(|&v| graph.is_connected(v)));
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {

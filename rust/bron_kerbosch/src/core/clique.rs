@@ -1,6 +1,7 @@
 pub use super::vertex::Vertex;
 use std::collections::HashSet;
 use std::hash::Hash;
+use std::ops::Not;
 
 #[derive(Debug)]
 pub struct Clique(Vec<Vertex>);
@@ -17,7 +18,7 @@ impl Clique {
     }
 
     pub fn add(&self, v: Vertex) -> Clique {
-        debug_assert!(!self.0.contains(&v));
+        debug_assert!(self.0.contains(&v).not());
         Clique([self.0.as_slice(), &[v]].concat())
     }
 }

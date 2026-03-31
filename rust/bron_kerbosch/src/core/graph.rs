@@ -1,5 +1,6 @@
 use super::vertex::{Vertex, VertexMap};
 use super::vertexsetlike::VertexSetLike;
+use std::ops::Not;
 
 pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;
 
@@ -44,6 +45,10 @@ impl<VertexSet: VertexSetLike> Graph<VertexSet> {
         self.max_degree
     }
 
+    pub fn is_connected(&self, v: Vertex) -> bool {
+        self.neighbours(v).is_empty().not()
+    }
+
     pub fn degree(&self, v: Vertex) -> usize {
         self.neighbours(v).len()
     }
@@ -57,11 +62,11 @@ impl<VertexSet: VertexSetLike> Graph<VertexSet> {
     }
 
     pub fn connected_vertices(&self) -> impl Iterator<Item = Vertex> {
-        self.vertices().filter(|&v| self.degree(v) > 0)
+        self.vertices().filter(|&v| self.is_connected(v))
     }
 
     pub fn max_degree_vertices(&self) -> impl Iterator<Item = Vertex> {
-        self.vertices()
-            .filter(|&v| self.degree(v) == self.max_degree())
+        let max = self.max_degree();
+        self.vertices().filter(move |&v| self.degree(v) == max)
     }
 }

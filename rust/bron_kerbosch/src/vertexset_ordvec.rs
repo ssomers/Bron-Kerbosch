@@ -1,6 +1,6 @@
-use crate::{Vertex, VertexSetLike};
-
+use crate::{Vertex, VertexMap, VertexSetLike};
 use rand::{Rng, prelude::IndexedRandom};
+use std::ops::Not;
 
 impl VertexSetLike for Vec<Vertex> {
     fn new() -> Self {
@@ -27,7 +27,7 @@ impl VertexSetLike for Vec<Vertex> {
     fn difference_collect(&self, other: &Self) -> Self {
         debug_assert!(self.is_sorted());
         self.iter()
-            .filter(|&v| !other.contains(*v))
+            .filter(|&v| other.contains(*v).not())
             .copied()
             .collect()
     }
@@ -37,7 +37,7 @@ impl VertexSetLike for Vec<Vertex> {
         if self.len() > other.len() {
             return other.is_disjoint(self);
         }
-        !self.iter().any(|v| other.contains(*v))
+        self.iter().any(|v| other.contains(*v)).not()
     }
 
     fn intersection_size(&self, other: &Self) -> usize {
@@ -59,9 +59,9 @@ impl VertexSetLike for Vec<Vertex> {
             .collect()
     }
 
-    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self {
         debug_assert!(self.is_sorted());
-        self.iter().filter(|&v| other(*v)).copied().collect()
+        self.iter().filter(|&v| other[*v]).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {

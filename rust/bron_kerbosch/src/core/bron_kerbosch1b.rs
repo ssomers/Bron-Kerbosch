@@ -5,6 +5,7 @@ use super::graph::Graph;
 use super::pile::Pile;
 use super::vertex::Vertex;
 use super::vertexsetlike::VertexSetLike;
+use std::ops::Not;
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
@@ -34,15 +35,15 @@ fn visit<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
-    debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
+    debug_assert!(candidates.all(|&v| graph.is_connected(v)));
+    debug_assert!(excluded.all(|&v| graph.is_connected(v)));
     debug_assert!(candidates.is_disjoint(&excluded));
-    debug_assert!(!candidates.is_empty());
+    debug_assert!(candidates.is_empty().not());
 
     while let Some(v) = candidates.pop_arbitrary() {
         let neighbours = graph.neighbours(v);
         let neighbouring_candidates: VertexSet = candidates.intersection_collect(neighbours);
-        if !neighbouring_candidates.is_empty() {
+        if neighbouring_candidates.is_empty().not() {
             visit(
                 graph,
                 consumer,

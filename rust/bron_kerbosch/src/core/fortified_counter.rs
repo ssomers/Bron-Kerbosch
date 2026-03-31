@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::ops::Not;
 
 // Counts the coming and going of elements and, in debug build only, checks their identity.
 pub struct FortifiedCounter<T> {
@@ -46,7 +47,7 @@ where
     }
 
     pub fn add(&mut self, element: T) {
-        debug_assert!(!self.contains(element));
+        debug_assert!(self.contains(element).not());
         self.invariant();
         self.counter += 1;
         #[cfg(debug_assertions)]

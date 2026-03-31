@@ -1,4 +1,4 @@
-use crate::{Vertex, VertexSetLike};
+use crate::{Vertex, VertexMap, VertexSetLike};
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use rand::{Rng, seq::IteratorRandom};
@@ -40,8 +40,8 @@ impl VertexSetLike for FnvHashSet<Vertex> {
         self.intersection(other).copied().collect()
     }
 
-    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
-        self.iter().filter(|&v| other(*v)).copied().collect()
+    fn intersection_with_map_collect(&self, other: &VertexMap<bool>) -> Self {
+        self.iter().filter(|&v| other[*v]).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {

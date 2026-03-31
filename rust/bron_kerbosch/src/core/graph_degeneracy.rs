@@ -5,6 +5,7 @@ use super::priority_queue::PriorityQueue;
 use super::vertex::{Vertex, VertexMap};
 use super::vertexsetlike::VertexSetLike;
 use std::iter::FusedIterator;
+use std::ops::Not;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
 // whose neighbours have all been enumerated already.
@@ -54,7 +55,7 @@ where
         self.priority_per_vertex
             .iter()
             .all(|(v, &priority)| match priority {
-                None => !self.left_to_pick.contains(v),
+                None => self.left_to_pick.contains(v).not(),
                 Some(priority) => self.left_to_pick.contains(v) && self.queue.contains(priority, v),
             })
     }

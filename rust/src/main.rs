@@ -13,6 +13,7 @@ use itertools::Itertools;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
 use std::iter::once;
+use std::ops::Not;
 use std::path::Path;
 use std::str::FromStr;
 use std::thread;
@@ -230,7 +231,7 @@ fn bk(
                 BTreeMap::new();
             for set_type in SetType::iter() {
                 let func_indices = included_funcs(set_type, size);
-                if !func_indices.is_empty() {
+                if func_indices.is_empty().not() {
                     stats.insert(
                         set_type,
                         bk_core(run, set_type, orderstr, size, &func_indices, timed_samples),
@@ -240,7 +241,7 @@ fn bk(
             if let Some(wtr) = writer.as_mut() {
                 if set_types_used.is_empty() {
                     set_types_used = stats.keys().copied().collect();
-                    assert!(!set_types_used.is_empty());
+                    assert!(set_types_used.is_empty().not());
                     wtr.write_record(
                         ["Size"].iter().map(|&s| String::from(s)).chain(
                             set_types_used
@@ -266,7 +267,7 @@ fn bk(
                                     .get(set_type)
                                     .as_ref()
                                     .map(|&s| &s[func_index])
-                                    .filter(|&s| !s.is_empty())
+                                    .filter(|&s| s.is_empty().not())
                                 {
                                     vec![
                                         s.min().to_string(),
@@ -297,7 +298,7 @@ fn main() -> Result<(), std::io::Error> {
         .arg(arg!([order]))
         .arg(arg!([size] ... ))
         .get_matches();
-    if !matches.args_present() {
+    if matches.args_present().not() {
         bk(Run::WarmUp, "100", once(2_000), 3, |_, _| {
             (0..NUM_FUNCS).collect()
         })?;

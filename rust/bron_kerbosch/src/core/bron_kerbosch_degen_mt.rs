@@ -9,6 +9,7 @@ use super::pile::Pile;
 use super::vertex::Vertex;
 use super::vertexsetlike::VertexSetLike;
 use crossbeam_channel::{Receiver, Sender};
+use std::ops::Not;
 
 pub fn explore_with_pivot_multithreaded<VertexSet>(
     graph: &Graph<VertexSet>,
@@ -61,7 +62,7 @@ fn dispatch<VertexSet>(
     // because all neighbours are candidates until excluded.
     while let Ok((v, neighbouring_excluded)) = start_rx.recv() {
         let neighbours = graph.neighbours(v);
-        debug_assert!(!neighbours.is_empty());
+        debug_assert!(neighbours.is_empty().not());
         debug_assert!(neighbouring_excluded.len() < neighbours.len());
         let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
         let visit = VisitJob {

@@ -5,6 +5,7 @@ use super::graph::Graph;
 use super::pile::Pile;
 use super::vertex::{Vertex, VertexMap};
 use super::vertexsetlike::VertexSetLike;
+use std::ops::Not;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
@@ -27,11 +28,10 @@ pub fn explore_with_pivot<VertexSet>(
         let mut excluded = VertexMap::new(false, graph.order());
         for v in graph.vertices() {
             let neighbours = graph.neighbours(v);
-            if !neighbours.is_empty() && !neighbours.contains(pivot) {
-                let neighbouring_excluded: VertexSet =
-                    neighbours.intersection_with_fn_collect(|v| excluded[v]);
+            if neighbours.contains(pivot).not() {
+                let neighbouring_excluded = neighbours.intersection_with_map_collect(&excluded);
                 if neighbouring_excluded.len() < neighbours.len() {
-                    let neighbouring_candidates: VertexSet =
+                    let neighbouring_candidates =
                         neighbours.difference_collect(&neighbouring_excluded);
                     visit(
                         graph,
@@ -58,8 +58,8 @@ pub fn visit<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
-    debug_assert!(candidates.all(|&v| graph.degree(v) > 0));
-    debug_assert!(excluded.all(|&v| graph.degree(v) > 0));
+    debug_assert!(candidates.all(|&v| graph.is_connected(v)));
+    debug_assert!(excluded.all(|&v| graph.is_connected(v)));
     debug_assert!(candidates.is_disjoint(&excluded));
     debug_assert!(candidates.len() >= 1);
     if candidates.len() == 1 {
@@ -124,14 +124,14 @@ pub fn visit<VertexSet>(
         }
     }
 
-    debug_assert!(!remaining_candidates.is_empty());
+    debug_assert!(remaining_candidates.is_empty().not());
     let pivot = pivot.unwrap();
     for v in remaining_candidates {
         let neighbours = graph.neighbours(v);
-        if !neighbours.contains(pivot) {
+        if neighbours.contains(pivot).not() {
             candidates.remove(v);
             let neighbouring_candidates: VertexSet = neighbours.intersection_collect(&candidates);
-            if !neighbouring_candidates.is_empty() {
+            if neighbouring_candidates.is_empty().not() {
                 let neighbouring_excluded = neighbours.intersection_collect(&excluded);
                 visit(
                     graph,
