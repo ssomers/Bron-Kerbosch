@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace BronKerbosch
@@ -9,7 +10,7 @@ namespace BronKerbosch
     {
         // Enumerate connected vertices in degeneracy order, skipping vertices
         // whose neighbours have all been enumerated already.
-        public static IEnumerable<Vertex> Iter(UndirectedGraph<VertexSet, VertexSetMgr> graph)
+        public static IEnumerable<(Vertex, VertexSet)> Iter(UndirectedGraph<VertexSet, VertexSetMgr> graph)
         {
             // Possible values of priorityPerVertex (after initialization):
             //   0: never queued because not connected (degree 0),
@@ -34,13 +35,10 @@ namespace BronKerbosch
             while (leftToPick.Count > 0)
             {
                 Vertex pick = q.Pop();
-                var priority = priorityPerVertex[pick.Index()];
-                if (priority > 0)
+                if (priorityPerVertex[pick.Index()] > 0)
                 {
-                    // In contrast to most languages, C# continuations allow spawning ASAP,
-                    // before we adjust the data. Not that we know it makes a difference.
-                    yield return pick;
                     priorityPerVertex[pick.Index()] = 0;
+                    var neighbouring_picked = VertexSetMgr.Empty();
                     foreach (Vertex v in graph.Neighbours(pick))
                     {
                         var oldPriority = priorityPerVertex[v.Index()];
@@ -61,7 +59,13 @@ namespace BronKerbosch
                                 leftToPick.Remove(v);
                             }
                         }
+                        else
+                        {
+                            bool added = neighbouring_picked.Add(v);
+                            Debug.Assert(added);
+                        }
                     }
+                    yield return (pick, neighbouring_picked);
                     leftToPick.Remove(pick);
                 }
             }

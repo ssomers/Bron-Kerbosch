@@ -88,24 +88,24 @@ namespace BronKerbosch {
             return num_left_to_pick != 0;
         }
 
-        std::optional<Vertex> next() {
+        std::optional<std::pair<Vertex, VertexSet>> next() {
             while (has_next()) {
                 Vertex pick = queue.pop();
                 Priority& picked_priority = priority_per_vertex[pick.index()];
                 if (picked_priority > 0) {
                     picked_priority = 0;
-                    reassess(graph.neighbours(pick));
-                    assert(num_left_to_pick > 0);
                     num_left_to_pick -= 1;
-                    return std::make_optional(pick);
+                    auto neighbouring_picked = evaluate_neighbours(pick);
+                    return std::make_optional(std::make_pair(pick, std::move(neighbouring_picked)));
                 }
             }
             return std::nullopt;
         }
 
       private:
-        void reassess(VertexSet const& neighbours) {
-            for (Vertex v : neighbours) {
+        VertexSet evaluate_neighbours(Vertex pick) {
+            VertexSet result;
+            for (Vertex v : graph.neighbours(pick)) {
                 Priority& priority = priority_per_vertex[v.index()];
                 if (priority > 0) {
                     // Requeue with a more urgent priority or dequeue.
@@ -119,8 +119,11 @@ namespace BronKerbosch {
                         assert(num_left_to_pick > 0);
                         num_left_to_pick -= 1;
                     }
+                } else {
+                    result.insert(v);
                 }
             }
+            return result;
         }
     };
 }

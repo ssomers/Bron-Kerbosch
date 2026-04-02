@@ -81,7 +81,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
             var funcName = Portfolio.FuncNames[funcIndex];
             var mean = times[funcIndex].Mean;
             var reldev = times[funcIndex].Deviation / mean;
-            Console.WriteLine($"  {funcName,-10} {mean,6:N3}s ± {reldev:P0}");
+            Console.WriteLine($"  {funcName,-10} {mean,6:N3}s Â± {reldev:P0}");
         }
     }
     return times;
@@ -178,19 +178,19 @@ IEnumerable<int> Range(int start, int stop, int step)
     }
 }
 
-Debug.Fail("Run Release build for meaningful measurements");
-
 var allFuncIndices = Enumerable.Range(0, Portfolio.FuncNames.Length);
 Bk(false, "100", [2000], (_, _) => allFuncIndices, 3); // warm up
+
+Debug.Fail("Run Release build for meaningful measurements");
 Thread.Sleep(321);
 Bk(true, "100", Range(2_000, 3_001, 50), (_, size) => allFuncIndices, 5); // max 4_950
 Bk(true, "10k", Range(10_000, 100_000, 10_000).Concat(Range(100_000, 200_001, 25_000)),
     (_, size) => allFuncIndices.Skip(1), 3);
-Bk(true, "1M", Range(500_000, 2_000_000, 250_000)
+Bk(true, "1M", Range(250_000, 2_000_000, 250_000)
         .Concat(Range(2_000_000, 5_000_001, 1_000_000)),
     (setType, size) => setType switch
     {
-        SetType.HashSet => allFuncIndices.Skip(size > 2_000_000 ? 2 : 1),
+        SetType.HashSet => allFuncIndices.Skip(size > 3_000_000 ? 2 : 1),
         SetType.SortedSet => [],
         _ => throw new ArgumentOutOfRangeException(nameof(setType)),
     }, 3);

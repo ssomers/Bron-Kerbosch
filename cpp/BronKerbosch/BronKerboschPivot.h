@@ -2,17 +2,20 @@
 
 #pragma once
 
-#include "CliqueList.h"
 #include "UndirectedGraph.h"
 #include "VertexPile.h"
 #include <cassert>
-#include <stdexcept>
 
 namespace BronKerbosch {
     enum class PivotChoice {
         MaxDegreeLocal,
         MaxDegreeLocalX,
     };
+
+    std::set<Vertex> intersection(std::set<Vertex> const&, std::vector<bool> const&);
+    ordered_vector<Vertex> intersection(ordered_vector<Vertex> const&, std::vector<bool> const&);
+    std::unordered_set<Vertex> intersection(std::unordered_set<Vertex> const&,
+                                            std::vector<bool> const&);
 
     class BronKerboschPivot {
       public:
@@ -23,12 +26,12 @@ namespace BronKerbosch {
             if (auto const order = graph.order()) {
                 // In this initial iteration, we don't need to represent the set of candidates
                 // because all neighbours are candidates until excluded.
-                auto excluded = Util::with_capacity<VertexSet>(order);
+                auto excluded = std::vector<bool>(order);
                 Vertex const pivot = graph.max_degree_vertices().front();
                 for (Vertex v : graph.vertices()) {
                     auto const& neighbours = graph.neighbours(v);
                     if (!neighbours.empty() && neighbours.count(pivot) == 0) {
-                        auto neighbouring_excluded = Util::intersection(neighbours, excluded);
+                        auto neighbouring_excluded = intersection(neighbours, excluded);
                         if (neighbouring_excluded.size() < neighbours.size()) {
                             auto neighbouring_candidates =
                                 Util::difference(neighbours, neighbouring_excluded);
@@ -39,7 +42,7 @@ namespace BronKerbosch {
                                                               std::move(neighbouring_excluded),
                                                               &newclique));
                         }
-                        excluded.insert(v);
+                        excluded[v.index()] = true;
                     }
                 }
             }

@@ -30,22 +30,20 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
         }
 
         private final class VisitProducer {
-            private final Set<Integer> excluded = new HashSet<>(graph.order());
+            private final boolean[] excluded = new boolean[graph.order()];
 
             VisitJob createJob(final Integer startVtx) {
                 final var neighbours = graph.neighbours(startVtx);
                 assert !neighbours.isEmpty();
-                final var neighbouringCandidates = util.Difference(neighbours, excluded)
+                final var neighbouringCandidates = neighbours.stream().filter(v -> !excluded[v])
                         .collect(Collectors.toCollection(HashSet::new));
                 VisitJob job = null;
-                if (neighbouringCandidates.isEmpty()) {
-                    assert !util.AreDisjoint(neighbours, excluded);
-                } else {
-                    final var neighbouringExcluded = util.Intersect(neighbours, excluded)
+                if (!neighbouringCandidates.isEmpty()) {
+                    final var neighbouringExcluded = neighbours.stream().filter(v -> excluded[v])
                             .collect(Collectors.toCollection(HashSet::new));
                     job = new VisitJob(startVtx, neighbouringCandidates, neighbouringExcluded);
                 }
-                excluded.add(startVtx);
+                excluded[startVtx] = true;
                 return job;
             }
         }

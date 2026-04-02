@@ -48,6 +48,8 @@ naive Bron-Kerbosch algorithm, in Python and Rust. Is this premature optimizatio
 In particular:
   - In the (many) deepest iterations, when we see the intersection of candidates is empty, don't
     calculate all the nearby excluded vertices, just check if that set is empty or not.
+  - We implement intersection with performance in mind, unlike what the standard library of most
+    programming languages offer.
   - In Rust, compile a `Clique` from the call stack, instead of passing it around on the heap.
     Basically showing off Rust's ability to guarantee, at compile time, this can be done safely.
 
@@ -69,11 +71,15 @@ Therefore, all the other implementations will contain similar tweaks.
 * **Ver3-GP:** Ver2-GP with degeneracy ordering
 * **Ver3-GPX:** Ver2-GPX with degeneracy ordering
 
-As announced in the previous paragraph, we mostly implement locally optimized **½** versions of these.
-In particular, we
-[write out the first iteration separately](https://github.com/ssomers/Bron-Kerbosch/blob/master/python3/bron_kerbosch2_gp.py),
-because in that first iteration the set of candidate vertices starts off being huge, with every connected vertex in the graph,
-but that set doesn't have to be represented at all because every reachable vertex is a candidate until excluded.
+We mostly implement locally optimized **½** versions of these.
+In addition to the local optimizations mentioned above:
+- We [write out the first iteration separately](https://github.com/ssomers/Bron-Kerbosch/blob/master/python3/bron_kerbosch2_gp.py),
+  because in that first iteration the set of candidate vertices starts off being huge,
+  with every connected vertex in the graph, but that set doesn't have to be represented at all
+  because every reachable vertex is a candidate until excluded.
+- In the same first iteration, we store the set of excluded vertices as an array of booleans,
+  because as a regular set it ends up being huge, and most of the time the set we intersect with
+  (the set of neighbours of some vertex) will be smaller, so all that matters is lookup speed.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -284,6 +290,7 @@ To obtain these results:
 Perform:
 
     cd go
+    (if edited) go fmt ./...
     (if edited) go vet ./...
     (if edited) go test ./...
     (if edited) go test ./Stats -fuzz=Stats1 -fuzztime=1s
@@ -319,23 +326,7 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_cpp_1M.svg)
 
 Perform:
-  - clone or export https://github.com/andreasbuhr/cppcoro locally, e.g. next to this repository
-  - build it, something akin to:
-  
-        call "%ProgramFiles%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-        mkdir build
-        cd build
-        cmake .. -A x64 -DCMAKE_CXX_STANDARD=20 -DBUILD_TESTING=ON
-        cmake --build . --config Release
-        cmake --build . --config Debug
-        ctest --progress --config Release
-        ctest --progress --config Debug
-
   - open cpp\BronKerboschStudy.sln with Visual Studio 2022
-  - set directory to cppcoro (if not `..\cppcoro` relative to Bron-Kerbosch):
-    - View > Other Windows > Property Manager
-    - in the tree, descend to any project and configuration, open propery page "BronKerboschStudyGeneral"
-    - in User Macros, set `CppcoroDir`
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
   - set configuration to Release

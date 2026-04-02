@@ -18,11 +18,9 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
-    let mut excluded = VertexSet::with_capacity(graph.order());
-    for v in degeneracy_iter(graph) {
+    for (v, neighbouring_excluded) in degeneracy_iter(graph) {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_excluded = neighbours.intersection_collect(&excluded);
         debug_assert!(neighbouring_excluded.len() < neighbours.len());
         let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
         visit(
@@ -33,6 +31,5 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
             neighbouring_excluded,
             &Pile::from(v),
         );
-        excluded.insert(v);
     }
 }

@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from graph import UndirectedGraph, Vertex
-from typing import Generator, List
+from typing import Generator, List, Tuple, Set
 
 
-def degeneracy_filter(graph: UndirectedGraph) -> Generator[Vertex, None, None]:
+def degeneracy_filter(
+    graph: UndirectedGraph,
+) -> Generator[Tuple[Vertex, Set[Vertex]], None, None]:
     """
     Iterate connected vertices, lowest degree first, skipping vertices whose neighbours
     have all been yielded.
@@ -26,11 +28,15 @@ def degeneracy_filter(graph: UndirectedGraph) -> Generator[Vertex, None, None]:
     while num_left_to_pick > 0:
         pick = q.pop()
         if priority_per_node[pick] > 0:
+            neighbours = graph.adjacencies[pick]
+            neighbouring_picked = set(
+                v for v in neighbours if priority_per_node[v] == 0
+            )
             # In contrast to most languages, python allows spawning as soon as possible,
             # before we adjust the data. Not that we know it makes a difference.
-            yield pick
+            yield pick, neighbouring_picked
             priority_per_node[pick] = 0
-            for v in graph.adjacencies[pick]:
+            for v in neighbours:
                 if (old_priority := priority_per_node[v]) > 0:
                     # Requeue with a more urgent priority or dequeue.
                     # Don't bother to remove the original entry from the queue,
@@ -52,7 +58,7 @@ class PriorityQueue:
 
     def put(self, priority: int, element: int) -> None:
         assert priority > 0
-        self.stack_per_priority[priority-1].append(element)
+        self.stack_per_priority[priority - 1].append(element)
 
     def pop(self) -> int:
         for stack in self.stack_per_priority:
@@ -62,6 +68,3 @@ class PriorityQueue:
                 pass
         else:
             raise ValueError("attempt to pop more than was put")
-
-
-

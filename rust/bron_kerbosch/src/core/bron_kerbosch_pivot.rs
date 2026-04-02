@@ -2,8 +2,9 @@
 
 use super::clique::CliqueConsumer;
 use super::graph::max_degree_vertices;
-use super::graph::{UndirectedGraph, Vertex, VertexSetLike, vertices};
+use super::graph::{UndirectedGraph, VertexSetLike, vertices};
 use super::pile::Pile;
+use super::vertex::{Vertex, VertexMap};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PivotChoice {
@@ -25,11 +26,12 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
     Consumer: CliqueConsumer,
 {
     if let Some(pivot) = max_degree_vertices(graph).next() {
-        let mut excluded = Graph::VertexSet::with_capacity(graph.order());
+        let mut excluded = VertexMap::new(false, graph.order());
         for v in vertices(graph) {
             let neighbours = graph.neighbours(v);
             if !neighbours.is_empty() && !neighbours.contains(pivot) {
-                let neighbouring_excluded: VertexSet = neighbours.intersection_collect(&excluded);
+                let neighbouring_excluded: VertexSet =
+                    neighbours.intersection_with_fn_collect(|v| excluded[v]);
                 if neighbouring_excluded.len() < neighbours.len() {
                     let neighbouring_candidates: VertexSet =
                         neighbours.difference_collect(&neighbouring_excluded);
@@ -42,7 +44,7 @@ pub fn explore_with_pivot<VertexSet, Graph, Consumer>(
                         &Pile::from(v),
                     );
                 }
-                excluded.insert(v);
+                excluded[v] = true;
             }
         }
     }

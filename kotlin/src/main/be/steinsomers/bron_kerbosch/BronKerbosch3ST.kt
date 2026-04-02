@@ -32,20 +32,18 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         }
 
         private inner class VisitProducer {
-            private val excluded: MutableSet<Int> = HashSet(graph.order)
+            private val excluded = BooleanArray(graph.order)
 
             fun createJob(startVtx: Int): VisitJob? {
                 var job: VisitJob? = null
                 val neighbours = graph.neighbours(startVtx)
                 require(neighbours.isNotEmpty())
-                val neighbouringCandidates = (neighbours subtract excluded).toMutableSet()
-                if (neighbouringCandidates.isEmpty()) {
-                    Debug.assert { !Util.areDisjoint(neighbours, excluded) }
-                } else {
+                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
+                if (!neighbouringCandidates.isEmpty()) {
                     val neighbouringExcluded = Util.intersect(neighbours, excluded)
                     job = VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
                 }
-                excluded.add(startVtx)
+                excluded[startVtx] = true
                 return job
             }
         }

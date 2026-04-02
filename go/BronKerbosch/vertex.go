@@ -73,6 +73,16 @@ func (vset VertexSet) IsDisjoint(other VertexSet) bool {
 	return true
 }
 
+func (vset VertexSet) IntersectionWithMap(other []bool) VertexSet {
+	result := make(VertexSet, len(vset))
+	for v := range vset {
+		if other[v] {
+			result.Add(v)
+		}
+	}
+	return result
+}
+
 func (vset VertexSet) Add(v Vertex) {
 	vset[v] = struct{}{}
 }

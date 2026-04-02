@@ -1,5 +1,7 @@
 package BronKerbosch
 
+// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
+
 import "sync"
 
 func bronKerbosch3gp0(graph *UndirectedGraph, cliques chan<- []Vertex) {
@@ -23,13 +25,10 @@ func bronKerbosch3gp4(graph *UndirectedGraph, cliques chan<- []Vertex) {
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitors int) {
-	// Bron-Kerbosch algorithm with degeneracy ordering, multi-threaded
-
-	starts := make(chan Vertex, numVisitors)
+	starts := make(chan DegeneracyVisitItem, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
-	go degeneracyVisitor(graph, &ChannelVertexVisitor{starts})
+	go degeneracyVisitor(graph, &ChannelDegeneracyVisitor{starts})
 	go func() {
-		excluded := make(VertexSet, graph.connectedVertexCount-1)
 		var wg sync.WaitGroup
 		wg.Add(numVisitors)
 		for range numVisitors {
@@ -45,14 +44,14 @@ func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitor
 				wg.Done()
 			}()
 		}
-		for v := range starts {
+		for i := range starts {
+			v := i.pick
+			neighbouringExcluded := i.pickedNeighbours
 			neighbours := graph.neighbours(v)
-			neighbouringCandidates := neighbours.Difference(excluded)
-			if !neighbouringCandidates.IsEmpty() {
-				neighbouringExcluded := neighbours.Intersection(excluded)
+			if len(neighbouringExcluded) < len(neighbours) {
+				neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 				visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
 			}
-			excluded.Add(v)
 		}
 		close(visits)
 		wg.Wait()

@@ -7,7 +7,7 @@ import (
 )
 
 func checkDegeneracyOrder(graph *UndirectedGraph) {
-	var ordering SimpleVertexVisitor
+	var ordering SimpleDegeneracyVisitor
 	degeneracyVisitor(graph, &ordering)
 	ordered := ordering.vertices
 	unordered := graph.connectedVertices()

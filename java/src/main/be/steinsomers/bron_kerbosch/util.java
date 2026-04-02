@@ -34,6 +34,10 @@ public enum util {
             return set2.stream().filter(set1::contains);
     }
 
+    public static Stream<Integer> Intersect(final Set<Integer> set1, final boolean[] set2) {
+        return set1.stream().filter((v) -> set2[v]);
+    }
+
     public static <T> boolean AreDisjoint(final Set<T> set1, final Set<T> set2) {
         if (set1.size() <= set2.size())
             return set1.stream().noneMatch(set2::contains);

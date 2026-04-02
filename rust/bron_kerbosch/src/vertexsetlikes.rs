@@ -1,4 +1,5 @@
-use crate::core::vertexsetlike::{Vertex, VertexSetLike};
+use crate::core::vertex::Vertex;
+use crate::core::vertexsetlike::VertexSetLike;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use rand::{Rng, prelude::IndexedRandom, seq::IteratorRandom};
@@ -39,6 +40,10 @@ impl VertexSetLike for BTreeSet<Vertex> {
 
     fn intersection_collect(&self, other: &Self) -> Self {
         self.intersection(other).copied().collect()
+    }
+
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        self.iter().filter(|&v| other(*v)).copied().collect()
     }
 
     fn reserve(&mut self, _additional: usize) {}
@@ -121,6 +126,10 @@ impl VertexSetLike for HashSet<Vertex> {
 
     fn intersection_collect(&self, other: &Self) -> Self {
         self.intersection(other).copied().collect()
+    }
+
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        self.iter().filter(|&v| other(*v)).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {
@@ -206,6 +215,10 @@ impl VertexSetLike for FnvHashSet<Vertex> {
         self.intersection(other).copied().collect()
     }
 
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        self.iter().filter(|&v| other(*v)).copied().collect()
+    }
+
     fn reserve(&mut self, additional: usize) {
         FnvHashSet::reserve(self, additional)
     }
@@ -287,6 +300,10 @@ impl VertexSetLike for hashbrown::HashSet<Vertex> {
 
     fn intersection_collect(&self, other: &Self) -> Self {
         self.intersection(other).copied().collect()
+    }
+
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        self.iter().filter(|&v| other(*v)).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {
@@ -385,6 +402,10 @@ impl VertexSetLike for Vec<Vertex> {
             .filter(|&v| other.contains(*v))
             .copied()
             .collect()
+    }
+
+    fn intersection_with_fn_collect<F: Fn(Vertex) -> bool>(&self, other: F) -> Self {
+        self.iter().filter(|&v| other(*v)).copied().collect()
     }
 
     fn reserve(&mut self, additional: usize) {

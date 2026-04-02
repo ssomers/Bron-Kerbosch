@@ -80,23 +80,21 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             @Override
             public void run() {
                 try {
-                    final Set<Integer> mut_excluded = new HashSet<>(graph.order());
+                    final var excluded = new boolean[graph.order()];
                     StartJob startJob;
                     while ((startJob = startQueue.take()).isGenuine()) {
-                        final var v = startJob.startVertex;
-                        final var neighbours = graph.neighbours(v);
+                        final var startVtx = startJob.startVertex;
+                        final var neighbours = graph.neighbours(startVtx);
                         assert !neighbours.isEmpty();
-                        final var candidates = util.Difference(neighbours, mut_excluded)
+                        final var neighbouringCandidates = neighbours.stream().filter(v -> !excluded[v])
                                 .collect(Collectors.toCollection(HashSet::new));
-                        if (candidates.isEmpty()) {
-                            assert !util.AreDisjoint(neighbours, mut_excluded);
-                        } else {
-                            final var excluded = util.Intersect(neighbours, mut_excluded)
+                        if (!neighbouringCandidates.isEmpty()) {
+                            final var neighbouringExcluded = neighbours.stream().filter(v -> excluded[v])
                                     .collect(Collectors.toCollection(HashSet::new));
-                            final VisitJob job = new VisitJob(startJob, candidates, excluded);
+                            final VisitJob job = new VisitJob(startJob, neighbouringCandidates, neighbouringExcluded);
                             visitQueue.put(job);
                         }
-                        mut_excluded.add(v);
+                        excluded[startVtx] = true;
                     }
                     for (int i = 0; i < NUM_VISITING_THREADS; ++i) {
                         visitQueue.put(new VisitJob(startJob, null, null));

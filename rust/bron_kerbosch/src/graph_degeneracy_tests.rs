@@ -42,7 +42,7 @@ pub fn test_degeneracy_order() {
             let g = SlimUndirectedGraphFactory::new(adjacencies);
             let connected: VertexSet = connected_vertices(&g).collect();
 
-            let ordering = Vec::from_iter(degeneracy_iter(&g));
+            let ordering = Vec::from_iter(degeneracy_iter(&g).map(|(v, _)| v));
             let ordering_set = VertexSet::from_iter(ordering.iter().copied());
             assert_eq!(ordering.len(), ordering_set.len(), "duplicates in ordering");
             if let Some(&first) = ordering.first() {

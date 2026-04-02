@@ -1,62 +1,69 @@
 package BronKerbosch
 
-type VertexVisitor interface {
-	visit(Vertex)
+type DegeneracyVisitItem struct {
+	pick             Vertex
+	pickedNeighbours VertexSet
+}
+
+type DegeneracyVisitor interface {
+	visit(DegeneracyVisitItem)
 	Close()
 }
 
-type SimpleVertexVisitor struct {
+type SimpleDegeneracyVisitor struct {
 	vertices []Vertex
 }
 
-type ChannelVertexVisitor struct {
-	vertices chan<- Vertex
+type ChannelDegeneracyVisitor struct {
+	vertices chan<- DegeneracyVisitItem
 }
 
-func (g *SimpleVertexVisitor) visit(v Vertex) {
-	g.vertices = append(g.vertices, v)
+func (g *SimpleDegeneracyVisitor) visit(i DegeneracyVisitItem) {
+	g.vertices = append(g.vertices, i.pick)
 }
 
-func (g *SimpleVertexVisitor) Close() {
+func (g *SimpleDegeneracyVisitor) Close() {
 }
 
-func (g *ChannelVertexVisitor) visit(v Vertex) {
-	g.vertices <- v
+func (g *ChannelDegeneracyVisitor) visit(i DegeneracyVisitItem) {
+	g.vertices <- i
 }
 
-func (g *ChannelVertexVisitor) Close() {
+func (g *ChannelDegeneracyVisitor) Close() {
 	close(g.vertices)
 }
 
-func degeneracyVisitor(graph *UndirectedGraph, visitor VertexVisitor) {
+func degeneracyVisitor(graph *UndirectedGraph, visitor DegeneracyVisitor) {
 	defer func() { visitor.Close() }()
 	order := graph.Order()
-	// Possible values of priorityPerNode:
+	// Possible values of priorityPerVertex:
 	//   0: when yielded
 	//   1..maxDegree: candidates still queued with priority (degree - #of yielded neighbours)
-	priorityPerNode := make([]int, order)
+	priorityPerVertex := make([]int, order)
 	numLeftToPick := 0
 	var q priorityQueue[Vertex]
 	q.init(graph.max_degree)
-	for v := range order {
-		priority := graph.degree(Vertex(v))
+	for i := range order {
+		v := Vertex(i)
+		priority := graph.degree(v)
 		if priority > 0 {
-			priorityPerNode[Vertex(v)] = priority
+			priorityPerVertex[v] = priority
 			numLeftToPick++
-			q.put(Vertex(v), priority)
+			q.put(v, priority)
 		}
 	}
 
 	for numLeftToPick > 0 {
-		pick := q.pop()
-		if priorityPerNode[pick] > 0 {
-			priorityPerNode[pick] = 0
-			visitor.visit(pick)
-			for v := range graph.neighbours(pick) {
-				oldPriority := priorityPerNode[v]
+		i := DegeneracyVisitItem{}
+		i.pick = q.pop()
+		if priorityPerVertex[i.pick] > 0 {
+			priorityPerVertex[i.pick] = 0
+			i.pickedNeighbours = make(VertexSet, graph.degree(i.pick))
+			for v := range graph.neighbours(i.pick) {
+				oldPriority := priorityPerVertex[v]
 				if oldPriority > 0 {
 					newPriority := oldPriority - 1
-					priorityPerNode[v] = newPriority
+					priorityPerVertex[v] = newPriority
 					// Requeue with a more urgent priority or dequeue.
 					// Don't bother to remove the original entry from the queue,
 					// since the vertex will be skipped when popped, and thanks to
@@ -66,8 +73,11 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor VertexVisitor) {
 					} else {
 						numLeftToPick--
 					}
+				} else {
+					i.pickedNeighbours.Add(v)
 				}
 			}
+			visitor.visit(i)
 			numLeftToPick--
 			if numLeftToPick < 0 {
 				panic("numLeftToPick < 0")

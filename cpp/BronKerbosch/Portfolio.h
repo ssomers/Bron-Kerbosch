@@ -5,14 +5,13 @@
 #include "BronKerbosch2GPX.h"
 #include "BronKerbosch3GP.h"
 #include "BronKerbosch3GPX.h"
-#include "BronKerbosch3MT.h"
 #include "UndirectedGraph.h"
 #include <vector>
 
 namespace BronKerbosch {
     class Portfolio {
       public:
-        static int const NUM_FUNCS = 6;
+        static int const NUM_FUNCS = 5;
         static const char* const FUNC_NAMES[NUM_FUNCS];
 
         struct CollectingReporter {
@@ -56,7 +55,6 @@ namespace BronKerbosch {
                 case 2: return BronKerbosch2GPX::explore<Reporter>(graph);
                 case 3: return BronKerbosch3GP::explore<Reporter>(graph);
                 case 4: return BronKerbosch3GPX::explore<Reporter>(graph);
-                case 5: return BronKerbosch3MT<Reporter, VertexSet>::explore(graph);
             }
             throw std::logic_error("invalid func_index");
         }

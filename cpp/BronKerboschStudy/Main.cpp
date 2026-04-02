@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 #include "BronKerbosch/Portfolio.h"
 #include "BronKerbosch/UndirectedGraph.h"
@@ -152,11 +152,11 @@ class Benchmark {
                             auto reldev = stats[func_index].deviation() / mean;
                             auto p = std::cout.precision(3);
                             auto f = std::cout.setf(std::ios_base::fixed);
-                            std::cout << "order " << std::setw(4) << orderstr;
+                            auto full_name = std::string(func_name) + "@" + set_type_name(set_type);
+                            std::cout << "order " << std::right << std::setw(4) << orderstr;
                             std::cout << " size " << std::setw(7) << size;
-                            std::cout << " " << std::setw(8) << func_name;
-                            std::cout << "@" << set_type_name(set_type);
-                            std::cout << ": " << std::setw(6) << mean << "s ± "
+                            std::cout << " " << std::left << std::setw(18) << full_name;
+                            std::cout << std::right << std::setw(7) << mean << "s \xc2\xb1 "
                                       << std::setprecision(0) << reldev * 100 << "%\n";
                             std::cout.flush();
                             std::cout.precision(p);
@@ -213,27 +213,20 @@ int main(int argc, char** argv) {
 #ifndef NDEBUG
         std::cerr << "Run Release build instead for meaningful measurements\n";
 #endif
+        auto sizes100 = range(2'000u, 3'000u, 50u);
+        auto sizes10k =
+            concat(range(10'000u, 90'000u, 10'000u), range(100'000u, 200'000u, 25'000u));
+        auto sizes1M = concat(range(250'000u, 1'999'999u, 250'000u),
+                              range(2'000'000u, 5'000'000u, 1'000'000u));
+        Benchmark::bk("100", sizes100, [&](SetType, unsigned) { return all_func_indices; }, 5);
+        Benchmark::bk("10k", sizes10k, [&](SetType, unsigned) { return most_func_indices; }, 3);
         Benchmark::bk(
-            "100", range(2'000u, 3'000u, 50u), [&](SetType, unsigned) { return all_func_indices; },
-            5);
-        Benchmark::bk(
-            "10k", concat(range(10'000u, 90'000u, 10'000u), range(100'000u, 200'000u, 25'000u)),
-            [&](SetType set_type, unsigned) {
-                if (set_type == SetType::std_set)
-                    return std::vector<int>{1, 2, 3, 4};
-                else
-                    return most_func_indices;
-            },
-            3);
-        Benchmark::bk(
-            "1M",
-            concat(range(250'000u, 1'999'999u, 250'000u),
-                   range(2'000'000u, 5'000'000u, 1'000'000u)),
+            "1M", sizes1M,
             [&](SetType set_type, unsigned) {
                 switch (set_type) {
                     case SetType::std_set: [[fallthrough]];
                     case SetType::ord_vec: return std::vector<int>{};
-                    case SetType::hashset: return std::vector<int>{1, 3, 5};
+                    case SetType::hashset: return std::vector<int>{1, 3};
                 }
                 throw std::logic_error("unreachable");
             },

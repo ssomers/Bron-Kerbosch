@@ -49,19 +49,19 @@ struct VisitJob<VertexSet> {
     excluded: VertexSet,
 }
 
-fn initiate<VertexSet, Graph>(graph: &Graph, start_tx: Sender<Vertex>)
+fn initiate<VertexSet, Graph>(graph: &Graph, start_tx: Sender<(Vertex, VertexSet)>)
 where
     VertexSet: VertexSetLike,
     Graph: UndirectedGraph<VertexSet = VertexSet>,
 {
-    for vertex in degeneracy_iter(graph) {
-        start_tx.send(vertex).unwrap();
+    for pair in degeneracy_iter(graph) {
+        start_tx.send(pair).unwrap();
     }
 }
 
 fn dispatch<VertexSet, Graph>(
     graph: &Graph,
-    start_rx: Receiver<Vertex>,
+    start_rx: Receiver<(Vertex, VertexSet)>,
     visit_tx: Sender<VisitJob<VertexSet>>,
 ) where
     VertexSet: VertexSetLike,
@@ -69,11 +69,9 @@ fn dispatch<VertexSet, Graph>(
 {
     // In this initial iteration, we don't need to represent the set of candidates
     // because all neighbours are candidates until excluded.
-    let mut excluded = VertexSet::with_capacity(graph.order());
-    while let Ok(v) = start_rx.recv() {
+    while let Ok((v, neighbouring_excluded)) = start_rx.recv() {
         let neighbours = graph.neighbours(v);
         debug_assert!(!neighbours.is_empty());
-        let neighbouring_excluded = neighbours.intersection_collect(&excluded);
         debug_assert!(neighbouring_excluded.len() < neighbours.len());
         let neighbouring_candidates = neighbours.difference_collect(&neighbouring_excluded);
         let visit = VisitJob {
@@ -82,7 +80,6 @@ fn dispatch<VertexSet, Graph>(
             excluded: neighbouring_excluded,
         };
         visit_tx.send(visit).unwrap();
-        excluded.insert(v);
     }
 }
 

@@ -14,12 +14,10 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
     {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
-        var excluded = VertexSetMgr.EmptyWithCapacity(graph.Order);
-        foreach (Vertex v in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
+        foreach ((Vertex v, VertexSet neighbouringExcluded) in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
             if (neighbouringExcluded.Count < neighbours.Count)
             {
                 var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
@@ -27,8 +25,6 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
                     neighbouringCandidates, neighbouringExcluded,
                     [v]);
             }
-            var added = VertexSetMgr.Add(excluded, v);
-            Debug.Assert(added);
         }
     }
 }

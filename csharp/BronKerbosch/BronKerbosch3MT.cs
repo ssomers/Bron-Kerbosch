@@ -1,4 +1,4 @@
-﻿// Bron-Kerbosch algorithm with degeneracy ordering,
+// Bron-Kerbosch algorithm with degeneracy ordering,
 // with nested searches choosing a pivot from candidates only (IK_GP),
 // implemented by multiple threads.
 
@@ -22,14 +22,14 @@ internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
 
         // Step 2: visit vertices.
         VertexSet excluded = VertexSetMgr.Empty();
-        var visitor = new ActionBlock<Vertex>(v =>
+        var visitor = new ActionBlock<(Vertex, VertexSet)>(pair =>
             {
+                (Vertex v, VertexSet neighbouringExcluded) = pair;
                 VertexSet neighbours = graph.Neighbours(v);
                 Debug.Assert(neighbours.Any());
-                VertexSet neighbouringCandidates = VertexSetMgr.Difference(neighbours, excluded);
-                if (neighbouringCandidates.Any())
+                if (neighbouringExcluded.Count < neighbours.Count)
                 {
-                    VertexSet neighbouringExcluded = VertexSetMgr.Intersection(excluded, neighbours);
+                    var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                     var posted = spawner.Post(() =>
                         Pivot<VertexSet, VertexSetMgr>.Visit(graph, consumer, PivotChoice.MaxDegreeLocal,
                                                                 neighbouringCandidates, neighbouringExcluded,
@@ -46,9 +46,9 @@ internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
             });
 
         // Step 1: order vertices.
-        foreach (Vertex v in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
+        foreach (var pair in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
         {
-            var posted = visitor.Post(v);
+            var posted = visitor.Post(pair);
             Trace.Assert(posted);
         }
         visitor.Complete();
