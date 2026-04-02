@@ -6,11 +6,12 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class UndirectedGraph {
+public final class UndirectedGraph {
     private final List<Set<Integer>> my_adjacencies;
     private final int my_size;
     private final int my_max_degree;
 
+    // Assumes you pass ownership of adjacencies, i.e., don't change it behind our back.
     public UndirectedGraph(List<Set<Integer>> adjacencies) {
         assert IntStream.range(0, adjacencies.size()).noneMatch(v -> adjacencies.get(v).contains(v));
         assert IntStream.range(0, adjacencies.size()).allMatch(v -> adjacencies.get(v).stream().allMatch(

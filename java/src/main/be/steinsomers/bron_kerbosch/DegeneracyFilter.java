@@ -73,7 +73,7 @@ final class DegeneracyFilter implements PrimitiveIterator.OfInt {
                 return pick;
             }
         }
-        throw new NoSuchElementException();
+        throw new NoSuchElementException("nextInt couldn't pop");
     }
 
     private static final class SimplePriorityQueue<T> {

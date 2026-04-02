@@ -29,7 +29,7 @@ final class SampleStatistics {
 
     public double mean() {
         if (samples > 0) {
-            return Math.max(min, Math.min(max, sum / samples));
+            return Math.clamp(sum / samples, min, max);
         } else {
             return Double.NaN;
         }

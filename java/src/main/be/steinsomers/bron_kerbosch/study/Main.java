@@ -71,7 +71,6 @@ enum Main {
         for (int sample = 0; sample <= timedSamples; ++sample) {
             for (final int funcIndex : funcIndices) {
                 if (sample == 0) {
-                    @SuppressWarnings({"LawOfDemeter", "NumericCastThatLosesPrecision"})
                     final var initialCap = (int) Math.ceil(Math.sqrt(graph.size()));
                     final var cliques = Collections.synchronizedCollection(new ArrayDeque<int[]>(initialCap));
                     FUNCS[funcIndex].explore(graph, cliques::add);
