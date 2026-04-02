@@ -1,10 +1,8 @@
 // Naive Bron-Kerbosch algorithm
 package be.steinsomers.bron_kerbosch
 
-import java.util.function.Consumer
-
 class BronKerbosch1 : BronKerboschAlgorithm {
-    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val candidates: MutableSet<Int> = graph.connectedVertices(HashSet())
         val excluded: MutableSet<Int> = HashSet(candidates.size)
         visit(
@@ -16,7 +14,7 @@ class BronKerbosch1 : BronKerboschAlgorithm {
 
     companion object {
         private fun visit(
-            graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>,
+            graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
             candidates: MutableSet<Int>, excluded: MutableSet<Int>,
             cliqueInProgress: IntArray
         ) {
@@ -34,7 +32,11 @@ class BronKerbosch1 : BronKerboschAlgorithm {
                         candidates = neighbouringCandidates, excluded = neighbouringExcluded,
                         cliqueInProgress = Util.append(cliqueInProgress, v)
                     )
-                } else if (Util.areDisjoint(excluded, neighbours)) {
+                } else if (cliqueInProgress.size + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
+                        excluded,
+                        neighbours
+                    )
+                ) {
                     cliqueConsumer.accept(Util.append(cliqueInProgress, v))
                 }
                 excluded.add(v)

@@ -1,10 +1,8 @@
 // Bron-Kerbosch algorithm with degeneracy ordering
 package be.steinsomers.bron_kerbosch
 
-import java.util.function.Consumer
-
 internal object BronKerboschDegeneracy {
-    fun explore(graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>, furtherPivotChoice: PivotChoice) {
+    fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer, furtherPivotChoice: PivotChoice) {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
         val excluded = BooleanArray(graph.order)

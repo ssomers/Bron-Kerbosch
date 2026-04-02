@@ -12,7 +12,11 @@ let bk (graph: UndirectedGraph, expected_cliques: int list list) : Unit =
     |> List.iter (fun algo ->
         let mutable cliques = List.empty
 
-        algo.exec graph (fun clique -> cliques <- clique :: cliques)
+        let consumer =
+            { MinSize = 2
+              Receiver = fun clique -> cliques <- clique :: cliques }
+
+        algo.exec graph consumer
         let obtained_cliques = cliques |> Cliques.sort
         Assert.That(obtained_cliques, Is.EqualTo<Clique list> expected_cliques))
 

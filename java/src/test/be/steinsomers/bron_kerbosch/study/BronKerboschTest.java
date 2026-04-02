@@ -1,5 +1,6 @@
 package be.steinsomers.bron_kerbosch.study;
 
+import be.steinsomers.bron_kerbosch.CliqueConsumer;
 import be.steinsomers.bron_kerbosch.UndirectedGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,8 +15,9 @@ final class BronKerboschTest {
         for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
             final var funcName = Main.FUNC_NAMES[funcIndex];
             final var rawCliques = Collections.synchronizedCollection(new ArrayDeque<int[]>());
+            final var consumer = new CliqueConsumer(2, rawCliques::add);
             try {
-                Main.FUNCS[funcIndex].explore(graph, rawCliques::add);
+                Main.FUNCS[funcIndex].explore(graph, consumer);
             } catch (final InterruptedException ex) {
                 throw new AssertionError(ex);
             }

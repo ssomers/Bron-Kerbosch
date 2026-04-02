@@ -35,7 +35,7 @@ fn visit<VertexSet, Graph>(
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
-        if excluded.is_empty() {
+        if excluded.is_empty() && consumer.is_accepted_size(clique.len()) {
             consumer.accept(clique);
         }
         return;

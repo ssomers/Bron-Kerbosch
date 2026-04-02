@@ -139,7 +139,7 @@ def read_stats(path: str, orderstr: str, size: int) -> int:
             for line in txtfile:
                 if line.startswith(prefix):
                     try:
-                        return int(line[len(prefix) :])
+                        return int(line[len(prefix) :].split("\t")[1])
                     except ValueError:
                         raise ValueError(
                             f"File {path} has bogus line “{line.rstrip()}”"

@@ -1,9 +1,7 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.function.Consumer
-
 internal object BronKerboschPivot {
-    fun explore(graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>, pivotChoice: PivotChoice) {
+    fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer, pivotChoice: PivotChoice) {
         val pivot = graph.maxDegreeVertex()
         if (pivot != null) {
             // In this initial iteration, we don't need to represent the set of candidates
@@ -30,7 +28,7 @@ internal object BronKerboschPivot {
 
     fun visit(
         graph: UndirectedGraph,
-        cliqueConsumer: Consumer<IntArray>,
+        cliqueConsumer: CliqueConsumer,
         pivotChoice: PivotChoice,
         candidates: MutableSet<Int>,
         excluded: MutableSet<Int>,
@@ -44,7 +42,7 @@ internal object BronKerboschPivot {
             // Same logic as below, stripped down for this common case
             val v = candidates.iterator().next()
             val neighbours = graph.neighbours(v)
-            if (Util.areDisjoint(neighbours, excluded)) {
+            if (cliqueInProgress.size + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
                 cliqueConsumer.accept(Util.append(cliqueInProgress, v))
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
@@ -60,7 +58,7 @@ internal object BronKerboschPivot {
     }
 
     private fun visitMaxDegree(
-        graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>,
+        graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
         candidates: MutableSet<Int>, excluded: MutableSet<Int>,
         cliqueInProgress: IntArray, pivotChoice: PivotChoice
     ) {
@@ -74,7 +72,7 @@ internal object BronKerboschPivot {
             val localDegree = Util.intersectionSize(neighbours, candidates)
             if (localDegree == 0) {
                 // Same logic as below, stripped down
-                if (Util.areDisjoint(neighbours, excluded)) {
+                if (cliqueInProgress.size + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
                     cliqueConsumer.accept(Util.append(cliqueInProgress, v))
                 }
             } else {
@@ -101,7 +99,7 @@ internal object BronKerboschPivot {
     }
 
     private fun visitAroundPivot(
-        graph: UndirectedGraph, cliqueConsumer: Consumer<IntArray>,
+        graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
         candidates: MutableSet<Int>, excluded: MutableSet<Int>,
         cliqueInProgress: IntArray, furtherPivotChoice: PivotChoice,
         pivot: Int, remainingCandidates: Iterable<Int>
@@ -119,7 +117,11 @@ internal object BronKerboschPivot {
                         candidates = neighbouringCandidates, excluded = neighbouringExcluded,
                         cliqueInProgress = Util.append(cliqueInProgress, v)
                     )
-                } else if (Util.areDisjoint(neighbours, excluded)) {
+                } else if (cliqueInProgress.size + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
+                        neighbours,
+                        excluded
+                    )
+                ) {
                     cliqueConsumer.accept(Util.append(cliqueInProgress, v))
                 }
                 excluded.add(v)

@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-final class DegeneracyFilter implements PrimitiveIterator.OfInt {
+final class DegeneracyIterator implements PrimitiveIterator.OfInt {
     private final UndirectedGraph graph;
     // Possible values of priority_per_vertex (after initialization):
     //   0: never queued because not connected (degree 0),
@@ -24,7 +24,7 @@ final class DegeneracyFilter implements PrimitiveIterator.OfInt {
     private final SimplePriorityQueue<Integer> queue;
     private int num_left_to_pick;
 
-    DegeneracyFilter(final UndirectedGraph graph) {
+    DegeneracyIterator(final UndirectedGraph graph) {
         this.graph = graph;
         final var order = graph.order();
         priority_per_vertex = new int[order];

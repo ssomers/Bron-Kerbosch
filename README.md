@@ -4,15 +4,19 @@ Performance comparison of many implementations to solve one particular computati
 to compare the effects of algorithm complexity, programming languages, library choices, and parallelism.
 
 The algorithms implemented are three variants of [the Bron-Kerbosch algorithm](http://en.wikipedia.org/wiki/Bron-Kerbosch_algorithm)
-to find all maximal cliques in a graph. Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
+to find maximal cliques in a graph. Some algorithm variants (IK_*) are described in the 2008 paper by F. Cazals & C. Karande,
 “A note on the problem of reporting maximal cliques”, Theoretical Computer Science, 407 (1): 564–568, doi:10.1016/j.tcs.2008.05.010.
 
-It originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch). Compared to the original project, the code is:
-* converted from python 2 to python 3
-* (hopefully) clarified and statically typed
-* extended with variations on the algorithms
-* extended with unit tests, property based testing, and this performance test on random graphs
-* and done over in Rust, Java, Kotlin, Go, C++ and C#, with parallelism added
+This project originated as a fork of [cornchz/Bron-Kerbosch](https://github.com/cornchz/Bron-Kerbosch). Compared to the original project, the code is:
+* converted from python 2 to python 3;
+* (hopefully) clarified and statically typed;
+* extended with variations on the algorithms;
+* extended with unit tests, property based testing, and this performance test on random graphs;
+* done over in Rust, C#, Java, Kotlin, Go, and C++;
+* with alternatives exploiting parallelism;
+* since March 2026, ignoring maximal 2-cliques, i.e. lone edges, in addition to the original project
+  that ignored other trivial maximal cliques: maximal 1-cliques (unconnected vertices)
+  and the maximal 0-clique in the empty graph.
 
 All charts below show the amount of time spent on the same particular Windows machine with a 6 core CPU,
 all on the same predetermined random graph, with error bars showing the minimum and maximum

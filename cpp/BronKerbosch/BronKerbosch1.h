@@ -40,7 +40,9 @@ namespace BronKerbosch {
                         cliques, visit<Reporter>(graph, std::move(neighbouring_candidates),
                                                  std::move(neighbouring_excluded), &newclique));
                 } else {
-                    if (Util::are_disjoint(excluded, neighbours))
+                    if (clique_in_progress &&
+                        Reporter::is_accepted_clique_size(1 + clique_in_progress->height) &&
+                        Util::are_disjoint(excluded, neighbours))
                         Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     if (candidates.empty())
                         break;

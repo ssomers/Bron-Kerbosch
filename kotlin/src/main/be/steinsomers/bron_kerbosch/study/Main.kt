@@ -67,7 +67,8 @@ internal object Main {
                 if (sample == 0) {
                     val initialCap = ceil(sqrt(testData.graph.size.toDouble())).toInt()
                     val cliques = Collections.synchronizedCollection(ArrayDeque<IntArray>(initialCap))
-                    FUNCS[funcIndex].explore(testData.graph, cliques::add)
+                    val cliqueConsumer = CliqueConsumer(3, cliques::add)
+                    FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
                     val ordered = orderCliques(cliques)
                     if (firstOrdered.isEmpty) {
                         require(
@@ -80,7 +81,8 @@ internal object Main {
                 } else {
                     val start = System.nanoTime()
                     val cliqueCounter = AtomicInt(0)
-                    FUNCS[funcIndex].explore(testData.graph) { _ -> cliqueCounter.addAndFetch(1) }
+                    val cliqueConsumer = CliqueConsumer(3, { _ -> cliqueCounter.addAndFetch(1) })
+                    FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
                     val elapsed = System.nanoTime() - start
                     val cliqueCount = cliqueCounter.load()
                     require(

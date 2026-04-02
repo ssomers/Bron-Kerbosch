@@ -2,7 +2,6 @@ package be.steinsomers.bron_kerbosch
 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
-import java.util.function.Consumer
 
 class BronKerbosch3MT : BronKerboschAlgorithm {
     companion object {
@@ -10,7 +9,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
     }
 
     @Throws(InterruptedException::class)
-    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val worker = Worker(graph, cliqueConsumer)
         worker.work()
     }
@@ -39,7 +38,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
     }
 
-    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: Consumer<IntArray>) {
+    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: CliqueConsumer) {
         private val startQueue: BlockingQueue<StartJob> = ArrayBlockingQueue(64)
         private val visitQueue: BlockingQueue<VisitJob> = ArrayBlockingQueue(64)
 

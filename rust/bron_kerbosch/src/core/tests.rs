@@ -21,7 +21,7 @@ impl TestData {
         let graph = SlimUndirectedGraphFactory::new(adjacencies);
         let expected = order_cliques(self.cliques.iter().map(verticise));
         for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-            let (consumer, collector) = CliqueHarvester::new(0);
+            let (consumer, collector) = CliqueHarvester::new(0, 2);
             let cliques = thread::scope(|s| {
                 s.spawn(|| explore(func_index, &graph, consumer));
                 collector.collect_cliques()

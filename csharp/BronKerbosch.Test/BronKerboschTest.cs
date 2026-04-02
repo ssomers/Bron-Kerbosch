@@ -20,7 +20,7 @@ namespace BronKerbosch.Test
             var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
-                var consumer = new CliqueCollector();
+                var consumer = new CliqueCollector(2);
                 Portfolio.Explore(funcIndex, graph, consumer);
                 var result = consumer.List();
                 Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));

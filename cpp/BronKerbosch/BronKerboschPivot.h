@@ -66,7 +66,8 @@ namespace BronKerbosch {
                 // Same logic as below, but stripped down for this common case
                 for (Vertex v : candidates) {
                     auto const& neighbours = graph.neighbours(v);
-                    if (Util::are_disjoint(neighbours, excluded)) {
+                    if (Reporter::is_accepted_clique_size(1 + clique_in_progress->height) &&
+                        Util::are_disjoint(neighbours, excluded)) {
                         Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     }
                 }
@@ -83,7 +84,8 @@ namespace BronKerbosch {
                 auto local_degree = Util::intersection_size(neighbours, candidates);
                 if (local_degree == 0) {
                     // Same logic as below, but stripped down
-                    if (Util::are_disjoint(neighbours, excluded)) {
+                    if (Reporter::is_accepted_clique_size(1 + clique_in_progress->height) &&
+                        Util::are_disjoint(neighbours, excluded)) {
                         Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                     }
                 } else {
@@ -115,7 +117,8 @@ namespace BronKerbosch {
                     candidates.erase(v);
                     auto neighbouring_candidates = Util::intersection(neighbours, candidates);
                     if (neighbouring_candidates.empty()) {
-                        if (Util::are_disjoint(neighbours, excluded)) {
+                        if (Reporter::is_accepted_clique_size(1 + clique_in_progress->height) &&
+                            Util::are_disjoint(neighbours, excluded)) {
                             Reporter::add_one(cliques, VertexPile(v, clique_in_progress));
                         }
                     } else {

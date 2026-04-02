@@ -3,12 +3,11 @@ package be.steinsomers.bron_kerbosch;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     @Override
-    public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
+    public void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer) {
         final var worker = new Worker(graph, cliqueConsumer);
         worker.work();
     }
@@ -16,11 +15,11 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
     private record VisitJob(int startVertex, Set<Integer> candidates, Set<Integer> excluded) {
     }
 
-    private record Worker(UndirectedGraph graph, Consumer<int[]> cliqueConsumer) {
+    private record Worker(UndirectedGraph graph, CliqueConsumer cliqueConsumer) {
         void work() {
             final var visitProducer = new VisitProducer();
             final var visitor = new Visitor();
-            final var ordering = new DegeneracyFilter(graph);
+            final var ordering = new DegeneracyIterator(graph);
             ordering.stream()
                     .mapToObj(visitProducer::createJob)
                     .filter(Objects::nonNull)

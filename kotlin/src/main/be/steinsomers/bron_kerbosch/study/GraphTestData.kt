@@ -62,23 +62,23 @@ internal data class GraphTestData(val graph: UndirectedGraph, val cliqueCount: I
         @Throws(IOException::class)
         private fun readStats(path: Path, orderStr: String, size: Int): Int {
             val prefix = "$orderStr\t$size\t"
-            var cliqueCount = 0
+            var cliqueCount = -1
             Files.newBufferedReader(path).use { br ->
                 br.forEachLine { line ->
                     if (line.startsWith(prefix)) {
-                        if (cliqueCount != 0)
+                        if (cliqueCount >= 0)
                             throw IOException("File $path multiply defines order $orderStr size $size")
                         try {
-                            cliqueCount = line.substring(prefix.length).toInt()
+                            cliqueCount = line.substring(prefix.length).split('\t')[1].toInt()
                         } catch (_: NumberFormatException) {
                             throw IOException("File $path has bogus line “$line”")
                         }
-                        if (cliqueCount <= 0)
+                        if (cliqueCount < 0)
                             throw IOException("File $path has stupid line “$line”")
                     }
                 }
             }
-            if (cliqueCount == 0)
+            if (cliqueCount < 0)
                 throw IOException("File $path lacks order $orderStr size $size")
             return cliqueCount
         }

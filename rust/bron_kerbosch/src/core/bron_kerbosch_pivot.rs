@@ -68,7 +68,9 @@ pub fn visit<VertexSet, Graph>(
         // Same logic as below, but stripped down for this common case
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
-            if neighbours.is_disjoint(&excluded) {
+            if consumer.is_accepted_size(clique_in_progress.height + 1)
+                && neighbours.is_disjoint(&excluded)
+            {
                 consumer.accept(clique_in_progress.pile(v).collect());
             }
         });
@@ -86,7 +88,9 @@ pub fn visit<VertexSet, Graph>(
                 let local_degree = neighbours.intersection_size(&candidates);
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
-                    if neighbours.is_disjoint(&excluded) {
+                    if consumer.is_accepted_size(clique_in_progress.height + 1)
+                        && neighbours.is_disjoint(&excluded)
+                    {
                         consumer.accept(clique_in_progress.pile(v).collect());
                     }
                 } else {
@@ -139,7 +143,9 @@ pub fn visit<VertexSet, Graph>(
                     neighbouring_excluded,
                     &clique_in_progress.pile(v),
                 );
-            } else if excluded.is_disjoint(neighbours) {
+            } else if consumer.is_accepted_size(clique_in_progress.height + 1)
+                && excluded.is_disjoint(neighbours)
+            {
                 consumer.accept(clique_in_progress.pile(v).collect());
             }
             excluded.insert(v);

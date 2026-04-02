@@ -5,13 +5,20 @@ use std::hash::Hash;
 
 #[derive(Debug)]
 pub struct CliqueHarvester {
+    min_size: usize,
     consumer_rx: Receiver<Clique>,
 }
 
 impl CliqueHarvester {
-    pub fn new(cap: usize) -> (CliqueConsumer, Self) {
-        let (consumer_tx, consumer_rx) = crossbeam_channel::bounded::<Clique>(cap);
-        (CliqueConsumer::new(consumer_tx), Self { consumer_rx })
+    pub fn new(channel_cap: usize, clique_min_size: usize) -> (CliqueConsumer, Self) {
+        let (consumer_tx, consumer_rx) = crossbeam_channel::bounded::<Clique>(channel_cap);
+        (
+            CliqueConsumer::new(clique_min_size, consumer_tx),
+            Self {
+                min_size: clique_min_size,
+                consumer_rx,
+            },
+        )
     }
 
     pub fn collect_cliques(self) -> Vec<Clique> {
@@ -33,7 +40,7 @@ impl CliqueHarvester {
     }
 
     fn is_valid(&self, clique: &Clique) -> bool {
-        clique.len() == count_unique_elements(clique)
+        clique.len() == count_unique_elements(clique) && clique.len() >= self.min_size
     }
 }
 

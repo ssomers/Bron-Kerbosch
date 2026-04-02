@@ -14,8 +14,14 @@ namespace BronKerbosch {
         static int const NUM_FUNCS = 5;
         static const char* const FUNC_NAMES[NUM_FUNCS];
 
+        template <unsigned min_clique_size>
         struct CollectingReporter {
             using Result = CliqueList;
+
+            static bool is_accepted_clique_size(unsigned size) {
+                static_assert(min_clique_size >= 2);
+                return size >= min_clique_size;
+            }
 
             static Result empty() {
                 return CliqueList{};
@@ -30,8 +36,14 @@ namespace BronKerbosch {
             }
         };
 
+        template <unsigned min_clique_size>
         struct CountingReporter {
             using Result = size_t;
+
+            static bool is_accepted_clique_size(unsigned size) {
+                static_assert(min_clique_size >= 2);
+                return size >= min_clique_size;
+            }
 
             static Result empty() {
                 return 0;

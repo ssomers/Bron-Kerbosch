@@ -25,7 +25,7 @@ def visit(
         for v in candidates:
             neighbours = graph.adjacencies[v]
             assert neighbours
-            if excluded.isdisjoint(neighbours):
+            if len(clique) + 1 >= consumer.min_size and excluded.isdisjoint(neighbours):
                 consumer.accept(clique + [v])
         return
 
@@ -37,7 +37,7 @@ def visit(
         local_degree = len(candidates.intersection(neighbours))
         if local_degree == 0:
             # Same logic as below, stripped down
-            if neighbours.isdisjoint(excluded):
+            if len(clique) + 1 >= consumer.min_size and neighbours.isdisjoint(excluded):
                 consumer.accept(clique + [v])
         else:
             if seen_local_degree < local_degree:
@@ -69,6 +69,8 @@ def visit(
                     excluded=neighbouring_excluded,
                     clique=clique + [v],
                 )
-            elif excluded.isdisjoint(neighbours):
+            elif len(clique) + 1 >= consumer.min_size and excluded.isdisjoint(
+                neighbours
+            ):
                 consumer.accept(clique + [v])
             excluded.add(v)

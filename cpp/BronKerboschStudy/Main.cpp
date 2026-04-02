@@ -17,6 +17,7 @@ using BronKerboschStudy::SampleStatistics;
 
 enum class SetType { hashset, std_set, ord_vec };
 static int const SET_TYPES = 3;
+static unsigned const MIN_CLIQUE_SIZE = 3;
 
 struct ShowMeMemoryLayout : RandomGraph<std::unordered_set<Vertex>> {
     ShowMeMemoryLayout() = delete;
@@ -35,8 +36,8 @@ class Benchmark {
             for (int func_index : func_indices) {
                 if (sample == 0) {
                     auto begin = std::chrono::steady_clock::now();
-                    auto result = Portfolio::explore<Portfolio::CollectingReporter, VertexSet>(
-                        func_index, graph);
+                    auto result = Portfolio::explore<Portfolio::CollectingReporter<MIN_CLIQUE_SIZE>,
+                                                     VertexSet>(func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     auto secs = std::chrono::duration<double, std::ratio<1, 1>>(duration).count();
                     if (duration >= std::chrono::seconds(3)) {
@@ -61,8 +62,9 @@ class Benchmark {
                     }
                 } else {
                     auto begin = std::chrono::steady_clock::now();
-                    auto cliques = Portfolio::explore<Portfolio::CountingReporter, VertexSet>(
-                        func_index, graph);
+                    auto cliques =
+                        Portfolio::explore<Portfolio::CountingReporter<MIN_CLIQUE_SIZE>, VertexSet>(
+                            func_index, graph);
                     auto duration = std::chrono::steady_clock::now() - begin;
                     if (cliques != graph.clique_count) {
                         std::cerr << "Expected " << graph.clique_count << ", "

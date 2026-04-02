@@ -60,7 +60,7 @@ namespace BronKerbosch
                 // Same logic as below, stripped down
                 Vertex v = candidates.First();
                 var neighbours = graph.Neighbours(v);
-                if (!VertexSetMgr.Overlaps(neighbours, excluded))
+                if (consumer.IsAcceptedSize(cliqueInProgress.Length + 1) && !VertexSetMgr.Overlaps(neighbours, excluded))
                 {
                     consumer.Accept([.. cliqueInProgress, v]);
                 }
@@ -81,7 +81,7 @@ namespace BronKerbosch
                 if (localDegree == 0)
                 {
                     // Same logic as below, stripped down
-                    if (!VertexSetMgr.Overlaps(neighbours, excluded))
+                    if (consumer.IsAcceptedSize(cliqueInProgress.Length + 1) && !VertexSetMgr.Overlaps(neighbours, excluded))
                     {
                         consumer.Accept([.. cliqueInProgress, v]);
                     }
@@ -134,7 +134,7 @@ namespace BronKerbosch
                               neighbouringCandidates, neighbouringExcluded,
                               [.. cliqueInProgress, v]);
                     }
-                    else if (!VertexSetMgr.Overlaps(neighbours, excluded))
+                    else if (consumer.IsAcceptedSize(cliqueInProgress.Length + 1) && !VertexSetMgr.Overlaps(neighbours, excluded))
                     {
                         consumer.Accept([.. cliqueInProgress, v]);
                     }

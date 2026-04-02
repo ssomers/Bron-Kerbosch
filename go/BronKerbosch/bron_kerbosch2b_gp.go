@@ -1,6 +1,6 @@
 package BronKerbosch
 
-func bronKerbosch2bGP(graph *UndirectedGraph, cliques chan<- []Vertex) {
+func bronKerbosch2bGP(graph *UndirectedGraph, consumer Consumer) {
 	// Bron-Kerbosch algorithm with pivot of highest degree within remaining candidates
 	// chosen from candidates only (IK_GP).
 	order := graph.Order()
@@ -17,7 +17,7 @@ func bronKerbosch2bGP(graph *UndirectedGraph, cliques chan<- []Vertex) {
 				if len(neighbouringExcluded) < len(neighbours) {
 					neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
 					visit(
-						graph, cliques,
+						graph, consumer,
 						MaxDegreeLocal,
 						neighbouringCandidates,
 						neighbouringExcluded,
@@ -27,5 +27,5 @@ func bronKerbosch2bGP(graph *UndirectedGraph, cliques chan<- []Vertex) {
 			}
 		}
 	}
-	close(cliques)
+	consumer.close()
 }

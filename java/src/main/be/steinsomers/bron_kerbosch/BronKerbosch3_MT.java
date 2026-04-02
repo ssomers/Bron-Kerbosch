@@ -7,12 +7,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
     @Override
-    public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) throws InterruptedException {
+    public void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer) throws InterruptedException {
         final var worker = new Worker(graph, cliqueConsumer);
         worker.work();
     }
@@ -51,7 +50,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         private static final int NUM_VISITING_THREADS = 5;
 
         private final UndirectedGraph graph;
-        private final Consumer<int[]> cliqueConsumer;
+        private final CliqueConsumer cliqueConsumer;
         private final BlockingQueue<StartJob> startQueue;
         private final BlockingQueue<VisitJob> visitQueue;
         private final StartProducer startProducer = new StartProducer();
@@ -62,7 +61,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             @Override
             public void run() {
                 try {
-                    final Iterable<Integer> vertices = () -> new DegeneracyFilter(graph);
+                    final Iterable<Integer> vertices = () -> new DegeneracyIterator(graph);
                     for (final var v : vertices) {
                         startQueue.put(new StartJob(v));
                     }
@@ -128,7 +127,7 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
             }
         }
 
-        private Worker(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
+        private Worker(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer) {
             this.graph = graph;
             this.cliqueConsumer = cliqueConsumer;
             startQueue = new ArrayBlockingQueue<>(64);

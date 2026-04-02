@@ -6,7 +6,7 @@ open System.Diagnostics
 
 let rec visit
     (graph: UndirectedGraph)
-    (consume: CliqueConsumer)
+    (consumer: CliqueConsumer)
     (candidates: Set<Vertex>, excluded: Set<Vertex>, clique_in_progress: Clique)
     : Unit =
     Debug.Assert(Set.forall graph.hasNeighbours candidates)
@@ -22,13 +22,13 @@ let rec visit
         if not neighbouring_candidates.IsEmpty then
             let neighbouring_excluded: Set<Vertex> = VertexSet.intersect excluded neighbours
 
-            visit graph consume (neighbouring_candidates, neighbouring_excluded, v :: clique_in_progress)
-        elif VertexSet.is_disjoint excluded neighbours then
+            visit graph consumer (neighbouring_candidates, neighbouring_excluded, v :: clique_in_progress)
+        elif 1 + clique_in_progress.Length >= consumer.MinSize && VertexSet.is_disjoint excluded neighbours then
             let clique = v :: clique_in_progress
-            consume clique
+            consumer.accept clique
 
         Debug.Assert(not (excluded.Contains(v)))
-        visit graph consume (remaining_candidates, excluded.Add(v), clique_in_progress)
+        visit graph consumer (remaining_candidates, excluded.Add(v), clique_in_progress)
 
 let public explore (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
     let candidates = graph.ConnectedVertices() |> Set.ofSeq

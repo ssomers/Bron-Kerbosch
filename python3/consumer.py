@@ -5,6 +5,9 @@ from typing import List, Sequence
 
 
 class CliqueConsumer(metaclass=ABCMeta):
+    def __init__(self) -> None:
+        self.min_size = 2
+
     @abstractmethod
     def accept(self, clique: Sequence[int]) -> None:
         pass

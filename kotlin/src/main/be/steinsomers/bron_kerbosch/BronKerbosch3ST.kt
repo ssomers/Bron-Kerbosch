@@ -4,7 +4,7 @@ import java.util.*
 import java.util.function.IntFunction
 
 class BronKerbosch3ST : BronKerboschAlgorithm {
-    override fun explore(graph: UndirectedGraph, cliqueConsumer: (IntArray) -> Unit) {
+    override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val worker = Worker(graph, cliqueConsumer)
         worker.work()
     }
@@ -18,7 +18,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         ) : VisitJob()
     }
 
-    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: (IntArray) -> Unit) {
+    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: CliqueConsumer) {
         fun work() {
             val visitProducer = VisitProducer()
             val visitor = Visitor()

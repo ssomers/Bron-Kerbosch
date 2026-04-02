@@ -4,12 +4,11 @@ package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public final class BronKerbosch1 implements BronKerboschAlgorithm {
     @Override
-    public void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer) {
+    public void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer) {
         final Set<Integer> candidates = graph.connectedVertices()
                 .collect(Collectors.toCollection(HashSet::new));
         if (!candidates.isEmpty()) {
@@ -18,7 +17,7 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
         }
     }
 
-    private static void visit(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+    private static void visit(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                               final Set<Integer> mut_candidates, final Set<Integer> mut_excluded,
                               final int[] cliqueInProgress) {
         assert mut_candidates.stream().allMatch(graph::hasDegree);
@@ -37,7 +36,8 @@ public final class BronKerbosch1 implements BronKerboschAlgorithm {
                         neighbouringCandidates,
                         neighbouringExcluded,
                         util.Append(cliqueInProgress, v));
-            } else if (util.AreDisjoint(mut_excluded, neighbours)) {
+            } else if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize
+                    && util.AreDisjoint(mut_excluded, neighbours)) {
                 cliqueConsumer.accept(util.Append(cliqueInProgress, v));
             }
             mut_excluded.add(v);

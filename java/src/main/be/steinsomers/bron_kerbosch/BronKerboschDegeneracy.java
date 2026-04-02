@@ -2,18 +2,17 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 enum BronKerboschDegeneracy {
     ;
 
-    public static void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+    public static void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                                final PivotChoice furtherPivotChoice) {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
         final var excluded = new boolean[graph.order()];
-        final Iterable<Integer> vertices = () -> new DegeneracyFilter(graph);
+        final Iterable<Integer> vertices = () -> new DegeneracyIterator(graph);
         for (final var v : vertices) {
             final var neighbours = graph.neighbours(v);
             assert !neighbours.isEmpty();

@@ -60,9 +60,16 @@ where
     Ok(adjacencies)
 }
 
-pub struct KnownCliqueCount(pub usize);
+pub struct KnownCliqueCounts {
+    pub size_at_least_2: usize,
+    pub size_at_least_3: usize,
+}
 
-fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<KnownCliqueCount>> {
+fn read_clique_counts(
+    path: &Path,
+    orderstr: &str,
+    size: usize,
+) -> Result<Option<KnownCliqueCounts>> {
     let f = File::open(path).with_context(|| locator(path, 0))?;
     let reader = BufReader::new(f);
     let context = |line_num| move || locator(path, line_num);
@@ -70,9 +77,14 @@ fn read_clique_count(path: &Path, orderstr: &str, size: usize) -> Result<Option<
     for (line_idx, line_result) in reader.lines().enumerate().skip(1) {
         let line = line_result.with_context(context(line_idx + 1))?;
         if line.starts_with(&prefix) {
-            let s: &str = line[prefix.len()..].split("\t").next().unwrap();
-            let c: usize = s.parse().with_context(context(line_idx + 1))?;
-            return Ok(Some(KnownCliqueCount(c)));
+            let mut c: Vec<_> = line[prefix.len()..]
+                .split('\t')
+                .map(|s| Some(s.parse::<usize>().with_context(context(line_idx + 1))))
+                .collect();
+            return Ok(Some(KnownCliqueCounts {
+                size_at_least_2: c[0].take().unwrap()?,
+                size_at_least_3: c[1].take().unwrap()?,
+            }));
         }
     }
     Ok(None)
@@ -83,7 +95,7 @@ pub fn read_undirected<VertexSet, GraphFactory>(
     size: Size,
 ) -> Result<(
     impl UndirectedGraph<VertexSet = VertexSet>,
-    Option<KnownCliqueCount>,
+    Option<KnownCliqueCounts>,
 )>
 where
     VertexSet: VertexSetLike + Clone,
@@ -106,10 +118,10 @@ where
     let edges_pbuf: PathBuf = ["..", "data", edges_name].iter().collect();
     let stats_pbuf: PathBuf = ["..", "data", stats_name].iter().collect();
     let adjacencies = read_edges(edges_pbuf.as_path(), orderstr, size)?;
-    let clique_count = read_clique_count(stats_pbuf.as_path(), orderstr, size)?;
+    let clique_counts = read_clique_counts(stats_pbuf.as_path(), orderstr, size)?;
 
     let graph = GraphFactory::new(adjacencies);
     assert_eq!(graph.order(), order);
     assert_eq!(graph.size(), size);
-    Ok((graph, clique_count))
+    Ok((graph, clique_counts))
 }

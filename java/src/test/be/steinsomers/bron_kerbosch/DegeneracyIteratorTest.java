@@ -17,10 +17,10 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-final class DegeneracyFilterTest {
+final class DegeneracyIteratorTest {
     private static SortedSet<Integer> sortedDegeneracyFilterIncludingNeighbours(final UndirectedGraph g) {
         final SortedSet<Integer> vertices = new TreeSet<>();
-        new DegeneracyFilter(g).forEachRemaining((final int v) -> {
+        new DegeneracyIterator(g).forEachRemaining((final int v) -> {
             vertices.add(v);
             vertices.addAll(g.neighbours(v));
         });
@@ -30,14 +30,14 @@ final class DegeneracyFilterTest {
     @Test
     void empty() {
         final var g = new UndirectedGraph(List.of());
-        var f = new DegeneracyFilter(g);
+        var f = new DegeneracyIterator(g);
         assertFalse(f.hasNext());
     }
 
     @Test
     void pair() {
         final var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0)));
-        var f = new DegeneracyFilter(g);
+        var f = new DegeneracyIterator(g);
         assertTrue(f.hasNext());
         f.nextInt();
         assertFalse(f.hasNext());
@@ -46,7 +46,7 @@ final class DegeneracyFilterTest {
     @Test
     void split() {
         final var g = new UndirectedGraph(List.of(Set.of(1), Set.of(0, 2), Set.of(1)));
-        var f = new DegeneracyFilter(g);
+        var f = new DegeneracyIterator(g);
         assertTrue(f.hasNext());
         var first = f.nextInt();
         assertNotEquals(1, first);
@@ -97,7 +97,7 @@ final class DegeneracyFilterTest {
         final var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         final var g = new UndirectedGraph(adjacencies);
         final var connected = g.connectedVertices().count();
-        final var filtered = new DegeneracyFilter(g).stream().count();
+        final var filtered = new DegeneracyIterator(g).stream().count();
         return connected == 0 ? filtered == connected : filtered < connected;
     }
 
@@ -106,7 +106,7 @@ final class DegeneracyFilterTest {
             @ForAll("arbitraryAdjacencyLikes") final List<Set<Integer>> adjacencyLikes) {
         final var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         final var g = new UndirectedGraph(adjacencies);
-        final var f = new DegeneracyFilter(g);
+        final var f = new DegeneracyIterator(g);
         if (f.hasNext()) {
             final int first = f.nextInt();
             return f.stream().allMatch(v -> g.degree(first) <= g.degree(v));

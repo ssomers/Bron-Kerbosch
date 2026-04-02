@@ -1,5 +1,6 @@
 package be.steinsomers.bron_kerbosch.study
 
+import be.steinsomers.bron_kerbosch.CliqueConsumer
 import be.steinsomers.bron_kerbosch.UndirectedGraph
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -214,7 +215,8 @@ internal class BronKerboschTest {
             for (funcIndex in Main.FUNCS.indices) {
                 val funcName = Main.FUNC_NAMES[funcIndex]
                 val rawCliques = Collections.synchronizedCollection(ArrayDeque<IntArray>())
-                Main.FUNCS[funcIndex].explore(graph, rawCliques::add)
+                val cliqueConsumer = CliqueConsumer(2, rawCliques::add)
+                Main.FUNCS[funcIndex].explore(graph, cliqueConsumer)
                 val cliques = Main.orderCliques(rawCliques)
                 Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for $funcName")
             }

@@ -4,6 +4,7 @@ namespace BronKerbosch
 {
     public interface ICliqueConsumer
     {
+        bool IsAcceptedSize(int size);
         void Accept(ImmutableArray<Vertex> clique);
     }
 }

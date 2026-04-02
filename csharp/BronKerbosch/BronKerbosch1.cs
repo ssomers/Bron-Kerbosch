@@ -1,4 +1,4 @@
-// Naïve Bron-Kerbosch algorithm
+// NaÃ¯ve Bron-Kerbosch algorithm
 
 using BronKerbosch;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
                     neighbouringCandidates, neighbouringExcluded,
                     [.. cliqueInProgress, v]);
             }
-            else if (!VertexSetMgr.Overlaps(excluded, neighbours))
+            else if (consumer.IsAcceptedSize(cliqueInProgress.Length + 1) && !VertexSetMgr.Overlaps(excluded, neighbours))
             {
                 consumer.Accept([.. cliqueInProgress, v]);
             }

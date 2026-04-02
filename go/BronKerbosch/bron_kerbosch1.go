@@ -1,27 +1,27 @@
 package BronKerbosch
 
-func bronKerbosch1(graph *UndirectedGraph, cliques chan<- []Vertex) {
+func bronKerbosch1(graph *UndirectedGraph, consumer Consumer) {
 	// Naive Bron-Kerbosch algorithm
 	candidates := graph.connectedVertices()
 	excluded := make(VertexSet, len(candidates))
-	bronKerbosch1visit(graph, cliques, candidates, excluded, nil)
-	close(cliques)
+	bronKerbosch1visit(graph, consumer, candidates, excluded, nil)
+	consumer.close()
 }
 
-func bronKerbosch1visit(graph *UndirectedGraph, cliques chan<- []Vertex,
-	candidates VertexSet, excluded VertexSet, clique []Vertex) {
+func bronKerbosch1visit(graph *UndirectedGraph, consumer Consumer,
+	candidates VertexSet, excluded VertexSet, cliqueInProgress []Vertex) {
 	for !candidates.IsEmpty() {
 		v := candidates.PopArbitrary()
 		neighbours := graph.neighbours(v)
 		neighbouringCandidates := candidates.Intersection(neighbours)
 		if !neighbouringCandidates.IsEmpty() {
 			neighbouringExcluded := excluded.Intersection(neighbours)
-			bronKerbosch1visit(graph, cliques,
+			bronKerbosch1visit(graph, consumer,
 				neighbouringCandidates,
 				neighbouringExcluded,
-				append(clique, v))
-		} else if excluded.IsDisjoint(neighbours) {
-			cliques <- Append(clique, v)
+				append(cliqueInProgress, v))
+		} else if len(cliqueInProgress)+1 >= consumer.MinSize && excluded.IsDisjoint(neighbours) {
+			consumer.Add(Append(cliqueInProgress, v))
 		}
 		excluded.Add(v)
 	}

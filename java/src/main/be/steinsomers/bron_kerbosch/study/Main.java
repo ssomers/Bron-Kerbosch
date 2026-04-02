@@ -1,15 +1,6 @@
 package be.steinsomers.bron_kerbosch.study;
 
-import be.steinsomers.bron_kerbosch.BronKerbosch1;
-import be.steinsomers.bron_kerbosch.BronKerbosch2;
-import be.steinsomers.bron_kerbosch.BronKerbosch2_gp;
-import be.steinsomers.bron_kerbosch.BronKerbosch2_gpx;
-import be.steinsomers.bron_kerbosch.BronKerbosch3;
-import be.steinsomers.bron_kerbosch.BronKerbosch3_MT;
-import be.steinsomers.bron_kerbosch.BronKerbosch3_ST;
-import be.steinsomers.bron_kerbosch.BronKerbosch3_gp;
-import be.steinsomers.bron_kerbosch.BronKerbosch3_gpx;
-import be.steinsomers.bron_kerbosch.BronKerboschAlgorithm;
+import be.steinsomers.bron_kerbosch.*;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -73,7 +64,8 @@ enum Main {
                 if (sample == 0) {
                     final var initialCap = (int) Math.ceil(Math.sqrt(graph.size()));
                     final var cliques = Collections.synchronizedCollection(new ArrayDeque<int[]>(initialCap));
-                    FUNCS[funcIndex].explore(graph, cliques::add);
+                    final var consumer = new CliqueConsumer(3, cliques::add);
+                    FUNCS[funcIndex].explore(graph, consumer);
                     final var ordered = OrderCliques(cliques);
                     if (firstOrdered.isEmpty()) {
                         if (cliques.size() != testData.cliqueCount()) {
@@ -88,7 +80,8 @@ enum Main {
                 } else {
                     final var start = System.nanoTime();
                     final var cliqueCounter = new AtomicInteger();
-                    FUNCS[funcIndex].explore(graph, (int[] _) -> cliqueCounter.incrementAndGet());
+                    final var consumer = new CliqueConsumer(3, (int[] _) -> cliqueCounter.incrementAndGet());
+                    FUNCS[funcIndex].explore(graph, consumer);
                     final var elapsed = System.nanoTime() - start;
                     final var cliqueCount = cliqueCounter.get();
                     if (cliqueCount != testData.cliqueCount()) {

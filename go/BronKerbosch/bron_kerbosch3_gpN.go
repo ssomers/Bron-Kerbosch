@@ -4,27 +4,27 @@ package BronKerbosch
 
 import "sync"
 
-func bronKerbosch3gp0(graph *UndirectedGraph, cliques chan<- []Vertex) {
-	bronKerbosch3om(graph, cliques, 1)
+func bronKerbosch3gp0(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 1)
 }
 
-func bronKerbosch3gp1(graph *UndirectedGraph, cliques chan<- []Vertex) {
-	bronKerbosch3om(graph, cliques, 4)
+func bronKerbosch3gp1(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 4)
 }
 
-func bronKerbosch3gp2(graph *UndirectedGraph, cliques chan<- []Vertex) {
-	bronKerbosch3om(graph, cliques, 16)
+func bronKerbosch3gp2(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 16)
 }
 
-func bronKerbosch3gp3(graph *UndirectedGraph, cliques chan<- []Vertex) {
-	bronKerbosch3om(graph, cliques, 64)
+func bronKerbosch3gp3(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 64)
 }
 
-func bronKerbosch3gp4(graph *UndirectedGraph, cliques chan<- []Vertex) {
-	bronKerbosch3om(graph, cliques, 256)
+func bronKerbosch3gp4(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 256)
 }
 
-func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitors int) {
+func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {
 	starts := make(chan DegeneracyVisitItem, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
 	go degeneracyVisitor(graph, &ChannelDegeneracyVisitor{starts})
@@ -35,7 +35,7 @@ func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitor
 			go func() {
 				for job := range visits {
 					visit(
-						graph, cliques,
+						graph, consumer,
 						MaxDegreeLocal,
 						job.candidates,
 						job.excluded,
@@ -55,7 +55,7 @@ func bronKerbosch3om(graph *UndirectedGraph, cliques chan<- []Vertex, numVisitor
 		}
 		close(visits)
 		wg.Wait()
-		close(cliques)
+		consumer.close()
 	}()
 }
 

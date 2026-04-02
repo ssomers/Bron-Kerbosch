@@ -40,7 +40,8 @@ module RandomUndirectedGraph =
             raise (RandomComplaint($"Exhausted generated list of {lines_read} edges in {path}"))
 
 
-    let ReadStats (path: string, orderstr: string, size: int) : int =
+    let ReadStats (path: string, orderstr: string, size: int, min_clique_size: int) : int =
+        assert(min_clique_size >= 2)
         let prefix = $"{orderstr}\t{size}\t"
 
         let line =
@@ -52,14 +53,14 @@ module RandomUndirectedGraph =
             with :? System.ArgumentException ->
                 raise (RandomComplaint($"File {path} lacks order {orderstr} size {size}"))
 
-        let value = line.Substring(prefix.Length)
+        let value = line.Substring(prefix.Length).Split('\t')[min_clique_size-2]
 
         try
             int (value)
         with :? System.ArgumentException ->
             raise (RandomComplaint($"File {path} has bogus line “{line}”"))
 
-    let public Read (orderstr: string, size: int) : KnownUndirectedGraph =
+    let public Read (orderstr: string, size: int, min_clique_size: int) : KnownUndirectedGraph =
         let order = NumbersGame.ParseInt(orderstr)
         let fullyMeshedSize = int64 order * (int64 order - 1L) / 2L
 
@@ -69,7 +70,7 @@ module RandomUndirectedGraph =
         let edgesPath = $"..\\data\\random_edges_order_{orderstr}.txt"
         let statsPath = "..\\data\\random_stats.txt"
         let adjacencies = ReadEdges(edgesPath, orderstr, size)
-        let clique_count = ReadStats(statsPath, orderstr, size)
+        let clique_count = ReadStats(statsPath, orderstr, size, min_clique_size)
         let graph = UndirectedGraph.ofAdjacencies adjacencies
         Debug.Assert(graph.Order = order)
         Debug.Assert(graph.Size = size)

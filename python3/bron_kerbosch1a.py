@@ -24,7 +24,7 @@ def visit(
     excluded: Set[Vertex],
     clique: List[Vertex],
 ) -> None:
-    if not candidates and not excluded:
+    if not candidates and not excluded and len(clique) >= consumer.min_size:
         consumer.accept(clique)
 
     while candidates:

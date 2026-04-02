@@ -88,14 +88,15 @@ func readStats(path string, orderstr string, size int) (int, error) {
 		return 0, err
 	}
 	defer file.Close()
-	format := fmt.Sprintf("%s\t%d\t%%d", orderstr, size)
+	format := fmt.Sprintf("%s\t%d\t%%d\t%%d", orderstr, size)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		var c int
-		_, err := fmt.Sscanf(line, format, &c)
+		var count2 int
+		var count3 int
+		_, err := fmt.Sscanf(line, format, &count2, &count3)
 		if err == nil {
-			return c, nil
+			return count3, nil
 		}
 	}
 	if err := scanner.Err(); err != nil {

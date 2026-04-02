@@ -84,10 +84,10 @@ namespace BronKerboschStudy {
             getline(file, header);
             std::string o;
             unsigned s;
-            size_t clique_count;
-            while ((file >> o >> s >> clique_count)) {
+            size_t clique_count2, clique_count3;
+            while ((file >> o >> s >> clique_count2 >> clique_count3)) {
                 if (o == orderstr && s == size) {
-                    return clique_count;
+                    return clique_count3;
                 }
             }
             std::cerr << "Missing entry in " << path << "\n";

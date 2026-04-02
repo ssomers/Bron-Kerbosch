@@ -10,6 +10,7 @@ exception InvalidResult of string
 
 module BronKerboschStudy =
     let ic = Globalization.CultureInfo.InvariantCulture
+    let MIN_CLIQUE_SIZE = 3
 
     type TimedAlgorithm =
         { algo: Algorithm
@@ -27,7 +28,7 @@ module BronKerboschStudy =
         =
         //let warning_interval = 3000
         let sw = Stopwatch.StartNew()
-        let graph = RandomUndirectedGraph.Read(orderstr, size)
+        let graph = RandomUndirectedGraph.Read(orderstr, size, MIN_CLIQUE_SIZE)
         sw.Stop()
 
         if run = Genuine then
@@ -53,7 +54,12 @@ module BronKerboschStudy =
                     }, null, warning_interval, warning_interval);
                     *)
                     let mutable cliques = List.empty
-                    timed_algo.algo.exec graph.graph (fun clique -> cliques <- clique :: cliques)
+
+                    let consumer =
+                        { MinSize = MIN_CLIQUE_SIZE
+                          Receiver = fun clique -> cliques <- clique :: cliques }
+
+                    timed_algo.algo.exec graph.graph consumer
                     (*
                     ticker.Dispose()
                     *)
@@ -68,8 +74,13 @@ module BronKerboschStudy =
                     | _ -> raise (InvalidResult("Got unexpected cliques"))
                 else
                     let mutable cliques = 0
+
+                    let consumer =
+                        { MinSize = MIN_CLIQUE_SIZE
+                          Receiver = fun clique -> cliques <- 1 + cliques }
+
                     sw.Restart()
-                    timed_algo.algo.exec graph.graph (fun clique -> cliques <- 1 + cliques)
+                    timed_algo.algo.exec graph.graph consumer
                     sw.Stop()
                     let secs = float sw.ElapsedMilliseconds / 1e3
 

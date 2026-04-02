@@ -90,6 +90,7 @@ def bron_kerbosch_timed(
             if sample == 0:
                 ticker = Ticker(func_index=func_index)
                 collector = CliqueCollector()
+                collector.min_size = 3
                 func(graph, collector)
                 ticker.cancel()
                 obtained = sorted(sorted(clique) for clique in collector.cliques)
@@ -111,6 +112,7 @@ def bron_kerbosch_timed(
             else:
                 begin = time.perf_counter()
                 counter = CliqueCounter()
+                counter.min_size = 3
                 func(graph, counter)
                 secs = time.perf_counter() - begin
                 if counter.cliques != clique_count:

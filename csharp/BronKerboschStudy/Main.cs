@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using static System.Globalization.CultureInfo;
 
+const int MIN_CLIQUE_SIZE = 3;
+
 static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
     bool genuine,
     string orderstr,
@@ -43,7 +45,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
                     int secs = warnings * warning_interval / 1000;
                     Console.WriteLine($"  {secs} seconds in, {Portfolio.FuncNames[funcIndex]} is still busy collecting");
                 }, null, warning_interval, warning_interval);
-                CliqueCollector consumer = new();
+                CliqueCollector consumer = new(MIN_CLIQUE_SIZE);
                 Portfolio.Explore(funcIndex, graph.Graph, consumer);
                 ticker.Dispose();
                 var result = consumer.List();
@@ -64,7 +66,7 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
             }
             else
             {
-                CliqueCounter consumer = new();
+                CliqueCounter consumer = new(MIN_CLIQUE_SIZE);
                 sw.Restart();
                 Portfolio.Explore(funcIndex, graph.Graph, consumer);
                 sw.Stop();

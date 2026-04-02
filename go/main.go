@@ -25,8 +25,10 @@ func timed(orderstr string, size int, funcIndices []int, timedSamples int) [Bron
 		for _, funcIndex := range funcIndices {
 			bronKerboschFunc := BronKerbosch.Funcs[funcIndex]
 			begin := time.Now()
-			cliques := make(chan []BronKerbosch.Vertex, 64)
-			go bronKerboschFunc(&graph, cliques)
+			consumer := BronKerbosch.Consumer{}
+			consumer.MinSize = 3
+			consumer.Cliques = make(chan []BronKerbosch.Vertex, 64)
+			go bronKerboschFunc(&graph, consumer)
 			if sample == 0 {
 				warning_interval := 3 * time.Second
 				var ticker *time.Timer
@@ -37,7 +39,7 @@ func timed(orderstr string, size int, funcIndices []int, timedSamples int) [Bron
 					fmt.Printf("  %d seconds in, %s is still busy collecting\n", warnings*int(warning_interval.Seconds()), BronKerbosch.FuncNames[funcIndex])
 				})
 				var collectedCliques [][]BronKerbosch.Vertex
-				for clique := range cliques {
+				for clique := range consumer.Cliques {
 					collectedCliques = append(collectedCliques, clique)
 				}
 				ticker.Stop()
@@ -55,7 +57,7 @@ func timed(orderstr string, size int, funcIndices []int, timedSamples int) [Bron
 				}
 			} else {
 				var countedCliques int
-				for range cliques {
+				for range consumer.Cliques {
 					countedCliques += 1
 				}
 				secs := time.Since(begin).Seconds()

@@ -41,6 +41,6 @@ def visit(
                 excluded=neighbouring_excluded,
                 clique=clique + [v],
             )
-        elif excluded.isdisjoint(neighbours):
+        elif len(clique) + 1 >= consumer.min_size and excluded.isdisjoint(neighbours):
             consumer.accept(clique + [v])
         excluded.add(v)

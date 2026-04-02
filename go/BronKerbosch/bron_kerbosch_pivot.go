@@ -7,9 +7,9 @@ const (
 	MaxDegreeLocalX                = iota
 )
 
-func visit(graph *UndirectedGraph, cliques chan<- []Vertex,
+func visit(graph *UndirectedGraph, consumer Consumer,
 	pivotSelection PivotSelection,
-	candidates VertexSet, excluded VertexSet, clique []Vertex) {
+	candidates VertexSet, excluded VertexSet, cliqueInProgress []Vertex) {
 	switch len(candidates) {
 	case 0:
 		return
@@ -17,8 +17,8 @@ func visit(graph *UndirectedGraph, cliques chan<- []Vertex,
 		for v := range candidates {
 			// Same logic as below, stripped down
 			neighbours := graph.neighbours(v)
-			if excluded.IsDisjoint(neighbours) {
-				cliques <- Append(clique, v)
+			if len(cliqueInProgress)+1 >= consumer.MinSize && excluded.IsDisjoint(neighbours) {
+				consumer.Add(Append(cliqueInProgress, v))
 			}
 		}
 		return
@@ -33,8 +33,8 @@ func visit(graph *UndirectedGraph, cliques chan<- []Vertex,
 		localDegree := neighbours.IntersectionLen(candidates)
 		if localDegree == 0 {
 			// Same logic as below, stripped down
-			if neighbours.IsDisjoint(excluded) {
-				cliques <- Append(clique, v)
+			if len(cliqueInProgress)+1 >= consumer.MinSize && neighbours.IsDisjoint(excluded) {
+				consumer.Add(Append(cliqueInProgress, v))
 			}
 		} else {
 			if seenLocalDegree < localDegree {
@@ -68,14 +68,14 @@ func visit(graph *UndirectedGraph, cliques chan<- []Vertex,
 		if !neighbouringCandidates.IsEmpty() {
 			neighbouringExcluded := neighbours.Intersection(excluded)
 			visit(
-				graph, cliques,
+				graph, consumer,
 				pivotSelection,
 				neighbouringCandidates,
 				neighbouringExcluded,
-				append(clique, v))
+				append(cliqueInProgress, v))
 		} else {
-			if neighbours.IsDisjoint(excluded) {
-				cliques <- Append(clique, v)
+			if len(cliqueInProgress)+1 >= consumer.MinSize && neighbours.IsDisjoint(excluded) {
+				consumer.Add(Append(cliqueInProgress, v))
 			}
 		}
 		excluded.Add(v)

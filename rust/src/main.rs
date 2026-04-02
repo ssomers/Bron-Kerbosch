@@ -43,6 +43,7 @@ enum Run {
 }
 
 const NUM_FUNCS: usize = FUNC_NAMES.len();
+const CLIQUE_MIN_SIZE: usize = 3;
 
 type Seconds = f32;
 
@@ -60,7 +61,12 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
     let known_clique_count = if run == Run::OneOff {
         None
     } else {
-        Some(known_clique_count.expect("no known clique count").0)
+        let counts = known_clique_count.expect("no known clique count");
+        match CLIQUE_MIN_SIZE {
+            2 => Some(counts.size_at_least_2),
+            3 => Some(counts.size_at_least_3),
+            _ => unreachable!(),
+        }
     };
     let seconds = instant.elapsed().as_secs_f32();
     if run == Run::Regular {
@@ -79,7 +85,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
 
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
-            let (consumer, collector) = CliqueHarvester::new(64);
+            let (consumer, collector) = CliqueHarvester::new(64, CLIQUE_MIN_SIZE);
             if sample == 0 {
                 let cliques = utils::do_timely(
                     || {
@@ -333,12 +339,7 @@ fn main() -> Result<(), std::io::Error> {
                 .chain((250_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |set_type: SetType, size: usize| -> Vec<usize> {
-                match set_type {
-                    SetType::BTreeSet if size > 3_000_000 => vec![9],
-                    _ => vec![4, 7, 9],
-                }
-            },
+            |_set_type: SetType, _size: usize| -> Vec<usize> { vec![4, 7, 9] },
         )?;
     } else if let (Some(order), Some(sizes)) = (
         matches.get_one::<String>("order"),

@@ -73,7 +73,7 @@ record GraphTestData(UndirectedGraph graph, int cliqueCount) {
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(prefix)) {
                     try {
-                        return Integer.parseInt(line.substring(prefix.length()));
+                        return Integer.parseInt(line.substring(prefix.length()).split("\t")[1]);
                     } catch (final NumberFormatException err) {
                         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
                         throw new IOException("File %s contains bogus line %s".formatted(path, line));

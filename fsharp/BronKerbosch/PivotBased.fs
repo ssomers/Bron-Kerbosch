@@ -13,7 +13,7 @@ module PivotBased =
     let rec visit
         (pivot_choice: PivotChoice)
         (graph: UndirectedGraph)
-        (consume: CliqueConsumer)
+        (consumer: CliqueConsumer)
         (candidates: Set<Vertex>, excluded: Set<Vertex>, clique_in_progress: Clique)
         : Unit =
         Debug.Assert(Set.forall graph.hasNeighbours candidates)
@@ -26,9 +26,9 @@ module PivotBased =
             // Same logic as below, stripped down
             let neighbours = graph.neighbours v
 
-            if VertexSet.is_disjoint neighbours excluded then
+            if 1 + clique_in_progress.Length >= consumer.MinSize && VertexSet.is_disjoint neighbours excluded then
                 let clique = v :: clique_in_progress
-                consume clique
+                consumer.accept clique
         | None ->
             let mutable pivot: Vertex option = None
             let mutable remaining_candidates: Vertex list = []
@@ -42,9 +42,9 @@ module PivotBased =
 
                 if local_degree = 0 then
                     // Same logic as below, stripped down
-                    if VertexSet.is_disjoint neighbours excluded then
+                    if 1 + clique_in_progress.Length >= consumer.MinSize && VertexSet.is_disjoint neighbours excluded then
                         let clique = v :: clique_in_progress
-                        consume clique
+                        consumer.accept clique
                 else
                     if seen_local_degree < local_degree then
                         seen_local_degree <- local_degree
@@ -84,11 +84,11 @@ module PivotBased =
                             visit
                                 pivot_choice
                                 graph
-                                consume
+                                consumer
                                 (neighbouringCandidates, neighbouringExcluded, v :: clique_in_progress)
-                        elif VertexSet.is_disjoint neighbours excluded then
+                        elif 1 + clique_in_progress.Length >= consumer.MinSize && VertexSet.is_disjoint neighbours excluded then
                             let clique = v :: clique_in_progress
-                            consume clique
+                            consumer.accept clique
 
                         excluded <- excluded.Add v)
 

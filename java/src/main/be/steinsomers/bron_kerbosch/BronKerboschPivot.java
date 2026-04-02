@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 enum BronKerboschPivot {
     ;
 
-    public static void explore(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+    public static void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                                final PivotChoice pivotChoice) {
         final var pivot = graph.maxDegreeVertices().findFirst();
         if (pivot.isPresent()) {
@@ -37,7 +36,7 @@ enum BronKerboschPivot {
 
     public static void visit(
             final UndirectedGraph graph,
-            final Consumer<int[]> cliqueConsumer,
+            final CliqueConsumer cliqueConsumer,
             final PivotChoice pivotChoice,
             final Set<Integer> mut_candidates,
             final Set<Integer> mut_excluded,
@@ -52,7 +51,7 @@ enum BronKerboschPivot {
             // Same logic as below, stripped down for this common case
             final var v = mut_candidates.iterator().next();
             final var neighbours = graph.neighbours(v);
-            if (util.AreDisjoint(neighbours, mut_excluded)) {
+            if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&util.AreDisjoint(neighbours, mut_excluded)) {
                 cliqueConsumer.accept(util.Append(cliqueInProgress, v));
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
@@ -65,7 +64,7 @@ enum BronKerboschPivot {
         }
     }
 
-    private static void visitMaxDegree(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+    private static void visitMaxDegree(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                                        final Set<Integer> mut_candidates, final Set<Integer> mut_excluded,
                                        final int[] cliqueInProgress, final PivotChoice pivotChoice) {
         assert pivotChoice == PivotChoice.MaxDegreeLocal || pivotChoice == PivotChoice.MaxDegreeLocalX;
@@ -78,7 +77,7 @@ enum BronKerboschPivot {
             final long localDegree = util.Intersect(neighbours, mut_candidates).count();
             if (localDegree == 0) {
                 // Same logic as below, stripped down
-                if (util.AreDisjoint(neighbours, mut_excluded)) {
+                if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&util.AreDisjoint(neighbours, mut_excluded)) {
                     cliqueConsumer.accept(util.Append(cliqueInProgress, v));
                 }
             } else {
@@ -103,7 +102,7 @@ enum BronKerboschPivot {
                 pivotChoice, pivot, remainingCandidates);
     }
 
-    private static void visitAroundPivot(final UndirectedGraph graph, final Consumer<int[]> cliqueConsumer,
+    private static void visitAroundPivot(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                                          final Set<Integer> mut_candidates, final Set<Integer> mut_excluded,
                                          final int[] cliqueInProgress, final PivotChoice furtherPivotChoice,
                                          final int pivot, final Iterable<Integer> remainingCandidates) {
@@ -119,7 +118,7 @@ enum BronKerboschPivot {
                     visit(graph, cliqueConsumer, furtherPivotChoice,
                             neighbouringCandidates, neighbouringExcluded,
                             util.Append(cliqueInProgress, v));
-                } else if (util.AreDisjoint(neighbours, mut_excluded)) {
+                } else if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize && util.AreDisjoint(neighbours, mut_excluded)) {
                     cliqueConsumer.accept(util.Append(cliqueInProgress, v));
                 }
                 mut_excluded.add(v);

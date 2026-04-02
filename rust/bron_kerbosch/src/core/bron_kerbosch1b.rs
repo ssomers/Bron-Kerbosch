@@ -50,7 +50,9 @@ fn visit<VertexSet, Graph>(
                 excluded.intersection_collect(neighbours),
                 &clique_in_progress.pile(v),
             );
-        } else if excluded.is_disjoint(neighbours) {
+        } else if consumer.is_accepted_size(clique_in_progress.height + 1)
+            && excluded.is_disjoint(neighbours)
+        {
             consumer.accept(clique_in_progress.pile(v).collect());
         }
         excluded.insert(v);
