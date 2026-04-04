@@ -18,10 +18,10 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         object CleanEnd : StartJob()
         object DirtyEnd : StartJob()
         data class Work(
-            val startVertex: Int,
+            val startVertex: Vertex,
         ) : StartJob() {
             init {
-                require(startVertex >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
+                require(startVertex.index >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
             }
         }
     }
@@ -30,10 +30,10 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         object CleanEnd : VisitJob()
         object DirtyEnd : VisitJob()
         data class Work(
-            val startVertex: Int, val candidates: MutableSet<Int>, val excluded: MutableSet<Int>
+            val startVertex: Vertex, val candidates: MutableSet<Vertex>, val excluded: MutableSet<Vertex>
         ) : VisitJob() {
             init {
-                require(startVertex >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
+                require(startVertex.index >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
             }
         }
     }
@@ -47,7 +47,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                 try {
                     val vertices = Iterable { GraphDegeneracy(graph) }
                     for (v in vertices) {
-                        startQueue.put(StartJob.Work(v))
+                        startQueue.put(StartJob.Work(Vertex(v)))
                     }
                     startQueue.put(StartJob.CleanEnd)
                 } catch (_: InterruptedException) {
@@ -60,15 +60,16 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         private inner class VisitProducer : Runnable {
             private val excluded = BooleanArray(graph.order)
 
-            private fun process(startVtx: Int) {
+            private fun process(startVtx: Vertex) {
                 val neighbours = graph.neighbours(startVtx)
                 Debug.assert { neighbours.isNotEmpty() }
-                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
+                val neighbouringCandidates =
+                    neighbours.filterNotTo(HashSet()) { v -> excluded[v.index] }
                 if (!neighbouringCandidates.isEmpty()) {
-                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v] }
+                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v.index] }
                     visitQueue.put(VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded))
                 }
-                excluded[startVtx] = true
+                excluded[startVtx.index] = true
             }
 
             override fun run() {
@@ -111,7 +112,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                                 pivotChoice = PivotChoice.MaxDegreeLocal,
                                 candidates = job.candidates,
                                 excluded = job.excluded,
-                                cliqueInProgress = intArrayOf(job.startVertex)
+                                cliqueInProgress = CliqueInProgress.singleton(job.startVertex)
                             )
                         }
                     }

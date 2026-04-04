@@ -9,9 +9,9 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
     private sealed class VisitJob {
         // Similar to BronKerbosch3MT but doesn't need sentinels
         data class Work(
-            val startVertex: Int,
-            val candidates: MutableSet<Int>,
-            val excluded: MutableSet<Int>
+            val startVertex: Vertex,
+            val candidates: MutableSet<Vertex>,
+            val excluded: MutableSet<Vertex>
         ) : VisitJob()
     }
 
@@ -21,7 +21,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             val visitor = Visitor()
             val ordering = GraphDegeneracy(graph)
             return ordering.asSequence()
-                .map { startVtx: Int -> visitProducer.createJobIfNeeded(startVtx) }
+                .map { startVtx: Int -> visitProducer.createJobIfNeeded(Vertex(startVtx)) }
                 .toList() // TODO parallelize without intermediate list
                 .parallelStream()
                 .forEach { job: VisitJob? -> if (job != null) visitor.visit(job) }
@@ -30,16 +30,16 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         private inner class VisitProducer {
             private val excluded = BooleanArray(graph.order)
 
-            fun createJobIfNeeded(startVtx: Int): VisitJob? {
+            fun createJobIfNeeded(startVtx: Vertex): VisitJob? {
                 var job: VisitJob? = null
                 val neighbours = graph.neighbours(startVtx)
                 Debug.assert { neighbours.isNotEmpty() }
-                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v] }
+                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v.index] }
                 if (!neighbouringCandidates.isEmpty()) {
-                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v] }
+                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v.index] }
                     job = VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
                 }
-                excluded[startVtx] = true
+                excluded[startVtx.index] = true
                 return job
             }
         }
@@ -53,7 +53,7 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
                             pivotChoice = PivotChoice.MaxDegreeLocal,
                             candidates = job.candidates,
                             excluded = job.excluded,
-                            cliqueInProgress = intArrayOf(job.startVertex)
+                            cliqueInProgress = CliqueInProgress.singleton(job.startVertex)
                         )
                 }
             }

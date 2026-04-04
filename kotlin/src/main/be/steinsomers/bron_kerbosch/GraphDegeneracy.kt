@@ -7,13 +7,13 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
     //      or no longer queued because all neighbours have been yielded
     //   1 or more: candidates queued with priority (degree - #of yielded neighbours)
     private val priorityPerVertex = IntArray(graph.order)
-    private val queue = SimplePriorityQueue<Int>(graph.maxDegree)
+    private val queue = SimplePriorityQueue<Vertex>(graph.maxDegree)
     private var numLeftToPick = 0
 
     init {
         graph.connectedVertices().forEach { v ->
             val priority = graph.degree(v)
-            priorityPerVertex[v] = priority
+            priorityPerVertex[v.index] = priority
             numLeftToPick += 1
             queue.put(priority, v)
         }
@@ -26,20 +26,20 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
     override fun nextInt(): Int {
         while (true) {
             Debug.assert { hasNext() }
-            Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], v) } }
+            Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], Vertex(v)) } }
 
             val pick = queue.pop()
-            if (priorityPerVertex[pick] != 0) {
-                priorityPerVertex[pick] = 0
+            if (priorityPerVertex[pick.index] != 0) {
+                priorityPerVertex[pick.index] = 0
                 for (v in graph.neighbours(pick)) {
-                    val oldPriority = priorityPerVertex[v]
+                    val oldPriority = priorityPerVertex[v.index]
                     if (oldPriority != 0) {
                         val newPriority = oldPriority - 1
                         // Requeue with a more urgent priority or dequeue.
                         // Don't bother to remove the original entry from the queue,
                         // since the vertex will be skipped when popped, and thanks to
                         // numLeftToPick we might not need to pop it at all.
-                        priorityPerVertex[v] = newPriority
+                        priorityPerVertex[v.index] = newPriority
                         if (newPriority != 0) {
                             queue.put(newPriority, v)
                         } else {
@@ -49,7 +49,7 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
                 }
                 numLeftToPick -= 1
                 assert(numLeftToPick >= 0)
-                return pick
+                return pick.index
             }
         }
     }

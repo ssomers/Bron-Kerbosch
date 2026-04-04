@@ -38,20 +38,17 @@ internal object Main {
         BronKerbosch3ST(),
     )
 
-    fun orderCliques(cliques: Collection<IntArray>): List<List<Int>> {
-        require(cliques.all { clique -> clique.size > 1 })
-        return cliques
-            .map(IntArray::sorted)
-            .sortedWith { clique1: List<Int>, clique2: List<Int> ->
-                when (val diff = (0..<min(clique1.size, clique2.size)).asSequence()
-                    .map { i -> clique1[i] - clique2[i] }
-                    .firstOrNull { diff -> diff != 0 }) {
-                    null -> throw IllegalArgumentException("got overlapping or equal cliques $clique1 <> $clique2")
-                    else -> diff
-                }
+    fun orderCliques(cliques: Collection<CliqueInProgress>): List<SortedClique> = cliques
+        .map { clique -> SortedClique.freeze(clique) }
+        .sortedWith { clique1: SortedClique, clique2: SortedClique ->
+            when (val diff = (0..<min(clique1.size(), clique2.size())).asSequence()
+                .map { i -> clique1.vertices[i] - clique2.vertices[i] }
+                .firstOrNull { diff -> diff != 0 }) {
+                null -> throw IllegalArgumentException("got overlapping or equal cliques $clique1 <> $clique2")
+                else -> diff
             }
-            .toList()
-    }
+        }
+        .toList()
 
     @OptIn(ExperimentalAtomicApi::class)
     @Throws(InterruptedException::class)
@@ -59,14 +56,14 @@ internal object Main {
         testData: KnownRandomGraph,
         timedSamples: Int, funcIndices: IntArray
     ): Array<SampleStatistics> {
-        var firstOrdered: Optional<List<List<Int>>> = Optional.empty()
+        var firstOrdered: Optional<List<SortedClique>> = Optional.empty()
         val times = Array(FUNCS.size) { _ -> SampleStatistics() }
         IntStream.range(0, FUNCS.size).forEach { i: Int -> times[i] = SampleStatistics() }
         for (sample in 0..timedSamples) {
             for (funcIndex in funcIndices) {
                 if (sample == 0) {
                     val initialCap = ceil(sqrt(testData.graph.size.toDouble())).toInt()
-                    val cliques = Collections.synchronizedCollection(ArrayDeque<IntArray>(initialCap))
+                    val cliques = Collections.synchronizedCollection(ArrayDeque<CliqueInProgress>(initialCap))
                     val cliqueConsumer = CliqueConsumer(3, cliques::add)
                     FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
                     val ordered = orderCliques(cliques)

@@ -2,8 +2,8 @@ package be.steinsomers.bron_kerbosch
 
 object Util {
     @OptIn(ExperimentalStdlibApi::class)
-    fun append(head: IntArray, tail: Int): IntArray {
-        return head.copyOf(newSize = head.size + 1) { tail }
+    fun append(head: IntArray, tail: Vertex): IntArray {
+        return head.copyOf(newSize = head.size + 1) { tail.index }
     }
 
     fun <T> popArbitrary(c: MutableCollection<out T>): T {

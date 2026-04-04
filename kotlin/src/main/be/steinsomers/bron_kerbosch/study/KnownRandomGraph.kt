@@ -1,6 +1,7 @@
 package be.steinsomers.bron_kerbosch.study
 
 import be.steinsomers.bron_kerbosch.UndirectedGraph
+import be.steinsomers.bron_kerbosch.Vertex
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,8 +28,8 @@ internal data class KnownRandomGraph(val graph: UndirectedGraph, val cliqueCount
         }
 
         @Throws(IOException::class)
-        private fun readEdges(path: Path, order: Int, size: Int): MutableList<MutableSet<Int>> {
-            val adjacencies: MutableList<MutableSet<Int>> = MutableList(order) { HashSet() }
+        private fun readEdges(path: Path, order: Int, size: Int): MutableList<MutableSet<Vertex>> {
+            val adjacencies: MutableList<MutableSet<Vertex>> = MutableList(order) { HashSet() }
             Files.newBufferedReader(path).use { br ->
                 for (lineNum in 0..<size) {
                     val line = br.readLine()
@@ -44,8 +45,8 @@ internal data class KnownRandomGraph(val graph: UndirectedGraph, val cliqueCount
                     } catch (_: ArrayIndexOutOfBoundsException) {
                         throw IOException("File $path contains bogus text $line")
                     }
-                    adjacencies[v].add(w)
-                    adjacencies[w].add(v)
+                    adjacencies[v].add(Vertex(w))
+                    adjacencies[w].add(Vertex(v))
                 }
             }
             return adjacencies

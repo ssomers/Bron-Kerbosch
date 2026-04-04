@@ -5,10 +5,16 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
 
+fun graph(adjacencies: List<Set<Int>>): UndirectedGraph {
+    return UndirectedGraph(adjacencies.map { neighbours -> neighbours.mapTo(TreeSet()) { i -> Vertex(i) } })
+}
+
+
 internal class GraphDegeneracyTest {
-    private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Int> {
-        val vertices: SortedSet<Int> = TreeSet()
-        GraphDegeneracy(g).forEachRemaining { v ->
+    private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Vertex> {
+        val vertices: SortedSet<Vertex> = TreeSet()
+        GraphDegeneracy(g).forEachRemaining { i ->
+            val v = Vertex(i)
             vertices.add(v)
             vertices.addAll(g.neighbours(v))
         }
@@ -41,13 +47,13 @@ internal class GraphDegeneracyTest {
 
     @Test
     fun single() {
-        val g = UndirectedGraph(listOf(setOf()))
+        val g = graph(listOf(setOf()))
         Assertions.assertFalse(GraphDegeneracy(g).hasNext())
     }
 
     @Test
     fun pair() {
-        val g = UndirectedGraph(listOf(setOf(1), setOf(0)))
+        val g = graph(listOf(setOf(1), setOf(0)))
         val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
         f.nextInt()
@@ -56,7 +62,7 @@ internal class GraphDegeneracyTest {
 
     @Test
     fun split() {
-        val g = UndirectedGraph(listOf(setOf(1), setOf(0, 2), setOf(1)))
+        val g = graph(listOf(setOf(1), setOf(0, 2), setOf(1)))
         val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
         val first = f.nextInt()
@@ -72,8 +78,8 @@ internal class GraphDegeneracyTest {
         @ForAll("arbitraryAdjacencyLikes") adjacencyLikes: List<Set<Int>>
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
-        val g = UndirectedGraph(adjacencies)
-        val connectedVertices: SortedSet<Int> = g.connectedVertices().toCollection(TreeSet())
+        val g = graph(adjacencies)
+        val connectedVertices: SortedSet<Vertex> = g.connectedVertices().toCollection(TreeSet())
         return sortedDegeneracyOrderingIncludingNeighbours(g) == connectedVertices
     }
 
@@ -82,7 +88,7 @@ internal class GraphDegeneracyTest {
         @ForAll("arbitraryAdjacencyLikes") adjacencyLikes: List<Set<Int>>
     ): Boolean {
         val adjacencies: List<Set<Int>> = makeSymmetricAdjacencies(adjacencyLikes)
-        val g = UndirectedGraph(adjacencies)
+        val g = graph(adjacencies)
         val connected = g.connectedVertices().count()
         val filtered = GraphDegeneracy(g).asSequence().count()
         return filtered < connected || (connected == 0 && filtered == 0)
@@ -93,11 +99,11 @@ internal class GraphDegeneracyTest {
         @ForAll("arbitraryAdjacencyLikes") adjacencyLikes: List<Set<Int>>
     ): Boolean {
         val adjacencies = makeSymmetricAdjacencies(adjacencyLikes)
-        val g = UndirectedGraph(adjacencies)
+        val g = graph(adjacencies)
         val ordering = GraphDegeneracy(g)
         return if (ordering.hasNext()) {
-            val first = ordering.nextInt()
-            ordering.asSequence().all { v -> g.degree(first) <= g.degree(v) }
+            val first = Vertex(ordering.nextInt())
+            ordering.asSequence().all { v -> g.degree(first) <= g.degree(Vertex(v)) }
         } else {
             true
         }

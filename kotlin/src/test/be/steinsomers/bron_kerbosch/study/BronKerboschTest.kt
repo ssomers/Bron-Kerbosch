@@ -1,7 +1,9 @@
 package be.steinsomers.bron_kerbosch.study
 
 import be.steinsomers.bron_kerbosch.CliqueConsumer
-import be.steinsomers.bron_kerbosch.UndirectedGraph
+import be.steinsomers.bron_kerbosch.CliqueInProgress
+import be.steinsomers.bron_kerbosch.SortedClique
+import be.steinsomers.bron_kerbosch.graph
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.Collections
@@ -30,7 +32,7 @@ internal class BronKerboschTest {
     fun order_2_connected() {
         bk(
             listOf(listOf(1), listOf(0)),
-            listOf(listOf(0, 1))
+            listOf(intArrayOf(0, 1))
         )
     }
 
@@ -38,7 +40,7 @@ internal class BronKerboschTest {
     fun order_3_size_1_left() {
         bk(
             listOf(listOf(1), listOf(0), listOf()),
-            listOf(listOf(0, 1))
+            listOf(intArrayOf(0, 1))
         )
     }
 
@@ -46,7 +48,7 @@ internal class BronKerboschTest {
     fun order_3_size_1_middle() {
         bk(
             listOf(listOf(2), listOf(), listOf(0)),
-            listOf(listOf(0, 2))
+            listOf(intArrayOf(0, 2))
         )
     }
 
@@ -54,7 +56,7 @@ internal class BronKerboschTest {
     fun order_3_size_1_right() {
         bk(
             listOf(listOf(), listOf(2), listOf(1)),
-            listOf(listOf(1, 2))
+            listOf(intArrayOf(1, 2))
         )
     }
 
@@ -62,7 +64,7 @@ internal class BronKerboschTest {
     fun order_3_size_2() {
         bk(
             listOf(listOf(1), listOf(0, 2), listOf(1)),
-            listOf(listOf(0, 1), listOf(1, 2))
+            listOf(intArrayOf(0, 1), intArrayOf(1, 2))
         )
     }
 
@@ -70,7 +72,7 @@ internal class BronKerboschTest {
     fun order_3_size_3() {
         bk(
             listOf(listOf(1, 2), listOf(0, 2), listOf(0, 1)),
-            listOf(listOf(0, 1, 2))
+            listOf(intArrayOf(0, 1, 2))
         )
     }
 
@@ -78,7 +80,7 @@ internal class BronKerboschTest {
     fun order_4_size_2() {
         bk(
             listOf(listOf(1), listOf(0), listOf(3), listOf(2)),
-            listOf(listOf(0, 1), listOf(2, 3))
+            listOf(intArrayOf(0, 1), intArrayOf(2, 3))
         )
     }
 
@@ -86,7 +88,7 @@ internal class BronKerboschTest {
     fun order_4_size_3_bus() {
         bk(
             listOf(listOf(1), listOf(0, 2), listOf(1, 3), listOf(2)),
-            listOf(listOf(0, 1), listOf(1, 2), listOf(2, 3))
+            listOf(intArrayOf(0, 1), intArrayOf(1, 2), intArrayOf(2, 3))
         )
     }
 
@@ -94,7 +96,7 @@ internal class BronKerboschTest {
     fun order_4_size_3_star() {
         bk(
             listOf(listOf(1, 2, 3), listOf(0), listOf(0), listOf(0)),
-            listOf(listOf(0, 1), listOf(0, 2), listOf(0, 3))
+            listOf(intArrayOf(0, 1), intArrayOf(0, 2), intArrayOf(0, 3))
         )
     }
 
@@ -102,7 +104,7 @@ internal class BronKerboschTest {
     fun order_4_size_4_p() {
         bk(
             listOf(listOf(1), listOf(0, 2, 3), listOf(1, 3), listOf(1, 2)),
-            listOf(listOf(0, 1), listOf(1, 2, 3))
+            listOf(intArrayOf(0, 1), intArrayOf(1, 2, 3))
         )
     }
 
@@ -110,7 +112,7 @@ internal class BronKerboschTest {
     fun order_4_size_4_square() {
         bk(
             listOf(listOf(1, 3), listOf(0, 2), listOf(1, 3), listOf(0, 2)),
-            listOf(listOf(0, 1), listOf(0, 3), listOf(1, 2), listOf(2, 3))
+            listOf(intArrayOf(0, 1), intArrayOf(0, 3), intArrayOf(1, 2), intArrayOf(2, 3))
         )
     }
 
@@ -118,7 +120,7 @@ internal class BronKerboschTest {
     fun order_4_size_5() {
         bk(
             listOf(listOf(1, 2, 3), listOf(0, 2), listOf(0, 1, 3), listOf(0, 2)),
-            listOf(listOf(0, 1, 2), listOf(0, 2, 3))
+            listOf(intArrayOf(0, 1, 2), intArrayOf(0, 2, 3))
         )
     }
 
@@ -126,7 +128,7 @@ internal class BronKerboschTest {
     fun order_4_size_6() {
         bk(
             listOf(listOf(1, 2, 3), listOf(0, 2, 3), listOf(0, 1, 3), listOf(0, 1, 2)),
-            listOf(listOf(0, 1, 2, 3))
+            listOf(intArrayOf(0, 1, 2, 3))
         )
     }
 
@@ -140,7 +142,7 @@ internal class BronKerboschTest {
                 listOf(0, 1, 2),
                 listOf(0, 1, 2)
             ),
-            listOf(listOf(0, 1, 2, 3), listOf(0, 1, 2, 4))
+            listOf(intArrayOf(0, 1, 2, 3), intArrayOf(0, 1, 2, 4))
         )
     }
 
@@ -158,9 +160,9 @@ internal class BronKerboschTest {
                 listOf(5, 6)
             ),
             listOf(
-                listOf(1, 2, 3, 4),
-                listOf(2, 3, 5),
-                listOf(5, 6, 7)
+                intArrayOf(1, 2, 3, 4),
+                intArrayOf(2, 3, 5),
+                intArrayOf(5, 6, 7)
             )
         )
     }
@@ -181,26 +183,26 @@ internal class BronKerboschTest {
                 listOf(1, 2, 3, 4, 6, 7)
             ),
             listOf(
-                listOf(0, 1, 3),
-                listOf(0, 1, 6),
-                listOf(0, 1, 7),
-                listOf(0, 2, 3),
-                listOf(0, 2, 7),
-                listOf(0, 3, 4),
-                listOf(0, 4, 6),
-                listOf(0, 4, 7),
-                listOf(1, 3, 9),
-                listOf(1, 6, 9),
-                listOf(1, 7, 9),
-                listOf(1, 8),
-                listOf(2, 3, 9),
-                listOf(2, 5),
-                listOf(2, 7, 9),
-                listOf(2, 8),
-                listOf(3, 4, 9),
-                listOf(4, 6, 9),
-                listOf(4, 7, 9),
-                listOf(5, 6)
+                intArrayOf(0, 1, 3),
+                intArrayOf(0, 1, 6),
+                intArrayOf(0, 1, 7),
+                intArrayOf(0, 2, 3),
+                intArrayOf(0, 2, 7),
+                intArrayOf(0, 3, 4),
+                intArrayOf(0, 4, 6),
+                intArrayOf(0, 4, 7),
+                intArrayOf(1, 3, 9),
+                intArrayOf(1, 6, 9),
+                intArrayOf(1, 7, 9),
+                intArrayOf(1, 8),
+                intArrayOf(2, 3, 9),
+                intArrayOf(2, 5),
+                intArrayOf(2, 7, 9),
+                intArrayOf(2, 8),
+                intArrayOf(3, 4, 9),
+                intArrayOf(4, 6, 9),
+                intArrayOf(4, 7, 9),
+                intArrayOf(5, 6)
             )
         )
     }
@@ -208,17 +210,22 @@ internal class BronKerboschTest {
     companion object {
         private fun bk(
             adjacenciesList: Collection<List<Int>>,
-            expectedCliques: List<List<Int>>
+            expectedCliquesList: List<IntArray>
         ) {
-            val adjacencies = adjacenciesList.map { coll -> coll.toSet() }.toList()
-            val graph = UndirectedGraph(adjacencies)
+            val adjacencies = adjacenciesList.map { coll -> coll.toSet() }
+            val expectedCliques = expectedCliquesList.map { clique -> SortedClique(clique) }
+            val graph = graph(adjacencies)
             for (funcIndex in Main.FUNCS.indices) {
                 val funcName = Main.FUNC_NAMES[funcIndex]
-                val rawCliques = Collections.synchronizedCollection(ArrayDeque<IntArray>())
+                val rawCliques = Collections.synchronizedCollection(ArrayDeque<CliqueInProgress>())
                 val cliqueConsumer = CliqueConsumer(2, rawCliques::add)
                 Main.FUNCS[funcIndex].explore(graph, cliqueConsumer)
                 val cliques = Main.orderCliques(rawCliques)
-                Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for $funcName")
+                Assertions.assertArrayEquals(
+                    expectedCliques.toTypedArray(),
+                    cliques.toTypedArray(),
+                    "Unexpected result for $funcName"
+                )
             }
         }
     }
