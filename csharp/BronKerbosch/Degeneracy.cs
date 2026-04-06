@@ -38,7 +38,7 @@ namespace BronKerbosch
                 if (priorityPerVertex[pick.Index()] > 0)
                 {
                     priorityPerVertex[pick.Index()] = 0;
-                    var neighbouring_picked = VertexSetMgr.Empty();
+                    var pickedNeighbours = VertexSetMgr.Empty();
                     foreach (Vertex v in graph.Neighbours(pick))
                     {
                         var oldPriority = priorityPerVertex[v.Index()];
@@ -56,16 +56,20 @@ namespace BronKerbosch
                             }
                             else
                             {
+                                // We discount this neighbour already, but logically it will
+                                // be (silently) picked only after we yield the current pick.
+                                // So it does not belong in the current pickedNeighbours.
                                 leftToPick.Remove(v);
                             }
                         }
                         else
                         {
-                            bool added = neighbouring_picked.Add(v);
+                            bool added = pickedNeighbours.Add(v);
                             Debug.Assert(added);
                         }
                     }
-                    yield return (pick, neighbouring_picked);
+                    Debug.Assert(pickedNeighbours.Count < graph.Degree(pick));
+                    yield return (pick, pickedNeighbours);
                     leftToPick.Remove(pick);
                 }
             }

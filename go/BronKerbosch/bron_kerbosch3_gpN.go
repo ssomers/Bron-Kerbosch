@@ -47,11 +47,8 @@ func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int)
 		for i := range starts {
 			v := i.pick
 			neighbouringExcluded := i.pickedNeighbours
-			neighbours := graph.neighbours(v)
-			if len(neighbouringExcluded) < len(neighbours) {
-				neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
-				visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
-			}
+			neighbouringCandidates := graph.neighbours(v).Difference(neighbouringExcluded)
+			visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
 		}
 		close(visits)
 		wg.Wait()

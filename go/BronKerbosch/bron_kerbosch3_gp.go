@@ -11,16 +11,13 @@ type BronKerbosch3gpDegeneracyVisitor struct {
 func (d *BronKerbosch3gpDegeneracyVisitor) visit(i DegeneracyVisitItem) {
 	v := i.pick
 	neighbouringExcluded := i.pickedNeighbours
-	neighbours := d.graph.neighbours(v)
-	if len(neighbouringExcluded) < len(neighbours) {
-		neighbouringCandidates := neighbours.Difference(neighbouringExcluded)
-		visit(
-			d.graph, d.consumer,
-			MaxDegreeLocal,
-			neighbouringCandidates,
-			neighbouringExcluded,
-			[]Vertex{v})
-	}
+	neighbouringCandidates := d.graph.neighbours(v).Difference(neighbouringExcluded)
+	visit(
+		d.graph, d.consumer,
+		MaxDegreeLocal,
+		neighbouringCandidates,
+		neighbouringExcluded,
+		[]Vertex{v})
 }
 
 func (d *BronKerbosch3gpDegeneracyVisitor) Close() {

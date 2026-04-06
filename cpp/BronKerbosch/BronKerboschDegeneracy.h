@@ -24,16 +24,14 @@ namespace BronKerbosch {
                 Vertex v = pair.first;
                 VertexSet neighbouring_excluded = std::move(pair.second);
                 auto const& neighbours = graph.neighbours(v);
-                assert(!neighbours.empty());
-                if (neighbouring_excluded.size() < neighbours.size()) {
-                    auto neighbouring_candidates =
-                        Util::difference(neighbours, neighbouring_excluded);
-                    auto pile = VertexPile{v};
-                    Reporter::add_all(cliques, BronKerboschPivot::visit<Reporter>(
-                                                   graph, pivot_choice, pivot_choice,
-                                                   std::move(neighbouring_candidates),
-                                                   std::move(neighbouring_excluded), &pile));
-                }
+                auto neighbouring_candidates =
+                    Util::difference(neighbours, neighbouring_excluded);
+                assert(!neighbouring_candidates.empty());
+                auto pile = VertexPile{v};
+                Reporter::add_all(cliques, BronKerboschPivot::visit<Reporter>(
+                                                graph, pivot_choice, pivot_choice,
+                                                std::move(neighbouring_candidates),
+                                                std::move(neighbouring_excluded), &pile));
             }
             return cliques;
         }

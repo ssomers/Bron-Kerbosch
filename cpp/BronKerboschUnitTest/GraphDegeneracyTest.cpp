@@ -10,7 +10,9 @@ namespace BronKerbosch {
         template <typename VertexSet>
         void test_empty() {
             UndirectedGraph<VertexSet> const g{typename UndirectedGraph<VertexSet>::Adjacencies{}};
-            Assert::IsFalse(DegeneracyIter{g}.has_next());
+            auto it = DegeneracyIter{g};
+            auto first = it.next();
+            Assert::IsFalse(first.has_value());
         }
 
         template <typename VertexSet>

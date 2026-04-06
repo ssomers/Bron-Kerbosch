@@ -35,11 +35,11 @@ module Degeneracy =
                     FortifiedCounter.Remove(&leftToPick, pick)
 
                     let neighbours = graph.neighbours pick
-                    let mutable neighboursPicked = VertexSet.new_mutable (VertexSet.count neighbours)
+                    let mutable pickedNeighbours = VertexSet.new_mutable (VertexSet.count neighbours)
 
                     for v in neighbours do
                         match priorityPerVertex[v.index] with
-                        | 0 -> VertexSet.insert_mutably (&neighboursPicked, v)
+                        | 0 -> VertexSet.insert_mutably (&pickedNeighbours, v)
                         | old_priority ->
                             Debug.Assert(q.Contains(old_priority, v))
                             Debug.Assert(leftToPick.Contains(v))
@@ -50,7 +50,11 @@ module Degeneracy =
                                 // Requeue with a more urgent priority.
                                 PriorityQueue.Put(&q, new_priority, v)
                             else
+                                // We discount this neighbour already, but logically it will
+                                // be (silently) picked only after we yield the current pick.
+                                // So it does not belong in the current pickedNeighbours.
                                 FortifiedCounter.Remove(&leftToPick, v)
 
-                    yield (pick, neighboursPicked)
+                    Debug.Assert(VertexSet.count pickedNeighbours < graph.degree pick)
+                    yield (pick, pickedNeighbours)
         }

@@ -9,13 +9,10 @@ module DegeneracyBased =
     let explore (pivot_choice: PivotChoice) (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
-        for v, neighboursPicked in Degeneracy.iter graph do
-            let mutable neighbouring_excluded = neighboursPicked
-            let neighbours = graph.neighbours v
-            Debug.Assert neighbours.Any
+        for v, pickedNeighbours in Degeneracy.iter graph do
+            let mutable neighbouring_excluded = pickedNeighbours
 
             let mutable neighbouring_candidates =
-                VertexSet.difference neighbours neighbouring_excluded
+                VertexSet.difference (graph.neighbours v) neighbouring_excluded
 
-            if neighbouring_candidates.Any then
-                PivotBased.visit pivot_choice graph consumer (neighbouring_candidates, &neighbouring_excluded, [ v ])
+            PivotBased.visit pivot_choice graph consumer (neighbouring_candidates, &neighbouring_excluded, [ v ])

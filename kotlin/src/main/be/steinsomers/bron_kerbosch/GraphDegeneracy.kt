@@ -47,10 +47,9 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : Iterator<Gr
                         if (newPriority != 0) {
                             queue.put(newPriority, v)
                         } else {
-                            // Don't add to pickedNeighbours, because we have not yet picked it.
-                            // We will silently skip it during the subsequent next() call (if any).
-                            // After that, it would be added to pickedNeighbours, was it not for the fact
-                            // that the vertex has no more pickable neighbour.
+                            // We discount this neighbour already, but logically it will
+                            // be (silently) picked only after we yield the current pick.
+                            // So it does not belong in the current pickedNeighbours.
                             numLeftToPick -= 1
                         }
                     } else {
@@ -59,6 +58,7 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : Iterator<Gr
                 }
                 numLeftToPick -= 1
                 assert(numLeftToPick >= 0)
+                Debug.assert { pickedNeighbours.size < graph.degree(pick) }
                 return GraphDegeneracyItem(pick = pick, pickedNeighbours = pickedNeighbours)
             }
         }

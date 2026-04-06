@@ -15,11 +15,11 @@ enum BronKerboschDegeneracy {
         final Iterable<Integer> vertices = () -> new DegeneracyIterator(graph);
         for (final var v : vertices) {
             final var neighbours = graph.neighbours(v);
-            assert !neighbours.isEmpty();
             final var neighbouringExcluded = util.Intersect(neighbours, excluded)
                     .collect(Collectors.toCollection(HashSet::new));
             final var neighbouringCandidates = util.Difference(neighbours, neighbouringExcluded)
                     .collect(Collectors.toCollection(HashSet::new));
+            assert !neighbouringCandidates.isEmpty();
             BronKerboschPivot.visit(
                     graph, cliqueConsumer,
                     furtherPivotChoice,

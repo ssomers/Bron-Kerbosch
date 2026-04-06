@@ -8,18 +8,14 @@ internal object BronKerboschDegeneracy {
         GraphDegeneracy(graph).forEach { item ->
             val v = item.pick
             val neighbouringExcluded = item.pickedNeighbours
-            val neighbours = graph.neighbours(v)
-            Debug.assert { neighbours.isNotEmpty() }
-            if (neighbouringExcluded.size < neighbours.size) {
-                val neighbouringCandidates = neighbours.subtract(neighbouringExcluded).toMutableSet()
-                BronKerboschPivot.visit(
-                    graph = graph, cliqueConsumer = cliqueConsumer,
-                    pivotChoice = furtherPivotChoice,
-                    candidates = neighbouringCandidates,
-                    excluded = neighbouringExcluded,
-                    cliqueInProgress = CliqueInProgress.singleton(v)
-                )
-            }
+            val neighbouringCandidates = graph.neighbours(v).subtract(neighbouringExcluded).toMutableSet()
+            BronKerboschPivot.visit(
+                graph = graph, cliqueConsumer = cliqueConsumer,
+                pivotChoice = furtherPivotChoice,
+                candidates = neighbouringCandidates,
+                excluded = neighbouringExcluded,
+                cliqueInProgress = CliqueInProgress.singleton(v)
+            )
         }
     }
 }

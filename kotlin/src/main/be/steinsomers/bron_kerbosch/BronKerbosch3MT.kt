@@ -58,12 +58,8 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             private fun process(item: GraphDegeneracyItem) {
                 val startVtx = item.pick
                 val neighbouringExcluded = item.pickedNeighbours
-                val neighbours = graph.neighbours(startVtx)
-                Debug.assert { neighbours.isNotEmpty() }
-                if (neighbouringExcluded.size < neighbours.size) {
-                    val neighbouringCandidates = neighbours.subtract(neighbouringExcluded).toMutableSet()
-                    visitQueue.put(VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded))
-                }
+                val neighbouringCandidates = graph.neighbours(startVtx).subtract(neighbouringExcluded).toMutableSet()
+                visitQueue.put(VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded))
             }
 
             override fun run() {

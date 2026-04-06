@@ -15,7 +15,6 @@ def explore(graph: UndirectedGraph, consumer: CliqueConsumer) -> None:
     # because all neighbours are candidates until excluded.
     for v, neighbouring_excluded in degeneracy_filter(graph=graph):
         neighbours = graph.adjacencies[v]
-        assert neighbours
         neighbouring_candidates = neighbours.difference(neighbouring_excluded)
         visit(
             graph=graph,

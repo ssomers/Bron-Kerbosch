@@ -21,9 +21,8 @@ namespace BronKerbosch {
             }
 
             void put(T element, Priority priority) {
-                if (priority > 0) {
-                    stack_per_priority[priority - 1].push_back(element);
-                }
+                assert(priority > 0);
+                stack_per_priority[priority - 1].push_back(element);
             }
 
             T pop() {
@@ -84,12 +83,8 @@ namespace BronKerbosch {
             return true;
         }
 
-        bool has_next() const {
-            return num_left_to_pick != 0;
-        }
-
         std::optional<std::pair<Vertex, VertexSet>> next() {
-            while (has_next()) {
+            while (num_left_to_pick > 0) {
                 Vertex pick = queue.pop();
                 Priority& picked_priority = priority_per_vertex[pick.index()];
                 if (picked_priority > 0) {

@@ -71,6 +71,9 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor DegeneracyVisitor) {
 					if newPriority > 0 {
 						q.put(v, newPriority)
 					} else {
+						// We discount this neighbour already, but logically it will
+						// be (silently) picked only after we yield the current pick.
+						// So it does not belong in the current pickedNeighbours.
 						numLeftToPick--
 					}
 				} else {

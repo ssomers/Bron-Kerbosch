@@ -75,6 +75,9 @@ where
                 if let Some(new_priority) = new_priority {
                     self.queue.put(new_priority, v);
                 } else {
+                    // We discount this neighbour already, but logically it will
+                    // be (silently) picked only after we yield the current pick.
+                    // So it does not belong in the current picked_neighbours.
                     self.left_to_pick.remove(v);
                 }
             } else {
@@ -100,6 +103,7 @@ where
             if self.priority_per_vertex[pick].take().is_some() {
                 self.left_to_pick.remove(pick);
                 let picked_neighbours = self.evaluate_neighbours(pick);
+                debug_assert!(picked_neighbours.len() < self.graph.degree(pick));
                 return Some((pick, picked_neighbours));
             }
         }

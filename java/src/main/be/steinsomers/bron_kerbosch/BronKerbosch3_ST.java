@@ -22,7 +22,6 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
             final var ordering = new DegeneracyIterator(graph);
             ordering.stream()
                     .mapToObj(visitProducer::createJob)
-                    .filter(Objects::nonNull)
                     .toList()
                     .parallelStream()
                     .forEach(visitor::visit);
@@ -33,17 +32,13 @@ public final class BronKerbosch3_ST implements BronKerboschAlgorithm {
 
             VisitJob createJob(final Integer startVtx) {
                 final var neighbours = graph.neighbours(startVtx);
-                assert !neighbours.isEmpty();
                 final var neighbouringCandidates = neighbours.stream().filter(v -> !excluded[v])
                         .collect(Collectors.toCollection(HashSet::new));
-                VisitJob job = null;
-                if (!neighbouringCandidates.isEmpty()) {
-                    final var neighbouringExcluded = neighbours.stream().filter(v -> excluded[v])
-                            .collect(Collectors.toCollection(HashSet::new));
-                    job = new VisitJob(startVtx, neighbouringCandidates, neighbouringExcluded);
-                }
+                final var neighbouringExcluded = neighbours.stream().filter(v -> excluded[v])
+                        .collect(Collectors.toCollection(HashSet::new));
+                assert !neighbouringCandidates.isEmpty();
                 excluded[startVtx] = true;
-                return job;
+                return new VisitJob(startVtx, neighbouringCandidates, neighbouringExcluded);
             }
         }
 
