@@ -13,8 +13,8 @@ fun graph(adjacencies: List<Set<Int>>): UndirectedGraph {
 internal class GraphDegeneracyTest {
     private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Vertex> {
         val vertices: SortedSet<Vertex> = TreeSet()
-        GraphDegeneracy(g).forEachRemaining { i ->
-            val v = Vertex(i)
+        GraphDegeneracy(g).forEachRemaining { item ->
+            val v = item.pick
             vertices.add(v)
             vertices.addAll(g.neighbours(v))
         }
@@ -56,7 +56,7 @@ internal class GraphDegeneracyTest {
         val g = graph(listOf(setOf(1), setOf(0)))
         val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
-        f.nextInt()
+        f.next()
         Assertions.assertFalse(f.hasNext())
     }
 
@@ -65,11 +65,11 @@ internal class GraphDegeneracyTest {
         val g = graph(listOf(setOf(1), setOf(0, 2), setOf(1)))
         val f = GraphDegeneracy(g)
         Assertions.assertTrue(f.hasNext())
-        val first = f.nextInt()
-        Assertions.assertNotEquals(1, first)
+        val first = f.next()
+        Assertions.assertNotEquals(1, first.pick)
         Assertions.assertTrue(f.hasNext())
-        val second = f.nextInt()
-        Assertions.assertNotEquals(first, second)
+        val second = f.next()
+        Assertions.assertNotEquals(first.pick, second.pick)
         Assertions.assertFalse(f.hasNext())
     }
 
@@ -102,8 +102,8 @@ internal class GraphDegeneracyTest {
         val g = graph(adjacencies)
         val ordering = GraphDegeneracy(g)
         return if (ordering.hasNext()) {
-            val first = Vertex(ordering.nextInt())
-            ordering.asSequence().all { v -> g.degree(first) <= g.degree(Vertex(v)) }
+            val first = ordering.next().pick
+            ordering.asSequence().all { item -> g.degree(first) <= g.degree(item.pick) }
         } else {
             true
         }

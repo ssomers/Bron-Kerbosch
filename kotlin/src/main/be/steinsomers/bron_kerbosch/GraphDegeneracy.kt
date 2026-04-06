@@ -1,6 +1,8 @@
 package be.steinsomers.bron_kerbosch
 
-internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator() {
+internal data class GraphDegeneracyItem(val pick: Vertex, val pickedNeighbours: MutableSet<Vertex>)
+
+internal class GraphDegeneracy(private val graph: UndirectedGraph) : Iterator<GraphDegeneracyItem> {
     // Possible values of priorityPerVertex (after initialization):
     //   0: never queued because not connected (degree 0),
     //      or no longer queued because it has been yielded itself,
@@ -23,7 +25,7 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
         return numLeftToPick > 0
     }
 
-    override fun nextInt(): Int {
+    override fun next(): GraphDegeneracyItem {
         while (true) {
             Debug.assert { hasNext() }
             Debug.assert { priorityPerVertex.indices.all { v -> queue.ensure(priorityPerVertex[v], Vertex(v)) } }
@@ -31,7 +33,9 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
             val pick = queue.pop()
             if (priorityPerVertex[pick.index] != 0) {
                 priorityPerVertex[pick.index] = 0
-                for (v in graph.neighbours(pick)) {
+                val neighbours = graph.neighbours(pick)
+                val pickedNeighbours: MutableSet<Vertex> = HashSet(neighbours.size)
+                for (v in neighbours) {
                     val oldPriority = priorityPerVertex[v.index]
                     if (oldPriority != 0) {
                         val newPriority = oldPriority - 1
@@ -43,13 +47,19 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : IntIterator
                         if (newPriority != 0) {
                             queue.put(newPriority, v)
                         } else {
+                            // Don't add to pickedNeighbours, because we have not yet picked it.
+                            // We will silently skip it during the subsequent next() call (if any).
+                            // After that, it would be added to pickedNeighbours, was it not for the fact
+                            // that the vertex has no more pickable neighbour.
                             numLeftToPick -= 1
                         }
+                    } else {
+                        pickedNeighbours.add(v)
                     }
                 }
                 numLeftToPick -= 1
                 assert(numLeftToPick >= 0)
-                return pick.index
+                return GraphDegeneracyItem(pick = pick, pickedNeighbours = pickedNeighbours)
             }
         }
     }

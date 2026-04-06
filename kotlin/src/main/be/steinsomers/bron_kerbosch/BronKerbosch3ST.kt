@@ -21,25 +21,23 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             val visitor = Visitor()
             val ordering = GraphDegeneracy(graph)
             return ordering.asSequence()
-                .map { startVtx: Int -> visitProducer.createJobIfNeeded(Vertex(startVtx)) }
+                .map { item -> visitProducer.createJobIfNeeded(item) }
                 .toList() // TODO parallelize without intermediate list
                 .parallelStream()
                 .forEach { job: VisitJob? -> if (job != null) visitor.visit(job) }
         }
 
         private inner class VisitProducer {
-            private val excluded = BooleanArray(graph.order)
-
-            fun createJobIfNeeded(startVtx: Vertex): VisitJob? {
+            fun createJobIfNeeded(item: GraphDegeneracyItem): VisitJob? {
                 var job: VisitJob? = null
+                val startVtx = item.pick
+                val neighbouringExcluded = item.pickedNeighbours
                 val neighbours = graph.neighbours(startVtx)
                 Debug.assert { neighbours.isNotEmpty() }
-                val neighbouringCandidates = neighbours.filterNotTo(HashSet()) { v -> excluded[v.index] }
-                if (!neighbouringCandidates.isEmpty()) {
-                    val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v.index] }
+                if (neighbouringExcluded.size < neighbours.size) {
+                    val neighbouringCandidates = neighbours.subtract(neighbouringExcluded).toMutableSet()
                     job = VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
                 }
-                excluded[startVtx.index] = true
                 return job
             }
         }

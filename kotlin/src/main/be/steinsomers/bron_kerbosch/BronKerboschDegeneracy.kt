@@ -5,12 +5,11 @@ internal object BronKerboschDegeneracy {
     fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer, furtherPivotChoice: PivotChoice) {
         // In this initial iteration, we don't need to represent the set of candidates
         // because all neighbours are candidates until excluded.
-        val excluded = BooleanArray(graph.order)
-        GraphDegeneracy(graph).forEach { i ->
-            val v = Vertex(i)
+        GraphDegeneracy(graph).forEach { item ->
+            val v = item.pick
+            val neighbouringExcluded = item.pickedNeighbours
             val neighbours = graph.neighbours(v)
             Debug.assert { neighbours.isNotEmpty() }
-            val neighbouringExcluded = neighbours.filterTo(HashSet()) { v -> excluded[v.index] }
             if (neighbouringExcluded.size < neighbours.size) {
                 val neighbouringCandidates = neighbours.subtract(neighbouringExcluded).toMutableSet()
                 BronKerboschPivot.visit(
@@ -21,7 +20,6 @@ internal object BronKerboschDegeneracy {
                     cliqueInProgress = CliqueInProgress.singleton(v)
                 )
             }
-            excluded[v.index] = true
         }
     }
 }
