@@ -84,7 +84,7 @@ In addition to the local optimizations mentioned above:
 - In the same first iteration, we store the set of excluded vertices as an array of booleans,
   because as a regular set it ends up being huge, and most of the time the set we intersect with
   (the set of neighbours of some vertex) will be smaller, so all that matters is lookup speed.
-- Or even better, in Ver3 algorithms, we don't need to maintain or use the set of excluded vertices at all, because the degeneracy calculation already provides the set of excluded neighbours.
+- Or even better, in Ver3 algorithms, the degeneracy calculation already provides the set of excluded neighbours. All the first iteration needs to do is extract that information.
 
 These are all single-threaded implementations (using only one CPU core).
 
@@ -152,13 +152,12 @@ flowchart TD
   d --> h
 ```
 
-We already specialized the first iteration in Ver2, and Ver3 changes the order in the first iteration
-to the graph's degeneracy order. So we definitely
-[write the first iteration separately](https://github.com/ssomers/Bron-Kerbosch/blob/master/python3/bron_kerbosch3_gp.py).
-Thus an obvious way to parallelize is to run 2 + N tasks in parallel:
-- 1 task generating the degeneracy order of the graph,
-- 1 task performing the first iteration in that order,
-- 1 or more tasks performing nested iterations.
+We have:
+- 1 task generating the degeneracy order of the graph.
+- 1 task performing the first iteration in that order; however, since it relies heavily on data supporting the degeneracy order, it cannot be run in parallel.
+- N tasks each performing nested iterations.
+
+So we bundle the first two tasks and run 1 + N tasks in parallel.
 
 Ways to implement parallelism varies per language:
 * **Ver3½=GPs:** (C#, Java) using relatively simple composition (async, stream, future)
@@ -201,7 +200,7 @@ Ways to implement parallelism varies per language:
 
 ## Comparing versions of languages
 
-* Python 3.10 versus 3.11 (performance boost) versus 3.14 (latest)
+* Python 3.10 (before a performance boost) versus 3.14 (latest)
 
 ![Time spent on graphs of order 100](doc/report_9_python_100.svg)
 ![Time spent on graphs of order 10k](doc/report_9_python_10k.svg)

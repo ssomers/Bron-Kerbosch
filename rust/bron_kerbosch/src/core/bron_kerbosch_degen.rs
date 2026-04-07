@@ -4,10 +4,9 @@ pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
-use super::graph_degeneracy::degeneracy_iter;
+use super::graph_degeneracy::DegeneracyOrder;
 use super::pile::Pile;
 use super::vertexsetlike::VertexSetLike;
-use std::ops::Not;
 
 pub fn explore_with_pivot<VertexSet>(
     graph: &Graph<VertexSet>,
@@ -16,16 +15,8 @@ pub fn explore_with_pivot<VertexSet>(
 ) where
     VertexSet: VertexSetLike,
 {
-    // In this initial iteration, we don't need to represent the set of candidates
-    // because all neighbours are candidates until excluded.
-    for (v, neighbouring_excluded) in degeneracy_iter(graph) {
-        let neighbours = graph.neighbours(v);
-        debug_assert!(neighbours.is_empty().not());
-        let neighbouring_candidates: VertexSet = neighbours
-            .difference(&neighbouring_excluded)
-            .copied()
-            .collect();
-        debug_assert!(neighbouring_candidates.is_empty().not());
+    DegeneracyOrder::on(graph).apply(|v, attorney| {
+        let (neighbouring_candidates, neighbouring_excluded) = attorney.partition_neighbours(v);
         visit(
             graph,
             &mut consumer,
@@ -34,5 +25,5 @@ pub fn explore_with_pivot<VertexSet>(
             neighbouring_excluded,
             &Pile::from(v),
         );
-    }
+    })
 }

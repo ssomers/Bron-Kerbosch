@@ -55,6 +55,7 @@ namespace BronKerbosch {
         std::vector<Priority> priority_per_vertex;
         PriorityQueue<Vertex> queue;
         size_t num_left_to_pick;
+        std::optional<Vertex> previous_pick;
 
       public:
         explicit DegeneracyIter(UndirectedGraph<VertexSet> const& graph)
@@ -83,23 +84,31 @@ namespace BronKerbosch {
             return true;
         }
 
-        std::optional<std::pair<Vertex, VertexSet>> next() {
+        std::optional<Vertex> next() {
+            if (previous_pick.has_value()) {
+                promote_neighbours(previous_pick.value());
+                previous_pick = std::nullopt;
+                assert(num_left_to_pick > 0);
+                num_left_to_pick -= 1;
+            }
             while (num_left_to_pick > 0) {
                 Vertex pick = queue.pop();
                 Priority& picked_priority = priority_per_vertex[pick.index()];
                 if (picked_priority > 0) {
                     picked_priority = 0;
-                    num_left_to_pick -= 1;
-                    auto neighbouring_picked = evaluate_neighbours(pick);
-                    return std::make_optional(std::make_pair(pick, std::move(neighbouring_picked)));
+                    previous_pick = std::make_optional(pick);
+                    return previous_pick;
                 }
             }
             return std::nullopt;
         }
 
+        bool is_candidate(Vertex v) const {
+            return priority_per_vertex[v.index()] > 0;
+        }
+
       private:
-        VertexSet evaluate_neighbours(Vertex pick) {
-            VertexSet result;
+        void promote_neighbours(Vertex pick) {
             for (Vertex v : graph.neighbours(pick)) {
                 Priority& priority = priority_per_vertex[v.index()];
                 if (priority > 0) {
@@ -111,14 +120,10 @@ namespace BronKerbosch {
                     if (priority > 0) {
                         queue.put(v, priority);
                     } else {
-                        assert(num_left_to_pick > 0);
                         num_left_to_pick -= 1;
                     }
-                } else {
-                    result.insert(v);
                 }
             }
-            return result;
         }
     };
 }

@@ -12,19 +12,14 @@ internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
 {
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice pivotChoice)
     {
-        // In this initial iteration, we don't need to represent the set of candidates
-        // because all neighbours are candidates until excluded.
-        foreach ((Vertex v, VertexSet neighbouringExcluded) in Degeneracy<VertexSet, VertexSetMgr>.Iter(graph))
+        var degeneracy = new Degeneracy<VertexSet, VertexSetMgr>(graph);
+        foreach (Vertex v in degeneracy.Iter())
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            if (neighbouringExcluded.Count < neighbours.Count)
-            {
-                var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
-                Pivot<VertexSet, VertexSetMgr>.Visit(graph, consumer, pivotChoice,
-                    neighbouringCandidates, neighbouringExcluded,
-                    [v]);
-            }
+            var (neighbouringCandidates, neighbouringExcluded) = VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
+            Debug.Assert(neighbouringCandidates.Any());
+            Pivot<VertexSet, VertexSetMgr>.Visit(graph, consumer, pivotChoice, neighbouringCandidates, neighbouringExcluded, [v]);
         }
     }
 }

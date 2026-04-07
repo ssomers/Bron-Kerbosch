@@ -20,12 +20,18 @@ namespace BronKerbosch {
             // because all neighbours are candidates until excluded.
             auto degeneracy = DegeneracyIter<VertexSet>{graph};
             while (auto next = degeneracy.next()) {
-                auto pair = *next;
-                Vertex v = pair.first;
-                VertexSet neighbouring_excluded = std::move(pair.second);
+                Vertex v = *next;
                 auto const& neighbours = graph.neighbours(v);
-                auto neighbouring_candidates =
-                    Util::difference(neighbours, neighbouring_excluded);
+                assert(!neighbours.empty());
+                VertexSet neighbouring_candidates = Util::with_capacity<VertexSet>(neighbours.size());
+                VertexSet neighbouring_excluded = Util::with_capacity<VertexSet>(neighbours.size() - 1);
+                for (Vertex w : neighbours) {
+                    if (degeneracy.is_candidate(w)) {
+                        neighbouring_candidates.insert(w);
+                    } else {
+                        neighbouring_excluded.insert(w);
+                    }
+                }
                 assert(!neighbouring_candidates.empty());
                 auto pile = VertexPile{v};
                 Reporter::add_all(cliques, BronKerboschPivot::visit<Reporter>(

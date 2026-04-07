@@ -16,22 +16,23 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
     }
 
     private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: CliqueConsumer) {
+        private val degeneracy = GraphDegeneracy(graph)
+
         fun work() {
             val visitProducer = VisitProducer()
             val visitor = Visitor()
-            val ordering = GraphDegeneracy(graph)
-            return ordering.asSequence()
-                .map { item -> visitProducer.createJob(item) }
+            return degeneracy.asSequence()
+                .map { pick -> visitProducer.createJob(pick) }
                 .toList() // TODO parallelize without intermediate list
                 .parallelStream()
                 .forEach(visitor::visit)
         }
 
         private inner class VisitProducer {
-            fun createJob(item: GraphDegeneracyItem): VisitJob {
-                val startVtx = item.pick
-                val neighbouringExcluded = item.pickedNeighbours
-                val neighbouringCandidates = graph.neighbours(startVtx).subtract(neighbouringExcluded).toMutableSet()
+            fun createJob(startVtx: Vertex): VisitJob {
+                val (neighbouringCandidates, neighbouringExcluded) =
+                    Util.partition(graph.neighbours(startVtx)) { v -> degeneracy.isCandidate(v) }
+                Debug.assert { neighbouringCandidates.isNotEmpty() }
                 return VisitJob.Work(startVtx, neighbouringCandidates, neighbouringExcluded)
             }
         }
