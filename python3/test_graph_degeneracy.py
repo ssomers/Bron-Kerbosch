@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from graph import Vertex, UndirectedGraph
-from graph_degeneracy import degeneracy_filter
+from graph_degeneracy import Degeneracy
 
 from hypothesis import given
 from hypothesis.strategies import builds, integers, lists, sets
@@ -21,7 +21,7 @@ def symmetric_adjacencies(adjac: List[Set[Vertex]]) -> List[Set[Vertex]]:
 
 def test_degeneracy_filter_empty() -> None:
     g = UndirectedGraph(adjacencies=[])
-    assert list(degeneracy_filter(g)) == []
+    assert list(Degeneracy(g).iter()) == []
 
 
 @given(
@@ -40,7 +40,7 @@ def test_degeneracy_filter_nonempty(adjacencies: List[Set[Vertex]]) -> None:
     g = UndirectedGraph(adjacencies=adjacencies)
     connected_vertices = g.connected_vertices()
 
-    ordered = list([v for (v, neighbouring_excluded) in degeneracy_filter(g)])
+    ordered = list(Degeneracy(g).iter())
     assert set(ordered).issubset(connected_vertices)
     assert len(ordered) < max(1, len(connected_vertices))
     assert all(g.degree(ordered[0]) <= g.degree(v) for v in ordered)

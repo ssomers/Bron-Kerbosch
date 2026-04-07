@@ -2,23 +2,21 @@
 package be.steinsomers.bron_kerbosch;
 
 import java.util.HashSet;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 enum BronKerboschDegeneracy {
     ;
 
     public static void explore(final UndirectedGraph graph, final CliqueConsumer cliqueConsumer,
                                final PivotChoice furtherPivotChoice) {
-        // In this initial iteration, we don't need to represent the set of candidates
-        // because all neighbours are candidates until excluded.
-        final var excluded = new boolean[graph.order()];
-        final Iterable<Integer> vertices = () -> new DegeneracyIterator(graph);
-        for (final var v : vertices) {
+        final var degeneracy = new DegeneracyIterator(graph);
+        degeneracy.forEachRemaining((int v) -> {
             final var neighbours = graph.neighbours(v);
-            final var neighbouringExcluded = util.Intersect(neighbours, excluded)
-                    .collect(Collectors.toCollection(HashSet::new));
-            final var neighbouringCandidates = util.Difference(neighbours, neighbouringExcluded)
-                    .collect(Collectors.toCollection(HashSet::new));
+            final Set<Integer> neighbouringCandidates = new HashSet<>(neighbours.size());
+            final Set<Integer> neighbouringExcluded = new HashSet<>(neighbours.size() - 1);
+            neighbours.forEach((Integer w) -> (degeneracy.isCandidate(w)
+                    ? neighbouringCandidates
+                    : neighbouringExcluded).add(w));
             assert !neighbouringCandidates.isEmpty();
             BronKerboschPivot.visit(
                     graph, cliqueConsumer,
@@ -27,7 +25,6 @@ enum BronKerboschDegeneracy {
                     neighbouringExcluded,
                     new int[]{v}
             );
-            excluded[v] = true;
-        }
+        });
     }
 }

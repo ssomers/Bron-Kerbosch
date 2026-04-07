@@ -25,13 +25,15 @@ func bronKerbosch3gp4(graph *UndirectedGraph, consumer Consumer) {
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {
-	starts := make(chan DegeneracyVisitItem, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
 	go func() {
 		degeneracyVisitor(graph, func(i DegeneracyVisitItem) {
-			starts <- i
+			v := i.pick
+			neighbouringCandidates, neighbouringExcluded :=
+				graph.neighbours(v).Partition(i.isCandidate)
+			visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
 		})
-		close(starts)
+		close(visits)
 	}()
 	var wg sync.WaitGroup
 	wg.Add(numVisitors)
@@ -48,13 +50,6 @@ func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int)
 			wg.Done()
 		}()
 	}
-	for i := range starts {
-		v := i.pick
-		neighbouringExcluded := i.pickedNeighbours
-		neighbouringCandidates := graph.neighbours(v).Difference(neighbouringExcluded)
-		visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
-	}
-	close(visits)
 	wg.Wait()
 	consumer.close()
 }

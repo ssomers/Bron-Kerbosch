@@ -19,6 +19,10 @@ type StdSet<'T when 'T: comparison> =
     static member empty: StdSet<'T> = { set = Set.empty }
     static member inline singleton(value: 'T) : StdSet<'T> = { set = Set.singleton value }
 
+    static member inline partition (p: 'T -> bool) (s: StdSet<'T>) : (StdSet<'T> * StdSet<'T>) =
+        let (first, second) = s.set |> Set.partition p
+        ({ set = first }, { set = second })
+
     static member inline ofSeq(values: 'T seq) : StdSet<'T> =
         let set = Set.ofSeq values
         { set = set }

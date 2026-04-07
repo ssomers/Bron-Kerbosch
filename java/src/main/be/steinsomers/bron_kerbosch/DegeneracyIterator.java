@@ -1,11 +1,8 @@
 package be.steinsomers.bron_kerbosch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import com.sun.jdi.request.InvalidRequestStateException;
+
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -23,6 +20,7 @@ final class DegeneracyIterator implements PrimitiveIterator.OfInt {
     @SuppressWarnings("UseOfConcreteClass")
     private final SimplePriorityQueue<Integer> queue;
     private int num_left_to_pick;
+    private Optional<Integer> previous_pick = Optional.empty();
 
     DegeneracyIterator(final UndirectedGraph graph) {
         this.graph = graph;
@@ -41,39 +39,50 @@ final class DegeneracyIterator implements PrimitiveIterator.OfInt {
 
     @Override
     public boolean hasNext() {
+        if (previous_pick.isPresent()) {
+            for (final var v : graph.neighbours(previous_pick.get())) {
+                final var oldPriority = priority_per_vertex[v];
+                if (oldPriority != 0) {
+                    // Requeue with a more urgent priority or dequeue.
+                    // Don't bother to remove the original entry from the queue,
+                    // since the vertex will be skipped when popped, and thanks to
+                    // num_left_to_pick we might not need to pop it at all.
+                    final var newPriority = oldPriority - 1;
+                    priority_per_vertex[v] = newPriority;
+                    if (newPriority != 0) {
+                        queue.put(newPriority, v);
+                    } else {
+                        num_left_to_pick -= 1;
+                    }
+                }
+            }
+            assert num_left_to_pick >= 0;
+            previous_pick = Optional.empty();
+        }
         return num_left_to_pick > 0;
     }
 
     @Override
     public int nextInt() {
-        assert hasNext();
+        if (previous_pick.isPresent()) {
+            throw new InvalidRequestStateException("nextInt before hasNext");
+        }
         assert IntStream.range(0, priority_per_vertex.length).allMatch(v -> queue.contains(priority_per_vertex[v], v));
+        assert num_left_to_pick > 0;
         while (num_left_to_pick > 0) {
             var pick = queue.pop();
             if (priority_per_vertex[pick] > 0) {
                 priority_per_vertex[pick] = 0;
-                for (final var v : graph.neighbours(pick)) {
-                    final var oldPriority = priority_per_vertex[v];
-                    if (oldPriority != 0) {
-                        // Requeue with a more urgent priority or dequeue.
-                        // Don't bother to remove the original entry from the queue,
-                        // since the vertex will be skipped when popped, and thanks to
-                        // num_left_to_pick we might not need to pop it at all.
-                        final var newPriority = oldPriority - 1;
-                        priority_per_vertex[v] = newPriority;
-                        if (newPriority != 0) {
-                            queue.put(newPriority, v);
-                        } else {
-                            num_left_to_pick -= 1;
-                        }
-                    }
-                }
                 num_left_to_pick -= 1;
-                assert num_left_to_pick >= 0;
+                previous_pick = Optional.of(pick);
                 return pick;
             }
         }
         throw new NoSuchElementException("nextInt couldn't pop");
+    }
+
+    public boolean isCandidate(int v) {
+        return priority_per_vertex[v] > 0;
     }
 
     private static final class SimplePriorityQueue<T> {

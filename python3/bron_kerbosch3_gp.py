@@ -1,8 +1,7 @@
 # coding: utf-8
 
-from bron_kerbosch_pivot import visit
+import bron_kerbosch_degen
 from graph import UndirectedGraph
-from graph_degeneracy import degeneracy_filter
 from consumer import CliqueConsumer
 
 
@@ -11,16 +10,4 @@ def explore(graph: UndirectedGraph, consumer: CliqueConsumer) -> None:
     Bron-Kerbosch algorithm with degeneracy ordering, with nested searches
     choosing a pivot from candidates only (IK_GP)
     """
-    # In this initial iteration, we don't need to represent the set of candidates
-    # because all neighbours are candidates until excluded.
-    for v, neighbouring_excluded in degeneracy_filter(graph=graph):
-        neighbours = graph.adjacencies[v]
-        neighbouring_candidates = neighbours.difference(neighbouring_excluded)
-        visit(
-            graph=graph,
-            consumer=consumer,
-            pivot_choice_X=False,
-            candidates=neighbouring_candidates,
-            excluded=neighbouring_excluded,
-            clique=[v],
-        )
+    bron_kerbosch_degen.explore(graph, consumer, pivot_choice_X=False)

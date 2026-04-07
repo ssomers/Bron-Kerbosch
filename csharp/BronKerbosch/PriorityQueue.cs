@@ -11,13 +11,14 @@ namespace BronKerbosch
     {
         private readonly List<T>[] itsQueuePerPriority = [.. Enumerable.Repeat(true, maxPriority).Select(_ => new List<T>())];
 
+        // Putting the same element again does not replace the previous entry.
         public void Put(Priority priority, T element)
         {
             Debug.Assert(priority > 0);
             itsQueuePerPriority[priority - 1].Add(element);
         }
 
-        // We may return an element already popped earlier, in case its priority was promoted.
+        // May pop an element already popped earlier, in case it was put multiple times.
         public T Pop()
         {
             foreach (List<T> stack in itsQueuePerPriority)

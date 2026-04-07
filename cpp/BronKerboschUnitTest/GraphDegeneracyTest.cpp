@@ -32,7 +32,7 @@ namespace BronKerbosch {
             auto it = DegeneracyIter{g};
             auto first = it.next();
             Assert::IsTrue(first.has_value());
-            Assert::AreNotEqual(1u, first->first.index());
+            Assert::AreNotEqual(1u, first.value().index());
             Assert::IsTrue(it.next().has_value());
             Assert::IsFalse(it.next().has_value());
         }

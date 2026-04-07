@@ -36,6 +36,18 @@ type MutableHashSet<'T> =
             else
                 new Generic.HashSet<'T>(t.set |> Seq.filter (s.set.Contains)) }
 
+    static member inline partition (p: 'T -> bool) (s: MutableHashSet<'T>) : (MutableHashSet<'T> * MutableHashSet<'T>) =
+        let store
+            ((first, second): MutableHashSet<'T> * MutableHashSet<'T>)
+            (value: 'T)
+            : MutableHashSet<'T> * MutableHashSet<'T> =
+            let destination = if p value then first else second
+            let added = destination.set.Add(value)
+            Debug.Assert(added)
+            (first, second)
+
+        s.set |> Seq.fold store (MutableHashSet.empty, MutableHashSet.empty)
+
     static member inline overlap (s: MutableHashSet<'T>) (t: MutableHashSet<'T>) : int =
         if s.set.Count < t.set.Count then
             s.set |> Seq.filter (t.set.Contains) |> Seq.length

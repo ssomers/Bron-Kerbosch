@@ -18,7 +18,7 @@ type PriorityQueue<'T when 'T: equality> =
         this.stackPerPriority[priority - 1] |> List.contains element
 
 
-    // Putting the same element again only makes sense if it is with a more urgent priority, i.e. closer to 1.
+    // Putting the same element again does not replace the previous entry.
     static member Put(this: byref<PriorityQueue<'T>>, priority: Priority, element: 'T) =
         Debug.Assert(priority > 0)
         let index = priority - 1
@@ -29,13 +29,13 @@ type PriorityQueue<'T when 'T: equality> =
     static member Pop(this: byref<PriorityQueue<'T>>) : 'T option =
         if this.lowestPopulatedIndex < this.stackPerPriority.Length then
             match this.stackPerPriority[this.lowestPopulatedIndex] with
-            | head :: [] ->
-                // Not a necessary case, but a ~5% performance boost.
-                this.stackPerPriority[this.lowestPopulatedIndex] <- []
-                this.lowestPopulatedIndex <- this.lowestPopulatedIndex + 1
-                Some(head)
             | head :: tail ->
                 this.stackPerPriority[this.lowestPopulatedIndex] <- tail
+
+                // Not a necessary adjustment, but a ~5% performance boost.
+                if tail.IsEmpty then
+                    this.lowestPopulatedIndex <- this.lowestPopulatedIndex + 1
+
                 Some(head)
             | [] ->
                 this.lowestPopulatedIndex <- this.lowestPopulatedIndex + 1

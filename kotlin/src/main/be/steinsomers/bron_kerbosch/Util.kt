@@ -1,5 +1,7 @@
 package be.steinsomers.bron_kerbosch
 
+import java.util.function.Predicate
+
 object Util {
     @OptIn(ExperimentalStdlibApi::class)
     fun append(head: IntArray, tail: Vertex): IntArray {
@@ -23,5 +25,12 @@ object Util {
 
     fun <T> areDisjoint(set1: Set<T>, set2: Set<T>): Boolean {
         return if (set1.size <= set2.size) set1.none(set2::contains) else set2.none(set1::contains)
+    }
+
+    fun <T> partition(set: Set<T>, isFirst: Predicate<T>): Pair<MutableSet<T>, MutableSet<T>> {
+        val first: MutableSet<T> = HashSet(set.size)
+        val second: MutableSet<T> = HashSet(set.size)
+        set.forEach { v -> (if (isFirst.test(v)) first else second).add(v) }
+        return Pair(first, second)
     }
 }

@@ -84,6 +84,19 @@ func (vset VertexSet) IntersectionWithMap(other []bool) VertexSet {
 	return result
 }
 
+func (vset VertexSet) Partition(isFirst func(Vertex) bool) (VertexSet, VertexSet) {
+	first := make(VertexSet, len(vset))
+	second := make(VertexSet, len(vset))
+	for v := range vset {
+		if isFirst(v) {
+			first.Add(v)
+		} else {
+			second.Add(v)
+		}
+	}
+	return first, second
+}
+
 func (vset VertexSet) Add(v Vertex) {
 	vset[v] = struct{}{}
 }
