@@ -4,7 +4,7 @@ pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
-use super::graph_degeneracy::degeneracy_iter;
+use super::graph_degeneracy::DegeneracyOrder;
 use super::pile::Pile;
 use super::vertex::Vertex;
 use super::vertexsetlike::VertexSetLike;
@@ -20,11 +20,9 @@ pub fn explore_with_pivot_multithreaded<VertexSet>(
     VertexSet: VertexSetLike,
 {
     crossbeam::thread::scope(|scope| {
-        let (start_tx, start_rx) = crossbeam_channel::bounded(64);
         let (visit_tx, visit_rx) = crossbeam_channel::bounded(64);
 
-        scope.spawn(move |_| initiate(graph, start_tx));
-        scope.spawn(move |_| dispatch(graph, start_rx, visit_tx));
+        scope.spawn(move |_| dispatch(graph, visit_tx));
 
         for _ in 0..num_visiting_threads {
             let thread_visit_rx = visit_rx.clone();
@@ -42,31 +40,20 @@ struct VisitJob<VertexSet> {
     excluded: VertexSet,
 }
 
-fn initiate<VertexSet>(graph: &Graph<VertexSet>, start_tx: Sender<(Vertex, VertexSet)>)
+fn dispatch<VertexSet>(graph: &Graph<VertexSet>, visit_tx: Sender<VisitJob<VertexSet>>)
 where
     VertexSet: VertexSetLike,
 {
-    for pair in degeneracy_iter(graph) {
-        start_tx.send(pair).unwrap();
-    }
-}
-
-fn dispatch<VertexSet>(
-    graph: &Graph<VertexSet>,
-    start_rx: Receiver<(Vertex, VertexSet)>,
-    visit_tx: Sender<VisitJob<VertexSet>>,
-) where
-    VertexSet: VertexSetLike,
-{
-    // In this initial iteration, we don't need to represent the set of candidates
-    // because all neighbours are candidates until excluded.
-    while let Ok((v, neighbouring_excluded)) = start_rx.recv() {
-        let neighbours = graph.neighbours(v);
-        debug_assert!(neighbours.is_empty().not());
-        let neighbouring_candidates: VertexSet = neighbours
-            .difference(&neighbouring_excluded)
-            .copied()
-            .collect();
+    DegeneracyOrder::on(graph).apply(|v, vertex_info| {
+        let mut neighbouring_candidates = VertexSet::new();
+        let mut neighbouring_excluded = VertexSet::new();
+        graph.neighbours(v).for_each(|v| {
+            if vertex_info.is_candidate(v) {
+                neighbouring_candidates.insert(v);
+            } else {
+                neighbouring_excluded.insert(v);
+            }
+        });
         debug_assert!(neighbouring_candidates.is_empty().not());
         let visit = VisitJob {
             start: v,
@@ -74,7 +61,7 @@ fn dispatch<VertexSet>(
             excluded: neighbouring_excluded,
         };
         visit_tx.send(visit).unwrap();
-    }
+    })
 }
 
 fn descend<VertexSet>(

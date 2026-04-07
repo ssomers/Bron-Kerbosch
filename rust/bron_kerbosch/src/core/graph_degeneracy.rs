@@ -4,36 +4,12 @@ use super::priority_queue::Priority;
 use super::priority_queue::PriorityQueue;
 use super::vertex::{Vertex, VertexMap};
 use super::vertexsetlike::VertexSetLike;
-use std::iter::FusedIterator;
 use std::ops::Not;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices
 // whose neighbours have all been enumerated already.
 // Along with the vertex picked, includes the subset of neighbours already picked.
-pub fn degeneracy_iter<VertexSet>(graph: &Graph<VertexSet>) -> DegeneracyOrderIter<'_, VertexSet>
-where
-    VertexSet: VertexSetLike,
-{
-    let mut left_to_pick = FortifiedCounter::new();
-    let mut priority_per_vertex = VertexMap::new(None, graph.order());
-    let mut queue = PriorityQueue::new(graph.max_degree());
-    for v in graph.vertices() {
-        if let Some(priority) = Priority::new(graph.degree(v)) {
-            left_to_pick.add(v);
-            priority_per_vertex[v] = Some(priority);
-            queue.put(priority, v);
-        }
-    }
-
-    DegeneracyOrderIter {
-        graph,
-        left_to_pick,
-        priority_per_vertex,
-        queue,
-    }
-}
-
-pub struct DegeneracyOrderIter<'a, VertexSet>
+pub struct DegeneracyOrder<'a, VertexSet>
 where
     VertexSet: VertexSetLike,
 {
@@ -47,10 +23,30 @@ where
     queue: PriorityQueue<Vertex>,
 }
 
-impl<VertexSet> DegeneracyOrderIter<'_, VertexSet>
+impl<'a, VertexSet> DegeneracyOrder<'a, VertexSet>
 where
     VertexSet: VertexSetLike,
 {
+    pub fn on(graph: &'a Graph<VertexSet>) -> Self {
+        let mut left_to_pick = FortifiedCounter::new();
+        let mut priority_per_vertex = VertexMap::new(None, graph.order());
+        let mut queue = PriorityQueue::new(graph.max_degree());
+        for v in graph.vertices() {
+            if let Some(priority) = Priority::new(graph.degree(v)) {
+                left_to_pick.add(v);
+                priority_per_vertex[v] = Some(priority);
+                queue.put(priority, v);
+            }
+        }
+
+        Self {
+            graph,
+            left_to_pick,
+            priority_per_vertex,
+            queue,
+        }
+    }
+
     fn is_consistent(&self) -> bool {
         self.priority_per_vertex
             .iter()
@@ -60,8 +56,7 @@ where
             })
     }
 
-    fn evaluate_neighbours(&mut self, pick: Vertex) -> VertexSet {
-        let mut picked_neighbours = VertexSet::new();
+    fn promote_neighbours(&mut self, pick: Vertex) {
         self.graph.neighbours(pick).for_each(|v| {
             if let Some(old_priority) = self.priority_per_vertex[v] {
                 debug_assert!(self.left_to_pick.contains(v));
@@ -75,38 +70,30 @@ where
                 if let Some(new_priority) = new_priority {
                     self.queue.put(new_priority, v);
                 } else {
-                    // We discount this neighbour already, but logically it will
-                    // be (silently) picked only after we yield the current pick.
-                    // So it does not belong in the current picked_neighbours.
                     self.left_to_pick.remove(v);
                 }
-            } else {
-                picked_neighbours.insert(v);
             }
         });
-        picked_neighbours
+    }
+
+    pub fn apply(mut self, mut action: impl FnMut(Vertex, DegeneracySpy<'_, 'a, VertexSet>)) {
+        debug_assert!(self.is_consistent());
+        while self.left_to_pick.count() > 0 {
+            let pick = self.queue.pop().expect("Cannot pop more than was put");
+            if self.priority_per_vertex[pick].take().is_some() {
+                action(pick, DegeneracySpy(&self));
+                self.left_to_pick.remove(pick);
+                self.promote_neighbours(pick);
+            }
+            debug_assert!(self.is_consistent());
+        }
     }
 }
 
-impl<VertexSet> FusedIterator for DegeneracyOrderIter<'_, VertexSet> where VertexSet: VertexSetLike {}
+pub struct DegeneracySpy<'b, 'a, VertexSet: VertexSetLike>(&'b DegeneracyOrder<'a, VertexSet>);
 
-impl<VertexSet> Iterator for DegeneracyOrderIter<'_, VertexSet>
-where
-    VertexSet: VertexSetLike,
-{
-    type Item = (Vertex, VertexSet);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.left_to_pick.count() > 0 {
-            debug_assert!(self.is_consistent());
-            let pick = self.queue.pop().expect("Cannot pop more than was put");
-            if self.priority_per_vertex[pick].take().is_some() {
-                self.left_to_pick.remove(pick);
-                let picked_neighbours = self.evaluate_neighbours(pick);
-                debug_assert!(picked_neighbours.len() < self.graph.degree(pick));
-                return Some((pick, picked_neighbours));
-            }
-        }
-        None
+impl<'b, 'a, VertexSet: VertexSetLike> DegeneracySpy<'b, 'a, VertexSet> {
+    pub fn is_candidate(&'b self, v: Vertex) -> bool {
+        self.0.priority_per_vertex[v].is_some()
     }
 }

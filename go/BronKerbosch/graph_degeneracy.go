@@ -1,8 +1,8 @@
 package BronKerbosch
 
 type DegeneracyVisitItem struct {
-	pick             Vertex
-	pickedNeighbours VertexSet
+	pick        Vertex
+	isCandidate func(Vertex) bool
 }
 
 func degeneracyVisitor(graph *UndirectedGraph, visitor func(DegeneracyVisitItem)) {
@@ -24,12 +24,13 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor func(DegeneracyVisitItem)
 		}
 	}
 
+	var i DegeneracyVisitItem
+	i.isCandidate = func(v Vertex) bool { return priorityPerVertex[v] > 0 }
 	for numLeftToPick > 0 {
-		i := DegeneracyVisitItem{}
 		i.pick = q.pop()
 		if priorityPerVertex[i.pick] > 0 {
 			priorityPerVertex[i.pick] = 0
-			i.pickedNeighbours = make(VertexSet, graph.degree(i.pick))
+			visitor(i)
 			for v := range graph.neighbours(i.pick) {
 				oldPriority := priorityPerVertex[v]
 				if oldPriority > 0 {
@@ -47,11 +48,8 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor func(DegeneracyVisitItem)
 						// So it does not belong in the current pickedNeighbours.
 						numLeftToPick--
 					}
-				} else {
-					i.pickedNeighbours.Add(v)
 				}
 			}
-			visitor(i)
 			numLeftToPick--
 			if numLeftToPick < 0 {
 				panic("numLeftToPick < 0")

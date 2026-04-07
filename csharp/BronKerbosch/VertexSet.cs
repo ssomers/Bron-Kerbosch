@@ -27,6 +27,7 @@ namespace BronKerbosch
         static abstract TVertexSet Empty();
         static abstract TVertexSet EmptyWithCapacity(int capacity);
         static abstract TVertexSet From(IEnumerable<Vertex> vertices);
+        static abstract (TVertexSet, TVertexSet) Partition(IEnumerable<Vertex> vertices, Predicate<Vertex> isFirst);
         static abstract bool Add(TVertexSet s, Vertex v);
         static abstract bool Remove(TVertexSet s, Vertex v);
         static abstract TVertexSet Difference(TVertexSet s1, TVertexSet s2);
@@ -42,6 +43,16 @@ namespace BronKerbosch
         public static HashSet<Vertex> Empty() => [];
         public static HashSet<Vertex> EmptyWithCapacity(int capacity) => new(capacity: capacity);
         public static HashSet<Vertex> From(IEnumerable<Vertex> vertices) => [.. vertices];
+        public static (HashSet<Vertex>, HashSet<Vertex>) Partition(IEnumerable<Vertex> vertices, Predicate<Vertex> isFirst)
+        {
+            HashSet<Vertex> first = [];
+            HashSet<Vertex> second = [];
+            foreach (Vertex v in vertices)
+            {
+                _ = (isFirst(v) ? first : second).Add(v);
+            }
+            return (first, second);
+        }
         public static bool Add(HashSet<Vertex> s, Vertex v) => s.Add(v);
         public static bool Remove(HashSet<Vertex> s, Vertex v) => s.Remove(v);
 
@@ -119,6 +130,16 @@ namespace BronKerbosch
         public static SortedSet<Vertex> Empty() => [];
         public static SortedSet<Vertex> EmptyWithCapacity(int capacity) => [];
         public static SortedSet<Vertex> From(IEnumerable<Vertex> vertices) => [.. vertices];
+        public static (SortedSet<Vertex>, SortedSet<Vertex>) Partition(IEnumerable<Vertex> vertices, Predicate<Vertex> isFirst)
+        {
+            SortedSet<Vertex> first = [];
+            SortedSet<Vertex> second = [];
+            foreach (Vertex v in vertices)
+            {
+                _ = (isFirst(v) ? first : second).Add(v);
+            }
+            return (first, second);
+        }
         public static bool Add(SortedSet<Vertex> s, Vertex v) => s.Add(v);
         public static bool Remove(SortedSet<Vertex> s, Vertex v) => s.Remove(v);
 

@@ -64,7 +64,7 @@ internal object BronKerboschPivot {
     ) {
         require(pivotChoice == PivotChoice.MaxDegreeLocal || pivotChoice == PivotChoice.MaxDegreeLocalX)
         // Quickly handle locally unconnected candidates while finding pivot
-        var pivot: Vertex = Vertex(0)
+        var pivot = Vertex(0)
         val remainingCandidates: MutableCollection<Vertex> = ArrayList(candidates.size)
         var seenLocalDegree = 0
         for (v in candidates) {

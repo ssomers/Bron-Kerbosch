@@ -3,12 +3,11 @@ package be.steinsomers.bron_kerbosch
 
 internal object BronKerboschDegeneracy {
     fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer, furtherPivotChoice: PivotChoice) {
-        // In this initial iteration, we don't need to represent the set of candidates
-        // because all neighbours are candidates until excluded.
-        GraphDegeneracy(graph).forEach { item ->
-            val v = item.pick
-            val neighbouringExcluded = item.pickedNeighbours
-            val neighbouringCandidates = graph.neighbours(v).subtract(neighbouringExcluded).toMutableSet()
+        val degeneracy = GraphDegeneracy(graph)
+        degeneracy.forEach { v ->
+            val (neighbouringCandidates, neighbouringExcluded) =
+                Util.partition(graph.neighbours(v)) { v -> degeneracy.isCandidate(v) }
+            Debug.assert { neighbouringCandidates.isNotEmpty() }
             BronKerboschPivot.visit(
                 graph = graph, cliqueConsumer = cliqueConsumer,
                 pivotChoice = furtherPivotChoice,

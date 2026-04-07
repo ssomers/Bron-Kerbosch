@@ -20,6 +20,10 @@ type SizedSet<'T when 'T: comparison> =
     static member empty: SizedSet<'T> = { set = Set.empty; size = 0 }
     static member inline singleton(value: 'T) : SizedSet<'T> = { set = Set.singleton value; size = 1 }
 
+    static member inline partition (p: 'T -> bool) (s: SizedSet<'T>) : (SizedSet<'T> * SizedSet<'T>) =
+        let (first, second) = s.set |> Set.partition p
+        ({ set = first; size = first.Count }, { set = second; size = second.Count })
+
     static member inline ofSeq(values: 'T seq) : SizedSet<'T> =
         let set = Set.ofSeq values
         { set = set; size = set.Count }
