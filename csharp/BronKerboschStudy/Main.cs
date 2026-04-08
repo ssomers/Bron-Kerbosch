@@ -164,7 +164,7 @@ void Bk(
         }
     }
 
-    var path = $"..\\bron_kerbosch_csharp_order_{(genuine ? orderstr : "warmup")}.csv";
+    var path = $"..\\data\\random_time_csharp_order_{(genuine ? orderstr : "warmup")}.csv";
     if (File.Exists(path))
         File.Delete(path);
     File.Move(tmpfname, path);

@@ -100,8 +100,8 @@ enum Main {
                            final int[] sizes,
                            final int timedSamples,
                            final int[] funcIndices) {
-        final var name = "bron_kerbosch_java_order_" + (genuine ? orderStr : "warmup");
-        final var path = Paths.get("..", name + ".csv");
+        final var name = "random_time_java_order_" + (genuine ? orderStr : "warmup");
+        final var path = Paths.get("..", "data", name + ".csv");
         try (final Writer fo = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fo.write("Size");
             for (final var funcIndex : funcIndices) {

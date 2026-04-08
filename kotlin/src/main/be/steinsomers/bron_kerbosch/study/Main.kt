@@ -100,8 +100,8 @@ internal object Main {
         samples: Int,
         funcIndices: IntArray
     ) {
-        val name = "bron_kerbosch_kotlin_order_" + (if (genuine) orderStr else "warmup")
-        val path = Paths.get("..", "$name.csv")
+        val name = "random_time_kotlin_order_" + (if (genuine) orderStr else "warmup")
+        val path = Paths.get("..", "data", "$name.csv")
         try {
             Files.newBufferedWriter(path, StandardCharsets.UTF_8).use { fo ->
                 fo.write("Size")

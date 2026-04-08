@@ -73,8 +73,7 @@ func timed(orderstr string, size int, funcIndices []int, timedSamples int) [Bron
 }
 
 func bk(orderstr string, sizes []int, funcIndices []int, timedSamples int) {
-	name := "bron_kerbosch_go_order_" + orderstr
-	path := filepath.Join("..", name+".csv")
+	path := filepath.Join("..", "data", "random_time_go_order_"+orderstr+".csv")
 	fo, err := os.Create(path)
 	if err != nil {
 		panic(err)

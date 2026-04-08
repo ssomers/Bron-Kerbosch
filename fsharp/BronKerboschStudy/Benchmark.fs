@@ -151,7 +151,7 @@ module BronKerboschStudy =
              | OneOff -> None)
         with
         | Some suffix ->
-            let path = $"..\\bron_kerbosch_fsharp_order_{suffix}.csv"
+            let path = $"..\\data\\random_time_fsharp_order_{suffix}.csv"
 
             if File.Exists(path) then
                 File.Delete(path)

@@ -383,16 +383,7 @@ Perform:
 
 ## Finally
 
-Python publishes results to `detail_*` files automatically, the others need a push:
-
-    python ..\python3\publish.py rust 100 10k 1M
-    python ..\python3\publish.py go 100 10k 1M
-    python ..\python3\publish.py csharp 100 10k 1M
-    python ..\python3\publish.py cpp 100 10k 1M
-    python ..\python3\publish.py java 100 10k 1M
-    python ..\python3\publish.py kotlin 100 10k 1M
-
-And finally, generate report images:
+And finally, generate reports:
 
     python ..\python3\publish.py
 

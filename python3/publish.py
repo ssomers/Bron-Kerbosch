@@ -20,7 +20,7 @@ class Language(Enum):
     go = auto()
     java = auto()
     kotlin = auto()
-    python = auto()
+    python___ = auto()
     python310 = auto()
     python311 = auto()
     python314 = auto()
@@ -34,7 +34,7 @@ class Language(Enum):
             Language.go: "Go 1.25",
             Language.java: "Java 24",
             Language.kotlin: "Kotlin 2",
-            Language.python: "Python",
+            Language.python___: "Python",
             Language.python310: "Python 3.10",
             Language.python311: "Python 3.11",
             Language.python314: "Python 3.14",
@@ -49,12 +49,17 @@ class Language(Enum):
             Language.go: "Go",
             Language.java: "Java",
             Language.kotlin: "Kotlin",
-            Language.python: "Python",
+            Language.python___: "Python",
             Language.python310: "Python",
             Language.python311: "Python",
             Language.python314: "Python",
             Language.rust: "Rust",
         }[self]
+
+
+languages = [Language[attr] for attr in dir(Language) if "_" not in attr]
+assert all(lang.long_name() for lang in languages)
+assert all(lang.short_name() for lang in languages)
 
 
 class LangLib:
@@ -119,7 +124,7 @@ def color_by_ver(case: Case) -> str:
 
 def color_by_language(case: Case) -> str:
     return {
-        Language.python: "#000099",
+        Language.python___: "#000099",
         Language.python314: "#000099",
         Language.rust: "#CC0033",
         Language.java: "#009933",
@@ -158,8 +163,13 @@ class Measurement(object):
         return self.mean - self.min
 
 
-def csv_basename(language: Language, orderstr: str) -> str:
-    return f"bron_kerbosch_{language.name}_order_{orderstr}.csv"
+def csv_path(language: Language, orderstr: str) -> str:
+    basename = f"random_time_{language.name}_order_{orderstr}"
+    return os.path.join(os.pardir, "data", basename + ".csv")
+
+
+def svg_path(basename: str) -> str:
+    return os.path.join(os.pardir, "doc", basename + ".svg")
 
 
 def publish(
@@ -169,8 +179,7 @@ def publish(
     stats_per_func_by_size: Mapping[int, List[SampleStatistics]],
 ) -> None:
     language = Language[languagestr]
-    filename = csv_basename(language, orderstr)
-    path = os.path.join(os.pardir, filename)
+    path = csv_path(language, orderstr)
     with open(path, "w", newline="", encoding="utf-8") as csvfile:
         w = csv.writer(csvfile)
         w.writerow(
@@ -181,7 +190,6 @@ def publish(
             w.writerow(
                 [str(size)] + [str(f) for s in stats for f in [s.min, s.mean(), s.max]]
             )
-    publish_whole_csv(language=language, orderstr=orderstr)
 
 
 def read_seconds(s: str) -> float:
@@ -193,11 +201,8 @@ def read_csv(
     orderstr: str,
     case_selector: Callable[[Case], bool] = lambda _: True,
 ) -> Tuple[List[int], Mapping[Case, List[Measurement]]]:
-    filename = csv_basename(language, orderstr)
-    path = os.path.join(os.pardir, filename)
-    if not os.path.exists(path):
-        path = filename
-    print("Reading", filename)
+    path = csv_path(language, orderstr)
+    print("Reading", path)
     sizes = []
     m_per_size_by_case: Dict[Case, List[Measurement]] = {}
     with open(path, newline="", encoding="utf-8") as csvfile:
@@ -205,12 +210,12 @@ def read_csv(
         try:
             head = next(reader)
         except StopIteration:
-            raise ImportError(f"{filename}: seems to be empty")
+            raise ImportError(f"{path}: seems to be empty")
         num_cases = (len(head) - 1) // 3
         expected_cols = 1 + num_cases * 3
         if len(head) != expected_cols:
             raise ImportError(
-                f"{filename}: Found {len(head)} columns, expected {expected_cols}"
+                f"{path}: Found {len(head)} columns, expected {expected_cols}"
             )
         if head[0] != "Size":
             raise ImportError("unexpected " + str(head[0]))
@@ -226,13 +231,13 @@ def read_csv(
                 case = Case.from_csv_header(case_name, language=language)
             except KeyError as e:
                 raise ImportError(
-                    f'{filename}: unrecognized case name "{case_name}"'
+                    f'{path}: unrecognized case name "{case_name}"'
                 ) from e
             cases.append(case)
         for i, row in enumerate(reader):
             if len(row) != expected_cols:
                 raise ImportError(
-                    f"{filename} row {i+2}: found {len(row)} columns,"
+                    f"{path} row {i+2}: found {len(row)} columns,"
                     f"expected {expected_cols}"
                 )
             size = int(row[0])
@@ -248,7 +253,7 @@ def read_csv(
 
     for case in list(m_per_size_by_case.keys()):
         if all(m_per_size_by_case[case][s].isnan() for s in range(len(sizes))):
-            print(f"{filename}: backing out on {case}")
+            print(f"\tbacking out on {case}")
             del m_per_size_by_case[case]
     assert len(sizes)
     assert len(m_per_size_by_case)
@@ -276,7 +281,7 @@ def publish_whole_csv(language: Language, orderstr: str) -> None:
     assert all(
         len(m_per_size) == len(sizes) for m_per_size in m_per_size_by_case.values()
     )
-    filename = f"details_{language.name}_{orderstr}.svg"
+    path = svg_path(f"details_{language.name}_{orderstr}")
     if import_matplotlib():
         from matplotlib import pyplot
 
@@ -315,8 +320,9 @@ def publish_whole_csv(language: Language, orderstr: str) -> None:
                 twin.plot([], linestyle=linestyle, label=lib, color="black")
             twin.legend(loc="lower right")
         fig.tight_layout()
-        print("Writing", filename)
-        fig.savefig(filename, bbox_inches=0, pad_inches=0)
+        print("Writing", path)
+        fig.savefig(path, bbox_inches=0, pad_inches=0)
+        pyplot.close(fig)
 
 
 def publish_measurements(
@@ -332,7 +338,7 @@ def publish_measurements(
 ) -> None:
     assert sizes
     assert measurement_per_size_by_case, basename
-    filename = basename + ".svg"
+    path = svg_path(basename)
     if import_matplotlib():
         from matplotlib import pyplot
 
@@ -359,8 +365,8 @@ def publish_measurements(
             )
         axes.legend(loc="upper left")
         fig.tight_layout()
-        print("Writing", filename)
-        fig.savefig(filename, bbox_inches=0, pad_inches=0)
+        print("Writing", path)
+        fig.savefig(path, bbox_inches=0, pad_inches=0)
         pyplot.close(fig)
 
 
@@ -629,7 +635,7 @@ def publish_reports() -> None:
         publish_langver_report(
             basename=f"report_9_python_{orderstr}",
             orderstr=orderstr,
-            language=Language.python,
+            language=Language.python___,
             languages=[Language.python310, Language.python311, Language.python314],
             ver="Ver3½-GP",
         )
@@ -638,6 +644,9 @@ def publish_reports() -> None:
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         publish_reports()
+        for language in languages:
+            for orderstr in ["100", "10k", "1M"]:
+                publish_whole_csv(language=language, orderstr=orderstr)
     else:
         language = Language[sys.argv[1]]
         for orderstr in sys.argv[2:]:

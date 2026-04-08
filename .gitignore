@@ -5,7 +5,6 @@ clean*.cmd
 clean.ps1
 target
 .vs
-/*.csv
 /cpp/*/*.user
 /cpp/*/*.vcxproj.filters
 /cpp/a.exe
@@ -15,6 +14,7 @@ target
 /[cf]sharp/*/obj
 /csharp/*/*.user
 /csharp/packages
+/data/*_warmup.csv
 /go/Stats/testdata
 /java/.idea/workspace.xml
 /java/.idea/*.iml

@@ -214,10 +214,7 @@ fn bk(
     timed_samples: u32,
     included_funcs: impl Fn(SetType, usize) -> Vec<usize>,
 ) -> Result<(), std::io::Error> {
-    const LANGUAGE: &str = "rust";
-
     let sizes = Vec::from_iter(sizes);
-    let name = format!("bron_kerbosch_{LANGUAGE}_order_{orderstr}");
     let temppath = Path::new("tmp").with_extension("csv");
     {
         let mut writer: Option<csv::Writer<File>> = if run == Run::OneOff {
@@ -285,7 +282,8 @@ fn bk(
     }
 
     if run == Run::Regular {
-        let path = Path::join(Path::new(".."), Path::new(&name).with_extension("csv"));
+        let name = Path::new(&format!("random_time_rust_order_{orderstr}")).with_extension("csv");
+        let path = Path::new("..").join(Path::new("data")).join(name);
         std::fs::rename(temppath, path)?;
     }
     Ok(())

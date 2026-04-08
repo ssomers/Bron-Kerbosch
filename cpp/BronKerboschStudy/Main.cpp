@@ -169,7 +169,7 @@ class Benchmark {
                 fo << std::endl;
             }
         }
-        auto path = "..\\bron_kerbosch_cpp_order_" + orderstr + ".csv";
+        auto path = "..\\data\\random_time_cpp_order_" + orderstr + ".csv";
         std::remove(path.c_str());
         auto rc = std::rename(tmpfname, path.c_str());
         if (rc != 0) {
