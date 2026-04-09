@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace BronKerbosch.Test
@@ -8,20 +7,17 @@ namespace BronKerbosch.Test
     public class BronKerboschHashTest : BronKerboschTestTemplate<HashSet<Vertex>, HashSetMgr> { }
     public class BronKerboschSortedTest : BronKerboschTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
-    public class BronKerboschTestTemplate<TVertexSet, TVertexSetMgr>
+    public class BronKerboschTestTemplate<TVertexSet, TVertexSetMgr> : LabGraphs<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
-        private static void Bk(int[][] adjacencies, int[][] expectedCliques)
+        private static void Bk(LabGraph<TVertexSet, TVertexSetMgr> g, int[][] expectedCliques)
         {
-            var adjacencies2 = adjacencies.Select(neighbours => TVertexSetMgr.From(neighbours.Select(i => Vertex.Nth(i))))
-                                 .ToImmutableArray();
             Vertex[][] expectedCliques2 = [.. expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray())];
-            var graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
                 var consumer = new CliqueCollector(2);
-                Portfolio.Explore(funcIndex, graph, consumer);
+                Portfolio.Explore(funcIndex, g.Graph, consumer);
                 var result = consumer.List();
                 Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
                 Portfolio.SortCliques(result);
@@ -33,136 +29,126 @@ namespace BronKerbosch.Test
         [Test]
         public void TestOrder0()
         {
-            Bk(adjacencies: [],
+            Bk(Order0,
                expectedCliques: []);
         }
 
         [Test]
         public void TestOrder1()
         {
-            Bk(adjacencies: [[]],
+            Bk(Order1,
                expectedCliques: []);
         }
 
         [Test]
-        public void TestOrder2_Isolated()
+        public void TestOrder2_isolated()
         {
-            Bk(adjacencies: [[], []],
+            Bk(Order2_isolated,
                expectedCliques: []);
         }
 
         [Test]
-        public void TestOrder2_Connected()
+        public void TestOrder2_connected()
         {
-            Bk(adjacencies: [[1], [0]],
+            Bk(Order2_connected,
                expectedCliques: [[0, 1]]);
         }
 
         [Test]
-        public void TestOrder3_Size1_Left()
+        public void TestOrder3_size1_left()
         {
-            Bk(adjacencies: [[1], [0], []],
+            Bk(Order3_size1_left,
                expectedCliques: [[0, 1]]);
         }
 
         [Test]
-        public void TestOrder3_Size1_Long()
+        public void TestOrder3_size1_long()
         {
-            Bk(adjacencies: [[2], [], [0]],
+            Bk(Order3_size1_long,
                expectedCliques: [[0, 2]]);
         }
 
         [Test]
-        public void TestOrder3_Size1_Right()
+        public void TestOrder3_size1_right()
         {
-            Bk(adjacencies: [[], [2], [1]],
+            Bk(Order3_size1_right,
                expectedCliques: [[1, 2]]);
         }
 
         [Test]
-        public void TestOrder3_Size2()
+        public void TestOrder3_size2()
         {
-            Bk(adjacencies: [[1], [0, 2], [1]],
+            Bk(Order3_size2,
                expectedCliques: [[0, 1], [1, 2]]);
         }
 
         [Test]
-        public void TestOrder3_Size3()
+        public void TestOrder3_size3()
         {
-            Bk(adjacencies: [[1, 2], [0, 2], [0, 1]],
+            Bk(Order3_size3,
                expectedCliques: [[0, 1, 2]]);
         }
 
         [Test]
-        public void TestOrder4_Size2()
+        public void TestOrder4_size2()
         {
-            Bk(adjacencies: [[1], [0], [3], [2]],
+            Bk(Order4_size2,
                expectedCliques: [[0, 1], [2, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size3_Bus()
+        public void TestOrder4_size3_bus()
         {
-            Bk(adjacencies: [[1], [0, 2], [1, 3], [2]],
+            Bk(Order4_size3_bus,
                expectedCliques: [[0, 1], [1, 2], [2, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size3_Star()
+        public void TestOrder4_size3_star()
         {
-            Bk(adjacencies: [[1, 2, 3], [0], [0], [0]],
+            Bk(Order4_size3_star,
                expectedCliques: [[0, 1], [0, 2], [0, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size4_p()
+        public void TestOrder4_size4_p()
         {
-            Bk(adjacencies: [[1], [0, 2, 3], [1, 3], [1, 2]],
+            Bk(Order4_size4_p,
                expectedCliques: [[0, 1], [1, 2, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size4_Square()
+        public void TestOrder4_size4_square()
         {
-            Bk(adjacencies: [[1, 3], [0, 2], [1, 3], [0, 2]],
+            Bk(Order4_size4_square,
                expectedCliques: [[0, 1], [0, 3], [1, 2], [2, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size5()
+        public void TestOrder4_size5()
         {
-            Bk(adjacencies: [[1, 2, 3], [0, 2], [0, 1, 3], [0, 2]],
+            Bk(Order4_size5,
                expectedCliques: [[0, 1, 2], [0, 2, 3]]);
         }
 
         [Test]
-        public void TestOrder4_Size6()
+        public void TestOrder4_size6()
         {
-            Bk(adjacencies: [[1, 2, 3], [0, 2, 3], [0, 1, 3], [0, 1, 2]],
+            Bk(Order4_size6,
                expectedCliques: [[0, 1, 2, 3]]);
         }
 
         [Test]
-        public void TestOrder5_Size6_Penultimate()
+        public void TestOrder5_size6_penultimate()
         {
-            Bk(adjacencies: [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4], [0, 1, 2], [0, 1, 2]],
+            Bk(Order5_size6_penultimate,
                expectedCliques: [[0, 1, 2, 3], [0, 1, 2, 4]]);
         }
 
         [Test]
         public void TestSample()
         {
-            Bk(adjacencies:
-                [
-                    [],
-                    [2, 3, 4],
-                    [1, 3, 4, 5],
-                    [1, 2, 4, 5],
-                    [1, 2, 3],
-                    [2, 3, 6, 7],
-                    [5, 7],
-                    [5, 6]
-                ],
+            Bk(Sample,
                expectedCliques:
                 [
                     [1, 2, 3, 4],
@@ -174,19 +160,7 @@ namespace BronKerbosch.Test
         [Test]
         public void TestBigger()
         {
-            Bk(adjacencies:
-                [
-                    [1, 2, 3, 4, 6, 7],
-                    [0, 3, 6, 7, 8, 9],
-                    [0, 3, 5, 7, 8, 9],
-                    [0, 1, 2, 4, 9],
-                    [0, 3, 6, 7, 9],
-                    [2, 6],
-                    [0, 1, 4, 5, 9],
-                    [0, 1, 2, 4, 9],
-                    [1, 2],
-                    [1, 2, 3, 4, 6, 7]
-                ],
+            Bk(Bigger,
                expectedCliques:
                 [
                     [0, 1, 3],

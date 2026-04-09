@@ -4,12 +4,17 @@ using System.Collections.Generic;
 
 namespace BronKerbosch.Test
 {
-    public class VertexSetTests
+    public class VertexSetHashTest : VertexSetTestTemplate<HashSet<Vertex>, HashSetMgr> { }
+    public class VertexSetSortedTest : VertexSetTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
+
+    public class VertexSetTestTemplate<TVertexSet, TVertexSetMgr>
+        where TVertexSet : ISet<Vertex>
+        where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
         [Test]
         public void PopArbitrary1()
         {
-            HashSet<Vertex> one = [Vertex.Nth(1)];
+            TVertexSet one = TVertexSetMgr.From([Vertex.Nth(1)]);
             var x = one.PopArbitrary().Index();
             Assert.That(x, Is.EqualTo(1));
             Assert.That(one, Is.Empty);
@@ -18,7 +23,7 @@ namespace BronKerbosch.Test
         [Test]
         public void PopArbitrary2()
         {
-            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
+            TVertexSet two = TVertexSetMgr.From([Vertex.Nth(1), Vertex.Nth(2)]);
             var x = two.PopArbitrary().Index();
             var y = two.PopArbitrary().Index();
             Assert.That(Math.Min(x, y), Is.EqualTo(1));
@@ -29,101 +34,101 @@ namespace BronKerbosch.Test
         [Test]
         public void Overlaps()
         {
-            HashSet<Vertex> empty = [];
-            HashSet<Vertex> one = [Vertex.Nth(1)];
-            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
-            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
-            Assert.That(!HashSetMgr.Overlaps(empty, one));
-            Assert.That(!HashSetMgr.Overlaps(one, empty));
-            Assert.That(!HashSetMgr.Overlaps(empty, two));
-            Assert.That(!HashSetMgr.Overlaps(two, empty));
-            Assert.That(!HashSetMgr.Overlaps(empty, six));
-            Assert.That(!HashSetMgr.Overlaps(six, empty));
-            Assert.That(HashSetMgr.Overlaps(one, two));
-            Assert.That(HashSetMgr.Overlaps(two, one));
-            Assert.That(HashSetMgr.Overlaps(one, six));
-            Assert.That(HashSetMgr.Overlaps(six, one));
-            Assert.That(HashSetMgr.Overlaps(two, six));
-            Assert.That(HashSetMgr.Overlaps(six, two));
-            Assert.That(HashSetMgr.Overlaps(one, one));
-            Assert.That(HashSetMgr.Overlaps(two, two));
-            Assert.That(HashSetMgr.Overlaps(six, six));
+            var empty = TVertexSetMgr.Empty();
+            var one = TVertexSetMgr.From([Vertex.Nth(1)]);
+            var two = TVertexSetMgr.From([Vertex.Nth(1), Vertex.Nth(2)]);
+            var six = TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)]);
+            Assert.That(!TVertexSetMgr.Overlaps(empty, one));
+            Assert.That(!TVertexSetMgr.Overlaps(one, empty));
+            Assert.That(!TVertexSetMgr.Overlaps(empty, two));
+            Assert.That(!TVertexSetMgr.Overlaps(two, empty));
+            Assert.That(!TVertexSetMgr.Overlaps(empty, six));
+            Assert.That(!TVertexSetMgr.Overlaps(six, empty));
+            Assert.That(TVertexSetMgr.Overlaps(one, two));
+            Assert.That(TVertexSetMgr.Overlaps(two, one));
+            Assert.That(TVertexSetMgr.Overlaps(one, six));
+            Assert.That(TVertexSetMgr.Overlaps(six, one));
+            Assert.That(TVertexSetMgr.Overlaps(two, six));
+            Assert.That(TVertexSetMgr.Overlaps(six, two));
+            Assert.That(TVertexSetMgr.Overlaps(one, one));
+            Assert.That(TVertexSetMgr.Overlaps(two, two));
+            Assert.That(TVertexSetMgr.Overlaps(six, six));
         }
 
         [Test]
         public void Intersection()
         {
-            HashSet<Vertex> empty = [];
-            HashSet<Vertex> one = [Vertex.Nth(1)];
-            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
-            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
-            Assert.That(HashSetMgr.Intersection(empty, one).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(one, empty).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(empty, two).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(two, empty).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(empty, six).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(six, empty).SetEquals(empty));
-            Assert.That(HashSetMgr.Intersection(one, two).SetEquals(one));
-            Assert.That(HashSetMgr.Intersection(two, one).SetEquals(one));
-            Assert.That(HashSetMgr.Intersection(one, six).SetEquals(one));
-            Assert.That(HashSetMgr.Intersection(six, one).SetEquals(one));
-            Assert.That(HashSetMgr.Intersection(two, six).SetEquals(two));
-            Assert.That(HashSetMgr.Intersection(six, two).SetEquals(two));
-            Assert.That(HashSetMgr.Intersection(one, one).SetEquals(one));
-            Assert.That(HashSetMgr.Intersection(two, two).SetEquals(two));
-            Assert.That(HashSetMgr.Intersection(six, six).SetEquals(six));
+            var empty = TVertexSetMgr.Empty();
+            var one = TVertexSetMgr.From([Vertex.Nth(1)]);
+            var two = TVertexSetMgr.From([Vertex.Nth(1), Vertex.Nth(2)]);
+            var six = TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)]);
+            Assert.That(TVertexSetMgr.Intersection(empty, one).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(one, empty).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(empty, two).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(two, empty).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(empty, six).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(six, empty).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Intersection(one, two).SetEquals(one));
+            Assert.That(TVertexSetMgr.Intersection(two, one).SetEquals(one));
+            Assert.That(TVertexSetMgr.Intersection(one, six).SetEquals(one));
+            Assert.That(TVertexSetMgr.Intersection(six, one).SetEquals(one));
+            Assert.That(TVertexSetMgr.Intersection(two, six).SetEquals(two));
+            Assert.That(TVertexSetMgr.Intersection(six, two).SetEquals(two));
+            Assert.That(TVertexSetMgr.Intersection(one, one).SetEquals(one));
+            Assert.That(TVertexSetMgr.Intersection(two, two).SetEquals(two));
+            Assert.That(TVertexSetMgr.Intersection(six, six).SetEquals(six));
         }
 
         [Test]
         public void IntersectCount()
         {
-            HashSet<Vertex> empty = [];
-            HashSet<Vertex> one = [Vertex.Nth(1)];
-            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
-            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
-            Assert.That(HashSetMgr.IntersectionSize(empty, one).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(one, empty).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(empty, two).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(two, empty).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(empty, six).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(six, empty).Equals(0));
-            Assert.That(HashSetMgr.IntersectionSize(one, two).Equals(1));
-            Assert.That(HashSetMgr.IntersectionSize(two, one).Equals(1));
-            Assert.That(HashSetMgr.IntersectionSize(one, six).Equals(1));
-            Assert.That(HashSetMgr.IntersectionSize(six, one).Equals(1));
-            Assert.That(HashSetMgr.IntersectionSize(two, six).Equals(2));
-            Assert.That(HashSetMgr.IntersectionSize(six, two).Equals(2));
-            Assert.That(HashSetMgr.IntersectionSize(one, one).Equals(1));
-            Assert.That(HashSetMgr.IntersectionSize(two, two).Equals(2));
-            Assert.That(HashSetMgr.IntersectionSize(six, six).Equals(6));
+            var empty = TVertexSetMgr.Empty();
+            var one = TVertexSetMgr.From([Vertex.Nth(1)]);
+            var two = TVertexSetMgr.From([Vertex.Nth(1), Vertex.Nth(2)]);
+            var six = TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)]);
+            Assert.That(TVertexSetMgr.IntersectionSize(empty, one).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(one, empty).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(empty, two).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(two, empty).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(empty, six).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(six, empty).Equals(0));
+            Assert.That(TVertexSetMgr.IntersectionSize(one, two).Equals(1));
+            Assert.That(TVertexSetMgr.IntersectionSize(two, one).Equals(1));
+            Assert.That(TVertexSetMgr.IntersectionSize(one, six).Equals(1));
+            Assert.That(TVertexSetMgr.IntersectionSize(six, one).Equals(1));
+            Assert.That(TVertexSetMgr.IntersectionSize(two, six).Equals(2));
+            Assert.That(TVertexSetMgr.IntersectionSize(six, two).Equals(2));
+            Assert.That(TVertexSetMgr.IntersectionSize(one, one).Equals(1));
+            Assert.That(TVertexSetMgr.IntersectionSize(two, two).Equals(2));
+            Assert.That(TVertexSetMgr.IntersectionSize(six, six).Equals(6));
         }
 
         [Test]
         public void Difference()
         {
-            HashSet<Vertex> empty = [];
-            HashSet<Vertex> one = [Vertex.Nth(1)];
-            HashSet<Vertex> two = [Vertex.Nth(1), Vertex.Nth(2)];
-            HashSet<Vertex> six = [ Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
-                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) ];
-            Assert.That(HashSetMgr.Difference(empty, one).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(empty, two).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(empty, six).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(one, one).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(one, two).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(one, six).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(two, two).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(two, six).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(six, six).SetEquals(empty));
-            Assert.That(HashSetMgr.Difference(one, empty).SetEquals(one));
-            Assert.That(HashSetMgr.Difference(two, empty).SetEquals(two));
-            Assert.That(HashSetMgr.Difference(six, empty).SetEquals(six));
-            Assert.That(HashSetMgr.Difference(two, one).SetEquals(new HashSet<Vertex> { Vertex.Nth(2) }));
-            Assert.That(HashSetMgr.Difference(six, one).SetEquals(new HashSet<Vertex> { Vertex.Nth(0), Vertex.Nth(2), Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) }));
-            Assert.That(HashSetMgr.Difference(six, two).SetEquals(new HashSet<Vertex> { Vertex.Nth(0), Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5) }));
+            var empty = TVertexSetMgr.Empty();
+            var one = TVertexSetMgr.From([Vertex.Nth(1)]);
+            var two = TVertexSetMgr.From([Vertex.Nth(1), Vertex.Nth(2)]);
+            var six = TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(1), Vertex.Nth(2),
+                                          Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)]);
+            Assert.That(TVertexSetMgr.Difference(empty, one).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(empty, two).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(empty, six).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(one, one).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(one, two).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(one, six).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(two, two).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(two, six).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(six, six).SetEquals(empty));
+            Assert.That(TVertexSetMgr.Difference(one, empty).SetEquals(one));
+            Assert.That(TVertexSetMgr.Difference(two, empty).SetEquals(two));
+            Assert.That(TVertexSetMgr.Difference(six, empty).SetEquals(six));
+            Assert.That(TVertexSetMgr.Difference(two, one).SetEquals(TVertexSetMgr.From([Vertex.Nth(2)])));
+            Assert.That(TVertexSetMgr.Difference(six, one).SetEquals(TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(2), Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)])));
+            Assert.That(TVertexSetMgr.Difference(six, two).SetEquals(TVertexSetMgr.From([Vertex.Nth(0), Vertex.Nth(3), Vertex.Nth(4), Vertex.Nth(5)])));
         }
     }
 }

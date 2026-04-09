@@ -2,9 +2,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+#pragma warning disable CA1715 // Identifiers should have correct prefix
+#pragma warning disable CA1000 // Do not declare static members on generic types
+
 namespace BronKerbosch
 {
-    internal static class Degeneracy<VertexSet, VertexSetMgr>
+    public static class Degeneracy<VertexSet, VertexSetMgr>
         where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
     {
