@@ -9,15 +9,18 @@ pub fn test_degeneracy<VertexSet: VertexSetLike>(g: Graph<VertexSet>) {
     let ordering_set = VertexSet::from_iter(ordering.iter().copied());
     assert_eq!(ordering.len(), ordering_set.len(), "duplicates in ordering");
     if let Some(&first) = ordering.first() {
+        assert!(g.degree(first) > 0);
         for &v in &ordering {
             assert!(g.degree(first) <= g.degree(v));
         }
+        assert!(
+            ordering.len() < connected.len(),
+            "at least one vertex must remain with all its neighbours picked"
+        );
+    } else {
+        assert!(connected.is_empty());
     }
 
-    assert!(
-        ordering.len() < connected.len().max(1),
-        "at least one vertex must remain with all its neighbours seen"
-    );
     let mut ordering_and_neighbours = VertexSet::new();
     for v in ordering {
         ordering_and_neighbours.insert(v);
