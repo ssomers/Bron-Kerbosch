@@ -31,7 +31,7 @@ class Language(Enum):
             Language.cpp: "C++",
             Language.csharp: "C# .NET 10",
             Language.fsharp: "F# .NET 10",
-            Language.go: "Go 1.25",
+            Language.go: "Go 1.26",
             Language.java: "Java 24",
             Language.kotlin: "Kotlin 2",
             Language.python___: "Python",

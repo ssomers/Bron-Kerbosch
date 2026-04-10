@@ -8,7 +8,7 @@ func bronKerbosch2bGP(graph *UndirectedGraph, consumer Consumer) {
 		pivot := graph.maxDegreeVertex()
 		// In this initial iteration, we don't need to represent the set of candidates
 		// because all neighbours are candidates until excluded.
-		excluded := make([]bool, order, order)
+		excluded := make([]bool, order)
 		for i := range order {
 			v := Vertex(i)
 			neighbours := graph.neighbours(v)

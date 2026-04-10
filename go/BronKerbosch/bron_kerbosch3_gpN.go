@@ -27,33 +27,36 @@ func bronKerbosch3gp4(graph *UndirectedGraph, consumer Consumer) {
 func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {
 	starts := make(chan DegeneracyVisitItem, numVisitors)
 	visits := make(chan VisitJob, numVisitors)
-	go degeneracyVisitor(graph, &ChannelDegeneracyVisitor{starts})
 	go func() {
-		var wg sync.WaitGroup
-		wg.Add(numVisitors)
-		for range numVisitors {
-			go func() {
-				for job := range visits {
-					visit(
-						graph, consumer,
-						MaxDegreeLocal,
-						job.candidates,
-						job.excluded,
-						[]Vertex{job.start})
-				}
-				wg.Done()
-			}()
-		}
-		for i := range starts {
-			v := i.pick
-			neighbouringExcluded := i.pickedNeighbours
-			neighbouringCandidates := graph.neighbours(v).Difference(neighbouringExcluded)
-			visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
-		}
-		close(visits)
-		wg.Wait()
-		consumer.close()
+		degeneracyVisitor(graph, func(i DegeneracyVisitItem) {
+			starts <- i
+		})
+		close(starts)
 	}()
+	var wg sync.WaitGroup
+	wg.Add(numVisitors)
+	for range numVisitors {
+		go func() {
+			for job := range visits {
+				visit(
+					graph, consumer,
+					MaxDegreeLocal,
+					job.candidates,
+					job.excluded,
+					[]Vertex{job.start})
+			}
+			wg.Done()
+		}()
+	}
+	for i := range starts {
+		v := i.pick
+		neighbouringExcluded := i.pickedNeighbours
+		neighbouringCandidates := graph.neighbours(v).Difference(neighbouringExcluded)
+		visits <- VisitJob{v, neighbouringCandidates, neighbouringExcluded}
+	}
+	close(visits)
+	wg.Wait()
+	consumer.close()
 }
 
 type VisitJob struct {

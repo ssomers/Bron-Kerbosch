@@ -5,36 +5,7 @@ type DegeneracyVisitItem struct {
 	pickedNeighbours VertexSet
 }
 
-type DegeneracyVisitor interface {
-	visit(DegeneracyVisitItem)
-	Close()
-}
-
-type SimpleDegeneracyVisitor struct {
-	vertices []Vertex
-}
-
-type ChannelDegeneracyVisitor struct {
-	vertices chan<- DegeneracyVisitItem
-}
-
-func (g *SimpleDegeneracyVisitor) visit(i DegeneracyVisitItem) {
-	g.vertices = append(g.vertices, i.pick)
-}
-
-func (g *SimpleDegeneracyVisitor) Close() {
-}
-
-func (g *ChannelDegeneracyVisitor) visit(i DegeneracyVisitItem) {
-	g.vertices <- i
-}
-
-func (g *ChannelDegeneracyVisitor) Close() {
-	close(g.vertices)
-}
-
-func degeneracyVisitor(graph *UndirectedGraph, visitor DegeneracyVisitor) {
-	defer func() { visitor.Close() }()
+func degeneracyVisitor(graph *UndirectedGraph, visitor func(DegeneracyVisitItem)) {
 	order := graph.Order()
 	// Possible values of priorityPerVertex:
 	//   0: when yielded
@@ -80,7 +51,7 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor DegeneracyVisitor) {
 					i.pickedNeighbours.Add(v)
 				}
 			}
-			visitor.visit(i)
+			visitor(i)
 			numLeftToPick--
 			if numLeftToPick < 0 {
 				panic("numLeftToPick < 0")
