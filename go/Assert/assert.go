@@ -14,25 +14,29 @@ func IsTrue(e bool) {
 	}
 }
 
-func AreEqual(a interface{}, b interface{}) {
+func AreEqual(a any, b any) {
 	if a != b {
-		panic(fmt.Sprintf("assertion failed: these values are different\n\tA.>%[1]T %[1]v<\n\tB.>%[2]T %[2]v<\n", a, b))
+		panic(fmt.Sprintf(
+			"assertion failed: these values are different\n"+
+				"\tA.>%[1]T %[1]v<\n\tB.>%[2]T %[2]v<\n", a, b))
 	}
 }
 
-func AreNotEqual(a interface{}, b interface{}) {
+func AreNotEqual(a any, b any) {
 	if a == b {
-		panic(fmt.Sprintf("assertion failed: these values are equal\n\tA.>%v<\n\tB.>%v<\n", a, b))
+		panic(fmt.Sprintf(
+			"assertion failed: these values are equal\n"+
+				"\tA.>%v<\n\tB.>%v<\n", a, b))
 	}
 }
 
-func IsNotNull(p interface{}) {
+func IsNotNull(p any) {
 	if p == nil {
 		panic("assertion failed: IsNotNull")
 	}
 }
 
-func IsNull(p interface{}) {
+func IsNull(p any) {
 	if p != nil {
 		panic("assertion failed: IsNull")
 	}

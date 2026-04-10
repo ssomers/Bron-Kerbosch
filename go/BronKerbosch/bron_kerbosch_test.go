@@ -14,7 +14,8 @@ func checkDegeneracyOrder(graph *UndirectedGraph) {
 	unordered := graph.connectedVertices()
 	forgotten := graph.connectedVertices() // mutable clone of unordered
 	if len(ordered) > len(unordered) {
-		panic(fmt.Sprintf("degeneracy ordering returns %d out of %d vertices", len(ordered), len(unordered)))
+		panic(fmt.Sprintf("degeneracy ordering returns %d out of %d vertices",
+			len(ordered), len(unordered)))
 	}
 	if len(ordered) == len(unordered) && len(unordered) > 0 {
 		panic(fmt.Sprintf("degeneracy ordering returns all %d vertices", len(ordered)))
@@ -40,9 +41,8 @@ func checkDegeneracyOrder(graph *UndirectedGraph) {
 func proposedNeighbour(v int, proposed byte) int {
 	if int(proposed) < v {
 		return int(proposed)
-	} else {
-		return int(proposed) + 1
 	}
+	return 1 + int(proposed)
 }
 
 func FuzzDegeneracyOrder(f *testing.F) {
@@ -73,7 +73,7 @@ func FuzzDegeneracyOrder(f *testing.F) {
 	})
 }
 
-func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
+func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques []Clique) {
 	adjacencies := make([]VertexSet, len(adjacencylist))
 	for i, neighbours := range adjacencylist {
 		adjacencies[i] = NewVertexSet(neighbours)
@@ -86,10 +86,10 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 	for funcIndex, bronKerboschFunc := range Funcs {
 		consumer := Consumer{}
 		consumer.MinSize = 2
-		consumer.Cliques = make(chan []Vertex)
+		consumer.Cliques = make(chan Clique)
 		go bronKerboschFunc(&graph, consumer)
 
-		var obtainedCliques [][]Vertex
+		var obtainedCliques []Clique
 		for clique := range consumer.Cliques {
 			obtainedCliques = append(obtainedCliques, clique)
 		}
@@ -100,11 +100,11 @@ func bk(t *testing.T, adjacencylist [][]Vertex, expectedCliques [][]Vertex) {
 }
 
 func TestOrder0(t *testing.T) {
-	bk(t, [][]Vertex{}, [][]Vertex{})
+	bk(t, [][]Vertex{}, []Clique{})
 }
 
 func TestOrder1(t *testing.T) {
-	bk(t, [][]Vertex{{}}, [][]Vertex{})
+	bk(t, [][]Vertex{{}}, []Clique{})
 }
 
 func TestOrder2isolated(t *testing.T) {
@@ -112,7 +112,7 @@ func TestOrder2isolated(t *testing.T) {
 		[][]Vertex{
 			{},
 			{}},
-		[][]Vertex{})
+		[]Clique{})
 }
 
 func TestOrder2connected(t *testing.T) {
@@ -120,7 +120,7 @@ func TestOrder2connected(t *testing.T) {
 		[][]Vertex{
 			{1},
 			{0}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1}})
 }
 
@@ -130,7 +130,7 @@ func TestOrder3Size1left(t *testing.T) {
 			{1},
 			{0},
 			{}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1}})
 }
 
@@ -140,7 +140,7 @@ func TestOrder3Size1long(t *testing.T) {
 			{2},
 			{},
 			{0}},
-		[][]Vertex{
+		[]Clique{
 			{0, 2}})
 }
 
@@ -150,7 +150,7 @@ func TestOrder3Size1right(t *testing.T) {
 			{},
 			{2},
 			{1}},
-		[][]Vertex{
+		[]Clique{
 			{1, 2}})
 }
 
@@ -160,7 +160,7 @@ func TestOrder3Size2(t *testing.T) {
 			{1},
 			{0, 2},
 			{1}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{1, 2}})
 }
@@ -171,7 +171,7 @@ func TestOrder3Size3(t *testing.T) {
 			{1, 2},
 			{0, 2},
 			{0, 1}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1, 2}})
 }
 
@@ -182,7 +182,7 @@ func TestOrder4Size2(t *testing.T) {
 			{0},
 			{3},
 			{2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{2, 3}})
 }
@@ -194,7 +194,7 @@ func TestOrder4Size3bus(t *testing.T) {
 			{0, 2},
 			{1, 3},
 			{2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{1, 2},
 			{2, 3}})
@@ -207,7 +207,7 @@ func TestOrder4Size3star(t *testing.T) {
 			{0},
 			{0},
 			{0}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{0, 2},
 			{0, 3}})
@@ -220,7 +220,7 @@ func TestOrder4Size4p(t *testing.T) {
 			{0, 2, 3},
 			{1, 3},
 			{1, 2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{1, 2, 3}})
 }
@@ -232,7 +232,7 @@ func TestOrder4Size4square(t *testing.T) {
 			{0, 2},
 			{1, 3},
 			{0, 2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1},
 			{0, 3},
 			{1, 2},
@@ -247,7 +247,7 @@ func TestOrder4Size5(t *testing.T) {
 			{0, 2},
 			{0, 1, 3},
 			{0, 2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1, 2},
 			{0, 2, 3}})
 }
@@ -259,7 +259,7 @@ func TestOrder4Size6(t *testing.T) {
 			{0, 2, 3},
 			{0, 1, 3},
 			{0, 1, 2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1, 2, 3}})
 }
 
@@ -271,7 +271,7 @@ func TestOrder5Size9penultimate(t *testing.T) {
 			{0, 1, 3, 4},
 			{0, 1, 2},
 			{0, 1, 2}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1, 2, 3},
 			{0, 1, 2, 4}})
 }
@@ -287,7 +287,7 @@ func TestSample(t *testing.T) {
 			{2, 3, 6, 7},
 			{5, 7},
 			{5, 6}},
-		[][]Vertex{
+		[]Clique{
 			{1, 2, 3, 4},
 			{2, 3, 5},
 			{5, 6, 7},
@@ -307,7 +307,7 @@ func TestBigger(t *testing.T) {
 			{0, 1, 2, 4, 9},
 			{1, 2},
 			{1, 2, 3, 4, 6, 7}},
-		[][]Vertex{
+		[]Clique{
 			{0, 1, 3},
 			{0, 1, 6},
 			{0, 1, 7},

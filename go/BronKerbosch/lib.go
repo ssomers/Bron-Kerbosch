@@ -2,7 +2,7 @@ package BronKerbosch
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 )
 
 const NumFuncs = 9
@@ -25,49 +25,40 @@ var FuncNames = [NumFuncs]string{
 	"Ver3½-GP", "Ver3½=GP0", "Ver3½=GP1", "Ver3½=GP2", "Ver3½=GP3", "Ver3½=GP4",
 }
 
-func Append(head []Vertex, tail Vertex) []Vertex {
-	r := make([]Vertex, len(head)+1)
+// Create a copy and append, resistant to later changes in `head`.
+func Append(head Clique, tail Vertex) Clique {
+	r := make(Clique, len(head)+1)
 	r[copy(r, head)] = tail
 	return r
 }
 
-func SortCliques(cliques [][]Vertex) {
+func SortCliques(cliques []Clique) {
 	for _, clique := range cliques {
-		sort.Slice(clique, func(l int, r int) bool {
-			return clique[l] < clique[r]
+		slices.SortFunc(clique, func(l, r Vertex) int {
+			return int(l - r)
 		})
 	}
-	sort.Slice(cliques, func(l int, r int) bool {
-		for i := range min(len(cliques[l]), len(cliques[r])) {
-			if d := cliques[l][i] - cliques[r][i]; d != 0 {
-				return d < 0
+	slices.SortFunc(cliques, func(l, r Clique) int {
+		for i := range min(len(l), len(r)) {
+			if d := int(l[i] - r[i]); d != 0 {
+				return d
 			}
 		}
-		if len(cliques) < 10 {
+		if len(cliques) < 5 {
 			panic(fmt.Sprintf("got overlapping cliques %d <> %d: %v", l, r, cliques))
-		} else {
-			panic(fmt.Sprintf("got overlapping cliques: #%d %d <> #%d %d",
-				l+1, cliques[l],
-				r+1, cliques[r]))
 		}
+		panic(fmt.Sprintf("got %d overlapping cliques, e.g. %d <> %d", len(cliques), l, r))
 	})
 }
 
-func CompareCliques(leftCliques [][]Vertex, rightCliques [][]Vertex, errors func(string)) {
+func CompareCliques(leftCliques, rightCliques []Clique, errors func(string)) {
 	if len(leftCliques) != len(rightCliques) {
 		errors(fmt.Sprintf("%d <> %d cliques", len(leftCliques), len(rightCliques)))
 	} else {
-		for j, left := range leftCliques {
-			right := rightCliques[j]
-			if len(left) != len(right) {
-				errors(fmt.Sprintf("clique #%d: %d <> %d vertices", j+1, len(left), len(right)))
-			} else {
-				for i, l := range left {
-					r := right[i]
-					if l != r {
-						errors(fmt.Sprintf("clique #%d vertex #%d/%d: %d <> %d", j+1, i+1, len(left), l, r))
-					}
-				}
+		for j, l := range leftCliques {
+			r := rightCliques[j]
+			if !slices.Equal(l, r) {
+				errors(fmt.Sprintf("clique %v <> %v", l, r))
 			}
 		}
 	}

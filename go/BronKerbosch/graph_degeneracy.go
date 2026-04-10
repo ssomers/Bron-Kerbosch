@@ -60,7 +60,7 @@ func degeneracyVisitor(graph *UndirectedGraph, visitor func(DegeneracyVisitItem)
 	}
 }
 
-type priorityQueue[T interface{}] struct {
+type priorityQueue[T any] struct {
 	stackPerPriority [][]T
 }
 

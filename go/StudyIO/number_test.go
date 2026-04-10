@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+//revive:disable confusing-naming
+
 func Test1(t *testing.T) {
 	i, err := ParsePositiveInt("1")
 	Assert.AreEqual(i, 1)

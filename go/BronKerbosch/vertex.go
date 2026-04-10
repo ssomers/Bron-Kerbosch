@@ -1,6 +1,7 @@
 package BronKerbosch
 
 type Vertex int
+type Clique []Vertex
 type VertexSet map[Vertex]struct{}
 
 func NewVertexSet(vertices []Vertex) VertexSet {

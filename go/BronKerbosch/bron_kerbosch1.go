@@ -20,8 +20,11 @@ func bronKerbosch1visit(graph *UndirectedGraph, consumer Consumer,
 				neighbouringCandidates,
 				neighbouringExcluded,
 				append(cliqueInProgress, v))
-		} else if len(cliqueInProgress)+1 >= consumer.MinSize && excluded.IsDisjoint(neighbours) {
-			consumer.Add(Append(cliqueInProgress, v))
+		} else {
+			viable := len(cliqueInProgress)+1 >= consumer.MinSize
+			if viable && excluded.IsDisjoint(neighbours) {
+				consumer.Add(Append(cliqueInProgress, v))
+			}
 		}
 		excluded.Add(v)
 	}

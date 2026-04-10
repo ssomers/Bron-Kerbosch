@@ -1,0 +1,49 @@
+ignoreGeneratedHeader = false
+severity = "warning"
+confidence = 0.8
+errorCode = 0
+warningCode = 0
+
+enableAllRules = true
+
+[rule.add-constant]
+Disabled = true
+
+[rule.cognitive-complexity]
+Disabled = true
+
+[rule.confusing-results]
+Disabled = true
+
+[rule.cyclomatic]
+Disabled = true
+
+[rule.exported]
+Disabled = true
+
+[rule.flag-parameter]
+Disabled = true
+
+[rule.increment-decrement]
+Disabled = true
+
+[rule.line-length-limit]
+Arguments = [96]
+
+[rule.package-naming]
+Disabled = true
+
+[rule.package-comments]
+Disabled = true
+
+[rule.redefines-builtin-id]
+Disabled = true
+
+[rule.unhandled-error]
+Arguments = ["fmt.Printf", "fmt.Println"]
+
+[rule.unused-parameter]
+Exclude = ["TEST"]
+
+[rule.var-naming]
+Disabled = true

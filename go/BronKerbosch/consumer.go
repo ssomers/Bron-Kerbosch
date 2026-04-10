@@ -2,10 +2,10 @@ package BronKerbosch
 
 type Consumer struct {
 	MinSize int
-	Cliques chan []Vertex
+	Cliques chan Clique
 }
 
-func (c *Consumer) Add(clique []Vertex) {
+func (c *Consumer) Add(clique Clique) {
 	c.Cliques <- clique
 }
 

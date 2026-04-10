@@ -1,17 +1,17 @@
 package StudyIO
 
 import (
-	"BronKerboschStudy/BronKerbosch"
+	core "BronKerboschStudy/BronKerbosch"
 	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func ReadRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.UndirectedGraph, int, error) {
+func ReadKnownRandomGraph(orderstr string, size int) (core.UndirectedGraph, int, error) {
 	order, err := ParsePositiveInt(orderstr)
 	if err != nil {
-		return BronKerbosch.UndirectedGraph{}, 0, err
+		return core.UndirectedGraph{}, 0, err
 	}
 	fullyMeshedSize := order * (order - 1) / 2
 	if size > fullyMeshedSize {
@@ -23,17 +23,18 @@ func ReadRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.Undirect
 	statsName := "random_stats.txt"
 	edgesPath := filepath.Join("..", "data", edgesName)
 	statsPath := filepath.Join("..", "data", statsName)
-	adjacencies, err := readEdges(edgesPath, orderstr, order, size)
+	adjacencies, err := readEdges(edgesPath, order, size)
 	if err != nil {
-		err = fmt.Errorf("%s\nPerhaps generate it with `python -m ..\\python3\\random_graph %s <max_size?>`", err, orderstr)
-		return BronKerbosch.UndirectedGraph{}, 0, err
+		err = fmt.Errorf("%s\nPerhaps generate it with "+
+			"`python -m ..\\python3\\random_graph %s <max_size>`?", err, orderstr)
+		return core.UndirectedGraph{}, 0, err
 	}
 	cliqueCount, err := readStats(statsPath, orderstr, size)
 	if err != nil {
-		return BronKerbosch.UndirectedGraph{}, 0, err
+		return core.UndirectedGraph{}, 0, err
 	}
 
-	g := BronKerbosch.NewUndirectedGraph(adjacencies)
+	g := core.NewUndirectedGraph(adjacencies)
 	if g.Order() != order {
 		panic("botched order")
 	}
@@ -43,15 +44,15 @@ func ReadRandomUndirectedGraph(orderstr string, size int) (BronKerbosch.Undirect
 	return g, cliqueCount, nil
 }
 
-func readEdges(path string, orderstr string, order int, size int) ([]BronKerbosch.VertexSet, error) {
+func readEdges(path string, order int, size int) ([]core.VertexSet, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-	adjacencies := make([]BronKerbosch.VertexSet, order)
+	adjacencies := make([]core.VertexSet, order)
 	for v := range order {
-		adjacencies[v] = make(BronKerbosch.VertexSet)
+		adjacencies[v] = make(core.VertexSet)
 	}
 	scanner := bufio.NewScanner(file)
 	linenum := 0
@@ -68,8 +69,8 @@ func readEdges(path string, orderstr string, order int, size int) ([]BronKerbosc
 			err = fmt.Errorf("%s in file %s at line %d", err, path, linenum)
 			return nil, err
 		}
-		adjacencies[v].Add(BronKerbosch.Vertex(w))
-		adjacencies[w].Add(BronKerbosch.Vertex(v))
+		adjacencies[v].Add(core.Vertex(w))
+		adjacencies[w].Add(core.Vertex(v))
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err

@@ -61,5 +61,4 @@ func (s *SampleStatistics) Deviation() float64 {
 		return m
 	}
 	return r
-
 }
