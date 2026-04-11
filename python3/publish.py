@@ -22,7 +22,6 @@ class Language(Enum):
     kotlin = auto()
     python___ = auto()
     python310 = auto()
-    python311 = auto()
     python314 = auto()
     rust = auto()
 
@@ -36,7 +35,6 @@ class Language(Enum):
             Language.kotlin: "Kotlin 2",
             Language.python___: "Python",
             Language.python310: "Python 3.10",
-            Language.python311: "Python 3.11",
             Language.python314: "Python 3.14",
             Language.rust: "Rust 1.94",
         }[self]
@@ -51,7 +49,6 @@ class Language(Enum):
             Language.kotlin: "Kotlin",
             Language.python___: "Python",
             Language.python310: "Python",
-            Language.python311: "Python",
             Language.python314: "Python",
             Language.rust: "Rust",
         }[self]
@@ -636,7 +633,7 @@ def publish_reports() -> None:
             basename=f"report_9_python_{orderstr}",
             orderstr=orderstr,
             language=Language.python___,
-            languages=[Language.python310, Language.python311, Language.python314],
+            languages=[Language.python310, Language.python314],
             ver="Ver3½-GP",
         )
 
