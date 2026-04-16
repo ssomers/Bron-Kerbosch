@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DebugOnlyTracker.fs" />
     <Compile Include="FortifiedCounter.fs" />
     <Compile Include="PriorityQueue.fs" />
     <Compile Include="StdSet.fs" />
