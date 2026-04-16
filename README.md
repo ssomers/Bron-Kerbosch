@@ -131,15 +131,17 @@ Let's implement **Ver3-GP** exploiting parallellism (using all CPU cores). How d
 
 ```mermaid
 flowchart TD
-  a[degeneracy order]
-  b[first iteration]
+  subgraph s[ ]
+    a[degeneracy order]
+    b[first iteration]
+    a --> b
+  end
   c[nested iteration]
   d[nested iteration]
   e[nested iteration]
   f[nested iteration]
   g[nested iteration]
   h[nested iteration]
-  a --> b
   b --> c
   b --> d
   c --> e
