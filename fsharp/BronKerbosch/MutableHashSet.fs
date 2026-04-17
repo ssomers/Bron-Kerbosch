@@ -63,19 +63,10 @@ type MutableHashSet<'T> =
     static member inline new_mutable(capacity: int) =
         { set = new Generic.HashSet<'T>(capacity) }
 
-    static member inline insert_mutably(s: byref<MutableHashSet<'T>>, v: 'T) : Unit = s.set.Add(v) |> ignore
+    static member inline insert_mutably(s: byref<MutableHashSet<'T>>, v: 'T) : Unit =
+        let added = s.set.Add(v)
+        Debug.Assert added
 
     static member inline remove_mutably(s: byref<MutableHashSet<'T>>, v: 'T) : Unit =
         let removed = s.set.Remove(v)
         Debug.Assert removed
-
-    static member inline pop_arbitrary_mutably(s: byref<MutableHashSet<'T>>) : 'T option =
-        let mutable en = s.set.GetEnumerator()
-
-        if en.MoveNext() then
-            let result = en.Current
-            let removed = s.set.Remove result
-            Debug.Assert removed
-            Some(result)
-        else
-            None

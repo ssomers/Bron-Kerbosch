@@ -4,7 +4,7 @@ open System.Collections
 open System.Diagnostics
 
 type StdSet<'T when 'T: comparison> =
-    { set: Set<'T> }
+    { mutable set: Set<'T> }
 
     interface Generic.IEnumerable<'T> with
         member this.GetEnumerator() : Generic.IEnumerator<'T> = (this.set :> seq<'T>).GetEnumerator()
@@ -16,7 +16,6 @@ type StdSet<'T when 'T: comparison> =
     member inline this.Any: bool = not this.set.IsEmpty
     member inline this.Contains(value: 'T) : bool = this.set.Contains(value)
 
-    static member empty: StdSet<'T> = { set = Set.empty }
     static member inline singleton(value: 'T) : StdSet<'T> = { set = Set.singleton value }
 
     static member inline partition (p: 'T -> bool) (s: StdSet<'T>) : (StdSet<'T> * StdSet<'T>) =
@@ -53,17 +52,12 @@ type StdSet<'T when 'T: comparison> =
         else
             t.set |> Set.forall (s.set.Contains >> not)
 
-    static member inline new_mutable(capacity: int) = StdSet.empty
+    static member inline new_mutable(capacity: int) = { set = Set.empty }
 
-    static member inline insert_mutably(s: byref<StdSet<'T>>, v: 'T) : Unit = s <- { set = s.set.Add(v) }
+    static member inline insert_mutably(s: byref<StdSet<'T>>, v: 'T) : Unit =
+        Debug.Assert(s.set.Contains v |> not)
+        s.set <- s.set.Add(v)
 
     static member inline remove_mutably(s: byref<StdSet<'T>>, v: 'T) : Unit =
-        Debug.Assert(s.Contains v)
-        s <- { set = s.set.Remove(v) }
-
-    static member inline pop_arbitrary_mutably(s: byref<StdSet<'T>>) : 'T option =
-        match Seq.tryHead s.set with
-        | None -> None
-        | Some v ->
-            StdSet.remove_mutably (&s, v)
-            Some v
+        Debug.Assert(s.set.Contains v)
+        s.set <- s.set.Remove(v)

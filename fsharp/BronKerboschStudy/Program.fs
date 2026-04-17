@@ -18,7 +18,7 @@ let sizes1M =
 
 let algos100 = fun _ -> Portfolio.all_algos
 
-let algos10k = fun _ -> Portfolio.all_algos |> List.skip 1
+let algos10k = fun _ -> Portfolio.all_algos
 
 let algos1M = fun _ -> [ BronKerbosch2GP.algorithm; BronKerbosch3GP.algorithm ]
 

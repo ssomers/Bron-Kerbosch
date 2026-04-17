@@ -7,9 +7,7 @@ open System.Diagnostics
 
 module DegeneracyBased =
     let explore (pivot_choice: PivotChoice) (graph: UndirectedGraph) (consumer: CliqueConsumer) : Unit =
-        // In this initial iteration, we don't need to represent the set of candidates
-        // because all neighbours are candidates until excluded.
-        let degeneracy = Degeneracy.New graph
+        let degeneracy = Degeneracy.Of graph
 
         for v in degeneracy.iter () do
             let mutable (neighbouringCandidates, neighbouringExcluded) =

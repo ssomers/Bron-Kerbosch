@@ -3,11 +3,10 @@ module BronKerbosch.Test.VertexSet
 open NUnit.Framework
 open BronKerbosch
 
-let nix = VertexSet.empty
-let one = VertexSet.singleton (Vertex 1)
-let two: VertexSet = [ 1; 2 ] |> Seq.map Verticise.it |> VertexSet.ofSeq
-
-let six: VertexSet = [ 0; 1; 2; 3; 4; 5 ] |> Seq.map Verticise.it |> VertexSet.ofSeq
+let nix = [] |> VertexSet.ofSeq
+let one = seq { 1..1 } |> Seq.map Verticise.it |> VertexSet.ofSeq
+let two = seq { 1..2 } |> Seq.map Verticise.it |> VertexSet.ofSeq
+let six = seq { 0..5 } |> Seq.map Verticise.it |> VertexSet.ofSeq
 
 [<Test>]
 let is_disjoint () =
@@ -88,28 +87,3 @@ let difference () =
         VertexSet.difference six two,
         Is.EqualTo<VertexSet>([ 0; 3; 4; 5 ] |> Seq.map Verticise.it |> VertexSet.ofSeq)
     )
-
-[<Test>]
-let pop_arbitrary_1 () =
-    let mutable set = VertexSet.new_mutable (1)
-    VertexSet.insert_mutably (&set, (Vertex 1))
-    let x = VertexSet.pop_arbitrary_mutably (&set)
-    Assert.That(x.Value, Is.EqualTo(Vertex 1))
-    Assert.That(set, Is.Empty)
-    let x = VertexSet.pop_arbitrary_mutably &set
-    Assert.That(x, Is.Null)
-    Assert.That(set, Is.Empty)
-
-[<Test>]
-let pop_arbitrary_2 () =
-    let mutable set = VertexSet.new_mutable (2)
-    VertexSet.insert_mutably (&set, (Vertex 1))
-    VertexSet.insert_mutably (&set, (Vertex 2))
-    let x = VertexSet.pop_arbitrary_mutably &set
-    let y = VertexSet.pop_arbitrary_mutably &set
-    Assert.That(min x.Value y.Value, Is.EqualTo(Vertex 1))
-    Assert.That(max x.Value y.Value, Is.EqualTo(Vertex 2))
-    Assert.That(set, Is.Empty)
-    let x = VertexSet.pop_arbitrary_mutably &set
-    Assert.That(x, Is.Null)
-    Assert.That(set, Is.Empty)

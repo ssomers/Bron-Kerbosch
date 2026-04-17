@@ -23,7 +23,7 @@ type public Degeneracy =
       // individually popping many vertices that have been queued multiple times.
       mutable leftToPick: FortifiedCounter<Vertex> }
 
-    static member New(graph: UndirectedGraph) : Degeneracy =
+    static member Of(graph: UndirectedGraph) : Degeneracy =
         let mutable priorityPerVertex: Priority array = Array.create graph.Order 0
         let mutable queue = PriorityQueue.init graph.MaxDegree
         let mutable leftToPick = FortifiedCounter.init ()

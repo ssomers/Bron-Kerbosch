@@ -3,8 +3,7 @@ module BronKerbosch.Portfolio
 open System.Diagnostics
 
 let all_algos =
-    [ BronKerbosch1.algorithm
-      BronKerbosch2GP.algorithm
+    [ BronKerbosch2GP.algorithm
       BronKerbosch3GP.algorithm
       BronKerbosch3GPX.algorithm ]
 
