@@ -1,12 +1,12 @@
+use super::degeneracy::Degeneracy;
 use super::graph::Graph;
-use super::graph_degeneracy::DegeneracyOrder;
 use super::vertexsetlike::VertexSetLike;
 
 pub fn test_degeneracy<VertexSet: VertexSetLike>(g: Graph<VertexSet>) {
     let connected: VertexSet = g.connected_vertices().collect();
 
     let mut ordering = vec![];
-    DegeneracyOrder::on(&g).apply(|v, _| ordering.push(v));
+    Degeneracy::on(&g).apply(|v, _| ordering.push(v));
     let ordering_set = VertexSet::from_iter(ordering.iter().copied());
     assert_eq!(ordering.len(), ordering_set.len(), "duplicates in ordering");
     if let Some(&first) = ordering.first() {

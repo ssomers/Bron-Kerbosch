@@ -1,5 +1,5 @@
 use crate::Vertex;
-use crate::core::graph_degeneracy_testing::test_degeneracy;
+use crate::core::degeneracy_testing::test_degeneracy;
 use crate::graph_proptest_strategy::any_undirected_graph;
 
 use proptest::prelude::*;

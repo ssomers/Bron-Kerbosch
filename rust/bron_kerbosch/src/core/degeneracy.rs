@@ -9,7 +9,7 @@ use std::ops::Not;
 // Enumerate connected vertices in degeneracy order, skipping vertices
 // whose neighbours have all been enumerated already.
 // Along with the vertex picked, includes the subset of neighbours already picked.
-pub struct DegeneracyOrder<'a, VertexSet>
+pub struct Degeneracy<'a, VertexSet>
 where
     VertexSet: VertexSetLike,
 {
@@ -23,7 +23,7 @@ where
     queue: PriorityQueue<Vertex>,
 }
 
-impl<'a, VertexSet> DegeneracyOrder<'a, VertexSet>
+impl<'a, VertexSet> Degeneracy<'a, VertexSet>
 where
     VertexSet: VertexSetLike,
 {
@@ -90,7 +90,7 @@ where
     }
 }
 
-pub struct DegeneracyAttorney<'b, 'a, VertexSet: VertexSetLike>(&'b DegeneracyOrder<'a, VertexSet>);
+pub struct DegeneracyAttorney<'b, 'a, VertexSet: VertexSetLike>(&'b Degeneracy<'a, VertexSet>);
 
 impl<'b, 'a, VertexSet: VertexSetLike> DegeneracyAttorney<'b, 'a, VertexSet> {
     pub fn is_candidate(&'b self, v: Vertex) -> bool {

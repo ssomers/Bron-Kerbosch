@@ -3,19 +3,19 @@
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique_consumer::CliqueConsumer;
+use super::degeneracy::Degeneracy;
 use super::graph::Graph;
-use super::graph_degeneracy::DegeneracyOrder;
 use super::pile::Pile;
 use super::vertexsetlike::VertexSetLike;
 
-pub fn explore_with_pivot<VertexSet>(
+pub fn explore_with_degeneracy<VertexSet>(
     graph: &Graph<VertexSet>,
     mut consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
 ) where
     VertexSet: VertexSetLike,
 {
-    DegeneracyOrder::on(graph).apply(|v, attorney| {
+    Degeneracy::on(graph).apply(|v, attorney| {
         let (neighbouring_candidates, neighbouring_excluded) = attorney.partition_neighbours(v);
         visit(
             graph,

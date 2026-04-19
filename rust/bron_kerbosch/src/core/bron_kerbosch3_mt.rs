@@ -2,7 +2,7 @@
 //! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
-use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_pivot_multithreaded};
+use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_degeneracy_mt};
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
@@ -12,7 +12,7 @@ where
     VertexSet: VertexSetLike,
 {
     const NUM_VISITING_THREADS: usize = 5;
-    explore_with_pivot_multithreaded(
+    explore_with_degeneracy_mt(
         graph,
         consumer,
         PivotChoice::MaxDegreeLocal,

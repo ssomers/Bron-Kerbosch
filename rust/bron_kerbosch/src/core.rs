@@ -14,16 +14,16 @@ pub mod bron_kerbosch_pivot;
 pub mod clique;
 pub mod clique_consumer;
 pub mod clique_ordering;
+pub mod degeneracy;
 mod fortified_counter;
 pub mod graph;
-pub mod graph_degeneracy;
 mod pile;
 mod priority_queue;
 pub mod vertex;
 pub mod vertexsetlike;
 
 #[cfg(test)]
-pub mod graph_degeneracy_testing;
+pub mod degeneracy_testing;
 #[cfg(test)]
 pub mod lab_graphs;
 #[cfg(test)]

@@ -1,5 +1,5 @@
 use crate::VertexSetLike;
-use crate::core::graph_degeneracy_testing::test_degeneracy;
+use crate::core::degeneracy_testing::test_degeneracy;
 use crate::core::lab_graphs::all_lab_graphs;
 
 use std::collections::BTreeSet;

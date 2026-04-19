@@ -3,14 +3,14 @@
 pub use super::bron_kerbosch_pivot::PivotChoice;
 use super::bron_kerbosch_pivot::visit;
 use super::clique_consumer::CliqueConsumer;
+use super::degeneracy::Degeneracy;
 use super::graph::Graph;
-use super::graph_degeneracy::DegeneracyOrder;
 use super::pile::Pile;
 use super::vertex::Vertex;
 use super::vertexsetlike::VertexSetLike;
 use crossbeam_channel::{Receiver, Sender};
 
-pub fn explore_with_pivot_multithreaded<VertexSet>(
+pub fn explore_with_degeneracy_mt<VertexSet>(
     graph: &Graph<VertexSet>,
     consumer: CliqueConsumer,
     pivot_selection: PivotChoice,
@@ -40,7 +40,7 @@ fn dispatch<VertexSet>(graph: &Graph<VertexSet>, visit_tx: Sender<VisitJob<Verte
 where
     VertexSet: VertexSetLike,
 {
-    DegeneracyOrder::on(graph).apply(|v, attorney| {
+    Degeneracy::on(graph).apply(|v, attorney| {
         let (neighbouring_candidates, neighbouring_excluded) = attorney.partition_neighbours(v);
         let visit = VisitJob {
             start: v,

@@ -11,6 +11,6 @@ internal static class BronKerbosch3GPX<VertexSet, VertexSetMgr>
 #   pragma warning disable IDE0022 // Use expression body for method
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
     {
-        BronKerboschDegeneracy<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocalX);
+        DegeneracyBased<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocalX);
     }
 }

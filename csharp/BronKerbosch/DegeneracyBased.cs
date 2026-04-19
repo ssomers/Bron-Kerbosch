@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-internal static class BronKerboschDegeneracy<VertexSet, VertexSetMgr>
+internal static class DegeneracyBased<VertexSet, VertexSetMgr>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
