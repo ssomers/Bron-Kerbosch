@@ -4,7 +4,7 @@ use rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;
 
-pub trait VertexSetLike: Debug + Eq + FromIterator<Vertex> + Send + Sync {
+pub trait VertexSetLike: Debug + Eq + FromIterator<Vertex> + Send {
     fn new() -> Self;
     fn with_capacity(capacity: usize) -> Self;
     fn is_empty(&self) -> bool;

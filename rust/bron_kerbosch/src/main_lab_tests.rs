@@ -1,24 +1,31 @@
+use crate::clique_consumers::CliqueCollector;
 use crate::core::lab_graphs::{LabGraph, all_lab_graphs};
-use crate::{FUNC_NAMES, VertexSetLike, explore, new_clique_channel, order_cliques};
+use crate::{FUNC_INDEX_MT, FUNC_NAMES, VertexSetLike, explore, order_cliques};
 use std::collections::BTreeSet;
 use std::collections::HashSet;
-use std::thread;
 
-fn run<VertexSet: VertexSetLike>(td: LabGraph<VertexSet>) {
+fn run_serial<VertexSet: VertexSetLike + Sync>(td: &LabGraph<VertexSet>) {
     for (func_index, func_name) in FUNC_NAMES.iter().enumerate() {
-        let (consumer, collector) = new_clique_channel(0, 2);
-        let cliques = thread::scope(|s| {
-            s.spawn(|| explore(func_index, &td.graph, consumer));
-            collector.collect_cliques()
-        });
+        let cliques = explore(func_index, &td.graph, CliqueCollector::new(2), 1);
         let cliques = order_cliques(cliques.into_iter());
         assert_eq!(cliques, td.cliques, "for {} on {}", func_name, td.name);
     }
 }
 
-fn run_all<VertexSet: VertexSetLike>() {
+fn run_parallel<VertexSet: VertexSetLike + Sync>(td: &LabGraph<VertexSet>) {
+    let cliques = explore(FUNC_INDEX_MT, &td.graph, CliqueCollector::new(2), 16);
+    let cliques = order_cliques(cliques.into_iter());
+    assert_eq!(
+        cliques, td.cliques,
+        "for {} on {}",
+        FUNC_NAMES[FUNC_INDEX_MT], td.name
+    );
+}
+
+fn run_all<VertexSet: VertexSetLike + Sync>() {
     for td in all_lab_graphs() {
-        run::<VertexSet>(td);
+        run_serial::<VertexSet>(&td);
+        run_parallel::<VertexSet>(&td);
     }
 }
 

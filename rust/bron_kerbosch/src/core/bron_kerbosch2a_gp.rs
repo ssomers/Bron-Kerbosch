@@ -7,9 +7,13 @@ use super::pile::Pile;
 use super::vertexsetlike::VertexSetLike;
 use std::ops::Not;
 
-pub fn explore<VertexSet>(graph: &Graph<VertexSet>, mut consumer: CliqueConsumer)
+pub fn explore<VertexSet, Consumer>(
+    graph: &Graph<VertexSet>,
+    mut consumer: Consumer,
+) -> Consumer::Harvest
 where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     let candidates: VertexSet = graph.connected_vertices().collect();
     if candidates.is_empty().not() {
@@ -22,4 +26,5 @@ where
             &Pile::EMPTY,
         );
     }
+    consumer.harvest()
 }

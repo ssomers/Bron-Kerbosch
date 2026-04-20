@@ -3,7 +3,6 @@
 // implemented by multiple threads.
 
 using BronKerbosch;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,29 +12,56 @@ internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
-    private static readonly ExecutionDataflowBlockOptions spawnerOptions = new() { MaxDegreeOfParallelism = 5 };
+    private sealed record VisitJob(Vertex StartVtx, VertexSet NeighbouringCandidates,
+                                                    VertexSet NeighbouringExcluded)
+    { }
 
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice pivotChoice)
+    // Step 1: order vertices & prepare visit.
+    private static IEnumerable<VisitJob> Step1(UndirectedGraph<VertexSet, VertexSetMgr> graph)
     {
-        // Step 2: explore visited vertices.
-        ActionBlock<Action> spawner = new(action => action(), spawnerOptions);
-
-        // Step 1: order & visit vertices.
         var degeneracy = new Degeneracy<VertexSet, VertexSetMgr>(graph);
         foreach (Vertex v in degeneracy.Iter())
         {
             var neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var (neighbouringCandidates, neighbouringExcluded) = VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
+            var (neighbouringCandidates, neighbouringExcluded) =
+                VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
             Debug.Assert(neighbouringCandidates.Any());
-            var posted = spawner.Post(() =>
-                Pivot<VertexSet, VertexSetMgr>.Visit(graph, consumer, pivotChoice,
-                                                        neighbouringCandidates, neighbouringExcluded,
-                                                        [v])
-                );
-            Trace.Assert(posted);
+            yield return new VisitJob(v, neighbouringCandidates, neighbouringExcluded);
         }
-        spawner.Complete();
-        spawner.Completion.Wait();
+    }
+
+    // Step 2: visit vertices.
+    private static ICliqueConsumer Step2(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                                         ICliqueConsumer threadConsumer,
+                                         PivotChoice pivotChoice,
+                                         VisitJob job)
+    {
+        Pivot<VertexSet, VertexSetMgr>.Visit(graph, threadConsumer, pivotChoice,
+                                             job.NeighbouringCandidates,
+                                             job.NeighbouringExcluded,
+                                             [job.StartVtx]);
+        return threadConsumer;
+    }
+
+
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                               ICliqueConsumer mainConsumer,
+                               PivotChoice pivotChoice,
+                               int numVisitingThreads)
+    {
+        var starter = new TransformManyBlock<UndirectedGraph<VertexSet, VertexSetMgr>, VisitJob>(Step1);
+        var spawner = new TransformBlock<VisitJob, ICliqueConsumer>(
+            job => Step2(graph, mainConsumer.StartNew(), pivotChoice, job),
+            new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = numVisitingThreads });
+        var gatherer = new ActionBlock<ICliqueConsumer>(mainConsumer.Absorb);
+        var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
+        _ = starter.LinkTo(spawner, linkOptions);
+        _ = spawner.LinkTo(gatherer, linkOptions);
+
+        var posted = starter.Post(graph);
+        Trace.Assert(posted);
+        starter.Complete();
+        gatherer.Completion.Wait();
     }
 }

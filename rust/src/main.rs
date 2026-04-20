@@ -1,9 +1,8 @@
 mod known_random_graph;
 mod utils;
 
-use bron_kerbosch::{
-    FUNC_NAMES, OrderedCliques, Vertex, VertexSetLike, explore, new_clique_channel, order_cliques,
-};
+use bron_kerbosch::clique_consumers::{CliqueCollector, CliqueCounter};
+use bron_kerbosch::{FUNC_NAMES, OrderedCliques, Vertex, VertexSetLike, explore, order_cliques};
 use known_random_graph::{Size, read_undirected};
 use stats::SampleStatistics;
 
@@ -44,10 +43,11 @@ enum Run {
 
 const NUM_FUNCS: usize = FUNC_NAMES.len();
 const CLIQUE_MIN_SIZE: usize = 3;
+const NUM_VISITING_THREADS: usize = 5;
 
 type Seconds = f32;
 
-fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
+fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
     run: Run,
     set_type: SetType,
     orderstr: &str,
@@ -85,15 +85,10 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
 
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
-            let (consumer, collector) = new_clique_channel(64, CLIQUE_MIN_SIZE);
             if sample == 0 {
+                let consumer = CliqueCollector::new(CLIQUE_MIN_SIZE);
                 let cliques = utils::do_timely(
-                    || {
-                        thread::scope(|s| {
-                            s.spawn(|| explore(func_index, &graph, consumer));
-                            collector.collect_cliques()
-                        })
-                    },
+                    || explore(func_index, &graph, consumer, NUM_VISITING_THREADS),
                     format!("{} is still busy collecting", FUNC_NAMES[func_index]),
                 );
                 let current = order_cliques(cliques.into_iter());
@@ -127,10 +122,9 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone>(
                     first = Some(current);
                 }
             } else {
+                let consumer = CliqueCounter::new(CLIQUE_MIN_SIZE);
                 let instant = Instant::now();
-                let receiver = thread::spawn(move || collector.count_cliques());
-                explore(func_index, &graph, consumer);
-                let clique_count = receiver.join().unwrap();
+                let clique_count = explore(func_index, &graph, consumer, NUM_VISITING_THREADS);
                 let secs: Seconds = instant.elapsed().as_secs_f32();
                 if let Some(known_clique_count) = known_clique_count
                     && clique_count != known_clique_count

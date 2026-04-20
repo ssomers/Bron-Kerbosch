@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 #else
-#pragma warning disable CA1822 // Mark members as static
+#   pragma warning disable CA1822 // Mark members as static
 #endif
 
 namespace BronKerbosch
@@ -17,14 +17,14 @@ namespace BronKerbosch
 #if DEBUG
         public int Count => itsLeftToPick.Count;
 #else
-        public int Count => throw new NotImplementedException("Debug build only, please");
+        public int Count => throw new System.NotImplementedException("Debug build only, please");
 #endif
 
 
 #if DEBUG
         public bool Contains(T element) => itsLeftToPick.Contains(element);
 #else
-        public bool Contains(T element) => throw new NotImplementedException("Debug build only, please");
+        public bool Contains(T element) => throw new System.NotImplementedException("Debug build only, please");
 #endif
 
         public void Add(T element)

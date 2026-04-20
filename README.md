@@ -162,8 +162,8 @@ We have:
 So we bundle the first two tasks and run 1 + N tasks in parallel.
 
 Ways to implement parallelism varies per language:
-* **Ver3½=GPs:** (C#, Java) using relatively simple composition (async, stream, future)
-* **Ver3½=GPc:** (Rust, C++, Java) using something complex resembling channels
+* **Ver3½=GPc:** (Rust, Java, Kotlin) using one thread per task as described above, somewhat complicated
+* **Ver3½=GPs:** (C#, Java, Kotlin) using relatively simple composition backed by synchronized containers
 * **Ver3½=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
 * **Ver3½=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
 * **Ver3½=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
@@ -362,7 +362,7 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_java_1M.svg)
 
 Perform:
-  - open folder java with IntelliJ IDEA 2025 (Community Edition)
+  - open folder java with IntelliJ IDEA 2026 (Community Edition)
   - (if edited) set run configuration to "Test"
   - (if edited) Run > Run 'Test'
   - set run configuration to "Main"
@@ -376,7 +376,7 @@ To obtain these results:
   - [sparse graph of order 1M](doc/details_kotlin_1M.svg)
 
 Perform:
-  - open folder kotlin with IntelliJ IDEA 2025 (Community Edition)
+  - open folder kotlin with IntelliJ IDEA 2026 (Community Edition)
   - (if edited) set run configuration to "Test"
   - (if edited) Run > Run 'Test'
   - set run configuration to "Main"

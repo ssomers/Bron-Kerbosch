@@ -1,4 +1,4 @@
-pub mod clique_harvester;
+pub mod clique_consumers;
 mod core;
 mod vertexset_btree;
 mod vertexset_fnv;
@@ -17,9 +17,8 @@ mod main_lab_tests;
 #[cfg(test)]
 mod vertexset_tests;
 
-pub use clique_harvester::{CliqueHarvester, new_clique_channel};
 pub use core::clique::Clique;
-use core::clique_consumer::CliqueConsumer;
+pub use core::clique_consumer::CliqueConsumer;
 pub use core::clique_ordering::{OrderedCliques, order_cliques};
 pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};
@@ -39,10 +38,19 @@ pub const FUNC_NAMES: &[&str] = &[
     "Ver3½=GPc",
 ];
 
-pub fn explore<VertexSet>(func_index: usize, graph: &Graph<VertexSet>, consumer: CliqueConsumer)
+pub const FUNC_INDEX_MT: usize = 9;
+
+pub fn explore<VertexSet, Consumer>(
+    func_index: usize,
+    graph: &Graph<VertexSet>,
+    consumer: Consumer,
+    num_visiting_threads: usize,
+) -> Consumer::Harvest
 where
-    VertexSet: VertexSetLike,
+    VertexSet: VertexSetLike + Sync,
+    Consumer: CliqueConsumer + Clone + Send,
 {
+    assert!(num_visiting_threads >= 1);
     match func_index {
         0 => core::bron_kerbosch1a::explore(graph, consumer),
         1 => core::bron_kerbosch1b::explore(graph, consumer),
@@ -53,7 +61,7 @@ where
         6 => core::bron_kerbosch2b_rp::explore(graph, consumer),
         7 => core::bron_kerbosch3_gp::explore(graph, consumer),
         8 => core::bron_kerbosch3_gpx::explore(graph, consumer),
-        9 => core::bron_kerbosch3_mt::explore(graph, consumer),
+        FUNC_INDEX_MT => core::bron_kerbosch3_mt::explore(graph, consumer, num_visiting_threads),
         _ => panic!(),
     }
 }

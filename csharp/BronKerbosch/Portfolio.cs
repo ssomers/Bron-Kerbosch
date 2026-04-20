@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace BronKerbosch
 {
@@ -8,16 +9,19 @@ namespace BronKerbosch
     {
         public static readonly string[] FuncNames =
         [
-            "Ver1½",
-            "Ver2-GP", "Ver2½-GP", "Ver2½-GPX",
-            "Ver3½-GP", "Ver3½-GPX",
-            "Ver3½=GPc"
+            "Ver1Â½",
+            "Ver2-GP", "Ver2Â½-GP", "Ver2Â½-GPX",
+            "Ver3Â½-GP", "Ver3Â½-GPX",
+            "Ver3Â½=GPc"
         ];
 
-        public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, ICliqueConsumer consumer)
+        public const int FuncIndexMT = 6;
+
+        public static void Explore<TVertexSet, TVertexSetMgr>(int funcIndex, UndirectedGraph<TVertexSet, TVertexSetMgr> graph, ICliqueConsumer consumer, int numVisitingThreads)
             where TVertexSet : ISet<Vertex>
             where TVertexSetMgr : IVertexSetMgr<TVertexSet>
         {
+            Trace.Assert(numVisitingThreads > 0);
             switch (funcIndex)
             {
                 case 0: BronKerbosch1<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
@@ -26,7 +30,7 @@ namespace BronKerbosch
                 case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
                 case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
                 case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
+                case FuncIndexMT: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, numVisitingThreads); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

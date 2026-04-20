@@ -10,8 +10,8 @@ internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
 {
 #   pragma warning disable IDE0022 // Use expression body for method
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, int numVisitingThreads)
     {
-        DegeneracyBasedMT<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocal);
+        DegeneracyBasedMT<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocal, numVisitingThreads);
     }
 }

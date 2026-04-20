@@ -8,12 +8,14 @@ use super::graph::Graph;
 use super::pile::Pile;
 use super::vertexsetlike::VertexSetLike;
 
-pub fn explore_with_degeneracy<VertexSet>(
+pub fn explore_with_degeneracy<VertexSet, Consumer>(
     graph: &Graph<VertexSet>,
-    mut consumer: CliqueConsumer,
+    mut consumer: Consumer,
     pivot_selection: PivotChoice,
-) where
+) -> Consumer::Harvest
+where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     Degeneracy::on(graph).apply(|v, attorney| {
         let (neighbouring_candidates, neighbouring_excluded) = attorney.partition_neighbours(v);
@@ -25,5 +27,6 @@ pub fn explore_with_degeneracy<VertexSet>(
             neighbouring_excluded,
             &Pile::from(v),
         );
-    })
+    });
+    consumer.harvest()
 }

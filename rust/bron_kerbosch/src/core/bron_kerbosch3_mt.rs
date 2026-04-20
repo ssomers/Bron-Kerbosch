@@ -7,15 +7,19 @@ use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 
-pub fn explore<VertexSet>(graph: &Graph<VertexSet>, consumer: CliqueConsumer)
+pub fn explore<VertexSet, Consumer>(
+    graph: &Graph<VertexSet>,
+    consumer: Consumer,
+    num_visiting_threads: usize,
+) -> Consumer::Harvest
 where
-    VertexSet: VertexSetLike,
+    VertexSet: VertexSetLike + Sync,
+    Consumer: CliqueConsumer + Clone + Send,
 {
-    const NUM_VISITING_THREADS: usize = 5;
     explore_with_degeneracy_mt(
         graph,
         consumer,
         PivotChoice::MaxDegreeLocal,
-        NUM_VISITING_THREADS,
+        num_visiting_threads,
     )
 }

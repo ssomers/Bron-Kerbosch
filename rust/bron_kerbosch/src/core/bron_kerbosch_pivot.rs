@@ -17,12 +17,14 @@ pub enum PivotChoice {
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore_with_pivot<VertexSet>(
+pub fn explore_with_pivot<VertexSet, Consumer>(
     graph: &Graph<VertexSet>,
-    mut consumer: CliqueConsumer,
+    mut consumer: Consumer,
     pivot_selection: PivotChoice,
-) where
+) -> Consumer::Harvest
+where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     if let Some(pivot) = graph.max_degree_vertices().next() {
         let mut excluded = VertexMap::new(false, graph.order());
@@ -49,17 +51,19 @@ pub fn explore_with_pivot<VertexSet>(
             }
         }
     }
+    consumer.harvest()
 }
 
-pub fn visit<VertexSet>(
+pub fn visit<VertexSet, Consumer>(
     graph: &Graph<VertexSet>,
-    consumer: &mut CliqueConsumer,
+    consumer: &mut Consumer,
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.is_connected(v)));
     debug_assert!(excluded.all(|&v| graph.is_connected(v)));

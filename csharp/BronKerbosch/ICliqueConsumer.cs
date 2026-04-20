@@ -6,5 +6,7 @@ namespace BronKerbosch
     {
         bool IsAcceptedSize(int size);
         void Accept(ImmutableArray<Vertex> clique);
+        ICliqueConsumer StartNew();
+        void Absorb(ICliqueConsumer other);
     }
 }

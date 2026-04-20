@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -7,7 +6,7 @@ namespace BronKerbosch
 {
     public sealed class CliqueCollector(int min_size) : ICliqueConsumer
     {
-        private ConcurrentBag<ImmutableArray<Vertex>> Cliques { get; } = [];
+        public List<ImmutableArray<Vertex>> Cliques { get; } = [];
 
         public bool IsAcceptedSize(int size) => size >= min_size;
         public void Accept(ImmutableArray<Vertex> clique)
@@ -15,7 +14,7 @@ namespace BronKerbosch
             Debug.Assert(clique.Length >= min_size);
             Cliques.Add(clique);
         }
-
-        public List<ImmutableArray<Vertex>> List() => [.. Cliques];
+        public ICliqueConsumer StartNew() => new CliqueCollector(min_size);
+        public void Absorb(ICliqueConsumer other) => Cliques.AddRange(((CliqueCollector)other).Cliques);
     }
 }

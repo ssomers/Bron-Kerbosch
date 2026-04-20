@@ -6,9 +6,13 @@ use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 use std::ops::Not;
 
-pub fn explore<VertexSet>(graph: &Graph<VertexSet>, mut consumer: CliqueConsumer)
+pub fn explore<VertexSet, Consumer>(
+    graph: &Graph<VertexSet>,
+    mut consumer: Consumer,
+) -> Consumer::Harvest
 where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     let candidates: VertexSet = graph.connected_vertices().collect();
     if candidates.is_empty().not() {
@@ -20,16 +24,18 @@ where
             Clique::EMPTY,
         );
     }
+    consumer.harvest()
 }
 
-fn visit<VertexSet>(
+fn visit<VertexSet, Consumer>(
     graph: &Graph<VertexSet>,
-    consumer: &mut CliqueConsumer,
+    consumer: &mut Consumer,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: Clique,
 ) where
     VertexSet: VertexSetLike,
+    Consumer: CliqueConsumer,
 {
     debug_assert!(candidates.all(|&v| graph.is_connected(v)));
     debug_assert!(excluded.all(|&v| graph.is_connected(v)));
