@@ -7,4 +7,4 @@ let all_algos =
       BronKerbosch3GP.algorithm
       BronKerbosch3GPX.algorithm ]
 
-Trace.Assert(all_algos |> List.distinctBy (fun algo -> algo.name) |> List.length = all_algos.Length)
+Trace.Assert(all_algos |> List.distinctBy (fun algo -> algo.name) = all_algos)

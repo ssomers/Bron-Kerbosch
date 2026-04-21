@@ -7,7 +7,12 @@ open System.Diagnostics
 open System.IO
 open System.Threading
 
-module BronKerboschStudy =
+type Run =
+    | WarmUp
+    | Genuine
+    | OneOff
+
+module Benchmark =
     let forCSV = Globalization.CultureInfo.InvariantCulture
     let MIN_CLIQUE_SIZE = 3
 
@@ -16,11 +21,6 @@ module BronKerboschStudy =
           mutable seconds: SampleStatistics<float> option }
 
         static member inline is_for (algo: Algorithm) (ta: TimedAlgorithm) = ta.algo = algo
-
-    type Run =
-        | WarmUp
-        | Genuine
-        | OneOff
 
 
     let BronKerboschTimed
@@ -111,7 +111,7 @@ module BronKerboschStudy =
 
         timed_algos
 
-    let Bk (run: Run, orderstr: string, sizes: int seq, includedAlgos: int -> Algorithm list, timed_samples: int) =
+    let Do (run: Run, orderstr: string, sizes: int seq, includedAlgos: int -> Algorithm list, timed_samples: int) =
         let tmpfname = "tmp.csv"
         let fso = FileStreamOptions()
         fso.Mode <- FileMode.Create

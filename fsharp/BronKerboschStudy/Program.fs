@@ -22,12 +22,12 @@ let algos10k = fun _ -> Portfolio.all_algos
 
 let algos1M = fun _ -> [ BronKerbosch2GP.algorithm; BronKerbosch3GP.algorithm ]
 
-//BronKerboschStudy.Bk(BronKerboschStudy.OneOff, "1M", [ 500_000 ], (fun _ -> []), 0)
+//Benchmark.Do(Run.OneOff, "1M", [ 500_000 ], (fun _ -> []), 0)
 
-BronKerboschStudy.Bk(BronKerboschStudy.WarmUp, "100", [ 2000 ], algos100, 3) // warm up
+Benchmark.Do(Run.WarmUp, "100", [ 2000 ], algos100, 3) // warm up
 System.Threading.Thread.Sleep(321)
 
 Debug.Fail("Run Release build for meaningful measurements")
-BronKerboschStudy.Bk(BronKerboschStudy.Genuine, "100", sizes100, algos100, 5)
-BronKerboschStudy.Bk(BronKerboschStudy.Genuine, "10k", sizes10k, algos10k, 3)
-BronKerboschStudy.Bk(BronKerboschStudy.Genuine, "1M", sizes1M, algos1M, 3)
+Benchmark.Do(Run.Genuine, "100", sizes100, algos100, 5)
+Benchmark.Do(Run.Genuine, "10k", sizes10k, algos10k, 3)
+Benchmark.Do(Run.Genuine, "1M", sizes1M, algos1M, 3)
