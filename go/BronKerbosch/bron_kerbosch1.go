@@ -5,7 +5,6 @@ func bronKerbosch1(graph *UndirectedGraph, consumer Consumer) {
 	candidates := graph.connectedVertices()
 	excluded := make(VertexSet, len(candidates))
 	bronKerbosch1visit(graph, consumer, candidates, excluded, nil)
-	consumer.close()
 }
 
 func bronKerbosch1visit(graph *UndirectedGraph, consumer Consumer,

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync/atomic"
 	"time"
 )
 
@@ -30,9 +31,12 @@ func timed(orderstr string,
 			begin := time.Now()
 			consumer := core.Consumer{}
 			consumer.MinSize = 3
-			consumer.Cliques = make(chan core.Clique, 64)
-			go bronKerboschFunc(&graph, consumer)
 			if sample == 0 {
+				cliques := make(chan core.Clique, 64)
+				consumer.Accept = func(clique core.Clique) { cliques <- clique }
+
+				go func() { bronKerboschFunc(&graph, consumer); close(cliques) }()
+
 				warning_interval := 3 * time.Second
 				var ticker *time.Timer
 				warnings := 0
@@ -44,7 +48,7 @@ func timed(orderstr string,
 						core.FuncNames[funcIndex])
 				})
 				var collectedCliques []core.Clique
-				for clique := range consumer.Cliques {
+				for clique := range cliques {
 					collectedCliques = append(collectedCliques, clique)
 				}
 				ticker.Stop()
@@ -61,11 +65,11 @@ func timed(orderstr string,
 					})
 				}
 			} else {
-				var countedCliques int
-				for range consumer.Cliques {
-					countedCliques += 1
-				}
+				var cliques atomic.Uint32
+				consumer.Accept = func(core.Clique) { cliques.Add(1) }
+				bronKerboschFunc(&graph, consumer)
 				secs := time.Since(begin).Seconds()
+				countedCliques := int(cliques.Load())
 				if countedCliques != cliqueCount {
 					fmt.Printf("  %s: expected %d cliques, obtained %d\n",
 						core.FuncNames[funcIndex], cliqueCount, countedCliques)

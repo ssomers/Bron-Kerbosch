@@ -15,5 +15,4 @@ func bronKerbosch3gp(graph *UndirectedGraph, consumer Consumer) {
 			neighbouringExcluded,
 			[]Vertex{v})
 	})
-	consumer.close()
 }

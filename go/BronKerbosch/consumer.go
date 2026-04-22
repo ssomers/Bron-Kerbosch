@@ -2,13 +2,9 @@ package BronKerbosch
 
 type Consumer struct {
 	MinSize int
-	Cliques chan Clique
+	Accept  func(Clique)
 }
 
 func (c *Consumer) Add(clique Clique) {
-	c.Cliques <- clique
-}
-
-func (c *Consumer) close() {
-	close(c.Cliques)
+	c.Accept(clique)
 }

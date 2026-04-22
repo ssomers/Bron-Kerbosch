@@ -27,5 +27,4 @@ func bronKerbosch2bGP(graph *UndirectedGraph, consumer Consumer) {
 			}
 		}
 	}
-	consumer.close()
 }

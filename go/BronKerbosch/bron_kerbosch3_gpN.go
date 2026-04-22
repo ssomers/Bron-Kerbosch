@@ -51,7 +51,6 @@ func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int)
 		}()
 	}
 	wg.Wait()
-	consumer.close()
 }
 
 type VisitJob struct {
