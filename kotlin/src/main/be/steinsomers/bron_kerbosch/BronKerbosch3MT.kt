@@ -10,8 +10,8 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
 
     @Throws(InterruptedException::class)
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val worker = Worker(graph, cliqueConsumer)
-        worker.work()
+        val worker = Worker(graph)
+        worker.work(cliqueConsumer)
     }
 
     private sealed class VisitJob {
@@ -26,7 +26,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
     }
 
-    private class Worker(private val graph: UndirectedGraph, private val cliqueConsumer: CliqueConsumer) {
+    private class Worker(private val graph: UndirectedGraph) {
         private val degeneracy = GraphDegeneracy(graph)
         private val visitQueue: BlockingQueue<VisitJob> = ArrayBlockingQueue(64)
 
@@ -46,7 +46,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
             }
         }
 
-        private inner class Visitor : Runnable {
+        private inner class Visitor(val cliqueConsumer: CliqueConsumer) : Runnable {
             override fun run() {
                 while (true) {
                     when (val job = visitQueue.take()) {
@@ -58,7 +58,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                                 pivotChoice = PivotChoice.MaxDegreeLocal,
                                 candidates = job.candidates,
                                 excluded = job.excluded,
-                                cliqueInProgress = CliqueInProgress.singleton(job.startVertex)
+                                clique = Clique.singleton(job.startVertex)
                             )
                     }
                 }
@@ -66,9 +66,9 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
 
         @Throws(InterruptedException::class)
-        fun work() {
+        fun work(cliqueConsumer: CliqueConsumer) {
             val visitorProducer = Thread(VisitProducer())
-            val visitors = Array(NUM_VISITING_THREADS) { Thread(Visitor()) }
+            val visitors = Array(NUM_VISITING_THREADS) { Thread(Visitor(cliqueConsumer)) }
             visitorProducer.start()
             visitors.forEach { v -> v.start() }
             visitors.forEach { v -> v.join() }

@@ -1,13 +1,8 @@
 package be.steinsomers.bron_kerbosch.study
 
-import be.steinsomers.bron_kerbosch.CliqueConsumer
-import be.steinsomers.bron_kerbosch.CliqueInProgress
-import be.steinsomers.bron_kerbosch.SortedClique
-import be.steinsomers.bron_kerbosch.graph
+import be.steinsomers.bron_kerbosch.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.util.Collections
-import kotlin.collections.ArrayDeque
 
 internal class BronKerboschTest {
     @Test
@@ -217,15 +212,22 @@ internal class BronKerboschTest {
             val graph = graph(adjacencies)
             for (funcIndex in Main.FUNCS.indices) {
                 val funcName = Main.FUNC_NAMES[funcIndex]
-                val rawCliques = Collections.synchronizedCollection(ArrayDeque<CliqueInProgress>())
-                val cliqueConsumer = CliqueConsumer(2, rawCliques::add)
-                Main.FUNCS[funcIndex].explore(graph, cliqueConsumer)
-                val cliques = Main.orderCliques(rawCliques)
-                Assertions.assertArrayEquals(
-                    expectedCliques.toTypedArray(),
-                    cliques.toTypedArray(),
-                    "Unexpected result for $funcName"
-                )
+                repeat(
+                    when (Main.FUNCS[funcIndex]) {
+                        is BronKerbosch3MT -> 100
+                        is BronKerbosch3ST -> 100
+                        else -> 1
+                    }
+                ) {
+                    val cliqueCollector = CliqueCollector()
+                    Main.FUNCS[funcIndex].explore(graph, CliqueConsumer(minSize = 2, cliqueCollector))
+                    val obtainedCliques = cliqueCollector.toSortedList()
+                    Assertions.assertArrayEquals(
+                        expectedCliques.toTypedArray(),
+                        obtainedCliques.toTypedArray(),
+                        "Unexpected result for $funcName"
+                    )
+                }
             }
         }
     }

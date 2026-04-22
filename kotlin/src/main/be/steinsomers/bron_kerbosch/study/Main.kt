@@ -7,12 +7,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import java.util.stream.IntStream
-import kotlin.collections.ArrayDeque
-import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.math.ceil
-import kotlin.math.min
-import kotlin.math.sqrt
 
 internal object Main {
     val FUNC_NAMES: Array<String> = arrayOf(
@@ -38,18 +33,6 @@ internal object Main {
         BronKerbosch3ST(),
     )
 
-    fun orderCliques(cliques: Collection<CliqueInProgress>): List<SortedClique> = cliques
-        .map { clique -> SortedClique.freeze(clique) }
-        .sortedWith { clique1: SortedClique, clique2: SortedClique ->
-            when (val diff = (0..<min(clique1.size(), clique2.size())).asSequence()
-                .map { i -> clique1.vertices[i] - clique2.vertices[i] }
-                .firstOrNull { diff -> diff != 0 }) {
-                null -> throw IllegalArgumentException("got overlapping or equal cliques $clique1 <> $clique2")
-                else -> diff
-            }
-        }
-        .toList()
-
     @OptIn(ExperimentalAtomicApi::class)
     @Throws(InterruptedException::class)
     private fun bkTimed(
@@ -62,26 +45,24 @@ internal object Main {
         for (sample in 0..timedSamples) {
             for (funcIndex in funcIndices) {
                 if (sample == 0) {
-                    val initialCap = ceil(sqrt(testData.graph.size.toDouble())).toInt()
-                    val cliques = Collections.synchronizedCollection(ArrayDeque<CliqueInProgress>(initialCap))
-                    val cliqueConsumer = CliqueConsumer(3, cliques::add)
-                    FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
-                    val ordered = orderCliques(cliques)
+                    val cliqueCollector = CliqueCollector()
+                    FUNCS[funcIndex].explore(testData.graph, CliqueConsumer(minSize = 3, cliqueCollector))
+                    val ordered = cliqueCollector.toSortedList()
                     if (firstOrdered.isEmpty) {
                         require(
-                            cliques.size == testData.cliqueCount
-                        ) { "Got ${cliques.size} cliques, expected ${testData.cliqueCount}" }
+                            ordered.size == testData.cliqueCount
+                        ) { "Got ${ordered.size} cliques, expected ${testData.cliqueCount}" }
                         firstOrdered = Optional.of(ordered)
                     } else {
                         require(firstOrdered.get() == ordered) { "Inconsistent results" }
                     }
                 } else {
                     val start = System.nanoTime()
-                    val cliqueCounter = AtomicInt(0)
-                    val cliqueConsumer = CliqueConsumer(3) { _ -> cliqueCounter.addAndFetch(1) }
+                    val cliqueCounter = CliqueCounter()
+                    val cliqueConsumer = CliqueConsumer(3, cliqueCounter)
                     FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
                     val elapsed = System.nanoTime() - start
-                    val cliqueCount = cliqueCounter.load()
+                    val cliqueCount = cliqueCounter.harvest()
                     require(
                         cliqueCount == testData.cliqueCount
                     ) { "Got $cliqueCount cliques after sample $sample, expected ${testData.cliqueCount}" }
@@ -116,8 +97,8 @@ internal object Main {
                     val elapsed = System.nanoTime() - start
                     if (genuine) {
                         System.out.printf(
-                            "%4s nodes, %7d edges, creation: %6.3f%n",
-                            orderStr, size, elapsed / 1e9
+                            "%4s nodes, %7d edges, %5d cliques, creation: %6.3f%n",
+                            orderStr, size, testData.cliqueCount, elapsed / 1e9
                         )
                     }
                     val times = bkTimed(testData, samples, funcIndices)

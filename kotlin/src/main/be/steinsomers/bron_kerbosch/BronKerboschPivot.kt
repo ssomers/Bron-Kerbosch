@@ -17,7 +17,7 @@ internal object BronKerboschPivot {
                             graph = graph, cliqueConsumer = cliqueConsumer,
                             pivotChoice = pivotChoice,
                             candidates = neighbouringCandidates, excluded = neighbouringExcluded,
-                            cliqueInProgress = CliqueInProgress.singleton(v)
+                            clique = Clique.singleton(v)
                         )
                     }
                     excluded[v.index] = true
@@ -32,7 +32,7 @@ internal object BronKerboschPivot {
         pivotChoice: PivotChoice,
         candidates: MutableSet<Vertex>,
         excluded: MutableSet<Vertex>,
-        cliqueInProgress: CliqueInProgress
+        clique: Clique
     ) {
         Debug.assert { candidates.all(graph::hasDegree) }
         Debug.assert { excluded.all(graph::hasDegree) }
@@ -42,25 +42,25 @@ internal object BronKerboschPivot {
             // Same logic as below, stripped down for this common case
             val v = candidates.iterator().next()
             val neighbours = graph.neighbours(v)
-            if (cliqueInProgress.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
-                cliqueConsumer.accept(cliqueInProgress.plus(v))
+            if (clique.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
+                cliqueConsumer.accept(clique.plus(v))
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
             val remainingCandidates = ArrayList<Vertex>(candidates)
             val pivot = remainingCandidates[0]
             visitAroundPivot(
-                graph, cliqueConsumer, candidates, excluded, cliqueInProgress, PivotChoice.Arbitrary,
+                graph, cliqueConsumer, candidates, excluded, clique, PivotChoice.Arbitrary,
                 pivot, remainingCandidates
             )
         } else {
-            visitMaxDegree(graph, cliqueConsumer, candidates, excluded, cliqueInProgress, pivotChoice)
+            visitMaxDegree(graph, cliqueConsumer, candidates, excluded, clique, pivotChoice)
         }
     }
 
     private fun visitMaxDegree(
         graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
         candidates: MutableSet<Vertex>, excluded: MutableSet<Vertex>,
-        cliqueInProgress: CliqueInProgress, pivotChoice: PivotChoice
+        clique: Clique, pivotChoice: PivotChoice
     ) {
         require(pivotChoice == PivotChoice.MaxDegreeLocal || pivotChoice == PivotChoice.MaxDegreeLocalX)
         // Quickly handle locally unconnected candidates while finding pivot
@@ -72,8 +72,8 @@ internal object BronKerboschPivot {
             val localDegree = Util.overlap(neighbours, candidates)
             if (localDegree == 0) {
                 // Same logic as below, stripped down
-                if (cliqueInProgress.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
-                    cliqueConsumer.accept(cliqueInProgress.plus(v))
+                if (clique.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(neighbours, excluded)) {
+                    cliqueConsumer.accept(clique.plus(v))
                 }
             } else {
                 if (seenLocalDegree < localDegree) {
@@ -94,14 +94,14 @@ internal object BronKerboschPivot {
             }
         }
         visitAroundPivot(
-            graph, cliqueConsumer, candidates, excluded, cliqueInProgress, pivotChoice, pivot, remainingCandidates
+            graph, cliqueConsumer, candidates, excluded, clique, pivotChoice, pivot, remainingCandidates
         )
     }
 
     private fun visitAroundPivot(
         graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
         candidates: MutableSet<Vertex>, excluded: MutableSet<Vertex>,
-        cliqueInProgress: CliqueInProgress, furtherPivotChoice: PivotChoice,
+        clique: Clique, furtherPivotChoice: PivotChoice,
         pivot: Vertex, remainingCandidates: Iterable<Vertex>
     ) {
         for (v in remainingCandidates) {
@@ -115,14 +115,14 @@ internal object BronKerboschPivot {
                         graph = graph, cliqueConsumer = cliqueConsumer,
                         pivotChoice = furtherPivotChoice,
                         candidates = neighbouringCandidates, excluded = neighbouringExcluded,
-                        cliqueInProgress = cliqueInProgress.plus(v)
+                        clique = clique.plus(v)
                     )
-                } else if (cliqueInProgress.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
+                } else if (clique.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
                         neighbours,
                         excluded
                     )
                 ) {
-                    cliqueConsumer.accept(cliqueInProgress.plus(v))
+                    cliqueConsumer.accept(clique.plus(v))
                 }
                 excluded.add(v)
             }

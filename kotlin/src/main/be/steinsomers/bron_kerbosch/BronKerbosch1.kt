@@ -8,7 +8,7 @@ class BronKerbosch1 : BronKerboschAlgorithm {
         visit(
             graph = graph, cliqueConsumer = cliqueConsumer,
             candidates = candidates, excluded = excluded,
-            cliqueInProgress = CliqueInProgress.empty()
+            clique = Clique.empty()
         )
     }
 
@@ -16,7 +16,7 @@ class BronKerbosch1 : BronKerboschAlgorithm {
         private fun visit(
             graph: UndirectedGraph, cliqueConsumer: CliqueConsumer,
             candidates: MutableSet<Vertex>, excluded: MutableSet<Vertex>,
-            cliqueInProgress: CliqueInProgress
+            clique: Clique
         ) {
             Debug.assert { candidates.all(graph::hasDegree) }
             Debug.assert { excluded.all(graph::hasDegree) }
@@ -30,14 +30,14 @@ class BronKerbosch1 : BronKerboschAlgorithm {
                     visit(
                         graph = graph, cliqueConsumer = cliqueConsumer,
                         candidates = neighbouringCandidates, excluded = neighbouringExcluded,
-                        cliqueInProgress = cliqueInProgress.plus(v)
+                        clique = clique.plus(v)
                     )
-                } else if (cliqueInProgress.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
+                } else if (clique.size() + 1 >= cliqueConsumer.minSize && Util.areDisjoint(
                         excluded,
                         neighbours
                     )
                 ) {
-                    cliqueConsumer.accept(cliqueInProgress.plus(v))
+                    cliqueConsumer.accept(clique.plus(v))
                 }
                 excluded.add(v)
             }

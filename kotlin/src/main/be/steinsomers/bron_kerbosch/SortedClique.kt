@@ -3,7 +3,7 @@ package be.steinsomers.bron_kerbosch
 // Could be value class, but Kotlin does not define structural equality on it and does not allow defining it.
 data class SortedClique(val vertices: IntArray) {
     companion object Factory {
-        fun freeze(clique: CliqueInProgress): SortedClique = SortedClique(clique.vertices.sorted().toIntArray())
+        fun freeze(clique: Clique): SortedClique = SortedClique(clique.vertices.sorted().toIntArray())
     }
 
     fun size(): Int = vertices.size
