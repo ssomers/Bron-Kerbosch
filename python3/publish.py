@@ -199,7 +199,7 @@ def read_csv(
     case_selector: Callable[[Case], bool] = lambda _: True,
 ) -> Tuple[List[int], Mapping[Case, List[Measurement]]]:
     path = csv_path(language, orderstr)
-    print("Reading", path)
+    # print("Reading", path)
     sizes = []
     m_per_size_by_case: Dict[Case, List[Measurement]] = {}
     with open(path, newline="", encoding="utf-8") as csvfile:
@@ -250,7 +250,7 @@ def read_csv(
 
     for case in list(m_per_size_by_case.keys()):
         if all(m_per_size_by_case[case][s].isnan() for s in range(len(sizes))):
-            print(f"\tbacking out on {case}")
+            # print(f"\tbacking out on {case}")
             del m_per_size_by_case[case]
     assert len(sizes)
     assert len(m_per_size_by_case)
@@ -332,6 +332,7 @@ def publish_measurements(
     language: Optional[Language] = None,
     color_by_case: Callable[[Case], Optional[str]] = lambda _: None,
     linestyle_by_case: Callable[[Case], Optional[str]] = lambda _: None,
+    linestyle_inset: Optional[Dict[str, Optional[str]]] = None,
 ) -> None:
     assert sizes
     assert measurement_per_size_by_case, basename
@@ -360,6 +361,12 @@ def publish_measurements(
                 color=color_by_case(case),
                 linestyle=linestyle_by_case(case),
             )
+        if linestyle_inset:
+            twin = axes.twinx()
+            twin.get_yaxis().set_visible(False)
+            for label, linestyle in linestyle_inset.items():
+                twin.plot([], linestyle=linestyle, label=label, color="black")
+            twin.legend(loc="lower right")
         axes.legend(loc="upper left")
         fig.tight_layout()
         print("Writing", path)
@@ -374,6 +381,7 @@ def publish_report(
     versions: Sequence[str],
     linestyle_per_version: Sequence[Optional[str]],
     label_by_case: Callable[[Case], str],
+    linestyle_inset: Optional[Dict[str, Optional[str]]] = None,
     single_version_suffix: Optional[str] = None,
 ) -> None:
     sizes: List[int] = []
@@ -407,6 +415,7 @@ def publish_report(
         label_by_case=label_by_case,
         color_by_case=color_by_language,
         linestyle_by_case=lambda case: linestyle_per_version[versions.index(case.Ver)],
+        linestyle_inset=linestyle_inset,
     )
 
 
@@ -589,7 +598,7 @@ def publish_reports() -> None:
             single_version_suffix="Ver3½-GP",
         )
         publish_report(
-            basename=f"report_7_channels_{orderstr}",
+            basename=f"report_7_parallel_{orderstr}",
             orderstr=orderstr,
             langlibs=[
                 LangLib(Language.java),
@@ -598,10 +607,11 @@ def publish_reports() -> None:
                 LangLib(Language.csharp, "HashSet"),
                 LangLib(Language.rust, "Hash"),
             ],
-            versions=["Ver3½=GPc", "Ver3½=GP2"],
-            linestyle_per_version=[None, None],
+            versions=["Ver3½=GPs", "Ver3½=GPc", "Ver3½=GP2"],
+            linestyle_per_version=["dotted", None, None],
+            linestyle_inset={"channels": None, "simple": "dashed"},
             label_by_case=lambda case: case.LangLib.Language.short_name(),
-            single_version_suffix="parallel Ver3½=GP using channels",
+            single_version_suffix="parallel Ver3½=GP",
         )
     # 8. Libraries
     for orderstr in ["100", "10k", "1M"]:
