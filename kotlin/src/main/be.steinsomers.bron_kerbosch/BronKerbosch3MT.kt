@@ -58,7 +58,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                                 pivotChoice = PivotChoice.MaxDegreeLocal,
                                 candidates = job.candidates,
                                 excluded = job.excluded,
-                                clique = Clique.singleton(job.startVertex)
+                                cliqueInProgress = Clique.singleton(job.startVertex)
                             )
                     }
                 }

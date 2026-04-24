@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class DegeneracyIteratorTest {
-    private static SortedSet<Integer> sortedDegeneracyFilterIncludingNeighbours(final UndirectedGraph g) {
+    private static SortedSet<Integer> sortedDegeneracyIncludingNeighbours(final UndirectedGraph g) {
         final SortedSet<Integer> vertices = new TreeSet<>();
         new DegeneracyIterator(g).forEachRemaining((final int v) -> {
             vertices.add(v);
@@ -57,42 +57,39 @@ final class DegeneracyIteratorTest {
     }
 
     /**
-     * @param adjacencyLikes List of suggested neighbours, indexed by vertex. The list is oblivious
-     *                       to symmetry. If a vertex appears as its own neighbour, that entry will
-     *                       be ignored. The list may be empty to begin with. The latter two
-     *                       properties make it likely a vertex is unconnected, but the need for
-     *                       symmetry makes it likely that another vertex connects to it anyway.
+     * @param adjacencyLikes List of suggested neighbours, where numbers ≥ index are offset by 1.
+     *                       Omits the last vertex because we make the actual adjacencies symmetric.
      */
     private static List<Set<Integer>> makeSymmetricAdjacencies(final List<Set<Integer>> adjacencyLikes) {
-        final var order = adjacencyLikes.size();
+        final var order = adjacencyLikes.size() + 1;
         final List<Set<Integer>> adjacencies = Stream
                 .generate(() -> (Set<Integer>) new HashSet<Integer>(16))
                 .limit(order)
                 .toList();
-        for (int v = 0; v < order; ++v) {
+        for (int v = 0; v < order - 1; ++v) {
             final var neighbours = adjacencyLikes.get(v);
-            for (final int w : neighbours) {
-                if (v < w) {
-                    adjacencies.get(v).add(w);
-                    adjacencies.get(w).add(v);
-                }
+            for (final int w1 : neighbours) {
+                assert w1 < order - 1;
+                var w = w1 >= v ? w1 + 1 : w1;
+                adjacencies.get(v).add(w);
+                adjacencies.get(w).add(v);
             }
         }
         return adjacencies;
     }
 
     @Property
-    boolean degeneracyFilterCoversConnectedVertices(
+    boolean degeneracyIteratorCoversConnectedVertices(
             @ForAll("arbitraryAdjacencyLikes") final List<Set<Integer>> adjacencyLikes) {
         final var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         final var g = new UndirectedGraph(adjacencies);
         final SortedSet<Integer> connectedVertices =
                 g.connectedVertices().collect(Collectors.toCollection(TreeSet::new));
-        return sortedDegeneracyFilterIncludingNeighbours(g).equals(connectedVertices);
+        return sortedDegeneracyIncludingNeighbours(g).equals(connectedVertices);
     }
 
     @Property
-    boolean degeneracyFilterDropsSome(
+    boolean degeneracyIteratorDropsSome(
             @ForAll("arbitraryAdjacencyLikes") final List<Set<Integer>> adjacencyLikes) {
         final var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         final var g = new UndirectedGraph(adjacencies);
@@ -102,7 +99,7 @@ final class DegeneracyIteratorTest {
     }
 
     @Property
-    boolean degeneracyFilterStartsWithLowestDegree(
+    boolean degeneracyIteratorStartsWithLowestDegree(
             @ForAll("arbitraryAdjacencyLikes") final List<Set<Integer>> adjacencyLikes) {
         final var adjacencies = makeSymmetricAdjacencies(adjacencyLikes);
         final var g = new UndirectedGraph(adjacencies);
@@ -115,14 +112,14 @@ final class DegeneracyIteratorTest {
         }
     }
 
-    private static Arbitrary<Set<Integer>> arbitraryNeighbours(final int order) {
-        return Arbitraries.integers().between(0, order - 1).set();
-    }
-
     // Provide arbitrary input for makeSymmetricAdjacencies.
     @Provide
     static Arbitrary<List<Set<Integer>>> arbitraryAdjacencyLikes() {
-        final Arbitrary<Integer> order = Arbitraries.integers().between(1, 99);
-        return order.flatMap(o -> arbitraryNeighbours(o).list().ofSize(o));
+        final Arbitrary<Integer> order = Arbitraries.integers().between(2, 12);
+        return order.flatMap(o -> arbitraryNeighbourLikes(o).list().ofSize(o - 1));
+    }
+
+    private static Arbitrary<Set<Integer>> arbitraryNeighbourLikes(final int order) {
+        return Arbitraries.integers().between(0, order - 2).set();
     }
 }

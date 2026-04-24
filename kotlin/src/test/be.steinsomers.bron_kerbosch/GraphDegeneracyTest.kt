@@ -117,6 +117,6 @@ internal class GraphDegeneracyTest {
     }
 
     private fun arbitraryNeighbourLikes(order: Int): Arbitrary<Set<Int>> {
-        return Arbitraries.integers().between(0, order - 2).set()
+        return Arbitraries.integers().between(0, order - 1).set()
     }
 }

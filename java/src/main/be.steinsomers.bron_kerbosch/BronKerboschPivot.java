@@ -51,7 +51,7 @@ enum BronKerboschPivot {
             // Same logic as below, stripped down for this common case
             final var v = mut_candidates.iterator().next();
             final var neighbours = graph.neighbours(v);
-            if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&util.AreDisjoint(neighbours, mut_excluded)) {
+            if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize && util.AreDisjoint(neighbours, mut_excluded)) {
                 cliqueConsumer.accept(util.Append(cliqueInProgress, v));
             }
         } else if (pivotChoice == PivotChoice.Arbitrary) {
@@ -77,7 +77,8 @@ enum BronKerboschPivot {
             final long localDegree = util.Intersect(neighbours, mut_candidates).count();
             if (localDegree == 0) {
                 // Same logic as below, stripped down
-                if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&util.AreDisjoint(neighbours, mut_excluded)) {
+                if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&
+                        util.AreDisjoint(neighbours, mut_excluded)) {
                     cliqueConsumer.accept(util.Append(cliqueInProgress, v));
                 }
             } else {
@@ -118,7 +119,8 @@ enum BronKerboschPivot {
                     visit(graph, cliqueConsumer, furtherPivotChoice,
                             neighbouringCandidates, neighbouringExcluded,
                             util.Append(cliqueInProgress, v));
-                } else if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize && util.AreDisjoint(neighbours, mut_excluded)) {
+                } else if (cliqueInProgress.length + 1 >= cliqueConsumer.minSize &&
+                        util.AreDisjoint(neighbours, mut_excluded)) {
                     cliqueConsumer.accept(util.Append(cliqueInProgress, v));
                 }
                 mut_excluded.add(v);

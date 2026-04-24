@@ -56,8 +56,9 @@ final class DegeneracyIterator implements PrimitiveIterator.OfInt {
                     }
                 }
             }
-            assert num_left_to_pick >= 0;
             previous_pick = Optional.empty();
+            num_left_to_pick -= 1;
+            assert num_left_to_pick >= 0;
         }
         return num_left_to_pick > 0;
     }
@@ -73,7 +74,6 @@ final class DegeneracyIterator implements PrimitiveIterator.OfInt {
             var pick = queue.pop();
             if (priority_per_vertex[pick] > 0) {
                 priority_per_vertex[pick] = 0;
-                num_left_to_pick -= 1;
                 previous_pick = Optional.of(pick);
                 return pick;
             }

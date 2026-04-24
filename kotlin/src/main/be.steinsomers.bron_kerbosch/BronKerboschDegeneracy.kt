@@ -13,7 +13,7 @@ internal object BronKerboschDegeneracy {
                 pivotChoice = furtherPivotChoice,
                 candidates = neighbouringCandidates,
                 excluded = neighbouringExcluded,
-                clique = Clique.singleton(v)
+                cliqueInProgress = Clique.singleton(v)
             )
         }
     }
