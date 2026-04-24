@@ -1,19 +1,35 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.Collections
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.min
 
 abstract class CliqueStorage {
+    abstract fun isEmpty(): Boolean
     abstract fun store(clique: Clique)
+    abstract fun spawn(n: Int): List<CliqueStorage>
+    abstract fun absorb(spawned: List<CliqueStorage>)
 }
 
 class CliqueCollector : CliqueStorage() {
-    private val cliques = Collections.synchronizedCollection(mutableListOf<Clique>())
+    private val cliques = mutableListOf<Clique>()
+
+    override fun isEmpty(): Boolean {
+        return cliques.isEmpty()
+    }
 
     override fun store(clique: Clique) {
         cliques.add(clique)
+    }
+
+    override fun spawn(n: Int): List<CliqueStorage> {
+        require(isEmpty())
+        return List(n) { CliqueCollector() }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun absorb(spawned: List<CliqueStorage>) {
+        require(isEmpty())
+        val spawned: List<CliqueCollector> = spawned as List<CliqueCollector>
+        spawned.forEach { s -> cliques.addAll(s.cliques) }
     }
 
     fun toSortedList(): List<SortedClique> {
@@ -30,16 +46,31 @@ class CliqueCollector : CliqueStorage() {
     }
 }
 
-@OptIn(ExperimentalAtomicApi::class)
 class CliqueCounter : CliqueStorage() {
-    private val cliques = AtomicInt(0)
+    private var cliques: Int = 0
+
+    override fun isEmpty(): Boolean {
+        return cliques == 0
+    }
 
     override fun store(clique: Clique) {
-        cliques.addAndFetch(1)
+        cliques += 1
+    }
+
+    override fun spawn(n: Int): List<CliqueStorage> {
+        require(isEmpty())
+        return List(n) { CliqueCounter() }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun absorb(spawned: List<CliqueStorage>) {
+        require(isEmpty())
+        val spawned: List<CliqueCounter> = spawned as List<CliqueCounter>
+        cliques = spawned.sumOf(CliqueCounter::cliques)
     }
 
     fun harvest(): Int {
-        return cliques.load()
+        return cliques
     }
 }
 

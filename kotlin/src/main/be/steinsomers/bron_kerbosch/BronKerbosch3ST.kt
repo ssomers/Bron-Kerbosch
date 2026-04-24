@@ -21,11 +21,14 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         fun work() {
             val visitProducer = VisitProducer()
             val visitor = Visitor()
-            return degeneracy.asSequence()
+            val storage = degeneracy.asSequence()
                 .map { pick -> visitProducer.createJob(pick) }
                 .toList() // TODO parallelize without intermediate list
                 .parallelStream()
-                .forEach(visitor::visit)
+                .map(visitor::visit)
+                .filter { storage -> !storage.isEmpty() }
+                .toList()
+            cliqueConsumer.storage.absorb(storage)
         }
 
         private inner class VisitProducer {
@@ -38,16 +41,20 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
         }
 
         private inner class Visitor {
-            fun visit(job: VisitJob) {
+            fun visit(job: VisitJob): CliqueStorage {
                 when (job) {
-                    is VisitJob.Work ->
+                    is VisitJob.Work -> {
+                        val storage = cliqueConsumer.storage.spawn(1)[0]
                         BronKerboschPivot.visit(
-                            graph = graph, cliqueConsumer = cliqueConsumer,
+                            graph = graph,
+                            cliqueConsumer = CliqueConsumer(minSize = cliqueConsumer.minSize, storage = storage),
                             pivotChoice = PivotChoice.MaxDegreeLocal,
                             candidates = job.candidates,
                             excluded = job.excluded,
                             clique = Clique.singleton(job.startVertex)
                         )
+                        return storage
+                    }
                 }
             }
         }

@@ -68,10 +68,14 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         @Throws(InterruptedException::class)
         fun work(cliqueConsumer: CliqueConsumer) {
             val visitorProducer = Thread(VisitProducer())
-            val visitors = Array(NUM_VISITING_THREADS) { Thread(Visitor(cliqueConsumer)) }
+            val storage = cliqueConsumer.storage.spawn(NUM_VISITING_THREADS)
+            val visitors =
+                storage.map { storage -> CliqueConsumer(minSize = cliqueConsumer.minSize, storage = storage) }
+                    .map { consumer -> Thread(Visitor(consumer)) }
             visitorProducer.start()
             visitors.forEach { v -> v.start() }
             visitors.forEach { v -> v.join() }
+            cliqueConsumer.storage.absorb(storage)
         }
     }
 }
