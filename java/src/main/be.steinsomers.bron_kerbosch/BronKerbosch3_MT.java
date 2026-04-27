@@ -16,6 +16,11 @@ public final class BronKerbosch3_MT implements BronKerboschAlgorithm {
         worker.work();
     }
 
+    @Override
+    public boolean hasRaceCondition() {
+        return true;
+    }
+
     @RequiredArgsConstructor
     private static class StartJob {
         private static final int CLEAN_END_VERTEX = -1;

@@ -1,6 +1,9 @@
 package be.steinsomers.bron_kerbosch
 
 class BronKerbosch3ST : BronKerboschAlgorithm {
+    override val name: String = "Ver3½=GPs"
+    override val hasRaceCondition: Boolean = true
+
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val worker = Worker(graph, cliqueConsumer)
         worker.work()

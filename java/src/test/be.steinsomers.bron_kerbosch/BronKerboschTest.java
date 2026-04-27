@@ -1,7 +1,5 @@
-package be.steinsomers.bron_kerbosch.study;
+package be.steinsomers.bron_kerbosch;
 
-import be.steinsomers.bron_kerbosch.CliqueConsumer;
-import be.steinsomers.bron_kerbosch.UndirectedGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,18 +10,20 @@ final class BronKerboschTest {
                            final List<List<Integer>> expectedCliques) {
         final var adjacencies = adjacenciesList.stream().map(Set::copyOf).toList();
         final var graph = new UndirectedGraph(adjacencies);
-        for (int funcIndex = 0; funcIndex < Main.FUNCS.length; ++funcIndex) {
-            final var funcName = Main.FUNC_NAMES[funcIndex];
-            final var rawCliques = Collections.synchronizedCollection(new ArrayDeque<int[]>());
-            final var consumer = new CliqueConsumer(2, rawCliques::add);
-            try {
-                Main.FUNCS[funcIndex].explore(graph, consumer);
-            } catch (final InterruptedException ex) {
-                throw new AssertionError(ex);
+        Portfolio.ALGOS.forEach((algo, name) -> {
+            int repeat = algo.hasRaceCondition() ? 100 : 1;
+            while (--repeat >= 0) {
+                final var rawCliques = Collections.synchronizedCollection(new ArrayDeque<int[]>());
+                final var consumer = new CliqueConsumer(2, rawCliques::add);
+                try {
+                    algo.explore(graph, consumer);
+                } catch (final InterruptedException ex) {
+                    throw new AssertionError(ex);
+                }
+                final var cliques = Portfolio.OrderCliques(rawCliques);
+                Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for " + name);
             }
-            final var cliques = Main.OrderCliques(rawCliques);
-            Assertions.assertEquals(expectedCliques, cliques, "Unexpected result for " + funcName);
-        }
+        });
     }
 
     @Test

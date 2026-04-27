@@ -66,6 +66,10 @@ class CliqueCounter : CliqueStorage() {
 }
 
 data class CliqueConsumer(val minSize: Int, val storage: CliqueStorage) {
+    init {
+        require(minSize >= 2) // we don't want to write code for the trivial 0-clique or 1-cliques
+    }
+
     fun accept(clique: Clique) {
         storage.store(clique)
     }

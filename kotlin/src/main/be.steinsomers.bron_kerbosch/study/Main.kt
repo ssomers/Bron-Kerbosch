@@ -7,51 +7,26 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import java.util.stream.IntStream
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 internal object Main {
-    val FUNC_NAMES: Array<String> = arrayOf(
-        "Ver1½",
-        "Ver2½",
-        "Ver2½-GP",
-        "Ver2½-GPX",
-        "Ver3½",
-        "Ver3½-GP",
-        "Ver3½-GPX",
-        "Ver3½=GPc",
-        "Ver3½=GPs",
-    )
-    val FUNCS: Array<BronKerboschAlgorithm> = arrayOf(
-        BronKerbosch1(),
-        BronKerbosch2(),
-        BronKerbosch2gp(),
-        BronKerbosch2gpx(),
-        BronKerbosch3(),
-        BronKerbosch3gp(),
-        BronKerbosch3gpx(),
-        BronKerbosch3MT(),
-        BronKerbosch3ST(),
-    )
+    private const val CLIQUE_MIN_SIZE = 3
 
-    @OptIn(ExperimentalAtomicApi::class)
+    data class TimedAlgo(val algo: BronKerboschAlgorithm, var time: SampleStatistics)
+
     @Throws(InterruptedException::class)
-    private fun bkTimed(
-        testData: KnownRandomGraph,
-        timedSamples: Int, funcIndices: IntArray
-    ): Array<SampleStatistics> {
+    private fun bkTimed(testData: KnownRandomGraph, timedSamples: Int, measurements: List<TimedAlgo>) {
+        val expectedCount = testData.stats.cliqueCount(minSize = CLIQUE_MIN_SIZE)
         var firstOrdered: Optional<List<SortedClique>> = Optional.empty()
-        val times = Array(FUNCS.size) { _ -> SampleStatistics() }
-        IntStream.range(0, FUNCS.size).forEach { i: Int -> times[i] = SampleStatistics() }
         for (sample in 0..timedSamples) {
-            for (funcIndex in funcIndices) {
+            for (measurement in measurements) {
                 if (sample == 0) {
                     val cliqueCollector = CliqueCollector()
-                    FUNCS[funcIndex].explore(testData.graph, CliqueConsumer(minSize = 3, cliqueCollector))
+                    measurement.algo.explore(testData.graph, CliqueConsumer(minSize = CLIQUE_MIN_SIZE, cliqueCollector))
                     val ordered = cliqueCollector.toSortedList()
                     if (firstOrdered.isEmpty) {
-                        require(
-                            ordered.size == testData.cliqueCount
-                        ) { "Got ${ordered.size} cliques, expected ${testData.cliqueCount}" }
+                        require(ordered.size == expectedCount) {
+                            "Initial sample obtained ${ordered.size} cliques, expected $expectedCount"
+                        }
                         firstOrdered = Optional.of(ordered)
                     } else {
                         require(firstOrdered.get() == ordered) { "Inconsistent results" }
@@ -60,17 +35,16 @@ internal object Main {
                     val start = System.nanoTime()
                     val cliqueCounter = CliqueCounter()
                     val cliqueConsumer = CliqueConsumer(3, cliqueCounter)
-                    FUNCS[funcIndex].explore(testData.graph, cliqueConsumer)
+                    measurement.algo.explore(testData.graph, cliqueConsumer)
                     val elapsed = System.nanoTime() - start
-                    val cliqueCount = cliqueCounter.harvest()
-                    require(
-                        cliqueCount == testData.cliqueCount
-                    ) { "Got $cliqueCount cliques after sample $sample, expected ${testData.cliqueCount}" }
-                    times[funcIndex].put(elapsed)
+                    val obtainedCount = cliqueCounter.harvest()
+                    require(obtainedCount == expectedCount) {
+                        "Sample $sample obtained $obtainedCount cliques, expected $expectedCount"
+                    }
+                    measurement.time.put(elapsed)
                 }
             }
         }
-        return times
     }
 
     private fun bk(
@@ -79,16 +53,15 @@ internal object Main {
         order: Int,
         sizes: IntArray,
         samples: Int,
-        funcIndices: IntArray
+        algos: List<BronKerboschAlgorithm>
     ) {
         val name = "random_time_kotlin_order_" + (if (genuine) orderStr else "warmup")
         val path = Paths.get("..", "data", "$name.csv")
         try {
             Files.newBufferedWriter(path, StandardCharsets.UTF_8).use { fo ->
                 fo.write("Size")
-                for (funcIndex in funcIndices) {
-                    val fn = FUNC_NAMES[funcIndex]
-                    fo.write(String.format(Locale.US, ",%s min,%s mean,%s max", fn, fn, fn))
+                algos.forEach {
+                    fo.write(String.format(Locale.US, ",%s min,%s mean,%s max", it.name, it.name, it.name))
                 }
                 fo.write(System.lineSeparator())
                 for (size in sizes) {
@@ -96,25 +69,26 @@ internal object Main {
                     val testData = KnownRandomGraph.readUndirected(orderStr, order, size)
                     val elapsed = System.nanoTime() - start
                     if (genuine) {
+                        val knownCliqueCount = testData.stats.cliqueCount(minSize = CLIQUE_MIN_SIZE)
                         System.out.printf(
                             "%4s nodes, %7d edges, %5d cliques, creation: %6.3f%n",
-                            orderStr, size, testData.cliqueCount, elapsed / 1e9
+                            orderStr, size, knownCliqueCount, elapsed / 1e9
                         )
                     }
-                    val times = bkTimed(testData, samples, funcIndices)
+                    val measurements = algos.map { algo -> TimedAlgo(algo = algo, time = SampleStatistics()) }
+                    bkTimed(testData, samples, measurements)
 
                     fo.write(String.format(Locale.US, "%d", size))
-                    for (funcIndex in funcIndices) {
-                        val funcName = FUNC_NAMES[funcIndex]
-                        val max = times[funcIndex].max() / 1e9
-                        val min = times[funcIndex].min() / 1e9
-                        val mean = times[funcIndex].mean() / 1e9
-                        val dev = times[funcIndex].deviation() / 1e9
+                    for (mm in measurements) {
+                        val max = mm.time.max() / 1e9
+                        val min = mm.time.min() / 1e9
+                        val mean = mm.time.mean() / 1e9
+                        val dev = mm.time.deviation() / 1e9
                         fo.write(String.format(Locale.US, ",%f,%f,%f", min, mean, max))
                         if (genuine) {
                             System.out.printf(
                                 "%4s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
-                                orderStr, size, funcName, mean, 100 * dev / mean
+                                orderStr, size, mm.algo.name, mean, 100 * dev / mean
                             )
                         }
                     }
@@ -132,8 +106,9 @@ internal object Main {
     fun main(@Suppress("unused", "RedundantSuppression") args: Array<String>) {
         Debug.assert({ false }, { "Omit -ea for meaningful measurements" })
 
-        val allFuncIndices = FUNCS.indices.toList().toIntArray()
-        val mostFuncIndices = (1..<FUNCS.size).toList().toIntArray()
+        val allAlgos = Portfolio.ALGOS
+        val mostAlgos = allAlgos.filterNot { algo -> algo is BronKerbosch1 }
+        val eliteAlgos = listOf(BronKerbosch2gp(), BronKerbosch3gp(), BronKerbosch3MT(), BronKerbosch3ST())
         val sizes100 = IntStream.iterate(2_000, { s -> s <= 3_000 }, { s -> s + 50 }).toArray()
         val sizes10K = IntStream.iterate(
             10_000, { s -> s <= 200_000 },
@@ -143,14 +118,10 @@ internal object Main {
             { s -> s + (if (s < 2_000_000) 250_000 else 1_000_000) }).toArray()
 
         // First warm up.
-        bk(false, "100", order = 100, sizes = intArrayOf(2_000), samples = 3, funcIndices = allFuncIndices)
+        bk(genuine = false, orderStr = "100", order = 100, sizes = intArrayOf(2_000), samples = 3, algos = allAlgos)
         Thread.sleep(3210) // give IntelliJ launcher some time to cool down
-        /*
-                bk(true, "10k", order = 10_000, sizes = intArrayOf(200_000), samples = 5, funcIndices = intArrayOf(7))
-                return
-         */
-        bk(true, "100", order = 100, sizes = sizes100, samples = 5, funcIndices = allFuncIndices)
-        bk(true, "10k", order = 10_000, sizes = sizes10K, samples = 3, funcIndices = mostFuncIndices)
-        bk(true, "1M", order = 1_000_000, sizes = sizes1M, samples = 3, funcIndices = intArrayOf(2, 5, 7, 8))
+        bk(genuine = true, orderStr = "100", order = 100, sizes = sizes100, samples = 5, algos = allAlgos)
+        bk(genuine = true, orderStr = "10k", order = 10_000, sizes = sizes10K, samples = 3, algos = mostAlgos)
+        bk(genuine = true, orderStr = "1M", order = 1_000_000, sizes = sizes1M, samples = 3, algos = eliteAlgos)
     }
 }

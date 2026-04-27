@@ -1,6 +1,5 @@
-package be.steinsomers.bron_kerbosch.study
+package be.steinsomers.bron_kerbosch
 
-import be.steinsomers.bron_kerbosch.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -210,22 +209,21 @@ internal class BronKerboschTest {
             val adjacencies = adjacenciesList.map { coll -> coll.toSet() }
             val expectedCliques = expectedCliquesList.map { clique -> SortedClique(clique) }
             val graph = graph(adjacencies)
-            for (funcIndex in Main.FUNCS.indices) {
-                val funcName = Main.FUNC_NAMES[funcIndex]
+            Portfolio.ALGOS.forEach { algo ->
                 repeat(
-                    when (Main.FUNCS[funcIndex]) {
-                        is BronKerbosch3MT -> 100
-                        is BronKerbosch3ST -> 100
-                        else -> 1
+                    if (algo.hasRaceCondition) {
+                        100
+                    } else {
+                        1
                     }
                 ) {
                     val cliqueCollector = CliqueCollector()
-                    Main.FUNCS[funcIndex].explore(graph, CliqueConsumer(minSize = 2, cliqueCollector))
+                    algo.explore(graph, CliqueConsumer(minSize = 2, cliqueCollector))
                     val obtainedCliques = cliqueCollector.toSortedList()
                     Assertions.assertArrayEquals(
                         expectedCliques.toTypedArray(),
                         obtainedCliques.toTypedArray(),
-                        "Unexpected result for $funcName"
+                        "Unexpected result for $algo.name"
                     )
                 }
             }

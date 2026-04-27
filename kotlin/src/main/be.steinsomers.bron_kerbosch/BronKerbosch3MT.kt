@@ -4,6 +4,9 @@ import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 
 class BronKerbosch3MT : BronKerboschAlgorithm {
+    override val name: String = "Ver3½=GPc"
+    override val hasRaceCondition: Boolean = true
+
     companion object {
         private const val NUM_VISITING_THREADS = 5
     }
