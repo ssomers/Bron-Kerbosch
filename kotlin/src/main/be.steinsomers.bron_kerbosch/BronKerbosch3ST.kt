@@ -1,5 +1,7 @@
 package be.steinsomers.bron_kerbosch
 
+import kotlin.streams.asStream
+
 class BronKerbosch3ST : BronKerboschAlgorithm {
     override val name: String = "Ver3½=GPs"
     override val hasRaceCondition: Boolean = true
@@ -26,8 +28,8 @@ class BronKerbosch3ST : BronKerboschAlgorithm {
             val visitor = Visitor()
             val storage = degeneracy.asSequence()
                 .map { pick -> visitProducer.createJob(pick) }
-                .toList() // TODO parallelize without intermediate list
-                .parallelStream()
+                .asStream()
+                .parallel()
                 .map(visitor::visit)
                 .toList()
             cliqueConsumer.storage.absorb(storage)
