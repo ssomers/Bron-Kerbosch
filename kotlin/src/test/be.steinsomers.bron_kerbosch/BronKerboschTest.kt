@@ -5,129 +5,113 @@ import org.junit.jupiter.api.Test
 
 internal class BronKerboschTest {
     @Test
-    fun order_0() {
+    fun order_0() =
         bk(listOf(), listOf())
-    }
 
     @Test
-    fun order_1() {
+    fun order_1() =
         bk(listOf(listOf()), listOf())
-    }
 
     @Test
-    fun order_2_isolated() {
+    fun order_2_isolated() =
         bk(
             listOf(listOf(), listOf()),
             listOf()
         )
-    }
 
     @Test
-    fun order_2_connected() {
+    fun order_2_connected() =
         bk(
             listOf(listOf(1), listOf(0)),
             listOf(intArrayOf(0, 1))
         )
-    }
 
     @Test
-    fun order_3_size_1_left() {
+    fun order_3_size_1_left() =
         bk(
             listOf(listOf(1), listOf(0), listOf()),
             listOf(intArrayOf(0, 1))
         )
-    }
 
     @Test
-    fun order_3_size_1_middle() {
+    fun order_3_size_1_middle() =
         bk(
             listOf(listOf(2), listOf(), listOf(0)),
             listOf(intArrayOf(0, 2))
         )
-    }
 
     @Test
-    fun order_3_size_1_right() {
+    fun order_3_size_1_right() =
         bk(
             listOf(listOf(), listOf(2), listOf(1)),
             listOf(intArrayOf(1, 2))
         )
-    }
 
     @Test
-    fun order_3_size_2() {
+    fun order_3_size_2() =
         bk(
             listOf(listOf(1), listOf(0, 2), listOf(1)),
             listOf(intArrayOf(0, 1), intArrayOf(1, 2))
         )
-    }
 
     @Test
-    fun order_3_size_3() {
+    fun order_3_size_3() =
         bk(
             listOf(listOf(1, 2), listOf(0, 2), listOf(0, 1)),
             listOf(intArrayOf(0, 1, 2))
         )
-    }
 
     @Test
-    fun order_4_size_2() {
+    fun order_4_size_2() =
         bk(
             listOf(listOf(1), listOf(0), listOf(3), listOf(2)),
             listOf(intArrayOf(0, 1), intArrayOf(2, 3))
         )
-    }
 
     @Test
-    fun order_4_size_3_bus() {
+    fun order_4_size_3_bus() =
         bk(
             listOf(listOf(1), listOf(0, 2), listOf(1, 3), listOf(2)),
             listOf(intArrayOf(0, 1), intArrayOf(1, 2), intArrayOf(2, 3))
         )
-    }
 
     @Test
-    fun order_4_size_3_star() {
+    fun order_4_size_3_star() =
         bk(
             listOf(listOf(1, 2, 3), listOf(0), listOf(0), listOf(0)),
             listOf(intArrayOf(0, 1), intArrayOf(0, 2), intArrayOf(0, 3))
         )
-    }
 
     @Test
-    fun order_4_size_4_p() {
+    fun order_4_size_4_p() =
         bk(
             listOf(listOf(1), listOf(0, 2, 3), listOf(1, 3), listOf(1, 2)),
             listOf(intArrayOf(0, 1), intArrayOf(1, 2, 3))
         )
-    }
 
     @Test
-    fun order_4_size_4_square() {
+    fun order_4_size_4_square() =
         bk(
             listOf(listOf(1, 3), listOf(0, 2), listOf(1, 3), listOf(0, 2)),
             listOf(intArrayOf(0, 1), intArrayOf(0, 3), intArrayOf(1, 2), intArrayOf(2, 3))
         )
-    }
 
     @Test
-    fun order_4_size_5() {
+    fun order_4_size_5() =
         bk(
             listOf(listOf(1, 2, 3), listOf(0, 2), listOf(0, 1, 3), listOf(0, 2)),
             listOf(intArrayOf(0, 1, 2), intArrayOf(0, 2, 3))
         )
-    }
 
     @Test
-    fun order_4_size_6() {
+    fun order_4_size_6() =
         bk(
             listOf(listOf(1, 2, 3), listOf(0, 2, 3), listOf(0, 1, 3), listOf(0, 1, 2)),
             listOf(intArrayOf(0, 1, 2, 3))
         )
-    }
 
     @Test
-    fun order_5_penultimate() {
+    fun order_5_penultimate() =
         bk(
             listOf(
                 listOf(1, 2, 3, 4),
@@ -138,10 +122,9 @@ internal class BronKerboschTest {
             ),
             listOf(intArrayOf(0, 1, 2, 3), intArrayOf(0, 1, 2, 4))
         )
-    }
 
     @Test
-    fun sample() {
+    fun sample() =
         bk(
             listOf(
                 listOf(),
@@ -159,10 +142,9 @@ internal class BronKerboschTest {
                 intArrayOf(5, 6, 7)
             )
         )
-    }
 
     @Test
-    fun bigger() {
+    fun bigger() =
         bk(
             listOf(
                 listOf(1, 2, 3, 4, 6, 7),
@@ -199,7 +181,6 @@ internal class BronKerboschTest {
                 intArrayOf(5, 6)
             )
         )
-    }
 
     companion object {
         private fun bk(
@@ -219,7 +200,7 @@ internal class BronKerboschTest {
                 ) {
                     val cliqueCollector = CliqueCollector()
                     algo.explore(graph, CliqueConsumer(minSize = 2, cliqueCollector))
-                    val obtainedCliques = cliqueCollector.toSortedList()
+                    val obtainedCliques = cliqueCollector.harvest()
                     Assertions.assertArrayEquals(
                         expectedCliques.toTypedArray(),
                         obtainedCliques.toTypedArray(),

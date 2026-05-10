@@ -27,8 +27,8 @@ class CliqueCollector : CliqueStorage() {
         spawned.forEach { s -> cliques.addAll(s.cliques) }
     }
 
-    fun toSortedList(): List<SortedClique> {
-        return cliques
+    fun harvest(): List<SortedClique> =
+        cliques
             .map { clique -> SortedClique.freeze(clique) }
             .sortedWith { clique1: SortedClique, clique2: SortedClique ->
                 when (val diff = (0..<min(clique1.size(), clique2.size())).asSequence()
@@ -38,12 +38,12 @@ class CliqueCollector : CliqueStorage() {
                     else -> diff
                 }
             }
-    }
 }
 
 class CliqueCounter : CliqueStorage() {
     private var cliques: Int = 0
 
+    @Suppress("unused", "RedundantSuppression")
     override fun store(clique: Clique) {
         cliques += 1
     }
@@ -60,9 +60,7 @@ class CliqueCounter : CliqueStorage() {
         cliques = spawned.sumOf(CliqueCounter::cliques)
     }
 
-    fun harvest(): Int {
-        return cliques
-    }
+    fun harvest(): Int = cliques
 }
 
 data class CliqueConsumer(val minSize: Int, val storage: CliqueStorage) {
@@ -71,6 +69,7 @@ data class CliqueConsumer(val minSize: Int, val storage: CliqueStorage) {
     }
 
     fun accept(clique: Clique) {
+        Debug.assert { clique.size() >= minSize }
         storage.store(clique)
     }
 }

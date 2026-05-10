@@ -1,6 +1,8 @@
 package be.steinsomers.bron_kerbosch.study
 
 import kotlin.math.sqrt
+import kotlin.math.max
+import kotlin.math.min
 
 internal class SampleStatistics {
     private var max = 0L
@@ -21,32 +23,21 @@ internal class SampleStatistics {
         sumOfSquares += (v * v).toDouble()
     }
 
-    fun min(): Long {
-        return min
+    fun min(): Long = min
+    fun max(): Long = max
+
+    fun mean(): Double = if (samples > 0) {
+        max(min.toDouble(), kotlin.math.min(max.toDouble(), sum / samples))
+    } else {
+        Double.NaN
     }
 
-    fun max(): Long {
-        return max
+    fun variance(): Double = if (samples > 1) {
+        val n = samples.toDouble()
+        max(sumOfSquares - sum * sum / n, 0.0) / (n - 1.0)
+    } else {
+        Double.NaN
     }
 
-    fun mean(): Double {
-        return if (samples > 0) {
-            kotlin.math.max(min.toDouble(), kotlin.math.min(max.toDouble(), sum / samples))
-        } else {
-            Double.NaN
-        }
-    }
-
-    fun variance(): Double {
-        if (samples > 1) {
-            val n = samples.toDouble()
-            return kotlin.math.max(sumOfSquares - sum * sum / n, 0.0) / (n - 1.0)
-        } else {
-            return Double.NaN
-        }
-    }
-
-    fun deviation(): Double {
-        return kotlin.math.min((max - min).toDouble(), sqrt(variance()))
-    }
+    fun deviation(): Double = min((max - min).toDouble(), sqrt(variance()))
 }

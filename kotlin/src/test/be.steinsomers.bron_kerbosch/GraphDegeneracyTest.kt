@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
 
-fun graph(adjacencies: List<Set<Int>>): UndirectedGraph {
-    return UndirectedGraph(adjacencies.map { neighbours -> neighbours.mapTo(TreeSet()) { i -> Vertex(i) } })
-}
-
+fun graph(adjacencies: List<Set<Int>>): UndirectedGraph =
+    UndirectedGraph(adjacencies.map { neighbours -> neighbours.mapTo(TreeSet()) { i -> Vertex(i) } })
 
 internal class GraphDegeneracyTest {
     private fun sortedDegeneracyOrderingIncludingNeighbours(g: UndirectedGraph): SortedSet<Vertex> {

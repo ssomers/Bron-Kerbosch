@@ -25,6 +25,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         ) : VisitJob() {
             init {
                 require(startVertex.index >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
+                require(candidates.isNotEmpty())
             }
         }
     }
@@ -39,12 +40,11 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                     degeneracy.forEach { v: Vertex ->
                         val (neighbouringCandidates, neighbouringExcluded) =
                             Util.partition(graph.neighbours(v)) { v -> degeneracy.isCandidate(v) }
-                        Debug.assert { neighbouringCandidates.isNotEmpty() }
                         visitQueue.put(VisitJob.Work(v, neighbouringCandidates, neighbouringExcluded))
                     }
-                    repeat(NUM_VISITING_THREADS) { _ -> visitQueue.put(VisitJob.CleanEnd) }
+                    repeat(NUM_VISITING_THREADS) { visitQueue.put(VisitJob.CleanEnd) }
                 } catch (_: InterruptedException) {
-                    repeat(NUM_VISITING_THREADS) { _ -> visitQueue.put(VisitJob.DirtyEnd) }
+                    repeat(NUM_VISITING_THREADS) { visitQueue.put(VisitJob.DirtyEnd) }
                 }
             }
         }

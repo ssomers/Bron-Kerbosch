@@ -61,9 +61,7 @@ internal class GraphDegeneracy(private val graph: UndirectedGraph) : Iterator<Ve
         }
     }
 
-    fun isCandidate(v: Vertex): Boolean {
-        return priorityPerVertex[v.index] > 0
-    }
+    fun isCandidate(v: Vertex): Boolean = priorityPerVertex[v.index] > 0
 
     private class SimplePriorityQueue<T>(maxPriority: Int) {
         private val stackPerPriority = Array<ArrayList<T>>(size = maxPriority) { _ -> ArrayList() }

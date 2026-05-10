@@ -22,7 +22,7 @@ internal object Main {
                 if (sample == 0) {
                     val cliqueCollector = CliqueCollector()
                     measurement.algo.explore(testData.graph, CliqueConsumer(minSize = CLIQUE_MIN_SIZE, cliqueCollector))
-                    val ordered = cliqueCollector.toSortedList()
+                    val ordered = cliqueCollector.harvest()
                     if (firstOrdered.isEmpty) {
                         require(ordered.size == expectedCount) {
                             "Initial sample obtained ${ordered.size} cliques, expected $expectedCount"
@@ -96,9 +96,9 @@ internal object Main {
                 }
             }
         } catch (x: InterruptedException) {
-            System.err.format("InterruptedException: %s%n", x)
+            System.err.println("InterruptedException: $x")
         } catch (x: IOException) {
-            System.err.format("IOException: %s%n", x)
+            System.err.println("IOException: $x")
         }
     }
 
