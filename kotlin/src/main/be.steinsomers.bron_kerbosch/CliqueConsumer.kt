@@ -44,6 +44,7 @@ class CliqueCollector : CliqueStorage() {
 class CliqueCounter : CliqueStorage() {
     private var cliques: Int = 0
 
+    @Suppress("unused", "RedundantSuppression")
     override fun store(clique: Clique) {
         cliques += 1
     }
@@ -71,6 +72,7 @@ data class CliqueConsumer(val minSize: Int, val storage: CliqueStorage) {
     }
 
     fun accept(clique: Clique) {
+        Debug.assert { clique.size() >= minSize }
         storage.store(clique)
     }
 }
