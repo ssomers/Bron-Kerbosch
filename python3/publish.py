@@ -378,20 +378,20 @@ def publish_report(
     basename: str,
     orderstr: str,
     langlibs: Sequence[LangLib],
-    versions: Sequence[str],
-    linestyle_per_version: Sequence[Optional[str]],
+    version_linestyle: Dict[str, Optional[str]],
     label_by_case: Callable[[Case], str],
     linestyle_inset: Optional[Dict[str, Optional[str]]] = None,
     single_version_suffix: Optional[str] = None,
 ) -> None:
     sizes: List[int] = []
     measurements: Dict[Case, List[Measurement]] = {}
-    assert len(versions) == len(linestyle_per_version)
     for langlib in langlibs:
         sizes1, measurements1 = read_csv(
             language=langlib.Language,
             orderstr=orderstr,
-            case_selector=lambda case: case.LangLib == langlib and case.Ver in versions,
+            case_selector=lambda case: (
+                case.LangLib == langlib and case.Ver in version_linestyle
+            ),
         )
         if cutoff := {
             "10k": 10_000,
@@ -404,6 +404,8 @@ def publish_report(
             raise ImportError(f"{sizes} != {sizes1} for {langlib.Language} {orderstr}")
         if len(sizes) < len(sizes1):
             sizes = sizes1
+        # for case in measurements1:
+        #    print(langlib.Language, " → ", case.Ver)
         measurements.update(measurements1)
 
     publish_measurements(
@@ -414,7 +416,7 @@ def publish_report(
         measurement_per_size_by_case=measurements,
         label_by_case=label_by_case,
         color_by_case=color_by_language,
-        linestyle_by_case=lambda case: linestyle_per_version[versions.index(case.Ver)],
+        linestyle_by_case=lambda case: version_linestyle[case.Ver],
         linestyle_inset=linestyle_inset,
     )
 
@@ -491,8 +493,7 @@ def publish_reports() -> None:
         basename="report_1",
         orderstr="100",
         langlibs=[LangLib(Language.python314), LangLib(Language.rust, "Hash")],
-        versions=["Ver1", "Ver1½"],
-        linestyle_per_version=["dotted", None],
+        version_linestyle={"Ver1": "dotted", "Ver1½": None},
         label_by_case=lambda case: f"{case.LangLib.Language.short_name()} {case.Ver}",
     )
     # 2. Ver1 vs. Ver2
@@ -503,8 +504,7 @@ def publish_reports() -> None:
             LangLib(Language.java),
             LangLib(Language.rust, "Hash"),
         ],
-        versions=["Ver1½", "Ver2½"],
-        linestyle_per_version=["dotted", None],
+        version_linestyle={"Ver1½": "dotted", "Ver2½": None},
         label_by_case=lambda case: f"{case.LangLib.Language.short_name()} {case.Ver}",
     )
     # 3. Ver2 variants
@@ -592,8 +592,7 @@ def publish_reports() -> None:
                 LangLib(Language.csharp, "HashSet"),
                 LangLib(Language.rust, "Hash"),
             ],
-            versions=["Ver3½-GP"],
-            linestyle_per_version=[None],
+            version_linestyle={"Ver3½-GP": None},
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="Ver3½-GP",
         )
@@ -607,8 +606,11 @@ def publish_reports() -> None:
                 LangLib(Language.csharp, "HashSet"),
                 LangLib(Language.rust, "Hash"),
             ],
-            versions=["Ver3½=GPs", "Ver3½=GPc", "Ver3½=GP2"],
-            linestyle_per_version=["dotted", None, None],
+            version_linestyle={
+                "Ver3½=GPs": "dotted",
+                "Ver3½=GPc": None,
+                "Ver3½=GP2": None,
+            },
             linestyle_inset={"channels": None, "simple": "dashed"},
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="parallel Ver3½=GP",

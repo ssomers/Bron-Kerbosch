@@ -164,11 +164,11 @@ So we bundle the first two tasks and run 1 + N tasks in parallel.
 Ways to implement parallelism varies per language:
 * **Ver3½=GPc:** (Rust, Java, Kotlin) using one thread per task as described above, somewhat complicated
 * **Ver3½=GPs:** (C#, Java, Kotlin) using relatively simple composition backed by synchronized containers
-* **Ver3½=GP0:** (Go only) using channels and providing 1 goroutine for the nested iterations
-* **Ver3½=GP1:** (Go only) using channels and providing 4 goroutines for the nested iterations
-* **Ver3½=GP2:** (Go only) using channels and providing 16 goroutines for the nested iterations
-* **Ver3½=GP3:** (Go only) using channels and providing 64 goroutines for the nested iterations
-* **Ver3½=GP4:** (Go only) using channels and providing 256 goroutines for the nested iterations
+* **Ver3½=GP0:** (Go) using channels and 1 goroutine handling the nested iterations
+* **Ver3½=GP1:** (Go) using channels and 4 goroutines handling the nested iterations
+* **Ver3½=GP2:** (Go) using channels and 16 goroutines handling the nested iterations
+* **Ver3½=GP3:** (Go) using channels and 64 goroutines handling the nested iterations
+* **Ver3½=GP4:** (Go) using channels and 256 goroutines handling the nested iterations
 
 ### Results
 * In Java, simpler multi-threading goes a long way, and more elaborate code shaves off a little more
