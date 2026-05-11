@@ -11,40 +11,24 @@ namespace BronKerbosch.Test
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
-        private static void RunSerial(LabGraph<TVertexSet, TVertexSetMgr> g, int[][] expectedCliques)
+        private static void Bk(LabGraph<TVertexSet, TVertexSetMgr> g, int[][] expectedCliques)
         {
             Vertex[][] expectedCliques2 = [.. expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray())];
             foreach (var funcIndex in Enumerable.Range(0, Portfolio.FuncNames.Length))
             {
-                var consumer = new CliqueCollector(2);
-                Portfolio.Explore(funcIndex, g.Graph, consumer, 1);
-                var result = consumer.Cliques;
-                Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
-                Portfolio.SortCliques(result);
-                foreach ((var reportedClique, var i) in result.Select((v, i) => (v, i)))
-                    Assert.That(reportedClique.SequenceEqual(expectedCliques2[i]));
+                var tries = Portfolio.Deterministic(funcIndex) ? 1
+                    : 11; // we also have 9 versions, each differing only by thread count
+                for (int t = 0; t < tries; ++t)
+                {
+                    var consumer = new CliqueCollector(2);
+                    Portfolio.Explore(funcIndex, g.Graph, consumer);
+                    var result = consumer.Cliques;
+                    Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
+                    Portfolio.SortCliques(result);
+                    foreach ((var reportedClique, var i) in result.Select((v, i) => (v, i)))
+                        Assert.That(reportedClique.SequenceEqual(expectedCliques2[i]));
+                }
             }
-        }
-
-        private static void RunParallel(LabGraph<TVertexSet, TVertexSetMgr> g, int[][] expectedCliques)
-        {
-            Vertex[][] expectedCliques2 = [.. expectedCliques.Select(clique => clique.Select(i => Vertex.Nth(i)).ToArray())];
-            foreach (var funcIndex in Enumerable.Range(Portfolio.FuncIndexMT, 1))
-            {
-                var consumer = new CliqueCollector(2);
-                Portfolio.Explore(funcIndex, g.Graph, consumer, 16);
-                var result = consumer.Cliques;
-                Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
-                Portfolio.SortCliques(result);
-                foreach ((var reportedClique, var i) in result.Select((v, i) => (v, i)))
-                    Assert.That(reportedClique.SequenceEqual(expectedCliques2[i]));
-            }
-        }
-
-        private static void Bk(LabGraph<TVertexSet, TVertexSetMgr> g, int[][] expectedCliques)
-        {
-            RunSerial(g, expectedCliques);
-            RunParallel(g, expectedCliques);
         }
 
         [Test]

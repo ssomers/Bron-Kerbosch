@@ -71,8 +71,8 @@ internal object Main {
                     if (genuine) {
                         val knownCliqueCount = testData.stats.cliqueCount(minSize = CLIQUE_MIN_SIZE)
                         System.out.printf(
-                            "%4s nodes, %7d edges, %5d cliques, creation: %6.3f%n",
-                            orderStr, size, knownCliqueCount, elapsed / 1e9
+                            "%4s nodes, %7d edges, %5d cliques, %d samples, creation: %6.3f%n",
+                            orderStr, size, knownCliqueCount, samples, elapsed / 1e9
                         )
                     }
                     val measurements = algos.map { algo -> TimedAlgo(algo = algo, time = SampleStatistics()) }
@@ -107,8 +107,13 @@ internal object Main {
         Debug.assert({ false }, { "Omit -ea for meaningful measurements" })
 
         val allAlgos = Portfolio.ALGOS
-        val mostAlgos = allAlgos.filterNot { algo -> algo is BronKerbosch1 }
-        val eliteAlgos = listOf(BronKerbosch2gp(), BronKerbosch3gp(), BronKerbosch3MT(), BronKerbosch3ST())
+        val mostAlgos = allAlgos.filterNot { it is BronKerbosch1 }
+        val eliteAlgos = allAlgos.filter {
+            it is BronKerbosch2gp
+                    || it is BronKerbosch3gp
+                    || it is BronKerbosch3MT && it.visitingThreads <= 6
+                    || it is BronKerbosch3ST
+        }
         val sizes100 = IntStream.iterate(2_000, { s -> s <= 3_000 }, { s -> s + 50 }).toArray()
         val sizes10K = IntStream.iterate(
             10_000, { s -> s <= 200_000 },

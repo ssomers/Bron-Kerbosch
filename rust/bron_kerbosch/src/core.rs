@@ -1,3 +1,4 @@
+pub mod algorithm;
 pub mod bron_kerbosch1a;
 pub mod bron_kerbosch1b;
 pub mod bron_kerbosch2a_gp;

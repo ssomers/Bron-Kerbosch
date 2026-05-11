@@ -4,7 +4,7 @@ import kotlin.streams.asStream
 
 class BronKerbosch3ST : BronKerboschAlgorithm {
     override val name: String = "Ver3½=GPs"
-    override val hasRaceCondition: Boolean = true
+    override val deterministic: Boolean = false
 
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val worker = Worker(graph, cliqueConsumer)

@@ -2,7 +2,9 @@ mod known_random_graph;
 mod utils;
 
 use bron_kerbosch::clique_consumers::{CliqueCollector, CliqueCounter};
-use bron_kerbosch::{FUNC_NAMES, OrderedCliques, Vertex, VertexSetLike, explore, order_cliques};
+use bron_kerbosch::{
+    NUM_FUNCS, OrderedCliques, Vertex, VertexSetLike, algo_explore, algo_name, order_cliques,
+};
 use known_random_graph::{Size, read_undirected};
 use stats::SampleStatistics;
 
@@ -41,9 +43,7 @@ enum Run {
     Regular,
 }
 
-const NUM_FUNCS: usize = FUNC_NAMES.len();
 const CLIQUE_MIN_SIZE: usize = 3;
-const NUM_VISITING_THREADS: usize = 5;
 
 type Seconds = f32;
 
@@ -85,25 +85,22 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
 
     for sample in 0..=timed_samples {
         for &func_index in func_indices {
+            let func_name = algo_name(func_index);
             if sample == 0 {
                 let consumer = CliqueCollector::new(CLIQUE_MIN_SIZE);
                 let cliques = utils::do_timely(
-                    || explore(func_index, &graph, consumer, NUM_VISITING_THREADS),
-                    format!("{} is still busy collecting", FUNC_NAMES[func_index]),
+                    || algo_explore(func_index, &graph, consumer),
+                    format!("{} is still busy collecting", func_name),
                 );
                 let current = order_cliques(cliques.into_iter());
                 if run == Run::OneOff {
-                    println!(
-                        "{} cliques found by {}",
-                        current.len(),
-                        FUNC_NAMES[func_index]
-                    );
+                    println!("{} cliques found by {}", current.len(), func_name);
                 }
                 if let Some(first_result) = first.as_ref() {
                     if *first_result != current {
                         eprintln!(
                             "  {:8}: expected {} cliques, obtained {} different cliques",
-                            FUNC_NAMES[func_index],
+                            func_name,
                             first_result.len(),
                             current.len()
                         );
@@ -114,7 +111,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
                     {
                         eprintln!(
                             "  {:8}: expected {} cliques, obtained {} cliques",
-                            FUNC_NAMES[func_index],
+                            func_name,
                             known_clique_count,
                             current.len()
                         );
@@ -124,14 +121,14 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
             } else {
                 let consumer = CliqueCounter::new(CLIQUE_MIN_SIZE);
                 let instant = Instant::now();
-                let clique_count = explore(func_index, &graph, consumer, NUM_VISITING_THREADS);
+                let clique_count = algo_explore(func_index, &graph, consumer);
                 let secs: Seconds = instant.elapsed().as_secs_f32();
                 if let Some(known_clique_count) = known_clique_count
                     && clique_count != known_clique_count
                 {
                     eprintln!(
                         "  {:8}: expected {} cliques, obtained {} cliques",
-                        FUNC_NAMES[func_index], known_clique_count, clique_count
+                        func_name, known_clique_count, clique_count
                     );
                 }
                 times[func_index].put(secs);
@@ -140,7 +137,7 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
     }
     if run == Run::Regular {
         for &func_index in func_indices {
-            let func_name = FUNC_NAMES[func_index];
+            let func_name = algo_name(func_index);
             let mean = times[func_index].mean();
             let reldev = times[func_index].deviation() / mean;
             println!("{:10} {:6.3}s ± {:.0}%", func_name, mean, 100.0 * reldev);
@@ -237,7 +234,7 @@ fn bk(
                         ["Size"].iter().map(|&s| String::from(s)).chain(
                             set_types_used
                                 .iter()
-                                .cartesian_product(FUNC_NAMES.iter())
+                                .cartesian_product((0..NUM_FUNCS).map(algo_name))
                                 .flat_map(|(set_type, name)| {
                                     vec![
                                         format!("{name}@{set_type} min"),
@@ -304,7 +301,7 @@ fn main() -> Result<(), std::io::Error> {
             |set_type: SetType, _size: usize| -> Vec<usize> {
                 match set_type {
                     SetType::HashSet => (0..NUM_FUNCS).collect(),
-                    _ => vec![1, 4, 7, 9],
+                    _ => vec![1, 4, 7],
                 }
             },
         )?;
@@ -318,8 +315,8 @@ fn main() -> Result<(), std::io::Error> {
             3,
             |set_type: SetType, _size: usize| -> Vec<usize> {
                 match set_type {
-                    SetType::HashSet => (2..=9).collect(),
-                    _ => vec![2, 4, 7, 9],
+                    SetType::HashSet => (2..NUM_FUNCS).collect(),
+                    _ => vec![2, 4, 7],
                 }
             },
         )?;
@@ -328,10 +325,15 @@ fn main() -> Result<(), std::io::Error> {
             Run::Regular,
             "1M",
             std::iter::empty()
-                .chain((250_000..2_000_000).step_by(250_000))
+                .chain((500_000..2_000_000).step_by(250_000))
                 .chain((2_000_000..=5_000_000).step_by(1_000_000)),
             3,
-            |_set_type: SetType, _size: usize| -> Vec<usize> { vec![4, 7, 9] },
+            |set_type: SetType, _size: usize| -> Vec<usize> {
+                match set_type {
+                    SetType::HashSet => [vec![4, 7], (9..NUM_FUNCS).collect()].concat(),
+                    _ => vec![4, 7],
+                }
+            },
         )?;
     } else if let (Some(order), Some(sizes)) = (
         matches.get_one::<String>("order"),
