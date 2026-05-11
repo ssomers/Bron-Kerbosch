@@ -4,24 +4,40 @@ package BronKerbosch
 
 import "sync"
 
-func bronKerbosch3gp0(graph *UndirectedGraph, consumer Consumer) {
+func bronKerbosch3gp1(graph *UndirectedGraph, consumer Consumer) {
 	bronKerbosch3om(graph, consumer, 1)
 }
 
-func bronKerbosch3gp1(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 4)
-}
-
 func bronKerbosch3gp2(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 16)
+	bronKerbosch3om(graph, consumer, 2)
 }
 
 func bronKerbosch3gp3(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 64)
+	bronKerbosch3om(graph, consumer, 3)
 }
 
 func bronKerbosch3gp4(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 256)
+	bronKerbosch3om(graph, consumer, 4)
+}
+
+func bronKerbosch3gp5(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 5)
+}
+
+func bronKerbosch3gp6(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 6)
+}
+
+func bronKerbosch3gp8(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 8)
+}
+
+func bronKerbosch3gp24(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 24)
+}
+
+func bronKerbosch3gp72(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 72)
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {

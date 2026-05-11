@@ -73,10 +73,11 @@ pub fn visit<VertexSet, Consumer>(
         // Same logic as below, but stripped down for this common case
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
-            if consumer.is_accepted_size(clique_in_progress.height + 1)
+            if clique_in_progress.height + 1 >= consumer.min_size()
                 && neighbours.is_disjoint(&excluded)
             {
-                consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
+                let clique = clique_in_progress.pile(v);
+                consumer.accept(clique.iter().copied().collect());
             }
         });
         return;
@@ -93,10 +94,11 @@ pub fn visit<VertexSet, Consumer>(
                 let local_degree = neighbours.intersection(&candidates).count();
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
-                    if consumer.is_accepted_size(clique_in_progress.height + 1)
+                    if clique_in_progress.height + 1 >= consumer.min_size()
                         && neighbours.is_disjoint(&excluded)
                     {
-                        consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
+                        let clique = clique_in_progress.pile(v);
+                        consumer.accept(clique.iter().copied().collect());
                     }
                 } else {
                     if seen_local_degree < local_degree {
@@ -149,10 +151,11 @@ pub fn visit<VertexSet, Consumer>(
                     neighbouring_excluded,
                     &clique_in_progress.pile(v),
                 );
-            } else if consumer.is_accepted_size(clique_in_progress.height + 1)
+            } else if clique_in_progress.height + 1 >= consumer.min_size()
                 && excluded.is_disjoint(neighbours)
             {
-                consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
+                let clique = clique_in_progress.pile(v);
+                consumer.accept(clique.iter().copied().collect());
             }
             excluded.insert(v);
         }

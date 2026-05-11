@@ -48,12 +48,12 @@ internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr>
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
                                ICliqueConsumer mainConsumer,
                                PivotChoice pivotChoice,
-                               int numVisitingThreads)
+                               int maxDegreeOfParallelism)
     {
         var starter = new TransformManyBlock<UndirectedGraph<VertexSet, VertexSetMgr>, VisitJob>(Step1);
         var spawner = new TransformBlock<VisitJob, ICliqueConsumer>(
             job => Step2(graph, mainConsumer.StartNew(), pivotChoice, job),
-            new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = numVisitingThreads });
+            new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism });
         var gatherer = new ActionBlock<ICliqueConsumer>(mainConsumer.Absorb);
         var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
         _ = starter.LinkTo(spawner, linkOptions);

@@ -27,7 +27,7 @@ internal class SampleStatistics {
     fun max(): Long = max
 
     fun mean(): Double = if (samples > 0) {
-        max(min.toDouble(), kotlin.math.min(max.toDouble(), sum / samples))
+        max(min.toDouble(), min(max.toDouble(), sum / samples))
     } else {
         Double.NaN
     }
