@@ -8,7 +8,7 @@ edition = "2024"
 crossbeam = "0.8.4"
 crossbeam-channel = "0.5.15"
 fnv = "1.0.7"
-hashbrown = "0.17.0"
+hashbrown = "0.17.1"
 rand = "0.10.1"
 
 [dev-dependencies]
