@@ -65,8 +65,8 @@ class LangLib:
         assert lib != ""
         self.Lib = lib
 
-    def at_lib(self) -> str:
-        return f"@{self.Lib}" if self.Lib else ""
+    def __str__(self) -> str:
+        return self.Language.name + (f"@{self.Lib}" if self.Lib else "")
 
     def __eq__(self, them: object) -> bool:
         assert isinstance(them, LangLib)
@@ -86,7 +86,7 @@ class Case:
         self.Ver = ver
 
     def __str__(self) -> str:
-        return f"{self.LangLib.Language.name}{self.LangLib.at_lib()} {self.Ver}"
+        return f"{self.LangLib} {self.Ver}"
 
     def __hash__(self) -> int:
         return hash((self.LangLib.Language, self.LangLib.Lib, self.Ver))
@@ -111,11 +111,15 @@ def color_by_ver(case: Case) -> str:
         "Ver3½-GPX": "#33CC00",
         "Ver3½=GPc": "#669999",
         "Ver3½=GPs": "#669966",
-        "Ver3½=GP0": "#3399CC",
-        "Ver3½=GP1": "#669999",
-        "Ver3½=GP2": "#996666",
-        "Ver3½=GP3": "#CC9966",
-        "Ver3½=GP4": "#CCCC66",
+        "Ver3½=GP1": "#3399CC",
+        "Ver3½=GP2": "#3399CC",
+        "Ver3½=GP3": "#3399CC",
+        "Ver3½=GP4": "#669999",
+        "Ver3½=GP5": "#6699AA",
+        "Ver3½=GP6": "#6699CC",
+        "Ver3½=GP8": "#996666",
+        "Ver3½=GP24": "#CC9966",
+        "Ver3½=GP72": "#CCCC66",
     }[case.Ver]
 
 
@@ -247,13 +251,14 @@ def read_csv(
                         max=read_seconds(row[c * 3 + 3]),
                     )
                     m_per_size_by_case.setdefault(case, []).append(m)
+                else:
+                    pass  # print(f"\trejecting {case}")
 
     for case in list(m_per_size_by_case.keys()):
         if all(m_per_size_by_case[case][s].isnan() for s in range(len(sizes))):
             # print(f"\tbacking out on {case}")
             del m_per_size_by_case[case]
     assert len(sizes)
-    assert len(m_per_size_by_case)
     for m_per_size in m_per_size_by_case.values():
         if len(m_per_size) != len(sizes):
             breakpoint()
@@ -393,6 +398,7 @@ def publish_report(
                 case.LangLib == langlib and case.Ver in version_linestyle
             ),
         )
+        assert measurements1, f"no measurements for {langlib} order {orderstr}"
         if cutoff := {
             "10k": 10_000,
             "1M": 500_000,
@@ -429,6 +435,7 @@ def publish_version_report(
         orderstr=orderstr,
         case_selector=lambda case: case.LangLib == langlib and case.Ver in versions,
     )
+    assert measurements, f"no measurements for {langlib} order {orderstr}"
     publish_measurements(
         basename=basebasename + f"_{langlib.Language.name}_{orderstr}",
         language=langlib.Language,
@@ -564,19 +571,29 @@ def publish_reports() -> None:
             langlib=LangLib(Language.java),
             versions=["Ver3½-GP", "Ver3½=GPs", "Ver3½=GPc"],
         )
-        publish_version_report(
-            basebasename="report_6",
-            orderstr=orderstr,
-            langlib=LangLib(Language.go),
-            versions=[
-                "Ver3½-GP",
-                "Ver3½=GP0",
-                "Ver3½=GP1",
-                "Ver3½=GP2",
-                "Ver3½=GP3",
-                "Ver3½=GP4",
-            ],
-        )
+        for langlib in [
+            LangLib(Language.csharp, "HashSet"),
+            LangLib(Language.go),
+            LangLib(Language.kotlin),
+            LangLib(Language.rust, "Hash"),
+        ]:
+            publish_version_report(
+                basebasename="report_6",
+                orderstr=orderstr,
+                langlib=langlib,
+                versions=[
+                    "Ver3½-GP",
+                    "Ver3½=GP1",
+                    "Ver3½=GP2",
+                    "Ver3½=GP3",
+                    "Ver3½=GP4",
+                    "Ver3½=GP5",
+                    "Ver3½=GP6",
+                    "Ver3½=GP8",
+                    "Ver3½=GP24",
+                    "Ver3½=GP72",
+                ],
+            )
     # 7. Languages
     for orderstr in ["100", "10k", "1M"]:
         publish_report(
@@ -609,7 +626,7 @@ def publish_reports() -> None:
             version_linestyle={
                 "Ver3½=GPs": "dotted",
                 "Ver3½=GPc": None,
-                "Ver3½=GP2": None,
+                "Ver3½=GP6": None,
             },
             linestyle_inset={"channels": None, "simple": "dashed"},
             label_by_case=lambda case: case.LangLib.Language.short_name(),

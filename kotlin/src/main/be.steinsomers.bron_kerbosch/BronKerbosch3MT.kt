@@ -3,17 +3,13 @@ package be.steinsomers.bron_kerbosch
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.BlockingQueue
 
-class BronKerbosch3MT : BronKerboschAlgorithm {
-    override val name: String = "Ver3½=GPc"
-    override val hasRaceCondition: Boolean = true
-
-    companion object {
-        private const val NUM_VISITING_THREADS = 5
-    }
+class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
+    override val name: String = String.format("Ver3½=GP%d", visitingThreads)
+    override val deterministic: Boolean = false
 
     @Throws(InterruptedException::class)
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val worker = Worker(graph)
+        val worker = Worker(graph, visitingThreads)
         worker.work(cliqueConsumer)
     }
 
@@ -30,7 +26,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         }
     }
 
-    private class Worker(private val graph: UndirectedGraph) {
+    private class Worker(val graph: UndirectedGraph, val visitingThreads: Int) {
         private val degeneracy = GraphDegeneracy(graph)
         private val visitQueue: BlockingQueue<VisitJob> = ArrayBlockingQueue(64)
 
@@ -42,9 +38,9 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
                             Util.partition(graph.neighbours(v)) { v -> degeneracy.isCandidate(v) }
                         visitQueue.put(VisitJob.Work(v, neighbouringCandidates, neighbouringExcluded))
                     }
-                    repeat(NUM_VISITING_THREADS) { visitQueue.put(VisitJob.CleanEnd) }
+                    repeat(visitingThreads) { visitQueue.put(VisitJob.CleanEnd) }
                 } catch (_: InterruptedException) {
-                    repeat(NUM_VISITING_THREADS) { visitQueue.put(VisitJob.DirtyEnd) }
+                    repeat(visitingThreads) { visitQueue.put(VisitJob.DirtyEnd) }
                 }
             }
         }
@@ -71,7 +67,7 @@ class BronKerbosch3MT : BronKerboschAlgorithm {
         @Throws(InterruptedException::class)
         fun work(cliqueConsumer: CliqueConsumer) {
             val visitorProducer = Thread(VisitProducer())
-            val storage = cliqueConsumer.storage.spawn(NUM_VISITING_THREADS)
+            val storage = cliqueConsumer.storage.spawn(visitingThreads)
             val visitors =
                 storage.map { storage -> CliqueConsumer(minSize = cliqueConsumer.minSize, storage = storage) }
                     .map { consumer -> Thread(Visitor(consumer)) }

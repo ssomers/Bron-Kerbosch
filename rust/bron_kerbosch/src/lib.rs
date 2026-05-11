@@ -17,6 +17,7 @@ mod main_lab_tests;
 #[cfg(test)]
 mod vertexset_tests;
 
+pub use core::algorithm::BronKerboschAlgorithm;
 pub use core::clique::Clique;
 pub use core::clique_consumer::CliqueConsumer;
 pub use core::clique_ordering::{OrderedCliques, order_cliques};
@@ -24,44 +25,60 @@ pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};
 pub use core::vertexsetlike::VertexSetLike;
 
-pub const FUNC_NAMES: &[&str] = &[
-    "Ver1",
-    "Ver1½",
-    "Ver2-GP",
-    "Ver2½",
-    "Ver2½-GP",
-    "Ver2½-GPX",
-    "Ver2½-RP",
-    "Ver3½-GP",
-    "Ver3½-GPX",
-    #[cfg(not(miri))]
-    "Ver3½=GPc",
-];
+pub const NUM_FUNCS: usize = 18;
 
-pub const FUNC_INDEX_MT: usize = 9;
+macro_rules! algo_select {
+    ($index: ident, $f: ident, $args: tt) => {
+        match $index {
+            0 => core::bron_kerbosch1a::Algo::$f$args,
+            1 => core::bron_kerbosch1b::Algo::$f$args,
+            2 => core::bron_kerbosch2a_gp::Algo::$f$args,
+            3 => core::bron_kerbosch2b::Algo::$f$args,
+            4 => core::bron_kerbosch2b_gp::Algo::$f$args,
+            5 => core::bron_kerbosch2b_gpx::Algo::$f$args,
+            6 => core::bron_kerbosch2b_rp::Algo::$f$args,
+            7 => core::bron_kerbosch3_gp::Algo::$f$args,
+            8 => core::bron_kerbosch3_gpx::Algo::$f$args,
+            9 => core::bron_kerbosch3_mt::Algo::<1>::$f$args,
+            10 => core::bron_kerbosch3_mt::Algo::<2>::$f$args,
+            11 => core::bron_kerbosch3_mt::Algo::<3>::$f$args,
+            12 => core::bron_kerbosch3_mt::Algo::<4>::$f$args,
+            13 => core::bron_kerbosch3_mt::Algo::<5>::$f$args,
+            14 => core::bron_kerbosch3_mt::Algo::<6>::$f$args,
+            15 => core::bron_kerbosch3_mt::Algo::<8>::$f$args,
+            16 => core::bron_kerbosch3_mt::Algo::<24>::$f$args,
+            17 => core::bron_kerbosch3_mt::Algo::<72>::$f$args,
+            _ => panic!(),
+        }
+    };
+}
 
-pub fn explore<VertexSet, Consumer>(
+pub fn algo_name(func_index: usize) -> String {
+    algo_select!(func_index, name, ())
+}
+
+pub fn algo_deterministic(func_index: usize) -> bool {
+    algo_select!(func_index, deterministic, ())
+}
+
+pub fn algo_explore<VertexSet, Consumer>(
     func_index: usize,
     graph: &Graph<VertexSet>,
     consumer: Consumer,
-    num_visiting_threads: usize,
 ) -> Consumer::Harvest
 where
     VertexSet: VertexSetLike + Sync,
     Consumer: CliqueConsumer + Clone + Send,
 {
-    assert!(num_visiting_threads >= 1);
-    match func_index {
-        0 => core::bron_kerbosch1a::explore(graph, consumer),
-        1 => core::bron_kerbosch1b::explore(graph, consumer),
-        2 => core::bron_kerbosch2a_gp::explore(graph, consumer),
-        3 => core::bron_kerbosch2b::explore(graph, consumer),
-        4 => core::bron_kerbosch2b_gp::explore(graph, consumer),
-        5 => core::bron_kerbosch2b_gpx::explore(graph, consumer),
-        6 => core::bron_kerbosch2b_rp::explore(graph, consumer),
-        7 => core::bron_kerbosch3_gp::explore(graph, consumer),
-        8 => core::bron_kerbosch3_gpx::explore(graph, consumer),
-        FUNC_INDEX_MT => core::bron_kerbosch3_mt::explore(graph, consumer, num_visiting_threads),
-        _ => panic!(),
-    }
+    algo_select!(func_index, explore, (graph, consumer))
+}
+
+#[test]
+fn algo_names_are_unique() {
+    use std::collections::BTreeSet;
+    assert_eq!(
+        (0..NUM_FUNCS).map(algo_name).collect::<BTreeSet<_>>().len(),
+        NUM_FUNCS,
+        "algorithm names are not unique"
+    );
 }

@@ -1,30 +1,38 @@
 //! Naive Bron-Kerbosch algorithm
 
+use super::algorithm::BronKerboschAlgorithm;
 use super::clique::Clique;
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::vertexsetlike::VertexSetLike;
 use std::ops::Not;
 
-pub fn explore<VertexSet, Consumer>(
-    graph: &Graph<VertexSet>,
-    mut consumer: Consumer,
-) -> Consumer::Harvest
-where
-    VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
-{
-    let candidates: VertexSet = graph.connected_vertices().collect();
-    if candidates.is_empty().not() {
-        visit(
-            graph,
-            &mut consumer,
-            candidates,
-            VertexSet::new(),
-            Clique::EMPTY,
-        );
+pub struct Algo();
+impl BronKerboschAlgorithm for Algo {
+    fn name() -> String {
+        String::from("Ver1")
     }
-    consumer.harvest()
+
+    fn explore<VertexSet, Consumer>(
+        graph: &Graph<VertexSet>,
+        mut consumer: Consumer,
+    ) -> Consumer::Harvest
+    where
+        VertexSet: VertexSetLike,
+        Consumer: CliqueConsumer,
+    {
+        let candidates: VertexSet = graph.connected_vertices().collect();
+        if candidates.is_empty().not() {
+            visit(
+                graph,
+                &mut consumer,
+                candidates,
+                VertexSet::new(),
+                Clique::EMPTY,
+            );
+        }
+        consumer.harvest()
+    }
 }
 
 fn visit<VertexSet, Consumer>(
@@ -42,7 +50,7 @@ fn visit<VertexSet, Consumer>(
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
-        if excluded.is_empty() && consumer.is_accepted_size(clique_in_progress.len()) {
+        if excluded.is_empty() && clique_in_progress.len() >= consumer.min_size() {
             consumer.accept(clique_in_progress);
         }
         return;

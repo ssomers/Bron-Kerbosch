@@ -177,12 +177,23 @@ Ways to implement parallelism varies per language:
 ![Time spent on graphs of order 10k](doc/report_6_java_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_6_java_1M.svg)
 
-* In Go, Ver3=GP0 shows the overhead of channels if you don't allow much to operate in parallel; 
-  and that there's no need to severely limit the number of goroutines
+* In Go, C#, Kotlin and Rust, the CPU clearly has 6 cores willing to work. There's no use in tuning the number of goroutines in Go or MaxDegreeOfParallelism in C#, while in Rust, too many explicit threads incur a slight cost.
 
 ![Time spent on graphs of order 100](doc/report_6_go_100.svg)
 ![Time spent on graphs of order 10k](doc/report_6_go_10k.svg)
 ![Time spent on graphs of order 1M](doc/report_6_go_1M.svg)
+
+![Time spent on graphs of order 100](doc/report_6_csharp_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_csharp_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_csharp_1M.svg)
+
+![Time spent on graphs of order 100](doc/report_6_kotlin_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_kotlin_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_kotlin_1M.svg)
+
+![Time spent on graphs of order 100](doc/report_6_rust_100.svg)
+![Time spent on graphs of order 10k](doc/report_6_rust_10k.svg)
+![Time spent on graphs of order 1M](doc/report_6_rust_1M.svg)
 
 
 ## Comparing languages
@@ -254,12 +265,6 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
 # How to run & test
 
 ## Python 3
-To obtain these results:
-  - [dense graph of order 100](doc/details_python311_100.svg)
-  - [plain graph of order 10k](doc/details_python311_10k.svg)
-  - [sparse graph of order 1M](doc/details_python311_1M.svg)
-
-Perform:
 
     cd python3
     (once) python -m venv venv
@@ -272,12 +277,6 @@ Perform:
     python -O main.py
 
 ## Rust
-To obtain these results:
-  - [dense graph of order 100](doc/details_rust_100.svg)
-  - [plain graph of order 10k](doc/details_rust_10k.svg)
-  - [sparse graph of order 1M](doc/details_rust_1M.svg)
-
-Perform:
 
     cd rust
     (once) cargo install cargo-edit
@@ -289,12 +288,6 @@ Perform:
     cargo run --release
 
 ## Go
-To obtain these results:
-  - [dense graph of order 100](doc/details_go_100.svg)
-  - [plain graph of order 10k](doc/details_go_10k.svg)
-  - [sparse graph of order 1M](doc/details_go_1M.svg)
-
-Perform:
 
     cd go
     (if edited) go fmt ./...
@@ -314,12 +307,7 @@ Optionally, on MSYS2:
 
 
 ## C#
-To obtain these results:
-  - [dense graph of order 100](doc/details_csharp_100.svg)
-  - [plain graph of order 10k](doc/details_csharp_10k.svg)
-  - [sparse graph of order 1M](doc/details_csharp_1M.svg)
 
-Perform:
   - open csharp\BronKerboschStudy.sln with Visual Studio 2026
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
@@ -328,12 +316,7 @@ Perform:
 
 
 ## F#
-To obtain these results:
-  - [dense graph of order 100](doc/details_fsharp_100.svg)
-  - [plain graph of order 10k](doc/details_fsharp_10k.svg)
-  - [sparse graph of order 1M](doc/details_fsharp_1M.svg)
 
-Perform:
   - open fsharp\BronKerbosch.slnx with Visual Studio 2026
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
@@ -342,12 +325,7 @@ Perform:
 
 
 ## C++ 20
-To obtain these results:
-  - [dense graph of order 100](doc/details_cpp_100.svg)
-  - [plain graph of order 10k](doc/details_cpp_10k.svg)
-  - [sparse graph of order 1M](doc/details_cpp_1M.svg)
 
-Perform:
   - open cpp\BronKerboschStudy.sln with Visual Studio 2022
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
@@ -356,12 +334,7 @@ Perform:
 
 
 ## Java
-To obtain these results:
-  - [dense graph of order 100](doc/details_java_100.svg)
-  - [plain graph of order 10k](doc/details_java_10k.svg)
-  - [sparse graph of order 1M](doc/details_java_1M.svg)
 
-Perform:
   - open folder java with IntelliJ IDEA 2026 (Community Edition)
   - (if edited) set run configuration to "Test"
   - (if edited) Run > Run 'Test'
@@ -370,12 +343,7 @@ Perform:
 
 
 ## Kotlin
-To obtain these results:
-  - [dense graph of order 100](doc/details_kotlin_100.svg)
-  - [plain graph of order 10k](doc/details_kotlin_10k.svg)
-  - [sparse graph of order 1M](doc/details_kotlin_1M.svg)
 
-Perform:
   - open folder kotlin with IntelliJ IDEA 2026 (Community Edition)
   - (if edited) set run configuration to "Test"
   - (if edited) Run > Run 'Test'

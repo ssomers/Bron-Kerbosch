@@ -3,7 +3,6 @@ package be.steinsomers.bron_kerbosch
 
 class BronKerbosch1 : BronKerboschAlgorithm {
     override val name: String = "Ver1½"
-    override val hasRaceCondition: Boolean = false
 
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
         val candidates: MutableSet<Vertex> = graph.connectedVertices().toCollection(HashSet())

@@ -27,10 +27,11 @@ impl CliqueCollector {
 impl CliqueConsumer for CliqueCollector {
     type Harvest = Vec<Clique>;
 
-    fn is_accepted_size(&self, size: usize) -> bool {
-        size >= self.min_size
+    fn min_size(&self) -> usize {
+        self.min_size
     }
     fn accept(&mut self, clique: Clique) {
+        debug_assert!(clique.len() >= self.min_size);
         self.cliques.push(clique)
     }
     fn harvest(self) -> Vec<Clique> {
@@ -61,10 +62,11 @@ impl CliqueCounter {
 impl CliqueConsumer for CliqueCounter {
     type Harvest = usize;
 
-    fn is_accepted_size(&self, size: usize) -> bool {
-        size >= self.min_size
+    fn min_size(&self) -> usize {
+        self.min_size
     }
-    fn accept(&mut self, _: Clique) {
+    fn accept(&mut self, clique: Clique) {
+        debug_assert!(clique.len() >= self.min_size);
         self.cliques += 1
     }
     fn harvest(self) -> usize {

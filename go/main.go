@@ -133,9 +133,12 @@ func bk(orderstr string, sizes []int, funcIndices []int, timedSamples int) {
 }
 
 func main() {
-	allFuncIndices := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
-	mostFuncIndices := []int{1, 2, 3, 4, 5, 6, 7, 8}
-	mtFuncIndices := []int{3, 4, 5, 6, 7, 8}
+	allFuncIndices:= make([]int, core.NumFuncs)
+	for i := 0; i < core.NumFuncs; i++ {
+        allFuncIndices[i] = i
+    }
+	mostFuncIndices := allFuncIndices[1:]
+	mtFuncIndices := allFuncIndices[3:]
 	if len(os.Args) == 1 {
 		var sizes_100 []int
 		var sizes_10k []int

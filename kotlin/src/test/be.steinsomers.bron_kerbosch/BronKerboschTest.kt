@@ -211,10 +211,10 @@ internal class BronKerboschTest {
             val graph = graph(adjacencies)
             Portfolio.ALGOS.forEach { algo ->
                 repeat(
-                    if (algo.hasRaceCondition) {
-                        100
-                    } else {
+                    if (algo.deterministic) {
                         1
+                    } else {
+                        11 // we also have 9 versions, each differing only by thread count
                     }
                 ) {
                     val cliqueCollector = CliqueCollector()

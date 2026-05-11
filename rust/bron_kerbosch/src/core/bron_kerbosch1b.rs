@@ -1,5 +1,6 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
+use super::algorithm::BronKerboschAlgorithm;
 use super::clique_consumer::CliqueConsumer;
 use super::graph::Graph;
 use super::pile::Pile;
@@ -9,26 +10,33 @@ use std::ops::Not;
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore<VertexSet, Consumer>(
-    graph: &Graph<VertexSet>,
-    mut consumer: Consumer,
-) -> Consumer::Harvest
-where
-    VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
-{
-    let candidates: VertexSet = graph.connected_vertices().collect();
-    let num_candidates = candidates.len();
-    if num_candidates > 0 {
-        visit(
-            graph,
-            &mut consumer,
-            candidates,
-            VertexSet::with_capacity(num_candidates),
-            &Pile::EMPTY,
-        );
+pub struct Algo();
+impl BronKerboschAlgorithm for Algo {
+    fn name() -> String {
+        String::from("Ver1½")
     }
-    consumer.harvest()
+
+    fn explore<VertexSet, Consumer>(
+        graph: &Graph<VertexSet>,
+        mut consumer: Consumer,
+    ) -> Consumer::Harvest
+    where
+        VertexSet: VertexSetLike,
+        Consumer: CliqueConsumer,
+    {
+        let candidates: VertexSet = graph.connected_vertices().collect();
+        let num_candidates = candidates.len();
+        if num_candidates > 0 {
+            visit(
+                graph,
+                &mut consumer,
+                candidates,
+                VertexSet::with_capacity(num_candidates),
+                &Pile::EMPTY,
+            );
+        }
+        consumer.harvest()
+    }
 }
 
 fn visit<VertexSet, Consumer>(
@@ -58,10 +66,11 @@ fn visit<VertexSet, Consumer>(
                 excluded.intersection(neighbours).copied().collect(),
                 &clique_in_progress.pile(v),
             );
-        } else if consumer.is_accepted_size(clique_in_progress.height + 1)
+        } else if clique_in_progress.height + 1 >= consumer.min_size()
             && excluded.is_disjoint(neighbours)
         {
-            consumer.accept(clique_in_progress.pile(v).iter().copied().collect());
+            let clique = clique_in_progress.pile(v);
+            consumer.accept(clique.iter().copied().collect());
         }
         excluded.insert(v);
     }
