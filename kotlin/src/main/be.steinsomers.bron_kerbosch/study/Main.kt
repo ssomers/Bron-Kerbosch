@@ -111,7 +111,7 @@ internal object Main {
         val eliteAlgos = allAlgos.filter {
             it is BronKerbosch2gp
                     || it is BronKerbosch3gp
-                    || it is BronKerbosch3MT && it.visitingThreads <= 6
+                    || it is BronKerbosch3MT
                     || it is BronKerbosch3ST
         }
         val sizes100 = IntStream.iterate(2_000, { s -> s <= 3_000 }, { s -> s + 50 }).toArray()

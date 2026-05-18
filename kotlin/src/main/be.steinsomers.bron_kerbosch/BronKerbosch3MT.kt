@@ -1,80 +1,72 @@
 package be.steinsomers.bron_kerbosch
 
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.BlockingQueue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
+@Suppress("MemberVisibilityCanBePrivate")
 class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
     override val name: String = "Ver3½=GP$visitingThreads"
     override val deterministic: Boolean = false
 
-    @Throws(InterruptedException::class)
+    private fun log(msg: String) {
+        // println(msg)
+    }
+
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val worker = Worker(graph, visitingThreads)
-        worker.work(cliqueConsumer)
+        val dedicatedStorage = cliqueConsumer.storage.spawn(visitingThreads)
+        var id = 0
+        runBlocking {
+            val channel = produceJobs(graph)
+            dedicatedStorage.forEach {
+                val ownCliqueConsumer = CliqueConsumer(minSize = cliqueConsumer.minSize, storage = it)
+                launchVisitor(++id, graph, ownCliqueConsumer, channel)
+            }
+        }
+        cliqueConsumer.storage.absorb(dedicatedStorage)
     }
 
-    private sealed class VisitJob {
-        object CleanEnd : VisitJob()
-        object DirtyEnd : VisitJob()
-        data class Work(
-            val startVertex: Vertex, val candidates: MutableSet<Vertex>, val excluded: MutableSet<Vertex>
-        ) : VisitJob() {
-            init {
-                require(startVertex.index >= 0) // as if it would enable Kotlin to enumerate the end cases as negatives
-                require(candidates.isNotEmpty())
-            }
-        }
-    }
+    data class VisitJob(
+        val startVertex: Vertex,
+        val candidates: MutableSet<Vertex>,
+        val excluded: MutableSet<Vertex>
+    )
 
-    private class Worker(val graph: UndirectedGraph, val visitingThreads: Int) {
-        private val degeneracy = GraphDegeneracy(graph)
-        private val visitQueue: BlockingQueue<VisitJob> = ArrayBlockingQueue(64)
-
-        private inner class VisitProducer : Runnable {
-            override fun run() {
-                try {
-                    degeneracy.forEach { v: Vertex ->
-                        val (neighbouringCandidates, neighbouringExcluded) =
-                            Util.partition(graph.neighbours(v)) { v -> degeneracy.isCandidate(v) }
-                        visitQueue.put(VisitJob.Work(v, neighbouringCandidates, neighbouringExcluded))
-                    }
-                    repeat(visitingThreads) { visitQueue.put(VisitJob.CleanEnd) }
-                } catch (_: InterruptedException) {
-                    repeat(visitingThreads) { visitQueue.put(VisitJob.DirtyEnd) }
-                }
+    private fun CoroutineScope.produceJobs(graph: UndirectedGraph): ReceiveChannel<VisitJob> =
+        produce {
+            val degeneracy = GraphDegeneracy(graph)
+            degeneracy.forEach { v: Vertex ->
+                val (neighbouringCandidates, neighbouringExcluded) =
+                    Util.partition(graph.neighbours(v)) { v -> degeneracy.isCandidate(v) }
+                Debug.assert { neighbouringCandidates.isNotEmpty() }
+                send(VisitJob(v, neighbouringCandidates, neighbouringExcluded))
             }
         }
 
-        private inner class Visitor(val cliqueConsumer: CliqueConsumer) : Runnable {
-            override fun run() {
-                while (true) {
-                    when (val job = visitQueue.take()) {
-                        is VisitJob.CleanEnd -> return
-                        is VisitJob.DirtyEnd -> return
-                        is VisitJob.Work ->
-                            BronKerboschPivot.visit(
-                                graph = graph, cliqueConsumer = cliqueConsumer,
-                                pivotChoice = PivotChoice.MaxDegreeLocal,
-                                candidates = job.candidates,
-                                excluded = job.excluded,
-                                cliqueInProgress = Clique.singleton(job.startVertex)
-                            )
-                    }
-                }
-            }
+    private fun CoroutineScope.launchVisitor(
+        id: Int,
+        graph: UndirectedGraph,
+        ownCliqueConsumer: CliqueConsumer,
+        channel: ReceiveChannel<VisitJob>
+    ) = launch(Dispatchers.Default) {
+        log("visitor$id started")
+        for (job in channel) {
+            log("visitor$id started job ${job.startVertex}")
+            async {
+                BronKerboschPivot.visit(
+                    graph = graph, cliqueConsumer = ownCliqueConsumer,
+                    pivotChoice = PivotChoice.MaxDegreeLocal,
+                    candidates = job.candidates,
+                    excluded = job.excluded,
+                    cliqueInProgress = Clique.singleton(job.startVertex)
+                )
+            }.await()
+            log("visitor$id finished job ${job.startVertex}")
         }
-
-        @Throws(InterruptedException::class)
-        fun work(cliqueConsumer: CliqueConsumer) {
-            val visitorProducer = Thread(VisitProducer())
-            val storage = cliqueConsumer.storage.spawn(visitingThreads)
-            val visitors =
-                storage.map { storage -> CliqueConsumer(minSize = cliqueConsumer.minSize, storage = storage) }
-                    .map { consumer -> Thread(Visitor(consumer)) }
-            visitorProducer.start()
-            visitors.forEach { v -> v.start() }
-            visitors.forEach { v -> v.join() }
-            cliqueConsumer.storage.absorb(storage)
-        }
+        log("visitor$id ended")
     }
 }
