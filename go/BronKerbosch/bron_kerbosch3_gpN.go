@@ -41,7 +41,7 @@ func bronKerbosch3gp72(graph *UndirectedGraph, consumer Consumer) {
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {
-	visits := make(chan VisitJob, numVisitors)
+	visits := make(chan VisitJob, 64)
 	go func() {
 		degeneracyVisitor(graph, func(i DegeneracyVisitItem) {
 			v := i.pick
