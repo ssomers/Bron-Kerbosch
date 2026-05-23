@@ -206,9 +206,9 @@ Ways to implement parallelism varies per language:
 
 * Multi-threaded
 
-![Time spent on graphs of order 100](doc/report_7_parallel.svg)
-![Time spent on graphs of order 10k](doc/report_7_parallel.svg)
-![Time spent on graphs of order 1M](doc/report_7_parallel.svg)
+![Time spent on graphs of order 100](doc/report_7_parallel_100.svg)
+![Time spent on graphs of order 10k](doc/report_7_parallel_10k.svg)
+![Time spent on graphs of order 1M](doc/report_7_parallel_1M.svg)
 
 
 ## Comparing versions of languages
