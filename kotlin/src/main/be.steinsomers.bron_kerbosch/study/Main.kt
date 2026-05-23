@@ -61,7 +61,7 @@ internal object Main {
             Files.newBufferedWriter(path, StandardCharsets.UTF_8).use { fo ->
                 fo.write("Size")
                 algos.forEach {
-                    fo.write(String.format(Locale.US, ",%s min,%s mean,%s max", it.name, it.name, it.name))
+                    fo.write(String.format(Locale.ROOT, ",%s min,%s mean,%s max", it.name, it.name, it.name))
                 }
                 fo.write(System.lineSeparator())
                 for (size in sizes) {
@@ -78,13 +78,13 @@ internal object Main {
                     val measurements = algos.map { algo -> TimedAlgo(algo = algo, time = SampleStatistics()) }
                     bkTimed(testData, samples, measurements)
 
-                    fo.write(String.format(Locale.US, "%d", size))
+                    fo.write(String.format(Locale.ROOT, "%d", size))
                     for (mm in measurements) {
                         val max = mm.time.max() / 1e9
                         val min = mm.time.min() / 1e9
                         val mean = mm.time.mean() / 1e9
                         val dev = mm.time.deviation() / 1e9
-                        fo.write(String.format(Locale.US, ",%f,%f,%f", min, mean, max))
+                        fo.write(String.format(Locale.ROOT, ",%f,%f,%f", min, mean, max))
                         if (genuine) {
                             System.out.printf(
                                 "%4s nodes, %7d edges, %8s: %6.3f ± %.0f%%%n",
