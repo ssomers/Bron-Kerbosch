@@ -615,8 +615,8 @@ def publish_reports() -> None:
             languages=[
                 Language.python314,
                 Language.fsharp,
-                Language.kotlin,
                 Language.java,
+                Language.kotlin,
                 Language.go,
                 Language.cpp,
                 Language.csharp,
@@ -646,8 +646,8 @@ def publish_reports() -> None:
                 if (case.LangLib.Language, case.LangLib.Lib, case.Ver)
                 in [
                     (Language.java, None, "Ver3½=GPc"),
-                    (Language.kotlin, None, "Ver3½=GP64"),
-                    (Language.go, None, "Ver3½=GP64"),
+                    (Language.kotlin, None, "Ver3½=GP256"),
+                    (Language.go, None, "Ver3½=GP256"),
                     (Language.csharp, "HashSet", "Ver3½=GP6"),
                     (Language.rust, "Hash", "Ver3½=GP6"),
                 ]
