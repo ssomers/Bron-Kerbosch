@@ -32,12 +32,16 @@ func bronKerbosch3gp8(graph *UndirectedGraph, consumer Consumer) {
 	bronKerbosch3om(graph, consumer, 8)
 }
 
-func bronKerbosch3gp24(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 24)
+func bronKerbosch3gp16(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 16)
 }
 
-func bronKerbosch3gp72(graph *UndirectedGraph, consumer Consumer) {
-	bronKerbosch3om(graph, consumer, 72)
+func bronKerbosch3gp64(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 64)
+}
+
+func bronKerbosch3gp256(graph *UndirectedGraph, consumer Consumer) {
+	bronKerbosch3om(graph, consumer, 256)
 }
 
 func bronKerbosch3om(graph *UndirectedGraph, consumer Consumer, numVisitors int) {

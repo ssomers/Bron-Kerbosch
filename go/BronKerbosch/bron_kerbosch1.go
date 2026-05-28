@@ -22,7 +22,7 @@ func bronKerbosch1visit(graph *UndirectedGraph, consumer Consumer,
 		} else {
 			viable := len(cliqueInProgress)+1 >= consumer.MinSize
 			if viable && excluded.IsDisjoint(neighbours) {
-				consumer.Add(Append(cliqueInProgress, v))
+				consumer.Add(CopyAppend(cliqueInProgress, v))
 			}
 		}
 		excluded.Add(v)
