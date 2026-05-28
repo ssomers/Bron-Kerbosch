@@ -5,7 +5,7 @@ import (
 	"slices"
 )
 
-const NumFuncs = 13
+const NumFuncs = 14
 
 var Funcs = [NumFuncs]func(*UndirectedGraph, Consumer){
 	bronKerbosch1,
@@ -19,8 +19,9 @@ var Funcs = [NumFuncs]func(*UndirectedGraph, Consumer){
 	bronKerbosch3gp5,
 	bronKerbosch3gp6,
 	bronKerbosch3gp8,
-	bronKerbosch3gp24,
-	bronKerbosch3gp72,
+	bronKerbosch3gp16,
+	bronKerbosch3gp64,
+	bronKerbosch3gp256,
 }
 
 var FuncNames = [NumFuncs]string{
@@ -35,12 +36,13 @@ var FuncNames = [NumFuncs]string{
 	"Ver3½=GP5",
 	"Ver3½=GP6",
 	"Ver3½=GP8",
-	"Ver3½=GP24",
-	"Ver3½=GP72",
+	"Ver3½=GP16",
+	"Ver3½=GP64",
+	"Ver3½=GP256",
 }
 
 // Create a copy and append, resistant to later changes in `head`.
-func Append(head Clique, tail Vertex) Clique {
+func CopyAppend(head Clique, tail Vertex) Clique {
 	r := make(Clique, len(head)+1)
 	r[copy(r, head)] = tail
 	return r

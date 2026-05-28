@@ -25,7 +25,7 @@ pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};
 pub use core::vertexsetlike::VertexSetLike;
 
-pub const NUM_FUNCS: usize = 18;
+pub const NUM_FUNCS: usize = 17;
 
 macro_rules! algo_select {
     ($index: ident, $f: ident, $args: tt) => {
@@ -40,14 +40,13 @@ macro_rules! algo_select {
             7 => core::bron_kerbosch3_gp::Algo::$f$args,
             8 => core::bron_kerbosch3_gpx::Algo::$f$args,
             9 => core::bron_kerbosch3_mt::Algo::<1>::$f$args,
-            10 => core::bron_kerbosch3_mt::Algo::<2>::$f$args,
-            11 => core::bron_kerbosch3_mt::Algo::<3>::$f$args,
-            12 => core::bron_kerbosch3_mt::Algo::<4>::$f$args,
-            13 => core::bron_kerbosch3_mt::Algo::<5>::$f$args,
-            14 => core::bron_kerbosch3_mt::Algo::<6>::$f$args,
-            15 => core::bron_kerbosch3_mt::Algo::<8>::$f$args,
-            16 => core::bron_kerbosch3_mt::Algo::<24>::$f$args,
-            17 => core::bron_kerbosch3_mt::Algo::<72>::$f$args,
+            10 => core::bron_kerbosch3_mt::Algo::<4>::$f$args,
+            11 => core::bron_kerbosch3_mt::Algo::<5>::$f$args,
+            12 => core::bron_kerbosch3_mt::Algo::<6>::$f$args,
+            13 => core::bron_kerbosch3_mt::Algo::<8>::$f$args,
+            14 => core::bron_kerbosch3_mt::Algo::<16>::$f$args,
+            15 => core::bron_kerbosch3_mt::Algo::<64>::$f$args,
+            16 => core::bron_kerbosch3_mt::Algo::<256>::$f$args,
             _ => panic!(),
         }
     };

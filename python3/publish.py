@@ -54,9 +54,9 @@ class Language(Enum):
         }[self]
 
 
-languages = [Language[attr] for attr in dir(Language) if "_" not in attr]
-assert all(lang.long_name() for lang in languages)
-assert all(lang.short_name() for lang in languages)
+all_languages = [Language[attr] for attr in dir(Language) if "_" not in attr]
+assert all(lang.long_name() for lang in all_languages)
+assert all(lang.short_name() for lang in all_languages)
 
 
 class LangLib:
@@ -110,16 +110,17 @@ def color_by_ver(case: Case) -> str:
         "Ver3½-GP": "#339900",
         "Ver3½-GPX": "#33CC00",
         "Ver3½=GPc": "#669999",
-        "Ver3½=GPs": "#669966",
+        "Ver3½=GPs": "#CC66CC",
         "Ver3½=GP1": "#3399CC",
         "Ver3½=GP2": "#3399CC",
         "Ver3½=GP3": "#3399CC",
         "Ver3½=GP4": "#669999",
         "Ver3½=GP5": "#6699AA",
         "Ver3½=GP6": "#6699CC",
-        "Ver3½=GP8": "#996666",
-        "Ver3½=GP24": "#CC9966",
-        "Ver3½=GP72": "#CCCC66",
+        "Ver3½=GP8": "#CC99CC",
+        "Ver3½=GP16": "#996666",
+        "Ver3½=GP64": "#CC9966",
+        "Ver3½=GP256": "#CCCC66",
     }[case.Ver]
 
 
@@ -382,23 +383,21 @@ def publish_measurements(
 def publish_report(
     basename: str,
     orderstr: str,
-    langlibs: Sequence[LangLib],
-    version_linestyle: Dict[str, Optional[str]],
+    languages: Sequence[Language],
+    version_linestyle: Callable[[Case], Optional[str]],
     label_by_case: Callable[[Case], str],
     linestyle_inset: Optional[Dict[str, Optional[str]]] = None,
     single_version_suffix: Optional[str] = None,
 ) -> None:
     sizes: List[int] = []
     measurements: Dict[Case, List[Measurement]] = {}
-    for langlib in langlibs:
+    for language in languages:
         sizes1, measurements1 = read_csv(
-            language=langlib.Language,
+            language=language,
             orderstr=orderstr,
-            case_selector=lambda case: (
-                case.LangLib == langlib and case.Ver in version_linestyle
-            ),
+            case_selector=lambda case: version_linestyle(case) is not None,
         )
-        assert measurements1, f"no measurements for {langlib} order {orderstr}"
+        assert measurements1, f"no measurements for {language} order {orderstr}"
         if cutoff := {
             "10k": 10_000,
             "1M": 500_000,
@@ -407,11 +406,11 @@ def publish_report(
             sizes1 = sizes1[idx:]
             measurements1 = {n: m[idx:] for n, m in measurements1.items()}
         if sizes[: len(sizes1)] != sizes1[: len(sizes)]:
-            raise ImportError(f"{sizes} != {sizes1} for {langlib.Language} {orderstr}")
+            raise ImportError(f"{sizes} != {sizes1} for {language} {orderstr}")
         if len(sizes) < len(sizes1):
             sizes = sizes1
         # for case in measurements1:
-        #    print(langlib.Language, " → ", case.Ver)
+        #    print(language, " → ", case.Ver)
         measurements.update(measurements1)
 
     publish_measurements(
@@ -422,7 +421,7 @@ def publish_report(
         measurement_per_size_by_case=measurements,
         label_by_case=label_by_case,
         color_by_case=color_by_language,
-        linestyle_by_case=lambda case: version_linestyle[case.Ver],
+        linestyle_by_case=version_linestyle,
         linestyle_inset=linestyle_inset,
     )
 
@@ -499,19 +498,32 @@ def publish_reports() -> None:
     publish_report(
         basename="report_1",
         orderstr="100",
-        langlibs=[LangLib(Language.python314), LangLib(Language.rust, "Hash")],
-        version_linestyle={"Ver1": "dotted", "Ver1½": None},
+        languages=[Language.python314, Language.rust],
+        version_linestyle=lambda case: (
+            "dotted"
+            if case.Ver == "Ver1" and case.LangLib.Lib in [None, "Hash"]
+            else (
+                "solid"
+                if case.Ver == "Ver1½" and case.LangLib.Lib in [None, "Hash"]
+                else None
+            )
+        ),
         label_by_case=lambda case: f"{case.LangLib.Language.short_name()} {case.Ver}",
     )
     # 2. Ver1 vs. Ver2
     publish_report(
         basename="report_2",
         orderstr="100",
-        langlibs=[
-            LangLib(Language.java),
-            LangLib(Language.rust, "Hash"),
-        ],
-        version_linestyle={"Ver1½": "dotted", "Ver2½": None},
+        languages=[Language.java, Language.rust],
+        version_linestyle=lambda case: (
+            "dotted"
+            if case.Ver == "Ver1½" and case.LangLib.Lib in [None, "Hash"]
+            else (
+                "solid"
+                if case.Ver == "Ver2½" and case.LangLib.Lib in [None, "Hash"]
+                else None
+            )
+        ),
         label_by_case=lambda case: f"{case.LangLib.Language.short_name()} {case.Ver}",
     )
     # 3. Ver2 variants
@@ -590,8 +602,9 @@ def publish_reports() -> None:
                     "Ver3½=GP5",
                     "Ver3½=GP6",
                     "Ver3½=GP8",
-                    "Ver3½=GP24",
-                    "Ver3½=GP72",
+                    "Ver3½=GP16",
+                    "Ver3½=GP64",
+                    "Ver3½=GP256",
                 ],
             )
     # 7. Languages
@@ -599,35 +612,47 @@ def publish_reports() -> None:
         publish_report(
             basename=f"report_7_sequential_{orderstr}",
             orderstr=orderstr,
-            langlibs=[
-                LangLib(Language.python314),
-                LangLib(Language.fsharp),
-                LangLib(Language.kotlin),
-                LangLib(Language.java),
-                LangLib(Language.go),
-                LangLib(Language.cpp, "hashset"),
-                LangLib(Language.csharp, "HashSet"),
-                LangLib(Language.rust, "Hash"),
+            languages=[
+                Language.python314,
+                Language.fsharp,
+                Language.kotlin,
+                Language.java,
+                Language.go,
+                Language.cpp,
+                Language.csharp,
+                Language.rust,
             ],
-            version_linestyle={"Ver3½-GP": None},
+            version_linestyle=lambda case: (
+                "solid"
+                if case.Ver == "Ver3½-GP"
+                and case.LangLib.Lib in [None, "hashset", "HashSet", "Hash"]
+                else None
+            ),
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="Ver3½-GP",
         )
         publish_report(
             basename=f"report_7_parallel_{orderstr}",
             orderstr=orderstr,
-            langlibs=[
-                LangLib(Language.java),
-                LangLib(Language.kotlin),
-                LangLib(Language.go),
-                LangLib(Language.csharp, "HashSet"),
-                LangLib(Language.rust, "Hash"),
+            languages=[
+                Language.java,
+                Language.kotlin,
+                Language.go,
+                Language.csharp,
+                Language.rust,
             ],
-            version_linestyle={
-                "Ver3½=GPs": "dotted",
-                "Ver3½=GPc": None,
-                "Ver3½=GP6": None,
-            },
+            version_linestyle=lambda case: (
+                "solid"
+                if (case.LangLib.Language, case.LangLib.Lib, case.Ver)
+                in [
+                    (Language.java, None, "Ver3½=GPc"),
+                    (Language.kotlin, None, "Ver3½=GP64"),
+                    (Language.go, None, "Ver3½=GP64"),
+                    (Language.csharp, "HashSet", "Ver3½=GP6"),
+                    (Language.rust, "Hash", "Ver3½=GP6"),
+                ]
+                else "dotted" if case.Ver == "Ver3½=GPs" else None
+            ),
             linestyle_inset={"channels": None, "simple": "dashed"},
             label_by_case=lambda case: case.LangLib.Language.short_name(),
             single_version_suffix="parallel Ver3½=GP",
@@ -670,7 +695,7 @@ def publish_reports() -> None:
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         publish_reports()
-        for language in languages:
+        for language in all_languages:
             for orderstr in ["100", "10k", "1M"]:
                 publish_whole_csv(language=language, orderstr=orderstr)
     else:

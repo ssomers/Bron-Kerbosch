@@ -11,11 +11,11 @@ namespace BronKerbosch
             "Ver1½",
             "Ver2-GP", "Ver2½-GP", "Ver2½-GPX",
             "Ver3½-GP", "Ver3½-GPX",
-            "Ver3½=GP1", "Ver3½=GP2", "Ver3½=GP3", "Ver3½=GP4", "Ver3½=GP5", "Ver3½=GP6",
-            "Ver3½=GP8", "Ver3½=GP24", "Ver3½=GP72",
+            "Ver3½=GP1", "Ver3½=GP4", "Ver3½=GP5", "Ver3½=GP6",
+            "Ver3½=GP8", "Ver3½=GP16", "Ver3½=GP64", "Ver3½=GP256",
         ];
 
-        public static bool Deterministic(int funcIndex) => funcIndex >= 6;
+        public static bool Deterministic(int funcIndex) => funcIndex < 6;
 
         public static void Explore<TVertexSet, TVertexSetMgr>(
                 int funcIndex,
@@ -33,14 +33,13 @@ namespace BronKerbosch
                 case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
                 case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
                 case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 1); break;
-                case 7: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 2); break;
-                case 8: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 3); break;
-                case 9: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 4); break;
-                case 10: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 5); break;
-                case 11: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 6); break;
-                case 12: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 8); break;
-                case 13: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 24); break;
-                case 14: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 72); break;
+                case 7: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 4); break;
+                case 8: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 5); break;
+                case 9: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 6); break;
+                case 10: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 8); break;
+                case 11: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 16); break;
+                case 12: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 64); break;
+                case 13: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 256); break;
                 default: throw new ArgumentException("unknown func_index");
             }
         }

@@ -18,7 +18,7 @@ func visit(graph *UndirectedGraph, consumer Consumer,
 			// Same logic as below, stripped down
 			neighbours := graph.neighbours(v)
 			if len(cliqueInProgress)+1 >= consumer.MinSize && excluded.IsDisjoint(neighbours) {
-				consumer.Add(Append(cliqueInProgress, v))
+				consumer.Add(CopyAppend(cliqueInProgress, v))
 			}
 		}
 		return
@@ -34,7 +34,7 @@ func visit(graph *UndirectedGraph, consumer Consumer,
 		if localDegree == 0 {
 			// Same logic as below, stripped down
 			if len(cliqueInProgress)+1 >= consumer.MinSize && neighbours.IsDisjoint(excluded) {
-				consumer.Add(Append(cliqueInProgress, v))
+				consumer.Add(CopyAppend(cliqueInProgress, v))
 			}
 		} else {
 			if seenLocalDegree < localDegree {
@@ -75,7 +75,7 @@ func visit(graph *UndirectedGraph, consumer Consumer,
 				append(cliqueInProgress, v))
 		} else {
 			if len(cliqueInProgress)+1 >= consumer.MinSize && neighbours.IsDisjoint(excluded) {
-				consumer.Add(Append(cliqueInProgress, v))
+				consumer.Add(CopyAppend(cliqueInProgress, v))
 			}
 		}
 		excluded.Add(v)
