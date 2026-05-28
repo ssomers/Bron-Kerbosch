@@ -2,15 +2,15 @@ package be.steinsomers.bron_kerbosch
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
 
 @Suppress("MemberVisibilityCanBePrivate")
-class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
-    override val name: String = "Ver3½=GP$visitingThreads"
+class BronKerbosch3MT(val visitingCoroutines: Int) : BronKerboschAlgorithm {
+    override val name: String = "Ver3½=GP$visitingCoroutines"
     override val deterministic: Boolean = false
 
     private fun log(msg: String) {
@@ -18,13 +18,14 @@ class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
     }
 
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val dedicatedStorage = cliqueConsumer.storage.spawn(visitingThreads)
+        val context: CoroutineContext = Dispatchers.Default
+        val dedicatedStorage = cliqueConsumer.storage.spawn(visitingCoroutines)
         var id = 0
         runBlocking {
-            val channel = produceJobs(graph)
+            val channel = produceJobs(context, graph)
             dedicatedStorage.forEach {
                 val ownCliqueConsumer = CliqueConsumer(minSize = cliqueConsumer.minSize, storage = it)
-                launchVisitor(++id, graph, ownCliqueConsumer, channel)
+                launchVisitor(context, ++id, graph, ownCliqueConsumer, channel)
             }
         }
         cliqueConsumer.storage.absorb(dedicatedStorage)
@@ -36,8 +37,11 @@ class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
         val excluded: MutableSet<Vertex>
     )
 
-    private fun CoroutineScope.produceJobs(graph: UndirectedGraph): ReceiveChannel<VisitJob> =
-        produce {
+    private fun CoroutineScope.produceJobs(
+        context: CoroutineContext,
+        graph: UndirectedGraph
+    ): ReceiveChannel<VisitJob> =
+        produce(context = context) {
             val degeneracy = GraphDegeneracy(graph)
             degeneracy.forEach { v: Vertex ->
                 val (neighbouringCandidates, neighbouringExcluded) =
@@ -48,23 +52,22 @@ class BronKerbosch3MT(val visitingThreads: Int) : BronKerboschAlgorithm {
         }
 
     private fun CoroutineScope.launchVisitor(
+        context: CoroutineContext,
         id: Int,
         graph: UndirectedGraph,
         ownCliqueConsumer: CliqueConsumer,
         channel: ReceiveChannel<VisitJob>
-    ) = launch(Dispatchers.Default) {
+    ) = launch(context = context) {
         log("visitor$id started")
         for (job in channel) {
             log("visitor$id started job ${job.startVertex}")
-            async {
-                BronKerboschPivot.visit(
-                    graph = graph, cliqueConsumer = ownCliqueConsumer,
-                    pivotChoice = PivotChoice.MaxDegreeLocal,
-                    candidates = job.candidates,
-                    excluded = job.excluded,
-                    cliqueInProgress = Clique.singleton(job.startVertex)
-                )
-            }.await()
+            BronKerboschPivot.visit(
+                graph = graph, cliqueConsumer = ownCliqueConsumer,
+                pivotChoice = PivotChoice.MaxDegreeLocal,
+                candidates = job.candidates,
+                excluded = job.excluded,
+                cliqueInProgress = Clique.singleton(job.startVertex)
+            )
             log("visitor$id finished job ${job.startVertex}")
         }
         log("visitor$id ended")
