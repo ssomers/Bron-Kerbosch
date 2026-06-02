@@ -1,12 +1,12 @@
-﻿#include "pch.h"
+#include "pch.h"
 
 #include "Console.h"
 
 #ifdef _MSC_VER
-
+#    pragma warning(disable: 4865)
+#    pragma warning(disable: 4668)
 #    define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #    include <Windows.h>
-
 #endif
 
 void console_init() {

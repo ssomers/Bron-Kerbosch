@@ -326,7 +326,7 @@ Optionally, on MSYS2:
 
 ## C++ 20
 
-  - open cpp\BronKerboschStudy.sln with Visual Studio 2022
+  - open cpp\BronKerboschStudy.sln with Visual Studio 2026
   - (if edited) set configuration to Debug
   - (if edited) Test > Run > All Tests
   - set configuration to Release
