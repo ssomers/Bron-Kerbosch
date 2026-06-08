@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	<GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,14 +13,14 @@
     <Compile Include="UndirectedGraphTest.fs" />
     <Compile Include="DegeneracyTest.fs" />
     <Compile Include="PortfolioTest.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Expecto" Version="10.2.3" />
+    <PackageReference Include="Expecto.FsCheck" Version="10.2.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-    <PackageReference Include="NUnit" Version="4.3.2" />
-    <PackageReference Include="NUnit.Analyzers" Version="4.7.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.15.6" />
   </ItemGroup>
 
   <ItemGroup>
