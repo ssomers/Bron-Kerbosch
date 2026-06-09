@@ -18,15 +18,12 @@ let ParseNegativeInt () =
 
 [<Test>]
 let ParseEmpty () =
-    Assert.Throws<System.FormatException>(fun _ -> (NumbersGame.ParseInt("") |> ignore))
-    |> ignore
+    Assert.That(System.Action(fun _ -> NumbersGame.ParseInt("") |> ignore), Throws.Exception)
 
 [<Test>]
 let ParseUnknownSuffix () =
-    Assert.Throws<System.FormatException>(fun _ -> NumbersGame.ParseInt("1K") |> ignore)
-    |> ignore
+    Assert.That(System.Action(fun _ -> NumbersGame.ParseInt("1K") |> ignore), Throws.Exception)
 
 [<Test>]
 let ParseNonInt () =
-    Assert.Throws<System.FormatException>(fun _ -> NumbersGame.ParseInt("1.1") |> ignore)
-    |> ignore
+    Assert.That(System.Action(fun _ -> NumbersGame.ParseInt("1.1") |> ignore), Throws.Exception)
