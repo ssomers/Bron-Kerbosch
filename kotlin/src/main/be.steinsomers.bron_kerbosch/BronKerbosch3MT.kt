@@ -1,9 +1,12 @@
 package be.steinsomers.bron_kerbosch
 
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
@@ -18,15 +21,15 @@ class BronKerbosch3MT(val visitingCoroutines: Int) : BronKerboschAlgorithm {
     }
 
     override fun explore(graph: UndirectedGraph, cliqueConsumer: CliqueConsumer) {
-        val context: CoroutineContext = Dispatchers.Default
         val dedicatedStorage = cliqueConsumer.storage.spawn(visitingCoroutines)
-        var id = 0
         runBlocking {
+            val context: CoroutineContext = Dispatchers.Default
             val channel = produceJobs(context, graph)
-            dedicatedStorage.forEach {
-                val ownCliqueConsumer = CliqueConsumer(minSize = cliqueConsumer.minSize, storage = it)
-                launchVisitor(context, ++id, graph, ownCliqueConsumer, channel)
+            val workers = dedicatedStorage.mapIndexed { index, storage ->
+                val ownCliqueConsumer = CliqueConsumer(minSize = cliqueConsumer.minSize, storage = storage)
+                launchVisitor(context, index + 1, graph, ownCliqueConsumer, channel)
             }
+            workers.joinAll()
         }
         cliqueConsumer.storage.absorb(dedicatedStorage)
     }
@@ -41,7 +44,7 @@ class BronKerbosch3MT(val visitingCoroutines: Int) : BronKerboschAlgorithm {
         context: CoroutineContext,
         graph: UndirectedGraph
     ): ReceiveChannel<VisitJob> =
-        produce(context = context) {
+        produce(context = context + CoroutineName("degeneracy")) {
             val degeneracy = GraphDegeneracy(graph)
             degeneracy.forEach { v: Vertex ->
                 val (neighbouringCandidates, neighbouringExcluded) =
@@ -57,7 +60,7 @@ class BronKerbosch3MT(val visitingCoroutines: Int) : BronKerboschAlgorithm {
         graph: UndirectedGraph,
         ownCliqueConsumer: CliqueConsumer,
         channel: ReceiveChannel<VisitJob>
-    ) = launch(context = context) {
+    ): Job = launch(context = context + CoroutineName("visitor$id")) {
         log("visitor$id started")
         for (job in channel) {
             log("visitor$id started job ${job.startVertex}")
