@@ -6,10 +6,10 @@ edition = "2024"
 
 [dependencies]
 crossbeam = "0.8.4"
-crossbeam-channel = "0.5.15"
+crossbeam-channel = "0.5.16"
 fnv = "1.0.7"
 hashbrown = "0.17.1"
-rand = "0.10.1"
+rand = "0.10.2"
 
 [dev-dependencies]
 proptest = "1.11.0"
