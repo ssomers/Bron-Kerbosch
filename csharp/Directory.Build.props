@@ -3,10 +3,11 @@
         <TargetFramework>net11.0</TargetFramework>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
-        <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-        <EnableNETAnalyzers>True</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
         <WarningLevel>5</WarningLevel>
         <LangVersion>preview</LangVersion>
+        <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     </PropertyGroup>
 </Project>
