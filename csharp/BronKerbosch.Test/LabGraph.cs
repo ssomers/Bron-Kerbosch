@@ -16,10 +16,10 @@ namespace BronKerbosch.Test
                                  .ToImmutableArray();
             Graph = new UndirectedGraph<TVertexSet, TVertexSetMgr>(adjacencies2);
         }
-
     }
 
-    // Separate class because we want to avoid specifying the template arguments everywhere by inheriting,
+    // Separate class because we want to inherit all graphs
+    // without having to specify the template arguments each time,
     // but we don't want to inherit the LabGraph constructor.
     public class LabGraphs<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>

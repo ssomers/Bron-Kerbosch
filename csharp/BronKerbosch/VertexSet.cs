@@ -41,7 +41,7 @@ namespace BronKerbosch
     {
         public static string Name() => "HashSet";
         public static HashSet<Vertex> Empty() => [];
-        public static HashSet<Vertex> EmptyWithCapacity(int capacity) => new(capacity: capacity);
+        public static HashSet<Vertex> EmptyWithCapacity(int capacity) => [with(capacity: capacity)];
         public static HashSet<Vertex> From(IEnumerable<Vertex> vertices) => [.. vertices];
         public static (HashSet<Vertex>, HashSet<Vertex>) Partition(IEnumerable<Vertex> vertices, Predicate<Vertex> isFirst)
         {
@@ -58,7 +58,7 @@ namespace BronKerbosch
 
         public static HashSet<Vertex> Difference(HashSet<Vertex> s1, HashSet<Vertex> s2)
         {
-            HashSet<Vertex> result = new(capacity: s1.Count);
+            HashSet<Vertex> result = [with(capacity: s1.Count)];
             foreach (Vertex v in s1)
             {
                 if (!s2.Contains(v))
@@ -76,7 +76,7 @@ namespace BronKerbosch
             if (s1.Count > s2.Count)
                 (s1, s2) = (s2, s1);
 
-            HashSet<Vertex> result = new(capacity: s1.Count);
+            HashSet<Vertex> result = [with(capacity: s1.Count)];
             foreach (var v in s1)
             {
                 if (s2.Contains(v))
@@ -103,7 +103,7 @@ namespace BronKerbosch
 
         public static HashSet<Vertex> Intersection(HashSet<Vertex> s1, bool[] s2)
         {
-            HashSet<Vertex> result = new(capacity: s1.Count);
+            HashSet<Vertex> result = [with(capacity: s1.Count)];
             foreach (var v in s1)
             {
                 if (s2[v.Index()])
