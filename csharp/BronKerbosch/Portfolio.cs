@@ -17,30 +17,33 @@ namespace BronKerbosch
 
         public static bool Deterministic(int funcIndex) => funcIndex < 6;
 
-        public static void Explore<TVertexSet, TVertexSetMgr>(
+        public static void Explore<TVertexSet, TVertexSetMgr, TAccumulator>(
                 int funcIndex,
                 UndirectedGraph<TVertexSet, TVertexSetMgr> graph,
-                ICliqueConsumer consumer)
+                int minCliqueSize,
+                TAccumulator accumulator)
             where TVertexSet : ISet<Vertex>
             where TVertexSetMgr : IVertexSetMgr<TVertexSet>
+            where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
         {
+            var consumer = new CliqueConsumer<TAccumulator>(minCliqueSize, accumulator);
             switch (funcIndex)
             {
-                case 0: BronKerbosch1<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 1: BronKerbosch2aGP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 2: BronKerbosch2bGP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr>.Explore(graph, consumer); break;
-                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 1); break;
-                case 7: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 4); break;
-                case 8: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 5); break;
-                case 9: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 6); break;
-                case 10: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 8); break;
-                case 11: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 16); break;
-                case 12: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 64); break;
-                case 13: BronKerbosch3MT<TVertexSet, TVertexSetMgr>.Explore(graph, consumer, 256); break;
-                default: throw new ArgumentException("unknown func_index");
+                case 0: BronKerbosch1<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 1: BronKerbosch2aGP<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 2: BronKerbosch2bGP<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 3: BronKerbosch2bGPX<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 4: BronKerbosch3GP<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 5: BronKerbosch3GPX<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, consumer); break;
+                case 6: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 1); break;
+                case 7: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 4); break;
+                case 8: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 5); break;
+                case 9: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 6); break;
+                case 10: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 8); break;
+                case 11: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 16); break;
+                case 12: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 64); break;
+                case 13: BronKerbosch3MT<TVertexSet, TVertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize, accumulator, 256); break;
+                default: throw new ArgumentException($"unknown {nameof(funcIndex)}");
             }
         }
 

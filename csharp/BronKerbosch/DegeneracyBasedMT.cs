@@ -8,9 +8,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks.Dataflow;
 
-internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr>
+internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
     private sealed record VisitJob(Vertex StartVtx, VertexSet NeighbouringCandidates,
                                                     VertexSet NeighbouringExcluded)
@@ -22,9 +23,9 @@ internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr>
         var degeneracy = new Degeneracy<VertexSet, VertexSetMgr>(graph);
         foreach (Vertex v in degeneracy.Iter())
         {
-            var neighbours = graph.Neighbours(v);
+            VertexSet neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var (neighbouringCandidates, neighbouringExcluded) =
+            (VertexSet neighbouringCandidates, VertexSet neighbouringExcluded) =
                 VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
             Debug.Assert(neighbouringCandidates.Any());
             yield return new VisitJob(v, neighbouringCandidates, neighbouringExcluded);
@@ -32,29 +33,32 @@ internal static class DegeneracyBasedMT<VertexSet, VertexSetMgr>
     }
 
     // Step 2: visit vertices.
-    private static ICliqueConsumer Step2(UndirectedGraph<VertexSet, VertexSetMgr> graph,
-                                         ICliqueConsumer threadConsumer,
-                                         PivotChoice pivotChoice,
-                                         VisitJob job)
+    private static TAccumulator Step2(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                                      int minCliqueSize,
+                                      PivotChoice pivotChoice,
+                                      VisitJob job)
     {
-        Pivot<VertexSet, VertexSetMgr>.Visit(graph, threadConsumer, pivotChoice,
+        TAccumulator threadAccumulator = new();
+        CliqueConsumer<TAccumulator> threadConsumer = new(minCliqueSize, threadAccumulator);
+        Pivot<VertexSet, VertexSetMgr, TAccumulator>.Visit(graph, threadConsumer, pivotChoice,
                                              job.NeighbouringCandidates,
                                              job.NeighbouringExcluded,
                                              [job.StartVtx]);
-        return threadConsumer;
+        return threadAccumulator;
     }
 
 
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
-                               ICliqueConsumer mainConsumer,
+                               int minCliqueSize,
+                               TAccumulator mainStorage,
                                PivotChoice pivotChoice,
                                int maxDegreeOfParallelism)
     {
         var starter = new TransformManyBlock<UndirectedGraph<VertexSet, VertexSetMgr>, VisitJob>(Step1);
-        var spawner = new TransformBlock<VisitJob, ICliqueConsumer>(
-            job => Step2(graph, mainConsumer.StartNew(), pivotChoice, job),
+        var spawner = new TransformBlock<VisitJob, TAccumulator>(
+            job => Step2(graph, minCliqueSize, pivotChoice, job),
             new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism });
-        var gatherer = new ActionBlock<ICliqueConsumer>(mainConsumer.Absorb);
+        var gatherer = new ActionBlock<TAccumulator>(mainStorage.Absorb);
         var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
         _ = starter.LinkTo(spawner, linkOptions);
         _ = spawner.LinkTo(gatherer, linkOptions);

@@ -45,10 +45,10 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
                     int secs = warnings * warning_interval / 1000;
                     Console.WriteLine($"  {secs} seconds in, {Portfolio.FuncNames[funcIndex]} is still busy collecting");
                 }, state: null, dueTime: warning_interval, period: warning_interval);
-                CliqueCollector consumer = new(MIN_CLIQUE_SIZE);
-                Portfolio.Explore(funcIndex, graph.Graph, consumer);
+                var collector = new CliqueCollector();
+                Portfolio.Explore(funcIndex, graph.Graph, MIN_CLIQUE_SIZE, collector);
                 ticker.Dispose();
-                var result = consumer.Cliques;
+                var result = collector.Cliques;
                 Portfolio.SortCliques(result);
                 if (firstResult == null)
                 {
@@ -66,12 +66,12 @@ static SampleStatistics[] BronKerboschTimed<VertexSet, VertexSetMgr>(
             }
             else
             {
-                CliqueCounter consumer = new(MIN_CLIQUE_SIZE);
+                var counter = new CliqueCounter();
                 sw.Restart();
-                Portfolio.Explore(funcIndex, graph.Graph, consumer);
+                Portfolio.Explore(funcIndex, graph.Graph, MIN_CLIQUE_SIZE, counter);
                 sw.Stop();
                 var secs = sw.ElapsedMilliseconds / 1e3;
-                Debug.Assert(consumer.Cliques == firstResult!.Count);
+                Debug.Assert(counter.Cliques == firstResult!.Count);
                 times[funcIndex].Put(secs);
             }
         }

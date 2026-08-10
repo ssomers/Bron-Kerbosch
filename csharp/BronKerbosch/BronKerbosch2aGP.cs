@@ -4,16 +4,18 @@ using BronKerbosch;
 using System.Collections.Generic;
 using System.Linq;
 
-internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr>
+internal static class BronKerbosch2aGP<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                               CliqueConsumer<TAccumulator> consumer)
     {
-        var candidates = VertexSetMgr.From(graph.ConnectedVertices());
+        VertexSet candidates = VertexSetMgr.From(graph.ConnectedVertices());
         if (candidates.Any())
         {
-            Pivot<VertexSet, VertexSetMgr>.Visit(
+            Pivot<VertexSet, VertexSetMgr, TAccumulator>.Visit(
                 graph,
                 consumer,
                 PivotChoice.MaxDegreeLocal,

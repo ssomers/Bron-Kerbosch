@@ -6,20 +6,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-internal static class DegeneracyBased<VertexSet, VertexSetMgr>
+internal static class DegeneracyBased<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice pivotChoice)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                               CliqueConsumer<TAccumulator> consumer,
+                               PivotChoice pivotChoice)
     {
         var degeneracy = new Degeneracy<VertexSet, VertexSetMgr>(graph);
         foreach (Vertex v in degeneracy.Iter())
         {
-            var neighbours = graph.Neighbours(v);
+            VertexSet neighbours = graph.Neighbours(v);
             Debug.Assert(neighbours.Any());
-            var (neighbouringCandidates, neighbouringExcluded) = VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
+            (VertexSet neighbouringCandidates, VertexSet neighbouringExcluded) =
+                VertexSetMgr.Partition(neighbours, degeneracy.IsCandidate);
             Debug.Assert(neighbouringCandidates.Any());
-            Pivot<VertexSet, VertexSetMgr>.Visit(graph, consumer, pivotChoice, neighbouringCandidates, neighbouringExcluded, [v]);
+            Pivot<VertexSet, VertexSetMgr, TAccumulator>.Visit(graph, consumer, pivotChoice,
+                                                               neighbouringCandidates,
+                                                               neighbouringExcluded, [v]);
         }
     }
 }

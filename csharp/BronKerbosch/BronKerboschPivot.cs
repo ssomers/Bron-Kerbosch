@@ -13,11 +13,14 @@ namespace BronKerbosch
         MaxDegreeLocalX
     }
 
-    internal static class Pivot<VertexSet, VertexSetMgr>
+    internal static class Pivot<VertexSet, VertexSetMgr, TAccumulator>
         where VertexSet : ISet<Vertex>
         where VertexSetMgr : IVertexSetMgr<VertexSet>
+        where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
     {
-        public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice pivotChoice)
+        public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                                   CliqueConsumer<TAccumulator> consumer,
+                                   PivotChoice pivotChoice)
         {
             var order = graph.Order;
             if (order == 0)
@@ -30,13 +33,14 @@ namespace BronKerbosch
             var excluded = new bool[order];
             foreach (Vertex v in Enumerable.Range(0, order).Select(Vertex.Nth))
             {
-                var neighbours = graph.Neighbours(v);
+                VertexSet neighbours = graph.Neighbours(v);
                 if (neighbours.Any() && !neighbours.Contains(pivot))
                 {
-                    var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
+                    VertexSet neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
                     if (neighbouringExcluded.Count < neighbours.Count)
                     {
-                        var neighbouringCandidates = VertexSetMgr.Difference(neighbours, neighbouringExcluded);
+                        VertexSet neighbouringCandidates =
+                            VertexSetMgr.Difference(neighbours, neighbouringExcluded);
                         Visit(graph, consumer, pivotChoice,
                               neighbouringCandidates, neighbouringExcluded,
                               [v]);
@@ -47,7 +51,9 @@ namespace BronKerbosch
             }
         }
 
-        public static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer, PivotChoice choice,
+        public static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                                 CliqueConsumer<TAccumulator> consumer,
+                                 PivotChoice choice,
                                  VertexSet candidates, VertexSet excluded,
                                  ImmutableArray<Vertex> cliqueInProgress)
         {
@@ -59,7 +65,7 @@ namespace BronKerbosch
             {
                 // Same logic as below, stripped down
                 Vertex v = candidates.First();
-                var neighbours = graph.Neighbours(v);
+                VertexSet neighbours = graph.Neighbours(v);
                 if (consumer.IsAcceptedSize(cliqueInProgress.Length + 1) && !VertexSetMgr.Overlaps(neighbours, excluded))
                 {
                     consumer.Accept([.. cliqueInProgress, v]);
@@ -76,7 +82,7 @@ namespace BronKerbosch
             var seenLocalDegree = 0;
             foreach (Vertex v in candidates)
             {
-                var neighbours = graph.Neighbours(v);
+                VertexSet neighbours = graph.Neighbours(v);
                 var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
                 if (localDegree == 0)
                 {
@@ -107,7 +113,7 @@ namespace BronKerbosch
             {
                 foreach (Vertex v in excluded)
                 {
-                    var neighbours = graph.Neighbours(v);
+                    VertexSet neighbours = graph.Neighbours(v);
                     var localDegree = VertexSetMgr.IntersectionSize(neighbours, candidates);
                     if (seenLocalDegree < localDegree)
                     {
@@ -120,16 +126,16 @@ namespace BronKerbosch
             for (var i = 0; i < remainingCandidateCount; ++i)
             {
                 Vertex v = remainingCandidates[i];
-                var neighbours = graph.Neighbours(v);
+                VertexSet neighbours = graph.Neighbours(v);
                 Debug.Assert(neighbours.Any());
                 if (!neighbours.Contains(pivot))
                 {
                     var removed = VertexSetMgr.Remove(candidates, v);
                     Debug.Assert(removed);
-                    var neighbouringCandidates = VertexSetMgr.Intersection(neighbours, candidates);
+                    VertexSet neighbouringCandidates = VertexSetMgr.Intersection(neighbours, candidates);
                     if (neighbouringCandidates.Any())
                     {
-                        var neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
+                        VertexSet neighbouringExcluded = VertexSetMgr.Intersection(neighbours, excluded);
                         Visit(graph, consumer, choice,
                               neighbouringCandidates, neighbouringExcluded,
                               [.. cliqueInProgress, v]);

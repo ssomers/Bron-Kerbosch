@@ -5,16 +5,19 @@
 using BronKerbosch;
 using System.Collections.Generic;
 
-internal static class BronKerbosch3MT<VertexSet, VertexSetMgr>
+internal static class BronKerbosch3MT<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
 #   pragma warning disable IDE0022 // Use expression body for method
     public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
-                               ICliqueConsumer consumer, int maxDegreeOfParallelism)
+                               int minCliqueSize, TAccumulator mainStorage,
+                               int maxDegreeOfParallelism)
     {
-        DegeneracyBasedMT<VertexSet, VertexSetMgr>.Explore(graph, consumer,
-                                                           PivotChoice.MaxDegreeLocal,
-                                                           maxDegreeOfParallelism);
+        DegeneracyBasedMT<VertexSet, VertexSetMgr, TAccumulator>.Explore(graph, minCliqueSize,
+                                                                         mainStorage,
+                                                                         PivotChoice.MaxDegreeLocal,
+                                                                         maxDegreeOfParallelism);
     }
 }

@@ -6,11 +6,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-internal static class BronKerbosch1<VertexSet, VertexSetMgr>
+internal static class BronKerbosch1<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                               CliqueConsumer<TAccumulator> consumer)
     {
         VertexSet candidates = VertexSetMgr.From(graph.ConnectedVertices());
         if (candidates.Count > 0)
@@ -25,8 +27,10 @@ internal static class BronKerbosch1<VertexSet, VertexSetMgr>
     }
 
 
-    private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer,
-        VertexSet candidates, VertexSet excluded, ImmutableArray<Vertex> cliqueInProgress)
+    private static void Visit(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                              CliqueConsumer<TAccumulator> consumer,
+                              VertexSet candidates, VertexSet excluded,
+                              ImmutableArray<Vertex> cliqueInProgress)
     {
         Debug.Assert(candidates.All(graph.HasNeighbours));
         Debug.Assert(excluded.All(graph.HasNeighbours));

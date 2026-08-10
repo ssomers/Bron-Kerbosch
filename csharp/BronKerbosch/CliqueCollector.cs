@@ -1,20 +1,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace BronKerbosch
 {
-    public sealed class CliqueCollector(int min_size) : ICliqueConsumer
+    public sealed class CliqueCollector : ICliqueAccumulator<CliqueCollector>
     {
-        public List<ImmutableArray<Vertex>> Cliques { get; } = [];
+        public List<ImmutableArray<Vertex>> Cliques { get; private set; } = [];
 
-        public bool IsAcceptedSize(int size) => size >= min_size;
-        public void Accept(ImmutableArray<Vertex> clique)
-        {
-            Debug.Assert(clique.Length >= min_size);
-            Cliques.Add(clique);
-        }
-        public ICliqueConsumer StartNew() => new CliqueCollector(min_size);
-        public void Absorb(ICliqueConsumer other) => Cliques.AddRange(((CliqueCollector)other).Cliques);
+        public void Add(ImmutableArray<Vertex> clique) => Cliques.Add(clique);
+        public void Absorb(CliqueCollector spawned) => Cliques.AddRange(spawned.Cliques);
     }
 }

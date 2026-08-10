@@ -3,13 +3,16 @@
 using BronKerbosch;
 using System.Collections.Generic;
 
-internal static class BronKerbosch2bGPX<VertexSet, VertexSetMgr>
+internal static class BronKerbosch2bGPX<VertexSet, VertexSetMgr, TAccumulator>
     where VertexSet : ISet<Vertex>
     where VertexSetMgr : IVertexSetMgr<VertexSet>
+    where TAccumulator : ICliqueAccumulator<TAccumulator>, new()
 {
 #   pragma warning disable IDE0022 // Use expression body for method
-    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph, ICliqueConsumer consumer)
+    public static void Explore(UndirectedGraph<VertexSet, VertexSetMgr> graph,
+                               CliqueConsumer<TAccumulator> consumer)
     {
-        Pivot<VertexSet, VertexSetMgr>.Explore(graph, consumer, PivotChoice.MaxDegreeLocalX);
+        Pivot<VertexSet, VertexSetMgr, TAccumulator>.Explore(graph, consumer,
+                                                             PivotChoice.MaxDegreeLocalX);
     }
 }

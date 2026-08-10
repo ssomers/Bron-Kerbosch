@@ -20,9 +20,9 @@ namespace BronKerbosch.Test
                     : 11; // we also have 9 versions, each differing only by thread count
                 for (int t = 0; t < tries; ++t)
                 {
-                    var consumer = new CliqueCollector(2);
-                    Portfolio.Explore(funcIndex, g.Graph, consumer);
-                    var result = consumer.Cliques;
+                    var collector = new CliqueCollector();
+                    Portfolio.Explore(funcIndex, g.Graph, minCliqueSize: 2, collector);
+                    var result = collector.Cliques;
                     Assert.That(result.Count, Is.EqualTo(expectedCliques2.Length));
                     Portfolio.SortCliques(result);
                     foreach ((var reportedClique, var i) in result.Select((v, i) => (v, i)))
