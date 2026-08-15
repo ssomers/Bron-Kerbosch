@@ -2,45 +2,39 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 #else
-#   pragma warning disable CA1822 // Mark members as static
+using System;
 #endif
 
 namespace BronKerbosch
 {
-    // Tracks the coming and going of elements in debug builds only.
+    // Tracks the coming and going of elements in debug builds only,
+    // geared towards FortifiedCounter<T>.
     public sealed class DebugOnlyTracker<T>
     {
 #if DEBUG
-        private readonly HashSet<T> itsLeftToPick = [];
-#endif
+        private readonly HashSet<T> itsElements = [];
 
-#if DEBUG
-        public int Count => itsLeftToPick.Count;
-#else
-        public int Count => throw new System.NotImplementedException("Debug build only, please");
-#endif
+        public bool Contains(T element) => itsElements.Contains(element);
 
-
-#if DEBUG
-        public bool Contains(T element) => itsLeftToPick.Contains(element);
-#else
-        public bool Contains(T element) => throw new System.NotImplementedException("Debug build only, please");
-#endif
-
-        public void Add(T element)
+        // Returns the number of elements added and not yet removed.
+        public int Add(T element)
         {
-#if DEBUG
-            bool added = itsLeftToPick.Add(element);
+            bool added = itsElements.Add(element);
             Debug.Assert(added);
-#endif
+            return itsElements.Count;
         }
 
-        public void Remove(T element)
+        // Returns the number of elements added and not yet removed.
+        public int Remove(T element)
         {
-#if DEBUG
-            bool removed = itsLeftToPick.Remove(element);
+            bool removed = itsElements.Remove(element);
             Debug.Assert(removed);
-#endif
+            return itsElements.Count;
         }
+#else
+        public bool Contains(T _) => throw new NotImplementedException("Debug build only, please");
+        public int Add(T _) => throw new NotImplementedException("Debug build only, please");
+        public int Remove(T _) => throw new NotImplementedException("Debug build only, please");
+#endif
     }
 }

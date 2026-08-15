@@ -14,16 +14,14 @@ namespace BronKerbosch
         public void Add(T element)
         {
             Count += 1;
-            Tracker.Add(element);
-            Debug.Assert(Count == Tracker.Count);
+            Debug.Assert(Count == Tracker.Add(element));
         }
 
         public void Remove(T element)
         {
             Count -= 1;
             Trace.Assert(Count >= 0);
-            Tracker.Remove(element);
-            Debug.Assert(Count == Tracker.Count);
+            Debug.Assert(Count == Tracker.Remove(element));
         }
     }
 }
