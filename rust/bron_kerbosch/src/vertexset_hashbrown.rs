@@ -1,7 +1,7 @@
 use crate::{Vertex, VertexMap, VertexSetLike};
-
 use hashbrown::HashSet;
-use rand::{Rng, seq::IteratorRandom};
+use rand::Rng;
+use rand::seq::IteratorRandom;
 
 impl VertexSetLike for HashSet<Vertex> {
     fn new() -> Self {

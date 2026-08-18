@@ -1,5 +1,4 @@
-use super::vertex::{Vertex, VertexMap};
-use super::vertexsetlike::VertexSetLike;
+use crate::{Vertex, VertexMap, VertexSetLike};
 use std::ops::Not;
 
 pub type Adjacencies<VertexSet> = VertexMap<VertexSet>;

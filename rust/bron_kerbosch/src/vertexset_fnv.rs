@@ -1,7 +1,7 @@
 use crate::{Vertex, VertexMap, VertexSetLike};
-
 use fnv::{FnvBuildHasher, FnvHashSet};
-use rand::{Rng, seq::IteratorRandom};
+use rand::Rng;
+use rand::seq::IteratorRandom;
 
 impl VertexSetLike for FnvHashSet<Vertex> {
     fn new() -> Self {

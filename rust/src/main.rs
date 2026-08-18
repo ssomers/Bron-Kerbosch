@@ -1,16 +1,15 @@
 mod known_random_graph;
 mod utils;
 
-use bron_kerbosch::clique_consumers::{CliqueCollector, CliqueCounter};
 use bron_kerbosch::{
-    NUM_FUNCS, OrderedCliques, Vertex, VertexSetLike, algo_explore, algo_name, order_cliques,
+    CliqueCollector, CliqueCounter, NUM_FUNCS, OrderedCliques, Vertex, VertexSetLike, algo_explore,
+    algo_name, order_cliques,
 };
-use known_random_graph::{Size, read_undirected};
-use stats::SampleStatistics;
-
 use clap::{arg, command};
 use fnv::FnvHashSet;
 use itertools::Itertools;
+use known_random_graph::{Size, read_undirected};
+use stats::SampleStatistics;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::File;
 use std::iter::once;
@@ -87,9 +86,9 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
         for &func_index in func_indices {
             let func_name = algo_name(func_index);
             if sample == 0 {
-                let consumer = CliqueCollector::new(CLIQUE_MIN_SIZE);
+                let collector = CliqueCollector::default();
                 let cliques = utils::do_timely(
-                    || algo_explore(func_index, &graph, consumer),
+                    || algo_explore(func_index, &graph, CLIQUE_MIN_SIZE, collector),
                     format!("{} is still busy collecting", func_name),
                 );
                 let current = order_cliques(cliques.into_iter());
@@ -119,9 +118,9 @@ fn bron_kerbosch_timed<VertexSet: VertexSetLike + Clone + Sync>(
                     first = Some(current);
                 }
             } else {
-                let consumer = CliqueCounter::new(CLIQUE_MIN_SIZE);
+                let counter = CliqueCounter::default();
                 let instant = Instant::now();
-                let clique_count = algo_explore(func_index, &graph, consumer);
+                let clique_count = algo_explore(func_index, &graph, CLIQUE_MIN_SIZE, counter);
                 let secs: Seconds = instant.elapsed().as_secs_f32();
                 if let Some(known_clique_count) = known_clique_count
                     && clique_count != known_clique_count

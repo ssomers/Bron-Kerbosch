@@ -1,10 +1,8 @@
 //! Core of Bron-Kerbosch algorithms with pivot
 
 use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
 use super::pile::Pile;
-use super::vertex::{Vertex, VertexMap};
-use super::vertexsetlike::VertexSetLike;
+use crate::{CliqueAccumulator, Graph, Vertex, VertexMap, VertexSetLike};
 use std::ops::Not;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -17,16 +15,21 @@ pub enum PivotChoice {
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
 
-pub fn explore_with_pivot<VertexSet, Consumer>(
+pub fn explore_with_pivot<VertexSet, Accumulator>(
     graph: &Graph<VertexSet>,
-    mut consumer: Consumer,
+    min_clique_size: usize,
+    mut accumulator: Accumulator,
     pivot_selection: PivotChoice,
-) -> Consumer::Harvest
+) -> Accumulator::Harvest
 where
     VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
+    Accumulator: CliqueAccumulator,
 {
     if let Some(pivot) = graph.max_degree_vertices().next() {
+        let mut consumer = CliqueConsumer {
+            min_clique_size,
+            accu: &mut accumulator,
+        };
         let mut excluded = VertexMap::new(false, graph.order());
         for v in graph.vertices() {
             let neighbours = graph.neighbours(v);
@@ -51,19 +54,19 @@ where
             }
         }
     }
-    consumer.harvest()
+    accumulator.harvest()
 }
 
-pub fn visit<VertexSet, Consumer>(
+pub fn visit<VertexSet, Accumulator>(
     graph: &Graph<VertexSet>,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer<Accumulator>,
     pivot_selection: PivotChoice,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
+    Accumulator: CliqueAccumulator,
 {
     debug_assert!(candidates.all(|&v| graph.is_connected(v)));
     debug_assert!(excluded.all(|&v| graph.is_connected(v)));
@@ -73,7 +76,7 @@ pub fn visit<VertexSet, Consumer>(
         // Same logic as below, but stripped down for this common case
         candidates.for_each(|v| {
             let neighbours = graph.neighbours(v);
-            if clique_in_progress.height + 1 >= consumer.min_size()
+            if clique_in_progress.height + 1 >= consumer.min_clique_size
                 && neighbours.is_disjoint(&excluded)
             {
                 let clique = clique_in_progress.pile(v);
@@ -94,7 +97,7 @@ pub fn visit<VertexSet, Consumer>(
                 let local_degree = neighbours.intersection(&candidates).count();
                 if local_degree == 0 {
                     // Same logic as below, but stripped down
-                    if clique_in_progress.height + 1 >= consumer.min_size()
+                    if clique_in_progress.height + 1 >= consumer.min_clique_size
                         && neighbours.is_disjoint(&excluded)
                     {
                         let clique = clique_in_progress.pile(v);
@@ -151,7 +154,7 @@ pub fn visit<VertexSet, Consumer>(
                     neighbouring_excluded,
                     &clique_in_progress.pile(v),
                 );
-            } else if clique_in_progress.height + 1 >= consumer.min_size()
+            } else if clique_in_progress.height + 1 >= consumer.min_clique_size
                 && excluded.is_disjoint(neighbours)
             {
                 let clique = clique_in_progress.pile(v);

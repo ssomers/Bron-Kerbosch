@@ -1,5 +1,4 @@
 use crate::{Vertex, VertexSetLike};
-
 use fnv::FnvHashSet;
 use std::collections::{BTreeSet, HashSet};
 

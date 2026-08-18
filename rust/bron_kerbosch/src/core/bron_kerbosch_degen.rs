@@ -1,22 +1,25 @@
 //! Core of Bron-Kerbosch algorithms using degeneracy ordering.
 
-pub use super::bron_kerbosch_pivot::PivotChoice;
-use super::bron_kerbosch_pivot::visit;
+use super::bron_kerbosch_pivot::{PivotChoice, visit};
 use super::clique_consumer::CliqueConsumer;
 use super::degeneracy::Degeneracy;
-use super::graph::Graph;
 use super::pile::Pile;
-use super::vertexsetlike::VertexSetLike;
+use crate::{CliqueAccumulator, Graph, VertexSetLike};
 
-pub fn explore_with_degeneracy<VertexSet, Consumer>(
+pub fn explore_with_degeneracy<VertexSet, Accumulator>(
     graph: &Graph<VertexSet>,
-    mut consumer: Consumer,
+    min_clique_size: usize,
+    mut accumulator: Accumulator,
     pivot_selection: PivotChoice,
-) -> Consumer::Harvest
+) -> Accumulator::Harvest
 where
     VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
+    Accumulator: CliqueAccumulator,
 {
+    let mut consumer = CliqueConsumer {
+        min_clique_size,
+        accu: &mut accumulator,
+    };
     Degeneracy::on(graph).apply(|v, attorney| {
         let (neighbouring_candidates, neighbouring_excluded) = attorney.partition_neighbours(v);
         visit(
@@ -28,5 +31,5 @@ where
             &Pile::from(v),
         );
     });
-    consumer.harvest()
+    accumulator.harvest()
 }

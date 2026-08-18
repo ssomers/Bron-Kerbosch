@@ -1,11 +1,9 @@
 //! Bron-Kerbosch algorithm with pivot picked randomly (IK_RP)
 
-use super::algorithm::BronKerboschAlgorithm;
 use super::bron_kerbosch_pivot::{PivotChoice, visit};
 use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
 use super::pile::Pile;
-use super::vertexsetlike::VertexSetLike;
+use crate::{BronKerboschAlgorithm, CliqueAccumulator, Graph, VertexSetLike};
 use std::ops::Not;
 
 pub struct Algo();
@@ -18,16 +16,21 @@ impl BronKerboschAlgorithm for Algo {
         false
     }
 
-    fn explore<VertexSet, Consumer>(
+    fn explore<VertexSet, Accumulator>(
         graph: &Graph<VertexSet>,
-        mut consumer: Consumer,
-    ) -> Consumer::Harvest
+        min_clique_size: usize,
+        mut accumulator: Accumulator,
+    ) -> Accumulator::Harvest
     where
         VertexSet: VertexSetLike,
-        Consumer: CliqueConsumer,
+        Accumulator: CliqueAccumulator,
     {
         let candidates: VertexSet = graph.connected_vertices().collect();
         if candidates.is_empty().not() {
+            let mut consumer = CliqueConsumer {
+                min_clique_size,
+                accu: &mut accumulator,
+            };
             visit(
                 graph,
                 &mut consumer,
@@ -37,6 +40,6 @@ impl BronKerboschAlgorithm for Algo {
                 &Pile::EMPTY,
             );
         }
-        consumer.harvest()
+        accumulator.harvest()
     }
 }

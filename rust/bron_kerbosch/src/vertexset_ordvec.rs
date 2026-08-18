@@ -1,5 +1,6 @@
 use crate::{Vertex, VertexMap, VertexSetLike};
-use rand::{Rng, prelude::IndexedRandom};
+use rand::Rng;
+use rand::prelude::IndexedRandom;
 use std::ops::Not;
 
 fn ordered<'a>(a: &'a Vec<Vertex>, b: &'a Vec<Vertex>) -> (&'a Vec<Vertex>, &'a Vec<Vertex>) {

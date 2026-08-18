@@ -1,6 +1,6 @@
 use crate::{Vertex, VertexMap, VertexSetLike};
-
-use rand::{Rng, seq::IteratorRandom};
+use rand::Rng;
+use rand::seq::IteratorRandom;
 use std::collections::HashSet;
 
 #[allow(clippy::implicit_hasher)]

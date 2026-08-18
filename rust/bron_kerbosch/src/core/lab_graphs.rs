@@ -1,8 +1,4 @@
-use crate::VertexSetLike;
-
-use super::clique_ordering::OrderedCliques;
-use super::graph::Graph;
-use super::vertex::Vertex;
+use crate::{Graph, OrderedCliques, Vertex, VertexSetLike};
 
 pub struct LabGraph<VertexSet: VertexSetLike> {
     pub name: &'static str,

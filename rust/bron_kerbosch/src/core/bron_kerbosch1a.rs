@@ -1,10 +1,7 @@
 //! Naive Bron-Kerbosch algorithm
 
-use super::algorithm::BronKerboschAlgorithm;
-use super::clique::Clique;
 use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
-use super::vertexsetlike::VertexSetLike;
+use crate::{BronKerboschAlgorithm, Clique, CliqueAccumulator, Graph, VertexSetLike};
 use std::ops::Not;
 
 pub struct Algo();
@@ -13,16 +10,21 @@ impl BronKerboschAlgorithm for Algo {
         String::from("Ver1")
     }
 
-    fn explore<VertexSet, Consumer>(
+    fn explore<VertexSet, Accumulator>(
         graph: &Graph<VertexSet>,
-        mut consumer: Consumer,
-    ) -> Consumer::Harvest
+        min_clique_size: usize,
+        mut accumulator: Accumulator,
+    ) -> Accumulator::Harvest
     where
         VertexSet: VertexSetLike,
-        Consumer: CliqueConsumer,
+        Accumulator: CliqueAccumulator,
     {
         let candidates: VertexSet = graph.connected_vertices().collect();
         if candidates.is_empty().not() {
+            let mut consumer = CliqueConsumer {
+                min_clique_size,
+                accu: &mut accumulator,
+            };
             visit(
                 graph,
                 &mut consumer,
@@ -31,26 +33,26 @@ impl BronKerboschAlgorithm for Algo {
                 Clique::EMPTY,
             );
         }
-        consumer.harvest()
+        accumulator.harvest()
     }
 }
 
-fn visit<VertexSet, Consumer>(
+fn visit<VertexSet, Accumulator>(
     graph: &Graph<VertexSet>,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer<Accumulator>,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: Clique,
 ) where
     VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
+    Accumulator: CliqueAccumulator,
 {
     debug_assert!(candidates.all(|&v| graph.is_connected(v)));
     debug_assert!(excluded.all(|&v| graph.is_connected(v)));
     debug_assert!(candidates.is_disjoint(&excluded));
 
     if candidates.is_empty() {
-        if excluded.is_empty() && clique_in_progress.len() >= consumer.min_size() {
+        if excluded.is_empty() && clique_in_progress.len() >= consumer.min_clique_size {
             consumer.accept(clique_in_progress);
         }
         return;

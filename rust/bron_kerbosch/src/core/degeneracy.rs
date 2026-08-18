@@ -1,9 +1,6 @@
 use super::fortified_counter::FortifiedCounter;
-use super::graph::Graph;
-use super::priority_queue::Priority;
-use super::priority_queue::PriorityQueue;
-use super::vertex::{Vertex, VertexMap};
-use super::vertexsetlike::VertexSetLike;
+use super::priority_queue::{Priority, PriorityQueue};
+use crate::{Graph, Vertex, VertexMap, VertexSetLike};
 use std::ops::Not;
 
 // Enumerate connected vertices in degeneracy order, skipping vertices

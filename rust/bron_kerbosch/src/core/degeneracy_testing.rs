@@ -1,6 +1,5 @@
 use super::degeneracy::Degeneracy;
-use super::graph::Graph;
-use super::vertexsetlike::VertexSetLike;
+use crate::{Graph, VertexSetLike};
 
 pub fn test_degeneracy<VertexSet: VertexSetLike>(g: Graph<VertexSet>) {
     let connected: VertexSet = g.connected_vertices().collect();

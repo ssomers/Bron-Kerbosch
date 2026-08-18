@@ -1,4 +1,4 @@
-use super::clique::{Clique, Vertex};
+use crate::{Clique, Vertex};
 use std::collections::BTreeSet;
 
 pub type OrderedCliques = BTreeSet<BTreeSet<Vertex>>;

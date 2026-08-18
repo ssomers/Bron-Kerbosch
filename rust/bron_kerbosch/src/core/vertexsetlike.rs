@@ -1,5 +1,4 @@
-use super::vertex::{Vertex, VertexMap};
-
+use crate::{Vertex, VertexMap};
 use rand::Rng;
 use std::fmt::Debug;
 use std::iter::FromIterator;

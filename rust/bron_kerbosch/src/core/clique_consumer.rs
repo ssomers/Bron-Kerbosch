@@ -1,9 +1,13 @@
-use super::clique::Clique;
+use crate::{Clique, CliqueAccumulator};
 
-pub trait CliqueConsumer {
-    type Harvest;
-    fn min_size(&self) -> usize;
-    fn accept(&mut self, clique: Clique);
-    fn harvest(self) -> Self::Harvest;
-    fn combine(a: Self::Harvest, b: Self::Harvest) -> Self::Harvest;
+pub struct CliqueConsumer<'a, Accumulator: CliqueAccumulator> {
+    pub min_clique_size: usize,
+    pub accu: &'a mut Accumulator,
+}
+
+impl<'a, Accumulator: CliqueAccumulator> CliqueConsumer<'a, Accumulator> {
+    pub fn accept(&mut self, clique: Clique) {
+        debug_assert!(clique.len() >= self.min_clique_size);
+        self.accu.add(clique);
+    }
 }

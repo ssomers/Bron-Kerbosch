@@ -1,10 +1,8 @@
 use crate::Vertex;
 use crate::core::degeneracy_testing::test_degeneracy;
 use crate::graph_proptest_strategy::any_undirected_graph;
-
 use proptest::prelude::*;
-use std::collections::BTreeSet;
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 proptest! {
     #[test]

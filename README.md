@@ -282,7 +282,7 @@ In very sparse graphs, only `BTreeSet` allows Ver1 to scale up.
     (once) cargo install cargo-edit
     (sometimes) rustup update
     (sometimes) cargo upgrade && cargo update
-    (if edited) cargo fmt --all
+    (if edited) cargo +nightly fmt --all
     (if edited) cargo clippy --workspace --tests
     (if edited) cargo test --workspace
     cargo run --release

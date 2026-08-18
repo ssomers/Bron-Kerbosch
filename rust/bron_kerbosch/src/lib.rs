@@ -1,4 +1,4 @@
-pub mod clique_consumers;
+mod clique_accumulators;
 mod core;
 mod vertexset_btree;
 mod vertexset_fnv;
@@ -17,9 +17,10 @@ mod main_lab_tests;
 #[cfg(test)]
 mod vertexset_tests;
 
+pub use clique_accumulators::{CliqueCollector, CliqueCounter};
 pub use core::algorithm::BronKerboschAlgorithm;
 pub use core::clique::Clique;
-pub use core::clique_consumer::CliqueConsumer;
+pub use core::clique_accumulator::CliqueAccumulator;
 pub use core::clique_ordering::{OrderedCliques, order_cliques};
 pub use core::graph::{Adjacencies, Graph};
 pub use core::vertex::{Vertex, VertexMap};
@@ -60,16 +61,17 @@ pub fn algo_deterministic(func_index: usize) -> bool {
     algo_select!(func_index, deterministic, ())
 }
 
-pub fn algo_explore<VertexSet, Consumer>(
+pub fn algo_explore<VertexSet, Accumulator>(
     func_index: usize,
     graph: &Graph<VertexSet>,
-    consumer: Consumer,
-) -> Consumer::Harvest
+    min_clique_size: usize,
+    accumulator: Accumulator,
+) -> Accumulator::Harvest
 where
     VertexSet: VertexSetLike + Sync,
-    Consumer: CliqueConsumer + Clone + Send,
+    Accumulator: CliqueAccumulator + Clone + Send,
 {
-    algo_select!(func_index, explore, (graph, consumer))
+    algo_select!(func_index, explore, (graph, min_clique_size, accumulator))
 }
 
 #[test]

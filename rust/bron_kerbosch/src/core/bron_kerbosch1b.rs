@@ -1,11 +1,8 @@
 //! Naive Bron-Kerbosch algorithm, optimized
 
-use super::algorithm::BronKerboschAlgorithm;
 use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
 use super::pile::Pile;
-use super::vertex::Vertex;
-use super::vertexsetlike::VertexSetLike;
+use crate::{BronKerboschAlgorithm, CliqueAccumulator, Graph, Vertex, VertexSetLike};
 use std::ops::Not;
 
 type CliqueInProgress<'a> = Pile<'a, Vertex>;
@@ -16,17 +13,22 @@ impl BronKerboschAlgorithm for Algo {
         String::from("Ver1½")
     }
 
-    fn explore<VertexSet, Consumer>(
+    fn explore<VertexSet, Accumulator>(
         graph: &Graph<VertexSet>,
-        mut consumer: Consumer,
-    ) -> Consumer::Harvest
+        min_clique_size: usize,
+        mut accumulator: Accumulator,
+    ) -> Accumulator::Harvest
     where
         VertexSet: VertexSetLike,
-        Consumer: CliqueConsumer,
+        Accumulator: CliqueAccumulator,
     {
         let candidates: VertexSet = graph.connected_vertices().collect();
         let num_candidates = candidates.len();
         if num_candidates > 0 {
+            let mut consumer = CliqueConsumer {
+                min_clique_size,
+                accu: &mut accumulator,
+            };
             visit(
                 graph,
                 &mut consumer,
@@ -35,19 +37,19 @@ impl BronKerboschAlgorithm for Algo {
                 &Pile::EMPTY,
             );
         }
-        consumer.harvest()
+        accumulator.harvest()
     }
 }
 
-fn visit<VertexSet, Consumer>(
+fn visit<VertexSet, Accumulator>(
     graph: &Graph<VertexSet>,
-    consumer: &mut Consumer,
+    consumer: &mut CliqueConsumer<Accumulator>,
     mut candidates: VertexSet,
     mut excluded: VertexSet,
     clique_in_progress: &CliqueInProgress,
 ) where
     VertexSet: VertexSetLike,
-    Consumer: CliqueConsumer,
+    Accumulator: CliqueAccumulator,
 {
     debug_assert!(candidates.all(|&v| graph.is_connected(v)));
     debug_assert!(excluded.all(|&v| graph.is_connected(v)));
@@ -66,7 +68,7 @@ fn visit<VertexSet, Consumer>(
                 excluded.intersection(neighbours).copied().collect(),
                 &clique_in_progress.pile(v),
             );
-        } else if clique_in_progress.height + 1 >= consumer.min_size()
+        } else if clique_in_progress.height + 1 >= consumer.min_clique_size
             && excluded.is_disjoint(neighbours)
         {
             let clique = clique_in_progress.pile(v);

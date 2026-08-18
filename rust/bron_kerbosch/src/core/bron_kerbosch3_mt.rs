@@ -2,11 +2,9 @@
 //! choosing a pivot from candidates only (IK_GP)
 //! implemented by multiple threads
 
-use super::algorithm::BronKerboschAlgorithm;
-use super::bron_kerbosch_degen_mt::{PivotChoice, explore_with_degeneracy_mt};
-use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
-use super::vertexsetlike::VertexSetLike;
+use super::bron_kerbosch_degen_mt::explore_with_degeneracy_mt;
+use crate::core::bron_kerbosch_pivot::PivotChoice;
+use crate::{BronKerboschAlgorithm, CliqueAccumulator, Graph, VertexSetLike};
 
 pub struct Algo<const VISITING_THREADS: usize>();
 impl<const N: usize> BronKerboschAlgorithm for Algo<N> {
@@ -18,14 +16,21 @@ impl<const N: usize> BronKerboschAlgorithm for Algo<N> {
         false
     }
 
-    fn explore<VertexSet, Consumer>(
+    fn explore<VertexSet, Accumulator>(
         graph: &Graph<VertexSet>,
-        consumer: Consumer,
-    ) -> Consumer::Harvest
+        min_clique_size: usize,
+        accumulator: Accumulator,
+    ) -> Accumulator::Harvest
     where
         VertexSet: VertexSetLike + Sync,
-        Consumer: CliqueConsumer + Clone + Send,
+        Accumulator: CliqueAccumulator + Clone + Send,
     {
-        explore_with_degeneracy_mt(graph, consumer, PivotChoice::MaxDegreeLocal, N)
+        explore_with_degeneracy_mt(
+            graph,
+            min_clique_size,
+            accumulator,
+            PivotChoice::MaxDegreeLocal,
+            N,
+        )
     }
 }

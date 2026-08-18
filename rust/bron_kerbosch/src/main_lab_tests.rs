@@ -1,8 +1,7 @@
-use crate::clique_consumers::CliqueCollector;
+use crate::clique_accumulators::CliqueCollector;
 use crate::core::lab_graphs::all_lab_graphs;
 use crate::{NUM_FUNCS, VertexSetLike, algo_deterministic, algo_explore, algo_name, order_cliques};
-use std::collections::BTreeSet;
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 fn run_all<VertexSet: VertexSetLike + Sync>() {
     for func_index in 0..NUM_FUNCS {
@@ -14,7 +13,7 @@ fn run_all<VertexSet: VertexSetLike + Sync>() {
         };
         for td in all_lab_graphs::<VertexSet>() {
             for _ in 0..tries {
-                let cliques = algo_explore(func_index, &td.graph, CliqueCollector::new(2));
+                let cliques = algo_explore(func_index, &td.graph, 2, CliqueCollector::default());
                 let cliques = order_cliques(cliques.into_iter());
                 assert_eq!(cliques, td.cliques, "for {} on {}", func_name, td.name);
             }

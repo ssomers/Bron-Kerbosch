@@ -1,6 +1,4 @@
-use super::clique_consumer::CliqueConsumer;
-use super::graph::Graph;
-use super::vertexsetlike::VertexSetLike;
+use crate::{CliqueAccumulator, Graph, VertexSetLike};
 
 pub trait BronKerboschAlgorithm {
     fn name() -> String;
@@ -9,11 +7,12 @@ pub trait BronKerboschAlgorithm {
         true
     }
 
-    fn explore<VertexSet, Consumer>(
+    fn explore<VertexSet, Accumulator>(
         graph: &Graph<VertexSet>,
-        consumer: Consumer,
-    ) -> Consumer::Harvest
+        min_clique_size: usize,
+        accumulator: Accumulator,
+    ) -> Accumulator::Harvest
     where
         VertexSet: VertexSetLike + Sync,
-        Consumer: CliqueConsumer + Clone + Send;
+        Accumulator: CliqueAccumulator + Clone + Send;
 }

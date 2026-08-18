@@ -1,9 +1,7 @@
 use crate::VertexSetLike;
 use crate::core::degeneracy_testing::test_degeneracy;
 use crate::core::lab_graphs::all_lab_graphs;
-
-use std::collections::BTreeSet;
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 fn run_all<VertexSet: VertexSetLike>() {
     for td in all_lab_graphs::<VertexSet>() {

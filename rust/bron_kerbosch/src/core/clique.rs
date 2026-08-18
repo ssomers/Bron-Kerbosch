@@ -1,4 +1,4 @@
-pub use super::vertex::Vertex;
+use crate::Vertex;
 use std::collections::HashSet;
 use std::hash::Hash;
 use std::ops::Not;
