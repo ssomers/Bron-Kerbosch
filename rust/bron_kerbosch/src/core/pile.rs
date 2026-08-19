@@ -2,8 +2,8 @@ use std::iter::FusedIterator;
 
 /// Cheap & simple immutable stack data structure, of which the layers
 /// somehow live long enough (e.g. they are on the runtime stack).
-/// The only supported change is to add, and the only supported query is to
-/// convert to a vector.
+/// The only supported change is to add, and the only supported query
+/// is to iterate.
 pub struct Pile<'a, T> {
     pub height: usize,
     layers: Option<Layer<'a, T>>,
