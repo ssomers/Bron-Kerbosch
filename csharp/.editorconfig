@@ -12,6 +12,8 @@ insert_final_newline=true
 [*.cs]
 dotnet_analyzer_diagnostic.severity = error
 dotnet_diagnostic.CA1000.severity = suggestion
+dotnet_diagnostic.CA1002.severity = suggestion
+dotnet_diagnostic.CA1062.severity = none
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.IDE0007.severity = none
 dotnet_diagnostic.IDE0008.severity = suggestion

@@ -1,8 +1,9 @@
 using System;
+#pragma warning disable CA1815
 
 namespace BronKerboschStudy
 {
-    public struct SampleStatistics
+    internal struct SampleStatistics
     {
         public double Max { get; private set; }
         public double Min { get; private set; }

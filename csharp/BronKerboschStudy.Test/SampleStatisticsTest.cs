@@ -3,7 +3,7 @@ using System;
 
 namespace BronKerboschStudy.Test
 {
-    public class SampleStatisticsTests
+    internal class SampleStatisticsTests
     {
         [Test]
         public void Stats_0()

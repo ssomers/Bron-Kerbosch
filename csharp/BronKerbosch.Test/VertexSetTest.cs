@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace BronKerbosch.Test
 {
-    public class VertexSetHashTest : VertexSetTestTemplate<HashSet<Vertex>, HashSetMgr> { }
-    public class VertexSetSortedTest : VertexSetTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
+    internal class VertexSetHashTest : VertexSetTestTemplate<HashSet<Vertex>, HashSetMgr> { }
+    internal class VertexSetSortedTest : VertexSetTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
-    public class VertexSetTestTemplate<TVertexSet, TVertexSetMgr>
+    internal class VertexSetTestTemplate<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BronKerbosch.Test
 {
-    public class LabGraph<TVertexSet, TVertexSetMgr>
+    internal class LabGraph<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
@@ -21,7 +21,7 @@ namespace BronKerbosch.Test
     // Separate class because we want to inherit all graphs
     // without having to specify the template arguments each time,
     // but we don't want to inherit the LabGraph constructor.
-    public class LabGraphs<TVertexSet, TVertexSetMgr>
+    internal class LabGraphs<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {

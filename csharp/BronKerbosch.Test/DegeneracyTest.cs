@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace BronKerbosch.Test
 {
-    public class DegeneracyHashTest : DegeneracyTestTemplate<HashSet<Vertex>, HashSetMgr> { }
-    public class DegeneracySortedTest : DegeneracyTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
+    internal class DegeneracyHashTest : DegeneracyTestTemplate<HashSet<Vertex>, HashSetMgr> { }
+    internal class DegeneracySortedTest : DegeneracyTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
-    public class DegeneracyTestTemplate<TVertexSet, TVertexSetMgr> : LabGraphs<TVertexSet, TVertexSetMgr>
+    internal class DegeneracyTestTemplate<TVertexSet, TVertexSetMgr> : LabGraphs<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace BronKerbosch.Test
 {
-    public class UndirectedGraphHashTest : UndirectedGraphTestTemplate<HashSet<Vertex>, HashSetMgr> { }
-    public class UndirectedGraphSortedTest : UndirectedGraphTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
+    internal class UndirectedGraphHashTest : UndirectedGraphTestTemplate<HashSet<Vertex>, HashSetMgr> { }
+    internal class UndirectedGraphSortedTest : UndirectedGraphTestTemplate<SortedSet<Vertex>, SortedSetMgr> { }
 
-    public class UndirectedGraphTestTemplate<TVertexSet, TVertexSetMgr> : LabGraphs<TVertexSet, TVertexSetMgr>
+    internal class UndirectedGraphTestTemplate<TVertexSet, TVertexSetMgr> : LabGraphs<TVertexSet, TVertexSetMgr>
         where TVertexSet : ISet<Vertex>
         where TVertexSetMgr : IVertexSetMgr<TVertexSet>
     {
