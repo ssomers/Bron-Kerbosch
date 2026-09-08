@@ -5,8 +5,8 @@ authors = ["Stein Somers <git@steinsomers.be>"]
 edition = "2024"
 
 [dependencies]
-crossbeam = "0.8.4"
-crossbeam-channel = "0.5.16"
+crossbeam = "0.8.5"
+crossbeam-channel = "0.5.17"
 fnv = "1.0.7"
 hashbrown = "0.17.1"
 rand = "0.10.2"
