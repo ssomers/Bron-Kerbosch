@@ -9,7 +9,7 @@ crossbeam = "0.8.5"
 crossbeam-channel = "0.5.17"
 fnv = "1.0.7"
 hashbrown = "0.17.1"
-rand = "0.10.2"
+rand = "0.10.3"
 
 [dev-dependencies]
 proptest = "1.11.0"
